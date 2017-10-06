@@ -1,0 +1,34 @@
+test
+	manual make png
+
+retrieve all
+Create collection(s)
+retrieve by hash
+retrieve by name
+large files?
+raw png make
+finish help
+encrypt directly into image
+CA2232	Mark Windows Forms entry points with STAThread	Mark the entry point method 'Program.Main(string[])' in assembly with an STAThreadAttribute console application
+help details
+password readchars
+change password confirm for decode
+what to do when a file already exists?
+
+change app.config
+make new github account
+add to github
+
+	delete temp files	enc
+	delete temp files	png
+	set path when directory
+	no args
+	commands but no args
+	review encryption blocks
+	add test to encode and decode
+	add file format version
+	to png again
+	password command line arg
+	encrypt filename?
+390h
+FC 65
