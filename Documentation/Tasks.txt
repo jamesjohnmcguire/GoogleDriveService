@@ -34,3 +34,9 @@ add to github
 	encrypt filename?
 390h
 FC 65
+fix test script
+review faq & q and a
+find out how to download pictures
+find out how to download original
+find a way to map url/encoded filename with that of the original (for downloading)
+
