@@ -1,4 +1,5 @@
-﻿using System;
+﻿using BackupManagerLibrary;
+using System;
 
 namespace BackupManager
 {
@@ -6,7 +7,8 @@ namespace BackupManager
 	{
 		static void Main(string[] args)
 		{
-			Console.WriteLine("Hello World!");
+			Console.WriteLine("Backup Manager");
+			AccountsManager accounts = new AccountsManager();
 		}
 	}
 }
