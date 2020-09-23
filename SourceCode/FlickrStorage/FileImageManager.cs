@@ -5,7 +5,6 @@ using System.IO;
 using System.Runtime.InteropServices;
 using System.Security.Cryptography;
 using System.Text;
-using System.Windows.Forms;
 
 namespace FlickrBackup
 {
@@ -102,12 +101,6 @@ namespace FlickrBackup
 
 			while (false == verified)
 			{
-				bool isCapsLockToggled = Control.IsKeyLocked(Keys.CapsLock);
-
-				if (true == isCapsLockToggled)
-				{
-					Console.WriteLine("CAPS LOCK is ON");
-				}
 				Console.WriteLine("password:");
 
 				password = Console.ReadLine();
