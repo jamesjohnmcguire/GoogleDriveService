@@ -3,9 +3,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.30503.244
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FlickrStorage", "FlickrStorage\FlickrStorage.csproj", "{C738AB61-853A-4506-B966-83F2F63DDC1E}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FlickrStorage", "FlickrStorage\FlickrStorage.csproj", "{C738AB61-853A-4506-B966-83F2F63DDC1E}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BackupManager", "BackupManager\BackupManager.csproj", "{7D43EBE0-DBB6-4D2E-B884-0A8727E238B2}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BackupManager", "BackupManager\BackupManager.csproj", "{7D43EBE0-DBB6-4D2E-B884-0A8727E238B2}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
