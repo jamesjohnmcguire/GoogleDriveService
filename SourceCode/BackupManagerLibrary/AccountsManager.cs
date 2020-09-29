@@ -1,17 +1,19 @@
-﻿using Google.Apis.Drive.v3;
-using Google.Apis.Auth.OAuth2;
-using Google.Apis.Services;
-using System;
-using System.IO;
-using System.Security.Cryptography.X509Certificates;
-using System.Collections.Generic;
+﻿/////////////////////////////////////////////////////////////////////////////
+// <copyright file="AccountsManager.cs" company="James John McGuire">
+// Copyright © 2017 - 2020 James John McGuire. All Rights Reserved.
+// </copyright>
+/////////////////////////////////////////////////////////////////////////////
+
 using Newtonsoft.Json;
+using System;
+using System.Collections.Generic;
+using System.IO;
 
 namespace BackupManagerLibrary
 {
-	public class AccountsManager
+	public static class AccountsManager
 	{
-		public IList<Account> LoadAccounts()
+		public static IList<Account> LoadAccounts()
 		{
 			IList<Account> accounts = null;
 

@@ -2,8 +2,8 @@
   "$schema": "https://raw.githubusercontent.com/DotNetAnalyzers/StyleCopAnalyzers/master/StyleCop.Analyzers/StyleCop.Analyzers/Settings/stylecop.schema.json",
   "settings": {
     "documentationRules": {
-      "companyName": "Digital Zen Works",
-      "copyrightText": "Copyright © 2019 - 2020 {companyName}. All Rights Reserved.",
+      "companyName": "James John McGuire",
+      "copyrightText": "Copyright © 2017 - 2020 {companyName}. All Rights Reserved.",
       "xmlHeader": true,
       "fileNamingConvention": "metadata"
     },

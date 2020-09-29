@@ -1,24 +1,27 @@
-﻿using Common.Logging;
+﻿/////////////////////////////////////////////////////////////////////////////
+// <copyright file="Backup.cs" company="James John McGuire">
+// Copyright © 2017 - 2020 James John McGuire. All Rights Reserved.
+// </copyright>
+/////////////////////////////////////////////////////////////////////////////
+
+using Common.Logging;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Globalization;
 using System.IO;
-using System.Text;
 
 namespace BackupManagerLibrary
 {
-	public class Backup
+	public static class Backup
 	{
-		private static readonly ILog log = LogManager.GetLogger
-			(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
+		private static readonly ILog Log = LogManager.GetLogger(
+			System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
 
-		public void Run()
+		public static void Run()
 		{
-			AccountsManager accountManager = new AccountsManager();
-
-			IList<Account> accounts = accountManager.LoadAccounts();
+			IList<Account> accounts = AccountsManager.LoadAccounts();
 
 			if (accounts.Count > 0)
 			{
@@ -30,7 +33,6 @@ namespace BackupManagerLibrary
 
 					if (authenticated == true)
 					{
-
 					}
 				}
 			}
@@ -40,7 +42,7 @@ namespace BackupManagerLibrary
 		{
 			try
 			{
-				log.Info(CultureInfo.InvariantCulture, m => m(
+				Log.Info(CultureInfo.InvariantCulture, m => m(
 					"CustomInitialization"));
 				Process[] processes = Process.GetProcessesByName("outlook");
 
@@ -65,7 +67,7 @@ namespace BackupManagerLibrary
 
 					string[] files = System.IO.Directory.GetFiles(dataPath);
 
-					log.Info(CultureInfo.InvariantCulture, m => m(
+					Log.Info(CultureInfo.InvariantCulture, m => m(
 						"CustomInitialization: Copying files"));
 
 					foreach (string file in files)
@@ -78,7 +80,7 @@ namespace BackupManagerLibrary
 					}
 				}
 
-				Process outlook = new Process();
+				using Process outlook = new Process();
 				outlook.StartInfo.FileName = "outlook.exe";
 				outlook.Start();
 			}
@@ -90,7 +92,7 @@ namespace BackupManagerLibrary
 				exception is SystemException ||
 				exception is Win32Exception)
 			{
-				log.Error(CultureInfo.InvariantCulture, m => m(
+				Log.Error(CultureInfo.InvariantCulture, m => m(
 					exception.ToString()));
 			}
 		}

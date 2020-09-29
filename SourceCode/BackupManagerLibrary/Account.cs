@@ -1,21 +1,28 @@
-﻿using Newtonsoft.Json;
-using Google.Apis.Drive.v3;
+﻿/////////////////////////////////////////////////////////////////////////////
+// <copyright file="Account.cs" company="James John McGuire">
+// Copyright © 2017 - 2020 James John McGuire. All Rights Reserved.
+// </copyright>
+/////////////////////////////////////////////////////////////////////////////
+
 using Google.Apis.Auth.OAuth2;
+using Google.Apis.Drive.v3;
 using Google.Apis.Services;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Text;
 
 namespace BackupManagerLibrary
 {
-	public class Account
+	public class Account : IDisposable
 	{
 		private readonly IList<Directory> directories = new List<Directory>();
-		private DriveService service = null;
+		private DriveService service;
 
 		public string Email { get; set; }
+
 		public string ServiceAccount { get; set; }
+
 		public IList<Directory> Directories
 		{
 			get { return directories; }
@@ -24,7 +31,7 @@ namespace BackupManagerLibrary
 		/// <summary>
 		/// Authenticating to Google using a Service account
 		/// Documentation:
-		/// https://developers.google.com/accounts/docs/OAuth2#serviceaccount
+		/// https://developers.google.com/accounts/docs/OAuth2#serviceaccount.
 		/// </summary>
 		/// <returns>True upon success,false otherwise.</returns>
 		public bool Authenticate()
@@ -65,6 +72,24 @@ namespace BackupManagerLibrary
 			}
 
 			return authenticated;
+		}
+
+		public void Dispose()
+		{
+			Dispose(true);
+			GC.SuppressFinalize(this);
+		}
+
+		protected virtual void Dispose(bool disposing)
+		{
+			if (disposing)
+			{
+				// dispose managed resources
+				service.Dispose();
+				service = null;
+			}
+
+			// free native resources
 		}
 	}
 }

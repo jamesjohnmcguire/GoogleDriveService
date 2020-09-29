@@ -1,14 +1,19 @@
-﻿using BackupManagerLibrary;
+﻿/////////////////////////////////////////////////////////////////////////////
+// <copyright file="Program.cs" company="James John McGuire">
+// Copyright © 2017 - 2020 James John McGuire. All Rights Reserved.
+// </copyright>
+/////////////////////////////////////////////////////////////////////////////
+
+using BackupManagerLibrary;
 using System;
 
 namespace BackupManager
 {
-	class Program
+	public static class Program
 	{
-		static void Main(string[] args)
+		public static void Main(string[] args)
 		{
 			Console.WriteLine("Backup Manager");
-			AccountsManager accounts = new AccountsManager();
 		}
 	}
 }
