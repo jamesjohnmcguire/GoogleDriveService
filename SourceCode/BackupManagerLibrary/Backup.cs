@@ -1,7 +1,9 @@
-﻿using System;
+﻿using Common.Logging;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
+using System.Globalization;
 using System.IO;
 using System.Text;
 
@@ -9,6 +11,9 @@ namespace BackupManagerLibrary
 {
 	public class Backup
 	{
+		private static readonly ILog log = LogManager.GetLogger
+			(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
+
 		public void Run()
 		{
 			AccountsManager accountManager = new AccountsManager();
@@ -35,6 +40,8 @@ namespace BackupManagerLibrary
 		{
 			try
 			{
+				log.Info(CultureInfo.InvariantCulture, m => m(
+					"CustomInitialization"));
 				Process[] processes = Process.GetProcessesByName("outlook");
 
 				foreach (Process process in processes)
@@ -58,6 +65,9 @@ namespace BackupManagerLibrary
 
 					string[] files = System.IO.Directory.GetFiles(dataPath);
 
+					log.Info(CultureInfo.InvariantCulture, m => m(
+						"CustomInitialization: Copying files"));
+
 					foreach (string file in files)
 					{
 						System.IO.FileInfo fileInfo = new FileInfo(file);
@@ -80,7 +90,8 @@ namespace BackupManagerLibrary
 				exception is SystemException ||
 				exception is Win32Exception)
 			{
-				// Log
+				log.Error(CultureInfo.InvariantCulture, m => m(
+					exception.ToString()));
 			}
 		}
 	}
