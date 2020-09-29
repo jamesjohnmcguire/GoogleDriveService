@@ -5,7 +5,11 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="Common.Logging" Version="3.4.1" />
+    <PackageReference Include="Common.Logging.Core" Version="3.4.1" />
+    <PackageReference Include="Common.Logging.Log4Net208" Version="3.4.1" />
     <PackageReference Include="Google.Apis.Drive.v3" Version="1.49.0.2072" />
+    <PackageReference Include="Log4Net" Version="2.0.11" />
   </ItemGroup>
 
 </Project>
