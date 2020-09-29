@@ -1,6 +1,7 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
 	<PropertyGroup>
+		<CodeAnalysisRuleSet>..\CodeAnalysis.ruleset</CodeAnalysisRuleSet>
 		<NoWarn>NU1608;NU1701</NoWarn>
 		<OutputType>Exe</OutputType>
 		<TargetFramework>netcoreapp3.1</TargetFramework>
@@ -39,6 +40,13 @@
 
 	<ItemGroup>
 		<ProjectReference Include="..\BackupManagerLibrary\BackupManagerLibrary.csproj" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<None Include="App.config">
+			<SubType>Designer</SubType>
+		</None>
+		<AdditionalFiles Include="stylecop.json" />
 	</ItemGroup>
 
 </Project>
