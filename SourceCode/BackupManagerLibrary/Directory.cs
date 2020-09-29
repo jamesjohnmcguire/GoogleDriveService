@@ -6,7 +6,7 @@ namespace BackupManagerLibrary
 {
 	public class Directory
 	{
-		private IList<string> excludes = new List<string>();
+		private readonly IList<string> excludes = new List<string>();
 
 		public string Path { get; set; }
 		public IList<string> Excludes

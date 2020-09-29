@@ -1,15 +1,16 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
-  <PropertyGroup>
-    <TargetFramework>netcoreapp3.1</TargetFramework>
-  </PropertyGroup>
+	<PropertyGroup>
+		<NoWarn>NU1608;NU1701</NoWarn>
+		<TargetFramework>netcoreapp3.1</TargetFramework>
+	</PropertyGroup>
 
-  <ItemGroup>
-    <PackageReference Include="Common.Logging" Version="3.4.1" />
-    <PackageReference Include="Common.Logging.Core" Version="3.4.1" />
-    <PackageReference Include="Common.Logging.Log4Net208" Version="3.4.1" />
-    <PackageReference Include="Google.Apis.Drive.v3" Version="1.49.0.2072" />
-    <PackageReference Include="Log4Net" Version="2.0.11" />
-  </ItemGroup>
+	<ItemGroup>
+		<PackageReference Include="Common.Logging" Version="3.4.1" />
+		<PackageReference Include="Common.Logging.Core" Version="3.4.1" />
+		<PackageReference Include="Common.Logging.Log4Net208" Version="3.4.1" />
+		<PackageReference Include="Google.Apis.Drive.v3" Version="1.49.0.2072" />
+		<PackageReference Include="Log4Net" Version="2.0.11" />
+	</ItemGroup>
 
 </Project>

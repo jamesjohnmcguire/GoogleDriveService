@@ -11,7 +11,7 @@ namespace BackupManagerLibrary
 {
 	public class Account
 	{
-		private IList<Directory> directories = new List<Directory>();
+		private readonly IList<Directory> directories = new List<Directory>();
 		private DriveService service = null;
 
 		public string Email { get; set; }
