@@ -5,9 +5,11 @@
 /////////////////////////////////////////////////////////////////////////////
 
 using Common.Logging;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Configuration;
 using System.Diagnostics;
 using System.Globalization;
 using System.IO;
@@ -21,20 +23,29 @@ namespace BackupManagerLibrary
 
 		public static void Run()
 		{
-			IList<Account> accounts = AccountsManager.LoadAccounts();
-
-			if (accounts.Count > 0)
+			try
 			{
-				CustomInitialization();
+				IList<Account> accounts = AccountsManager.LoadAccounts();
 
-				foreach (Account account in accounts)
+				if (accounts.Count > 0)
 				{
-					bool authenticated = account.Authenticate();
+					CustomInitialization();
 
-					if (authenticated == true)
+					foreach (Account account in accounts)
 					{
+						bool authenticated = account.Authenticate();
+
+						if (authenticated == true)
+						{
+						}
 					}
 				}
+			}
+			catch (Exception exception) when
+				(exception is JsonException)
+			{
+				Log.Error(CultureInfo.InvariantCulture, m => m(
+					exception.ToString()));
 			}
 		}
 
@@ -74,14 +85,15 @@ namespace BackupManagerLibrary
 					{
 						System.IO.FileInfo fileInfo = new FileInfo(file);
 
-						string destination =
-							fileInfo.DirectoryName + @"\Backups\" + fileInfo.Name;
+						string destination = fileInfo.DirectoryName +
+							@"\Backups\" + fileInfo.Name;
 						System.IO.File.Copy(file, destination);
 					}
 				}
 
 				using Process outlook = new Process();
-				outlook.StartInfo.FileName = "outlook.exe";
+				outlook.StartInfo.FileName =
+					@"C:\Program Files\Microsoft Office\root\Office16\OUTLOOK.EXE";
 				outlook.Start();
 			}
 			catch (Exception exception) when

@@ -10,6 +10,7 @@ using Google.Apis.Services;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 
 namespace BackupManagerLibrary
@@ -17,7 +18,7 @@ namespace BackupManagerLibrary
 	public class Account : IDisposable
 	{
 		private readonly IList<Directory> directories = new List<Directory>();
-		private DriveService service;
+		private DriveService driveService;
 
 		public string Email { get; set; }
 
@@ -57,18 +58,17 @@ namespace BackupManagerLibrary
 					initializer.ApplicationName = "Backup Manager";
 					initializer.HttpClientInitializer = credentialedAccount;
 
-					service = new DriveService(initializer);
+					driveService = new DriveService(initializer);
 
-					if (service != null)
+					if (driveService != null)
 					{
 						authenticated = true;
 					}
 				}
 			}
-			catch (Exception ex)
+			catch (Exception exception) when
+				(exception is FileNotFoundException)
 			{
-				Console.WriteLine("Create service account DriveService failed" + ex.Message);
-				throw new Exception("CreateServiceAccountDriveFailed", ex);
 			}
 
 			return authenticated;
