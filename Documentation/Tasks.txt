@@ -9,6 +9,7 @@ GoogleDrive
 		Authenticate
 		Go through directories and files
 			upload, if newer
+	Add logging
 Flickr
 	https://stackoverflow.com/questions/8615196/how-can-i-retrieve-original-url-photo-with-flickr-net-api
 	test
