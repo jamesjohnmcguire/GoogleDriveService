@@ -12,11 +12,11 @@ namespace BackupManagerLibrary
 {
 	public class Directory
 	{
-		private readonly IList<string> excludes = new List<string>();
+		private readonly IList<Exclude> excludes = new List<Exclude>();
 
 		public string Path { get; set; }
 
-		public IList<string> Excludes
+		public IList<Exclude> Excludes
 		{
 			get { return excludes; }
 		}
