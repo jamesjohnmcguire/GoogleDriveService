@@ -29,6 +29,7 @@ namespace BackupManagerLibrary
 
 				if (accounts.Count > 0)
 				{
+					DisplayConfig();
 					CustomInitialization();
 
 					foreach (Account account in accounts)
@@ -106,6 +107,17 @@ namespace BackupManagerLibrary
 			{
 				Log.Error(CultureInfo.InvariantCulture, m => m(
 					exception.ToString()));
+			}
+		}
+
+		private static void DisplayConfig()
+		{
+			foreach (string key in ConfigurationManager.AppSettings)
+			{
+				string value = ConfigurationManager.AppSettings[key];
+
+				Log.Info(CultureInfo.InvariantCulture, m => m(
+					"Config: " + key + ": " + value));
 			}
 		}
 	}

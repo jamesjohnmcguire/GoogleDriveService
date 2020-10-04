@@ -9,9 +9,8 @@
 	<ItemGroup>
 		<PackageReference Include="Common.Logging" Version="3.4.1" />
 		<PackageReference Include="Common.Logging.Core" Version="3.4.1" />
-		<PackageReference Include="Common.Logging.Log4Net208" Version="3.4.1" />
+		<PackageReference Include="Common.Logging.Serilog" Version="4.4.0" />
 		<PackageReference Include="Google.Apis.Drive.v3" Version="1.49.0.2072" />
-		<PackageReference Include="Log4Net" Version="2.0.11" />
 		<PackageReference Include="Microsoft.CodeAnalysis.FxCopAnalyzers" Version="3.3.0">
 		  <PrivateAssets>all</PrivateAssets>
 		  <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
@@ -32,10 +31,14 @@
 		  <PrivateAssets>all</PrivateAssets>
 		  <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 		</PackageReference>
+		<PackageReference Include="Serilog" Version="2.10.0" />
+		<PackageReference Include="Serilog.Sinks.Console" Version="3.1.1" />
+		<PackageReference Include="Serilog.Sinks.File" Version="4.1.0" />
 		<PackageReference Include="StyleCop.Analyzers" Version="1.1.118">
 		  <PrivateAssets>all</PrivateAssets>
 		  <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 		</PackageReference>
+		<PackageReference Include="System.Configuration.ConfigurationManager" Version="4.7.0" />
 	</ItemGroup>
 
 	<ItemGroup>
