@@ -7,7 +7,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FlickrStorage", "FlickrStor
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BackupManager", "BackupManager\BackupManager.csproj", "{7D43EBE0-DBB6-4D2E-B884-0A8727E238B2}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BackupManagerLibrary", "BackupManagerLibrary\BackupManagerLibrary.csproj", "{C6F6E096-EEDC-4BB5-B030-A1D29E52CC62}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BackupManagerLibrary", "BackupManagerLibrary\BackupManagerLibrary.csproj", "{C6F6E096-EEDC-4BB5-B030-A1D29E52CC62}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

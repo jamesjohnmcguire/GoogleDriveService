@@ -4,6 +4,7 @@
 // </copyright>
 /////////////////////////////////////////////////////////////////////////////
 
+using Common.Logging;
 using Google.Apis.Auth.OAuth2;
 using Google.Apis.Drive.v3;
 using Google.Apis.Services;
@@ -17,6 +18,9 @@ namespace BackupManagerLibrary
 {
 	public class Account : IDisposable
 	{
+		private static readonly ILog Log = LogManager.GetLogger(
+			System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
+
 		private readonly IList<Directory> directories = new List<Directory>();
 		private DriveService driveService;
 
@@ -69,6 +73,8 @@ namespace BackupManagerLibrary
 			catch (Exception exception) when
 				(exception is FileNotFoundException)
 			{
+				Log.Error(CultureInfo.InvariantCulture, m => m(
+					exception.ToString()));
 			}
 
 			return authenticated;
@@ -85,8 +91,8 @@ namespace BackupManagerLibrary
 			if (disposing)
 			{
 				// dispose managed resources
-				service.Dispose();
-				service = null;
+				driveService.Dispose();
+				driveService = null;
 			}
 
 			// free native resources
