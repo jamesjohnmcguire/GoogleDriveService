@@ -9,10 +9,6 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BackupManager", "BackupMana
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BackupManagerLibrary", "BackupManagerLibrary\BackupManagerLibrary.csproj", "{C6F6E096-EEDC-4BB5-B030-A1D29E52CC62}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ConsoleApp1", "ConsoleApp1\ConsoleApp1.csproj", "{8E15E4B9-1AD6-44E4-ABC9-1E1F215C9BA1}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ConsoleApp2", "ConsoleApp2\ConsoleApp2.csproj", "{C9713970-D64F-4889-9592-2AA417160C61}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -59,30 +55,6 @@ Global
 		{C6F6E096-EEDC-4BB5-B030-A1D29E52CC62}.Release|Mixed Platforms.Build.0 = Release|Any CPU
 		{C6F6E096-EEDC-4BB5-B030-A1D29E52CC62}.Release|x86.ActiveCfg = Release|Any CPU
 		{C6F6E096-EEDC-4BB5-B030-A1D29E52CC62}.Release|x86.Build.0 = Release|Any CPU
-		{8E15E4B9-1AD6-44E4-ABC9-1E1F215C9BA1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{8E15E4B9-1AD6-44E4-ABC9-1E1F215C9BA1}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{8E15E4B9-1AD6-44E4-ABC9-1E1F215C9BA1}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
-		{8E15E4B9-1AD6-44E4-ABC9-1E1F215C9BA1}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
-		{8E15E4B9-1AD6-44E4-ABC9-1E1F215C9BA1}.Debug|x86.ActiveCfg = Debug|Any CPU
-		{8E15E4B9-1AD6-44E4-ABC9-1E1F215C9BA1}.Debug|x86.Build.0 = Debug|Any CPU
-		{8E15E4B9-1AD6-44E4-ABC9-1E1F215C9BA1}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{8E15E4B9-1AD6-44E4-ABC9-1E1F215C9BA1}.Release|Any CPU.Build.0 = Release|Any CPU
-		{8E15E4B9-1AD6-44E4-ABC9-1E1F215C9BA1}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
-		{8E15E4B9-1AD6-44E4-ABC9-1E1F215C9BA1}.Release|Mixed Platforms.Build.0 = Release|Any CPU
-		{8E15E4B9-1AD6-44E4-ABC9-1E1F215C9BA1}.Release|x86.ActiveCfg = Release|Any CPU
-		{8E15E4B9-1AD6-44E4-ABC9-1E1F215C9BA1}.Release|x86.Build.0 = Release|Any CPU
-		{C9713970-D64F-4889-9592-2AA417160C61}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{C9713970-D64F-4889-9592-2AA417160C61}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{C9713970-D64F-4889-9592-2AA417160C61}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
-		{C9713970-D64F-4889-9592-2AA417160C61}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
-		{C9713970-D64F-4889-9592-2AA417160C61}.Debug|x86.ActiveCfg = Debug|Any CPU
-		{C9713970-D64F-4889-9592-2AA417160C61}.Debug|x86.Build.0 = Debug|Any CPU
-		{C9713970-D64F-4889-9592-2AA417160C61}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{C9713970-D64F-4889-9592-2AA417160C61}.Release|Any CPU.Build.0 = Release|Any CPU
-		{C9713970-D64F-4889-9592-2AA417160C61}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
-		{C9713970-D64F-4889-9592-2AA417160C61}.Release|Mixed Platforms.Build.0 = Release|Any CPU
-		{C9713970-D64F-4889-9592-2AA417160C61}.Release|x86.ActiveCfg = Release|Any CPU
-		{C9713970-D64F-4889-9592-2AA417160C61}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
