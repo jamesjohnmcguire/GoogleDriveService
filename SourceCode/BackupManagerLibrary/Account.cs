@@ -91,8 +91,8 @@ namespace BackupManagerLibrary
 			if (disposing)
 			{
 				// dispose managed resources
-				service.Dispose();
-				service = null;
+				driveService.Dispose();
+				driveService = null;
 			}
 
 			// free native resources
