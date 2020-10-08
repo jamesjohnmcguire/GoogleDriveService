@@ -1,15 +1,26 @@
 GoogleDrive
+	Only upload, if newer
+	Find better home for log file
+	<NoWarn>NU1608;NU1701</NoWarn>
 	Create Service Accounts
-	Create library
-	Add google drive nuget
-	Connect library
-	Special cases	Pst files
-	Load accounts.json
-	for each account
-		Authenticate
-		Go through directories and files
-			upload, if newer
-	Add logging
+		Newtonsoft.Json.JsonSerializationException
+		'Log4Net 2.0.11' is not compatible with 'Common.Logging.Log4Net208 3.4.1 constraint: Log4Net (= 2.0.8)'.
+		TypeLoadException: Could not load type 'log4net.Config.Log4NetConfigurationSectionHandler' from assembly 'log4net'.
+		TypeLoadException: Could not load type 'Common.Logging.ConfigurationSectionHandler' from assembly 'Common.Logging'.
+		Could not load type 'ConfigurationSectionHandler' from assembly
+		Create library
+		Add google drive nuget
+		Connect library
+		Special cases	Pst files
+		Load accounts.json
+		for each account
+			Authenticate
+			Go through directories and files
+		Add logging
+		Rename log file
+		Double authenticate
+		Copy over files
+		Recurse into backup
 Flickr
 	https://stackoverflow.com/questions/8615196/how-can-i-retrieve-original-url-photo-with-flickr-net-api
 	test
@@ -45,3 +56,9 @@ Flickr
 	find out how to download pictures
 	find out how to download original
 	find a way to map url/encoded filename with that of the original (for downloading)
+Resources
+	Google Drive
+		https://developers.google.com/api-client-library/dotnet/guide/media_upload#:~:text=The%20default%20chunk%20size%20is,to%20any%20multiple%20of%20256KB.
+		https://developers.google.com/drive/api/v3/about-auth
+		https://stackoverflow.com/questions/41587763/how-to-provide-credentials-programmatically-to-use-google-drive-api-in-c-sharp-o
+		https://github.com/LindaLawton/Google-Dotnet-Samples/blob/Genreated-samples1.0/Drive%20API/v3/FilesSample.cs
