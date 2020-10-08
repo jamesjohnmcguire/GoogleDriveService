@@ -13,6 +13,7 @@ using System.Configuration;
 using System.Diagnostics;
 using System.Globalization;
 using System.IO;
+using System.Threading.Tasks;
 
 namespace BackupManagerLibrary
 {
@@ -21,7 +22,7 @@ namespace BackupManagerLibrary
 		private static readonly ILog Log = LogManager.GetLogger(
 			System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
 
-		public static void Run()
+		public static async Task Run()
 		{
 			try
 			{
@@ -29,16 +30,11 @@ namespace BackupManagerLibrary
 
 				if (accounts.Count > 0)
 				{
-					DisplayConfig();
-					CustomInitialization();
+//					CustomInitialization();
 
 					foreach (Account account in accounts)
 					{
-						bool authenticated = account.Authenticate();
-
-						if (authenticated == true)
-						{
-						}
+						await account.BackUp().ConfigureAwait(false);
 					}
 				}
 			}
@@ -88,7 +84,7 @@ namespace BackupManagerLibrary
 
 						string destination = fileInfo.DirectoryName +
 							@"\Backups\" + fileInfo.Name;
-						System.IO.File.Copy(file, destination);
+						System.IO.File.Copy(file, destination, true);
 					}
 				}
 
@@ -107,17 +103,6 @@ namespace BackupManagerLibrary
 			{
 				Log.Error(CultureInfo.InvariantCulture, m => m(
 					exception.ToString()));
-			}
-		}
-
-		private static void DisplayConfig()
-		{
-			foreach (string key in ConfigurationManager.AppSettings)
-			{
-				string value = ConfigurationManager.AppSettings[key];
-
-				Log.Info(CultureInfo.InvariantCulture, m => m(
-					"Config: " + key + ": " + value));
 			}
 		}
 	}
