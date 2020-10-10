@@ -62,7 +62,6 @@ namespace BackupManagerLibrary
 					string accountsFile = accountsPath + @"\" + ServiceAccount;
 
 					authenticated = googleDrive.Authenticate(accountsFile);
-					//googleDrive.GetAuthorizationByServiceAccount(accountsFile);
 					authenticated = true;
 				}
 			}
@@ -126,8 +125,10 @@ namespace BackupManagerLibrary
 					System.IO.Directory.Exists(path))
 				{
 					DirectoryInfo directoryInfo = new DirectoryInfo(path);
-
 					FileInfo[] files = directoryInfo.GetFiles();
+
+					IList<Google.Apis.Drive.v3.Data.File> serverFiles =
+						googleDrive.GetFiles();
 
 					foreach (FileInfo file in files)
 					{

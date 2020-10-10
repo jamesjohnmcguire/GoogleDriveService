@@ -13,7 +13,6 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace BackupManagerLibrary
@@ -28,6 +27,7 @@ namespace BackupManagerLibrary
 			DriveService.Scope.Drive,
 			DriveService.Scope.DriveAppdata,
 			DriveService.Scope.DriveFile,
+			DriveService.Scope.DriveMetadata,
 			DriveService.Scope.DriveMetadataReadonly,
 			DriveService.Scope.DriveReadonly,
 			DriveService.Scope.DriveScripts
@@ -47,8 +47,6 @@ namespace BackupManagerLibrary
 		{
 			bool authenticated = false;
 
-			//using FileStream stream = new FileStream(credentialsFile, FileMode.Open, FileAccess.Read);
-			//GoogleCredential credentialedAccount = GoogleCredential.FromStream(stream);
 			GoogleCredential credentialedAccount =
 				GoogleCredential.FromFile(credentialsFile);
 			credentialedAccount = credentialedAccount.CreateScoped(scopes);
@@ -68,10 +66,43 @@ namespace BackupManagerLibrary
 			return authenticated;
 		}
 
+		public void CreateFolder(string folderName)
+		{
+			Google.Apis.Drive.v3.Data.File fileMetadata =
+				new Google.Apis.Drive.v3.Data.File();
+
+			fileMetadata.Name = folderName;
+			fileMetadata.MimeType = "application/vnd.google-apps.folder";
+
+			var request = driveService.Files.Create(fileMetadata);
+			request.Fields = "id, name, parents";
+			var file = request.Execute();
+
+			string message = "Folder ID: " + file.Id;
+			Log.Info(CultureInfo.InvariantCulture, m => m(
+				message));
+		}
+
 		public void Dispose()
 		{
 			Dispose(true);
 			GC.SuppressFinalize(this);
+		}
+
+		public IList<Google.Apis.Drive.v3.Data.File> GetFiles()
+		{
+			IList<Google.Apis.Drive.v3.Data.File> files = null;
+			FilesResource.ListRequest listRequest = driveService.Files.List();
+			listRequest.PageSize = 1000;
+			listRequest.Fields = "nextPageToken, files(id, name)";
+
+			// string id = "root";
+			// listRequest.Q = $"'{id}' in parents";
+
+			Google.Apis.Drive.v3.Data.FileList filesList = listRequest.Execute();
+			files = filesList.Files;
+
+			return files;
 		}
 
 		public async Task Upload(string filePath, string folder)
