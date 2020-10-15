@@ -82,16 +82,14 @@ namespace BackupManagerLibrary
 
 			if (authenticated == true)
 			{
-				IList<Directory> directories = Directories;
-
-				foreach (Directory directory in directories)
+				foreach (Directory directory in Directories)
 				{
 					string path = Environment.ExpandEnvironmentVariables(
 						directory.Path);
 
 					directory.ExpandExcludes();
 
-					await BackUp(path, directory).ConfigureAwait(false);
+					await BackUp(directory, directory.Parent, path).ConfigureAwait(false);
 				}
 			}
 		}
@@ -117,7 +115,25 @@ namespace BackupManagerLibrary
 			// free native resources
 		}
 
-		private async Task BackUp(string path, Directory directory)
+		private static Google.Apis.Drive.v3.Data.File GetGoogleDriveFile(
+			IList<Google.Apis.Drive.v3.Data.File> files, string name)
+		{
+			Google.Apis.Drive.v3.Data.File file = null;
+
+			foreach (Google.Apis.Drive.v3.Data.File driveFile in files)
+			{
+				if (name.Equals(driveFile.Name, StringComparison.Ordinal))
+				{
+					file = driveFile;
+					break;
+				}
+			}
+
+			return file;
+		}
+
+		private async Task BackUp(
+			Directory directory, string parent, string path)
 		{
 			try
 			{
@@ -128,7 +144,16 @@ namespace BackupManagerLibrary
 					FileInfo[] files = directoryInfo.GetFiles();
 
 					IList<Google.Apis.Drive.v3.Data.File> serverFiles =
-						googleDrive.GetFiles();
+						googleDrive.GetFiles(parent);
+
+					Google.Apis.Drive.v3.Data.File serverFolder =
+						GetGoogleDriveFile(serverFiles, directoryInfo.Name);
+
+					if (serverFolder == null)
+					{
+						serverFolder = googleDrive.CreateFolder(
+							parent, directoryInfo.Name);
+					}
 
 					foreach (FileInfo file in files)
 					{
@@ -139,7 +164,7 @@ namespace BackupManagerLibrary
 								message));
 
 							await googleDrive.Upload(
-								file.FullName, directory.Parent).
+								file.FullName, serverFolder.Id).
 								ConfigureAwait(false);
 						}
 						catch (Exception exception) when
@@ -162,7 +187,7 @@ namespace BackupManagerLibrary
 
 					foreach (string subDirectory in subDirectories)
 					{
-						await BackUp(subDirectory, directory).
+						await BackUp(directory, serverFolder.Id, subDirectory).
 							ConfigureAwait(false);
 					}
 				}

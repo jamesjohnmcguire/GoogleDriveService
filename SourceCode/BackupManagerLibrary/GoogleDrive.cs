@@ -66,7 +66,8 @@ namespace BackupManagerLibrary
 			return authenticated;
 		}
 
-		public void CreateFolder(string folderName)
+		public Google.Apis.Drive.v3.Data.File CreateFolder(
+			string parent, string folderName)
 		{
 			Google.Apis.Drive.v3.Data.File fileMetadata =
 				new Google.Apis.Drive.v3.Data.File();
@@ -74,13 +75,20 @@ namespace BackupManagerLibrary
 			fileMetadata.Name = folderName;
 			fileMetadata.MimeType = "application/vnd.google-apps.folder";
 
-			var request = driveService.Files.Create(fileMetadata);
+			IList<string> parents = new List<string>();
+			parents.Add(parent);
+			fileMetadata.Parents = parents;
+
+			FilesResource.CreateRequest request =
+				driveService.Files.Create(fileMetadata);
 			request.Fields = "id, name, parents";
-			var file = request.Execute();
+			Google.Apis.Drive.v3.Data.File file = request.Execute();
 
 			string message = "Folder ID: " + file.Id;
 			Log.Info(CultureInfo.InvariantCulture, m => m(
 				message));
+
+			return file;
 		}
 
 		public void Dispose()
@@ -89,15 +97,13 @@ namespace BackupManagerLibrary
 			GC.SuppressFinalize(this);
 		}
 
-		public IList<Google.Apis.Drive.v3.Data.File> GetFiles()
+		public IList<Google.Apis.Drive.v3.Data.File> GetFiles(string parent)
 		{
 			IList<Google.Apis.Drive.v3.Data.File> files = null;
 			FilesResource.ListRequest listRequest = driveService.Files.List();
-			listRequest.PageSize = 1000;
-			listRequest.Fields = "nextPageToken, files(id, name)";
 
-			// string id = "root";
-			// listRequest.Q = $"'{id}' in parents";
+			listRequest.Fields = "files(id, name, modifiedTime)";
+			listRequest.Q = $"'{parent}' in parents";
 
 			Google.Apis.Drive.v3.Data.FileList filesList = listRequest.Execute();
 			files = filesList.Files;
