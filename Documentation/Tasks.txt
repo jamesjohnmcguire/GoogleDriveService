@@ -1,4 +1,7 @@
 GoogleDrive
+	Need to find out if folder exists
+	If folder doesn't exist create it
+	Specify sub folder when uploading
 	Only upload, if newer
 	Find better home for log file
 	<NoWarn>NU1608;NU1701</NoWarn>
