@@ -9,7 +9,6 @@ using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Configuration;
 using System.Diagnostics;
 using System.Globalization;
 using System.IO;
@@ -30,7 +29,7 @@ namespace BackupManagerLibrary
 
 				if (accounts.Count > 0)
 				{
-					// CustomInitialization();
+					CustomInitialization();
 
 					foreach (Account account in accounts)
 					{

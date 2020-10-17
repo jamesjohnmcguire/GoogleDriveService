@@ -40,7 +40,8 @@ namespace BackupManager
 				LogFilePath, LogEventLevel.Verbose, OutputTemplate);
 			Serilog.Log.Logger = configuration.CreateLogger();
 
-			LogManager.Adapter = new Common.Logging.Serilog.SerilogFactoryAdapter();
+			LogManager.Adapter =
+				new Common.Logging.Serilog.SerilogFactoryAdapter();
 		}
 	}
 }

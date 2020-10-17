@@ -5,10 +5,7 @@
 /////////////////////////////////////////////////////////////////////////////
 
 using Common.Logging;
-using Google.Apis.Auth.OAuth2;
 using Google.Apis.Drive.v3;
-using Google.Apis.Services;
-using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
@@ -24,7 +21,6 @@ namespace BackupManagerLibrary
 			System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
 
 		private readonly IList<Directory> directories = new List<Directory>();
-		private DriveService driveService;
 		private GoogleDrive googleDrive;
 
 		public Account()
@@ -89,7 +85,8 @@ namespace BackupManagerLibrary
 
 					directory.ExpandExcludes();
 
-					await BackUp(directory, directory.Parent, path).ConfigureAwait(false);
+					await BackUp(directory, directory.Parent, path).
+						ConfigureAwait(false);
 				}
 			}
 		}
@@ -105,31 +102,11 @@ namespace BackupManagerLibrary
 			if (disposing)
 			{
 				// dispose managed resources
-				driveService.Dispose();
-				driveService = null;
-
 				googleDrive.Dispose();
 				googleDrive = null;
 			}
 
 			// free native resources
-		}
-
-		private static Google.Apis.Drive.v3.Data.File GetGoogleDriveFile(
-			IList<Google.Apis.Drive.v3.Data.File> files, string name)
-		{
-			Google.Apis.Drive.v3.Data.File file = null;
-
-			foreach (Google.Apis.Drive.v3.Data.File driveFile in files)
-			{
-				if (name.Equals(driveFile.Name, StringComparison.Ordinal))
-				{
-					file = driveFile;
-					break;
-				}
-			}
-
-			return file;
 		}
 
 		private async Task BackUp(
@@ -147,39 +124,24 @@ namespace BackupManagerLibrary
 						googleDrive.GetFiles(parent);
 
 					Google.Apis.Drive.v3.Data.File serverFolder =
-						GetGoogleDriveFile(serverFiles, directoryInfo.Name);
+						GoogleDrive.GetFileInList(
+							serverFiles, directoryInfo.Name);
 
 					if (serverFolder == null)
 					{
 						serverFolder = googleDrive.CreateFolder(
 							parent, directoryInfo.Name);
+						System.Threading.Thread.Sleep(200);
+					}
+					else
+					{
+						serverFiles = googleDrive.GetFiles(serverFolder.Id);
 					}
 
 					foreach (FileInfo file in files)
 					{
-						try
-						{
-							string message = "Checking: " + file.FullName;
-							Log.Info(CultureInfo.InvariantCulture, m => m(
-								message));
-
-							await googleDrive.Upload(
-								file.FullName, serverFolder.Id).
-								ConfigureAwait(false);
-						}
-						catch (Exception exception) when
-							(exception is ArgumentNullException ||
-							exception is DirectoryNotFoundException ||
-							exception is FileNotFoundException ||
-							exception is IOException ||
-							exception is NullReferenceException ||
-							exception is IndexOutOfRangeException ||
-							exception is InvalidOperationException ||
-							exception is UnauthorizedAccessException)
-						{
-							Log.Error(CultureInfo.InvariantCulture, m => m(
-								exception.ToString()));
-						}
+						BackUpFile(serverFolder, serverFiles, file);
+						System.Threading.Thread.Sleep(200);
 					}
 
 					string[] subDirectories =
@@ -208,6 +170,63 @@ namespace BackupManagerLibrary
 			{
 				Log.Error(CultureInfo.InvariantCulture, m => m(
 					exception.ToString()));
+			}
+		}
+
+		private async void BackUpFile(
+			Google.Apis.Drive.v3.Data.File serverFolder,
+			IList<Google.Apis.Drive.v3.Data.File> serverFiles,
+			FileInfo file)
+		{
+			try
+			{
+				string message = "Checking: " + file.FullName;
+				Log.Info(CultureInfo.InvariantCulture, m => m(
+					message));
+
+				Google.Apis.Drive.v3.Data.File serverFile =
+						GoogleDrive.GetFileInList(
+							serverFiles, file.Name);
+
+				if (serverFile == null)
+				{
+					await googleDrive.Upload(
+						serverFolder.Id, file.FullName, null).
+						ConfigureAwait(false);
+				}
+				else
+				{
+					if (serverFile.ModifiedTime < file.LastWriteTime)
+					{
+						// local file is newer
+						await googleDrive.Upload(
+							serverFolder.Id, file.FullName, serverFile.Id).
+							ConfigureAwait(false);
+					}
+				}
+			}
+			catch (Exception exception) when
+				(exception is ArgumentNullException ||
+				exception is DirectoryNotFoundException ||
+				exception is FileNotFoundException ||
+				exception is IOException ||
+				exception is NullReferenceException ||
+				exception is IndexOutOfRangeException ||
+				exception is InvalidOperationException ||
+				exception is UnauthorizedAccessException)
+			{
+				Log.Error(CultureInfo.InvariantCulture, m => m(
+					exception.ToString()));
+			}
+		}
+
+		private void CleanUp()
+		{
+			string[] files = Array.Empty<string>();
+
+			foreach (string file in files)
+			{
+				googleDrive.Delete(file);
 			}
 		}
 	}

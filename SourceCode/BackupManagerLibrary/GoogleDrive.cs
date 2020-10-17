@@ -35,6 +35,26 @@ namespace BackupManagerLibrary
 
 		private DriveService driveService;
 
+		public static Google.Apis.Drive.v3.Data.File GetFileInList(
+			IList<Google.Apis.Drive.v3.Data.File> files, string name)
+		{
+			Google.Apis.Drive.v3.Data.File file = null;
+
+			if ((files != null) && (!string.IsNullOrWhiteSpace(name)))
+			{
+				foreach (Google.Apis.Drive.v3.Data.File driveFile in files)
+				{
+					if (name.Equals(driveFile.Name, StringComparison.Ordinal))
+					{
+						file = driveFile;
+						break;
+					}
+				}
+			}
+
+			return file;
+		}
+
 		/// <summary>
 		/// Authenticating to Google using a Service account
 		/// Documentation:
@@ -97,6 +117,13 @@ namespace BackupManagerLibrary
 			GC.SuppressFinalize(this);
 		}
 
+		public void Delete(string id)
+		{
+			FilesResource.DeleteRequest request = driveService.Files.Delete(id);
+
+			request.Execute();
+		}
+
 		public IList<Google.Apis.Drive.v3.Data.File> GetFiles(string parent)
 		{
 			IList<Google.Apis.Drive.v3.Data.File> files = null;
@@ -111,7 +138,7 @@ namespace BackupManagerLibrary
 			return files;
 		}
 
-		public async Task Upload(string filePath, string folder)
+		public async Task Upload(string folder, string filePath, string fileId)
 		{
 			FileInfo file = new FileInfo(filePath);
 
@@ -128,14 +155,31 @@ namespace BackupManagerLibrary
 
 			string mimeType = MimeTypes.GetMimeType(file.Name);
 
-			FilesResource.CreateMediaUpload request =
-				driveService.Files.Create(fileMetadata, stream, mimeType);
-			request.Fields = "id, name, parents";
+			if (string.IsNullOrWhiteSpace(fileId))
+			{
+				FilesResource.CreateMediaUpload request =
+					driveService.Files.Create(fileMetadata, stream, mimeType);
 
-			request.ProgressChanged += UploadProgressChanged;
-			request.ResponseReceived += UploadResponseReceived;
+				request.Fields = "id, name, parents";
 
-			await request.UploadAsync().ConfigureAwait(false);
+				request.ProgressChanged += UploadProgressChanged;
+				request.ResponseReceived += UploadResponseReceived;
+
+				await request.UploadAsync().ConfigureAwait(false);
+			}
+			else
+			{
+				FilesResource.UpdateMediaUpload request =
+					driveService.Files.Update(
+						fileMetadata, fileId, stream, mimeType);
+
+				request.Fields = "id, name, parents";
+
+				request.ProgressChanged += UploadProgressChanged;
+				request.ResponseReceived += UploadResponseReceived;
+
+				await request.UploadAsync().ConfigureAwait(false);
+			}
 		}
 
 		protected virtual void Dispose(bool disposing)
