@@ -1,9 +1,8 @@
 GoogleDrive
-	Need to find out if folder exists
-	If folder doesn't exist create it
-	Specify sub folder when uploading
-	Only upload, if newer
+	For each folder, check if server file no exists locally, if so, delete from drive
 	Find better home for log file
+	implement exponential backoff 
+	Google.GoogleApiException
 	<NoWarn>NU1608;NU1701</NoWarn>
 	Create Service Accounts
 		Newtonsoft.Json.JsonSerializationException
@@ -24,6 +23,10 @@ GoogleDrive
 		Double authenticate
 		Copy over files
 		Recurse into backup
+		Need to find out if folder exists
+		If folder doesn't exist create it
+		Specify sub folder when uploading
+		Only upload, if newer
 Flickr
 	https://stackoverflow.com/questions/8615196/how-can-i-retrieve-original-url-photo-with-flickr-net-api
 	test
@@ -65,3 +68,27 @@ Resources
 		https://developers.google.com/drive/api/v3/about-auth
 		https://stackoverflow.com/questions/41587763/how-to-provide-credentials-programmatically-to-use-google-drive-api-in-c-sharp-o
 		https://github.com/LindaLawton/Google-Dotnet-Samples/blob/Genreated-samples1.0/Drive%20API/v3/FilesSample.cs
+{"Google.Apis.Requests.RequestError\r\nInvalid Credentials [401]\r\nErrors [\r\n\tMessage[Invalid Credentials] Location[Authorization - header] Reason[authError] Domain[global]\r\n]\r\n"}
+Invalid Application name (Parameter 'ApplicationName')	ArgumentException
+Google.Apis.Requests.RequestError	File not found: 1lc0DDWxqSfkhpp2g3pS2XBKgD1GvavEP	Google.GoogleApiException
+Key Files
+	vendor\google\apiclient-services\src\Google\Service\Drive\FileList.php
+	vendor\google\apiclient\src\Google\Collection.php
+Accounts
+	https://console.developers.google.com/apis/credentials?authuser=2&project=maximal-ship-290912
+Working test
+	curl -i -v -H "Authorization: Bearer ya29.c.Ko4B4AdGrCaL70mj63gWploZ3Y06CYZvAupwKVFWXEPlV12KmRPGzra8Obs6mOASLjQO8XMhcF0-fT2NiHZdCbBSfHJ6zzYKLzhNqp_U7VrpRTr5ZLrIO9rCFqjnQ9nYodgdhVvOO3y_PhNc0Z1F2gdl7o0eqM9QZ64OtqB7dqHpMkJJ-5PKt4DDTiu_yM5Wvw" -H "Accept: application/json" -H "x-goog-api-client: gl-php/7.4.3 gdcl/2.4.0" -H "host: www.googleapis.com" -H "content-type: application/json" -H "user-agent: Google Drive API Video Uploader google-api-php-client/2.4.0" https://www.googleapis.com/drive/v3/files
+Resources
+	https://developers.google.com/gdata/articles/debugging_client_libs
+Async
+	System.Threading.Tasks.TaskCanceledException
+	ObjectDisposedException
+
+	for each file
+		while processing list at max
+			wait
+		start processing
+		add file to processing list
+
+	when any
+		processing list --
