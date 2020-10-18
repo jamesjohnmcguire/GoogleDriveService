@@ -29,7 +29,7 @@ namespace BackupManagerLibrary
 
 				if (accounts.Count > 0)
 				{
-					CustomInitialization();
+					// CustomInitialization();
 
 					foreach (Account account in accounts)
 					{
