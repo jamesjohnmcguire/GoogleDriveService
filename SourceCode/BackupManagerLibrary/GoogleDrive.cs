@@ -131,6 +131,7 @@ namespace BackupManagerLibrary
 
 			listRequest.Fields = "files(id, name, modifiedTime)";
 			listRequest.Q = $"'{parent}' in parents";
+			listRequest.PageSize = 1000;
 
 			Google.Apis.Drive.v3.Data.FileList filesList = listRequest.Execute();
 			files = filesList.Files;
@@ -138,7 +139,7 @@ namespace BackupManagerLibrary
 			return files;
 		}
 
-		public async Task Upload(string folder, string filePath, string fileId)
+		public void Upload(string folder, string filePath, string fileId)
 		{
 			FileInfo file = new FileInfo(filePath);
 
@@ -165,7 +166,7 @@ namespace BackupManagerLibrary
 				request.ProgressChanged += UploadProgressChanged;
 				request.ResponseReceived += UploadResponseReceived;
 
-				await request.UploadAsync().ConfigureAwait(false);
+				request.Upload();
 			}
 			else
 			{
@@ -177,8 +178,7 @@ namespace BackupManagerLibrary
 
 				request.ProgressChanged += UploadProgressChanged;
 				request.ResponseReceived += UploadResponseReceived;
-
-				await request.UploadAsync().ConfigureAwait(false);
+				request.Upload();
 			}
 		}
 
@@ -207,8 +207,9 @@ namespace BackupManagerLibrary
 
 			if (progress.Exception != null)
 			{
+				message = progress.Exception.ToString();
 				Log.Error(CultureInfo.InvariantCulture, m => m(
-					progress.Exception.ToString()));
+					message));
 			}
 		}
 

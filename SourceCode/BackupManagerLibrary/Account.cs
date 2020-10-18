@@ -5,7 +5,6 @@
 /////////////////////////////////////////////////////////////////////////////
 
 using Common.Logging;
-using Google.Apis.Drive.v3;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
@@ -21,6 +20,7 @@ namespace BackupManagerLibrary
 			System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
 
 		private readonly IList<Directory> directories = new List<Directory>();
+
 		private GoogleDrive googleDrive;
 
 		public Account()
@@ -78,6 +78,8 @@ namespace BackupManagerLibrary
 
 			if (authenticated == true)
 			{
+				CleanUp();
+
 				foreach (Directory directory in Directories)
 				{
 					string path = Environment.ExpandEnvironmentVariables(
@@ -85,7 +87,10 @@ namespace BackupManagerLibrary
 
 					directory.ExpandExcludes();
 
-					await BackUp(directory, directory.Parent, path).
+					IList<Google.Apis.Drive.v3.Data.File> serverFiles =
+						googleDrive.GetFiles(directory.Parent);
+
+					await BackUp(directory, directory.Parent, path, serverFiles).
 						ConfigureAwait(false);
 				}
 			}
@@ -110,47 +115,72 @@ namespace BackupManagerLibrary
 		}
 
 		private async Task BackUp(
-			Directory directory, string parent, string path)
+			Directory directory,
+			string parent,
+			string path,
+			IList<Google.Apis.Drive.v3.Data.File> serverFiles)
 		{
 			try
 			{
-				if ((!directory.ExcludesContains(path)) &&
-					System.IO.Directory.Exists(path))
+				if (System.IO.Directory.Exists(path))
 				{
-					DirectoryInfo directoryInfo = new DirectoryInfo(path);
-					FileInfo[] files = directoryInfo.GetFiles();
+					bool processSubFolders = true;
+					bool processFiles = true;
 
-					IList<Google.Apis.Drive.v3.Data.File> serverFiles =
-						googleDrive.GetFiles(parent);
-
-					Google.Apis.Drive.v3.Data.File serverFolder =
-						GoogleDrive.GetFileInList(
-							serverFiles, directoryInfo.Name);
-
-					if (serverFolder == null)
+					if (directory.ExcludesContains(path))
 					{
-						serverFolder = googleDrive.CreateFolder(
-							parent, directoryInfo.Name);
-						System.Threading.Thread.Sleep(200);
-					}
-					else
-					{
-						serverFiles = googleDrive.GetFiles(serverFolder.Id);
+						Exclude exclude = directory.GetExclude(path);
+						ExcludeType clause = exclude.ExcludeType;
+
+						if (clause == ExcludeType.OnlyRoot)
+						{
+							processFiles = false;
+						}
+						else
+						{
+							processSubFolders = false;
+						}
 					}
 
-					foreach (FileInfo file in files)
+					if (processSubFolders == true)
 					{
-						BackUpFile(serverFolder, serverFiles, file);
-						System.Threading.Thread.Sleep(200);
-					}
+						DirectoryInfo directoryInfo = new DirectoryInfo(path);
+						FileInfo[] files = directoryInfo.GetFiles();
 
-					string[] subDirectories =
-						System.IO.Directory.GetDirectories(path);
+						Google.Apis.Drive.v3.Data.File serverFolder =
+							GoogleDrive.GetFileInList(
+								serverFiles, directoryInfo.Name);
 
-					foreach (string subDirectory in subDirectories)
-					{
-						await BackUp(directory, serverFolder.Id, subDirectory).
-							ConfigureAwait(false);
+						if (serverFolder == null)
+						{
+							serverFolder = googleDrive.CreateFolder(
+								parent, directoryInfo.Name);
+							System.Threading.Thread.Sleep(200);
+						}
+						else
+						{
+							serverFiles =
+								googleDrive.GetFiles(serverFolder.Id);
+							System.Threading.Thread.Sleep(200);
+						}
+
+						string[] subDirectories =
+							System.IO.Directory.GetDirectories(path);
+
+						foreach (string subDirectory in subDirectories)
+						{
+							await BackUp(
+								directory, serverFolder.Id, subDirectory, serverFiles).
+								ConfigureAwait(false);
+						}
+
+						if (processFiles == true)
+						{
+							foreach (FileInfo file in files)
+							{
+								BackUpFile(serverFolder, serverFiles, file);
+							}
+						}
 					}
 				}
 			}
@@ -173,7 +203,7 @@ namespace BackupManagerLibrary
 			}
 		}
 
-		private async void BackUpFile(
+		private void BackUpFile(
 			Google.Apis.Drive.v3.Data.File serverFolder,
 			IList<Google.Apis.Drive.v3.Data.File> serverFiles,
 			FileInfo file)
@@ -190,18 +220,15 @@ namespace BackupManagerLibrary
 
 				if (serverFile == null)
 				{
-					await googleDrive.Upload(
-						serverFolder.Id, file.FullName, null).
-						ConfigureAwait(false);
+					googleDrive.Upload(serverFolder.Id, file.FullName, null);
 				}
 				else
 				{
 					if (serverFile.ModifiedTime < file.LastWriteTime)
 					{
 						// local file is newer
-						await googleDrive.Upload(
-							serverFolder.Id, file.FullName, serverFile.Id).
-							ConfigureAwait(false);
+						googleDrive.Upload(
+							serverFolder.Id, file.FullName, serverFile.Id);
 					}
 				}
 			}

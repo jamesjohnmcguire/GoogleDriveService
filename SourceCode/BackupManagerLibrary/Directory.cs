@@ -54,5 +54,26 @@ namespace BackupManagerLibrary
 
 			return contains;
 		}
+
+		public Exclude GetExclude(string path)
+		{
+			Exclude foundExclude = null;
+
+			foreach (Exclude exclude in excludes)
+			{
+				string checkPath = System.IO.Path.GetFullPath(path);
+				string excludeCheckPath =
+					System.IO.Path.GetFullPath(exclude.Path);
+
+				if (checkPath.Equals(
+					excludeCheckPath, StringComparison.OrdinalIgnoreCase))
+				{
+					foundExclude = exclude;
+					break;
+				}
+			}
+
+			return foundExclude;
+		}
 	}
 }
