@@ -1,0 +1,38 @@
+Google Drive
+	Accounts
+		JahMic
+			AIzaSyCNX29JweIeNxXerGX4ClmlcxdTwns-rGc
+			JahMicDriveServiceAccount
+		https://console.developers.google.com/apis/credentials?authuser=2&project=maximal-ship-290912
+	Working test
+		curl -i -v -H "Authorization: Bearer ya29.c.Ko4B4AdGrCaL70mj63gWploZ3Y06CYZvAupwKVFWXEPlV12KmRPGzra8Obs6mOASLjQO8XMhcF0-fT2NiHZdCbBSfHJ6zzYKLzhNqp_U7VrpRTr5ZLrIO9rCFqjnQ9nYodgdhVvOO3y_PhNc0Z1F2gdl7o0eqM9QZ64OtqB7dqHpMkJJ-5PKt4DDTiu_yM5Wvw" -H "Accept: application/json" -H "x-goog-api-client: gl-php/7.4.3 gdcl/2.4.0" -H "host: www.googleapis.com" -H "content-type: application/json" -H "user-agent: Google Drive API Video Uploader google-api-php-client/2.4.0" https://www.googleapis.com/drive/v3/files
+	Key Files
+		vendor\google\apiclient-services\src\Google\Service\Drive\FileList.php
+		vendor\google\apiclient\src\Google\Collection.php
+	Async Version
+		System.Threading.Tasks.TaskCanceledException
+		ObjectDisposedException
+
+		for each file
+			while processing list at max
+				wait
+			start processing
+			add file to processing list
+
+		when any
+			processing list --
+Resources
+	Google Drive
+		https://developers.google.com/api-client-library/dotnet/guide/media_upload#:~:text=The%20default%20chunk%20size%20is,to%20any%20multiple%20of%20256KB.
+		https://developers.google.com/drive/api/v3/about-auth
+		https://stackoverflow.com/questions/41587763/how-to-provide-credentials-programmatically-to-use-google-drive-api-in-c-sharp-o
+		https://github.com/LindaLawton/Google-Dotnet-Samples/blob/Genreated-samples1.0/Drive%20API/v3/FilesSample.cs
+		https://developers.google.com/gdata/articles/debugging_client_libs
+Temporary Notes
+	git filter-branch --force --index-filter "git rm --cached --ignore-unmatch Src/Web/data/PropertyImages2/*" --prune-empty --tag-name-filter cat -- --all
+	git filter-branch --force --index-filter "git rm --cached --ignore-unmatch Src/static/sass/.sass-cache/*" --prune-empty --tag-name-filter cat -- --all
+	git filter-branch --force --index-filter "git rm --cached --ignore-unmatch Src/static/sass/.sass-cache/*" --prune-empty --tag-name-filter cat -- --all
+	git filter-branch --force --index-filter "git rm --cached --ignore-unmatch Src/Web/public/cms/*" --prune-empty --tag-name-filter cat -- --all
+Src/Web/application/logs/log-2013-09-10.php
+
+Apply URI studies

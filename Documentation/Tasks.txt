@@ -1,9 +1,14 @@
 GoogleDrive
+	PersonalBackup integration
+	Schtask	Nomad
+	Schtask	PersonalBackup
+	Schtask	BackUpManager
 	For each folder, check if server file no exists locally, if so, delete from drive
 	Find better home for log file
 	implement exponential backoff 
 	Google.GoogleApiException
 	<NoWarn>NU1608;NU1701</NoWarn>
+	Files	C:\Users\JamesMc\Data\Clients\AxisPoint\OfJapan\SourceCode\Current\Web\data\PropertyImages
 	Create Service Accounts
 		Newtonsoft.Json.JsonSerializationException
 		'Log4Net 2.0.11' is not compatible with 'Common.Logging.Log4Net208 3.4.1 constraint: Log4Net (= 2.0.8)'.
@@ -27,6 +32,9 @@ GoogleDrive
 		If folder doesn't exist create it
 		Specify sub folder when uploading
 		Only upload, if newer
+		Admin .git
+		Nomad
+		Jahmic service account
 Flickr
 	https://stackoverflow.com/questions/8615196/how-can-i-retrieve-original-url-photo-with-flickr-net-api
 	test
@@ -62,33 +70,3 @@ Flickr
 	find out how to download pictures
 	find out how to download original
 	find a way to map url/encoded filename with that of the original (for downloading)
-Resources
-	Google Drive
-		https://developers.google.com/api-client-library/dotnet/guide/media_upload#:~:text=The%20default%20chunk%20size%20is,to%20any%20multiple%20of%20256KB.
-		https://developers.google.com/drive/api/v3/about-auth
-		https://stackoverflow.com/questions/41587763/how-to-provide-credentials-programmatically-to-use-google-drive-api-in-c-sharp-o
-		https://github.com/LindaLawton/Google-Dotnet-Samples/blob/Genreated-samples1.0/Drive%20API/v3/FilesSample.cs
-{"Google.Apis.Requests.RequestError\r\nInvalid Credentials [401]\r\nErrors [\r\n\tMessage[Invalid Credentials] Location[Authorization - header] Reason[authError] Domain[global]\r\n]\r\n"}
-Invalid Application name (Parameter 'ApplicationName')	ArgumentException
-Google.Apis.Requests.RequestError	File not found: 1lc0DDWxqSfkhpp2g3pS2XBKgD1GvavEP	Google.GoogleApiException
-Key Files
-	vendor\google\apiclient-services\src\Google\Service\Drive\FileList.php
-	vendor\google\apiclient\src\Google\Collection.php
-Accounts
-	https://console.developers.google.com/apis/credentials?authuser=2&project=maximal-ship-290912
-Working test
-	curl -i -v -H "Authorization: Bearer ya29.c.Ko4B4AdGrCaL70mj63gWploZ3Y06CYZvAupwKVFWXEPlV12KmRPGzra8Obs6mOASLjQO8XMhcF0-fT2NiHZdCbBSfHJ6zzYKLzhNqp_U7VrpRTr5ZLrIO9rCFqjnQ9nYodgdhVvOO3y_PhNc0Z1F2gdl7o0eqM9QZ64OtqB7dqHpMkJJ-5PKt4DDTiu_yM5Wvw" -H "Accept: application/json" -H "x-goog-api-client: gl-php/7.4.3 gdcl/2.4.0" -H "host: www.googleapis.com" -H "content-type: application/json" -H "user-agent: Google Drive API Video Uploader google-api-php-client/2.4.0" https://www.googleapis.com/drive/v3/files
-Resources
-	https://developers.google.com/gdata/articles/debugging_client_libs
-Async
-	System.Threading.Tasks.TaskCanceledException
-	ObjectDisposedException
-
-	for each file
-		while processing list at max
-			wait
-		start processing
-		add file to processing list
-
-	when any
-		processing list --
