@@ -22,7 +22,7 @@ namespace BackupManagerLibrary
 		private static readonly ILog Log = LogManager.GetLogger(
 			System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
 
-		private static string[] scopes =
+		private static readonly string[] Scopes =
 		{
 			DriveService.Scope.Drive,
 			DriveService.Scope.DriveAppdata,
@@ -69,7 +69,7 @@ namespace BackupManagerLibrary
 
 			GoogleCredential credentialedAccount =
 				GoogleCredential.FromFile(credentialsFile);
-			credentialedAccount = credentialedAccount.CreateScoped(scopes);
+			credentialedAccount = credentialedAccount.CreateScoped(Scopes);
 
 			BaseClientService.Initializer initializer =
 				new BaseClientService.Initializer();
@@ -126,7 +126,7 @@ namespace BackupManagerLibrary
 
 		public IList<Google.Apis.Drive.v3.Data.File> GetFiles(string parent)
 		{
-			IList<Google.Apis.Drive.v3.Data.File> files = null;
+			IList<Google.Apis.Drive.v3.Data.File> files;
 			FilesResource.ListRequest listRequest = driveService.Files.List();
 
 			listRequest.Fields = "files(id, name, modifiedTime)";
@@ -147,10 +147,6 @@ namespace BackupManagerLibrary
 				new Google.Apis.Drive.v3.Data.File();
 			fileMetadata.Name = file.Name;
 
-			IList<string> parents = new List<string>();
-			parents.Add(folder);
-			fileMetadata.Parents = parents;
-
 			using FileStream stream = new System.IO.FileStream(
 				filePath, System.IO.FileMode.Open);
 
@@ -158,6 +154,10 @@ namespace BackupManagerLibrary
 
 			if (string.IsNullOrWhiteSpace(fileId))
 			{
+				IList<string> parents = new List<string>();
+				parents.Add(folder);
+				fileMetadata.Parents = parents;
+
 				FilesResource.CreateMediaUpload request =
 					driveService.Files.Create(fileMetadata, stream, mimeType);
 
@@ -198,7 +198,7 @@ namespace BackupManagerLibrary
 		{
 			string message = string.Format(
 				CultureInfo.InvariantCulture,
-				"{0}: {1}",
+				"{0}: {1} bytes",
 				progress.Status,
 				progress.BytesSent);
 
