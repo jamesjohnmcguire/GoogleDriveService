@@ -4,10 +4,6 @@ Google Drive
 			AIzaSyCNX29JweIeNxXerGX4ClmlcxdTwns-rGc
 			JahMicDriveServiceAccount
 		https://console.developers.google.com/apis/credentials?authuser=2&project=maximal-ship-290912
-	Tasks
-		Add switch to skip CustomInitialization
-		Change name of Authenticate
-		Test new accounts
 	Working test
 		curl -i -v -H "Authorization: Bearer ya29.c.Ko4B4AdGrCaL70mj63gWploZ3Y06CYZvAupwKVFWXEPlV12KmRPGzra8Obs6mOASLjQO8XMhcF0-fT2NiHZdCbBSfHJ6zzYKLzhNqp_U7VrpRTr5ZLrIO9rCFqjnQ9nYodgdhVvOO3y_PhNc0Z1F2gdl7o0eqM9QZ64OtqB7dqHpMkJJ-5PKt4DDTiu_yM5Wvw" -H "Accept: application/json" -H "x-goog-api-client: gl-php/7.4.3 gdcl/2.4.0" -H "host: www.googleapis.com" -H "content-type: application/json" -H "user-agent: Google Drive API Video Uploader google-api-php-client/2.4.0" https://www.googleapis.com/drive/v3/files
 	Key Files
