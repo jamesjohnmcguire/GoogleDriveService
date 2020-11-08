@@ -1,5 +1,6 @@
 GoogleDrive
-	Add switch to skip CustomInitialization
+	Add brief delay when TaskCanceledException
+	Try resume?
 	Change name of Authenticate
 	Test new accounts
 	PersonalBackup integration
@@ -13,6 +14,9 @@ GoogleDrive
 	<NoWarn>NU1608;NU1701</NoWarn>
 	Files	C:\Users\JamesMc\Data\Clients\AxisPoint\OfJapan\SourceCode\Current\Web\data\PropertyImages
 	Create Service Accounts
+		Handle / catch TaskCanceledException
+		Increase time out
+		Add switch to skip CustomInitialization
 		GoogleApiException: The parents field is not directly writable in update requests. Use the addParents and removeParents parameters instead.
 		Newtonsoft.Json.JsonSerializationException
 		'Log4Net 2.0.11' is not compatible with 'Common.Logging.Log4Net208 3.4.1 constraint: Log4Net (= 2.0.8)'.
