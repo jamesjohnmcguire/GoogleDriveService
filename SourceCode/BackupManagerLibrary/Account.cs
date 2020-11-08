@@ -23,6 +23,8 @@ namespace BackupManagerLibrary
 
 		private GoogleDrive googleDrive;
 
+		private int retries;
+
 		public Account()
 		{
 			googleDrive = new GoogleDrive();
@@ -170,15 +172,28 @@ namespace BackupManagerLibrary
 						foreach (string subDirectory in subDirectories)
 						{
 							await BackUp(
-								directory, serverFolder.Id, subDirectory, serverFiles).
-								ConfigureAwait(false);
+								directory,
+								serverFolder.Id,
+								subDirectory,
+								serverFiles).ConfigureAwait(false);
 						}
 
 						if (processFiles == true)
 						{
 							foreach (FileInfo file in files)
 							{
-								BackUpFile(serverFolder, serverFiles, file);
+								bool success = false;
+
+								while ((success == false) && (retries < 2))
+								{
+									success = BackUpFile(
+										serverFolder, serverFiles, file);
+
+									if ((success == false) && (retries < 2))
+									{
+										System.Threading.Thread.Sleep(200);
+									}
+								}
 							}
 						}
 					}
@@ -203,11 +218,13 @@ namespace BackupManagerLibrary
 			}
 		}
 
-		private void BackUpFile(
+		private bool BackUpFile(
 			Google.Apis.Drive.v3.Data.File serverFolder,
 			IList<Google.Apis.Drive.v3.Data.File> serverFiles,
 			FileInfo file)
 		{
+			bool success = false;
+
 			try
 			{
 				string message = "Checking: " + file.FullName;
@@ -218,19 +235,16 @@ namespace BackupManagerLibrary
 						GoogleDrive.GetFileInList(
 							serverFiles, file.Name);
 
-				if (serverFile == null)
-				{
-					googleDrive.Upload(serverFolder.Id, file.FullName, null);
-				}
-				else
-				{
-					if (serverFile.ModifiedTime < file.LastWriteTime)
-					{
-						// local file is newer
-						googleDrive.Upload(
-							serverFolder.Id, file.FullName, serverFile.Id);
-					}
-				}
+				Upload(serverFolder, file, serverFile);
+
+				success = true;
+			}
+			catch (TaskCanceledException exception)
+			{
+				Log.Warn(CultureInfo.InvariantCulture, m => m(
+					exception.ToString()));
+
+				retries++;
 			}
 			catch (Exception exception) when
 				(exception is ArgumentNullException ||
@@ -245,6 +259,8 @@ namespace BackupManagerLibrary
 				Log.Error(CultureInfo.InvariantCulture, m => m(
 					exception.ToString()));
 			}
+
+			return success;
 		}
 
 		private void CleanUp()
@@ -254,6 +270,23 @@ namespace BackupManagerLibrary
 			foreach (string file in files)
 			{
 				googleDrive.Delete(file);
+			}
+		}
+
+		private void Upload(
+			Google.Apis.Drive.v3.Data.File serverFolder,
+			FileInfo file,
+			Google.Apis.Drive.v3.Data.File serverFile)
+		{
+			if (serverFile == null)
+			{
+				googleDrive.Upload(serverFolder.Id, file.FullName, null, false);
+			}
+			else if (serverFile.ModifiedTime < file.LastWriteTime)
+			{
+				// local file is newer
+				googleDrive.Upload(
+					serverFolder.Id, file.FullName, serverFile.Id, false);
 			}
 		}
 	}

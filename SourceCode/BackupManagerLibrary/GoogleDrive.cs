@@ -139,8 +139,16 @@ namespace BackupManagerLibrary
 			return files;
 		}
 
-		public void Upload(string folder, string filePath, string fileId)
+		public void Upload(
+			string folder, string filePath, string fileId, bool retry)
 		{
+			if (retry == true)
+			{
+				TimeSpan timeOut = driveService.HttpClient.Timeout +
+					TimeSpan.FromSeconds(100);
+				driveService.HttpClient.Timeout = timeOut;
+			}
+
 			FileInfo file = new FileInfo(filePath);
 
 			Google.Apis.Drive.v3.Data.File fileMetadata =
