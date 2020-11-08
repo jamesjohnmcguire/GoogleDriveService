@@ -17,18 +17,27 @@ namespace BackupManager
 	{
 		private const string LogFilePath = "Backup.log";
 		private const string OutputTemplate =
-			"[{Timestamp:yyyy-MM-dd HH:mm:ss} {Level:u3}] {Message:lj}{NewLine}{Exception}";
+			"[{Timestamp:yyyy-MM-dd HH:mm:ss} {Level:u3}] " +
+			"{Message:lj}{NewLine}{Exception}";
 
 		private static readonly ILog Log = LogManager.GetLogger(
 			System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
 
 		public static async Task Main(string[] args)
 		{
+			bool useCustomInitialization = true;
 			StartUp();
 
 			Log.Info("Starting Backup Manager");
 
-			await Backup.Run().ConfigureAwait(false);
+			if ((args != null) && (args.Length > 0) &&
+				args[0].Equals(
+					"false", System.StringComparison.OrdinalIgnoreCase))
+			{
+				useCustomInitialization = false;
+			}
+
+			await Backup.Run(useCustomInitialization).ConfigureAwait(false);
 		}
 
 		private static void StartUp()

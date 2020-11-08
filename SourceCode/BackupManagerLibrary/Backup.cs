@@ -21,7 +21,7 @@ namespace BackupManagerLibrary
 		private static readonly ILog Log = LogManager.GetLogger(
 			System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
 
-		public static async Task Run()
+		public static async Task Run(bool useCustomInitialization)
 		{
 			try
 			{
@@ -29,7 +29,10 @@ namespace BackupManagerLibrary
 
 				if (accounts.Count > 0)
 				{
-					CustomInitialization();
+					if (useCustomInitialization == true)
+					{
+						CustomInitialization();
+					}
 
 					foreach (Account account in accounts)
 					{
