@@ -36,6 +36,11 @@ namespace BackupManagerLibrary
 
 					foreach (Account account in accounts)
 					{
+						string name = account.ServiceAccount;
+						string message = "Backing up to account: " + name;
+						Log.Info(CultureInfo.InvariantCulture, m => m(
+							message));
+
 						await account.BackUp().ConfigureAwait(false);
 					}
 				}

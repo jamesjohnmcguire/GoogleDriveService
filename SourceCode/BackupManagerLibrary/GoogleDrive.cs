@@ -136,6 +136,14 @@ namespace BackupManagerLibrary
 			Google.Apis.Drive.v3.Data.FileList filesList = listRequest.Execute();
 			files = filesList.Files;
 
+			string message = string.Format(
+				CultureInfo.InvariantCulture,
+				"Retrieved files from: {0} count: {1}",
+				parent,
+				files.Count);
+			Log.Info(CultureInfo.InvariantCulture, m => m(
+				message));
+
 			return files;
 		}
 
