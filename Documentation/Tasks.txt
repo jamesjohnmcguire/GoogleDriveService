@@ -14,6 +14,9 @@ GoogleDrive
 	<NoWarn>NU1608;NU1701</NoWarn>
 	Files	C:\Users\JamesMc\Data\Clients\AxisPoint\OfJapan\SourceCode\Current\Web\data\PropertyImages
 	Create Service Accounts
+		Unhandled exception. System.AggregateException: One or more errors occurred. (A task was canceled.) System.Threading.Tasks.TaskCanceledException: A task was canceled.
+		Google.GoogleApiException: Google.Apis.Requests.RequestError File not found: 1Vx4k9wnOA-S99Zh0Y2gi-7koq94AeKOc. [404]
+		The service drive has thrown an exception: Google.GoogleApiException: Google.Apis.Requests.RequestError Forbidden
 		Handle / catch TaskCanceledException
 		Increase time out
 		Add switch to skip CustomInitialization
