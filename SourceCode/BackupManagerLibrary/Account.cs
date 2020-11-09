@@ -204,6 +204,7 @@ namespace BackupManagerLibrary
 				exception is ArgumentNullException ||
 				exception is DirectoryNotFoundException ||
 				exception is FileNotFoundException ||
+				exception is Google.GoogleApiException ||
 				exception is IndexOutOfRangeException ||
 				exception is InvalidOperationException ||
 				exception is NullReferenceException ||
@@ -239,12 +240,23 @@ namespace BackupManagerLibrary
 
 				success = true;
 			}
-			catch (TaskCanceledException exception)
+			catch (AggregateException exception)
 			{
-				Log.Warn(CultureInfo.InvariantCulture, m => m(
-					exception.ToString()));
+				foreach (Exception innerExecption in exception.InnerExceptions)
+				{
+					if (innerExecption is TaskCanceledException)
+					{
+						Log.Warn(CultureInfo.InvariantCulture, m => m(
+							exception.ToString()));
 
-				retries++;
+						retries++;
+					}
+					else
+					{
+						// Rethrow any other exception.
+						throw;
+					}
+				}
 			}
 			catch (Exception exception) when
 				(exception is ArgumentNullException ||
