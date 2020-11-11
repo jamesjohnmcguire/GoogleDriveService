@@ -228,7 +228,12 @@ namespace BackupManagerLibrary
 
 			try
 			{
-				string message = "Checking: " + file.FullName;
+				string fileName = GoogleDrive.SanitizeFileName(file.FullName);
+
+				string message = string.Format(
+					CultureInfo.InvariantCulture,
+					"Checking: {0}",
+					fileName);
 				Log.Info(CultureInfo.InvariantCulture, m => m(
 					message));
 
@@ -251,6 +256,21 @@ namespace BackupManagerLibrary
 
 						retries++;
 					}
+					else if (innerExecption is ArgumentNullException ||
+						innerExecption is DirectoryNotFoundException ||
+						innerExecption is FileNotFoundException ||
+						innerExecption is FormatException ||
+						innerExecption is IOException ||
+						innerExecption is NullReferenceException ||
+						innerExecption is IndexOutOfRangeException ||
+						innerExecption is InvalidOperationException ||
+						innerExecption is UnauthorizedAccessException)
+					{
+						Log.Error(CultureInfo.InvariantCulture, m => m(
+							exception.ToString()));
+
+						retries++;
+					}
 					else
 					{
 						// Rethrow any other exception.
@@ -262,6 +282,7 @@ namespace BackupManagerLibrary
 				(exception is ArgumentNullException ||
 				exception is DirectoryNotFoundException ||
 				exception is FileNotFoundException ||
+				exception is FormatException ||
 				exception is IOException ||
 				exception is NullReferenceException ||
 				exception is IndexOutOfRangeException ||

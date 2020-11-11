@@ -55,6 +55,19 @@ namespace BackupManagerLibrary
 			return file;
 		}
 
+		public static string SanitizeFileName(string fileName)
+		{
+			if (!string.IsNullOrWhiteSpace(fileName))
+			{
+				fileName = fileName.Replace(
+					"{", string.Empty, StringComparison.OrdinalIgnoreCase);
+				fileName = fileName.Replace(
+					"}", string.Empty, StringComparison.OrdinalIgnoreCase);
+			}
+
+			return fileName;
+		}
+
 		/// <summary>
 		/// Authenticating to Google using a Service account
 		/// Documentation:
@@ -65,7 +78,7 @@ namespace BackupManagerLibrary
 		/// <returns>True upon success,false otherwise.</returns>
 		public bool Authenticate(string credentialsFile)
 		{
-			bool authenticated = false;
+			bool authenticated;
 
 			GoogleCredential credentialedAccount =
 				GoogleCredential.FromFile(credentialsFile);
@@ -78,10 +91,7 @@ namespace BackupManagerLibrary
 
 			driveService = new DriveService(initializer);
 
-			if (driveService != null)
-			{
-				authenticated = true;
-			}
+			authenticated = true;
 
 			return authenticated;
 		}
@@ -229,9 +239,11 @@ namespace BackupManagerLibrary
 			}
 		}
 
-		private static void UploadResponseReceived(Google.Apis.Drive.v3.Data.File file)
+		private static void UploadResponseReceived(
+			Google.Apis.Drive.v3.Data.File file)
 		{
-			string message = file.Name + " was uploaded successfully";
+			string fileName = SanitizeFileName(file.Name);
+			string message = fileName + " was uploaded successfully";
 
 			Log.Info(CultureInfo.InvariantCulture, m => m(
 				message));
