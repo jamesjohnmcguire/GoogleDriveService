@@ -37,8 +37,39 @@ Files to back up
 		Reference.txt
 		Reminders.txt
 
-Clients
-Commands
-External
 
-Repositories
+Directories
+	Clients
+	External
+	Projects
+		Rome
+		Social
+	Repositories
+https://stackoverflow.com/questions/16281172/how-to-setup-svnserve-service-to-run-on-windows
+test KeibaGoDataMiner	then push
+Better return check for Authenticate
+Social
+	Restore all missing files
+	Clean up	Public	use links instead
+	Clean up	Other	find better homes
+	Clean up	Notes
+	Clean up	History/FamilyTree
+	Movies/Friends/Jerimy.MOV
+	Movies/Friends/Jerimy2.MOV
+	Movies/Halloween/GuyWithABroom.MOV
+	Movies/Halloween/GuysOnaPlatform.MOV
+	Movies/Halloween/Halloween2014.MOV
+	Movies/Halloween/PogoJumpers.MOV
+	Movies/ShibuyaCrossing.MOV
+	Movies/TokyoTower.MOV
+	History/2016/FriendsAndGirls/Chica2016-03-30 13.56.12 HDR.jpg
+	History/2016/FriendsAndGirls/Chica2016-03-30 13.56.19.jpg
+	History/2016/FriendsAndGirls/Chica2016-03-30 13.57.05.jpg
+	History/2017/Me/Ethnicity.jpg
+	History/2017/Me/VirtualRealityGig.jpg
+
+Integrate	BackupData.cmd
+BackupData.cmd	prompt for e:
+Integrate	BackupVms.cmd / NomadBackup.cmd
+Integrate	PersonalBackup.cmd
+Integrate	XamppBackup.cmd ?
