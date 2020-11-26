@@ -183,13 +183,14 @@ namespace BackupManagerLibrary
 							foreach (FileInfo file in files)
 							{
 								bool success = false;
+								retries = 2;
 
-								while ((success == false) && (retries < 2))
+								while ((success == false) && (retries > 0))
 								{
 									success = BackUpFile(
 										serverFolder, serverFiles, file);
 
-									if ((success == false) && (retries < 2))
+									if ((success == false) && (retries > 0))
 									{
 										System.Threading.Thread.Sleep(200);
 									}
@@ -254,7 +255,7 @@ namespace BackupManagerLibrary
 						Log.Warn(CultureInfo.InvariantCulture, m => m(
 							exception.ToString()));
 
-						retries++;
+						retries--;
 					}
 					else if (innerExecption is ArgumentNullException ||
 						innerExecption is DirectoryNotFoundException ||
@@ -269,7 +270,7 @@ namespace BackupManagerLibrary
 						Log.Error(CultureInfo.InvariantCulture, m => m(
 							exception.ToString()));
 
-						retries++;
+						retries--;
 					}
 					else
 					{
@@ -291,6 +292,8 @@ namespace BackupManagerLibrary
 			{
 				Log.Error(CultureInfo.InvariantCulture, m => m(
 					exception.ToString()));
+
+				retries = 0;
 			}
 
 			return success;
