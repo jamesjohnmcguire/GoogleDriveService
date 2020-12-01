@@ -213,6 +213,7 @@ namespace BackupManagerLibrary
 				exception is PathTooLongException ||
 				exception is System.Security.SecurityException ||
 				exception is TargetException ||
+				exception is TaskCanceledException ||
 				exception is UnauthorizedAccessException)
 			{
 				Log.Error(CultureInfo.InvariantCulture, m => m(
