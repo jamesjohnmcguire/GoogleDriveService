@@ -46,10 +46,9 @@ Files to back up
 SVN Server
 	https://stackoverflow.com/questions/16281172/how-to-setup-svnserve-service-to-run-on-windows
 Tasks
-	test KeibaGoDataMiner	then push
+	PersonalBackup	Fix disk space problem
 	Integrate	BackupData.cmd
 	Integrate	BackupVms.cmd / NomadBackup.cmd
-	Integrate	PersonalBackup.cmd
 	Integrate	XamppBackup.cmd ?
 	Social	Restore all missing files
 	Social	Clean up	Public	use links instead
@@ -73,3 +72,5 @@ Tasks
 	Better return check for Authenticate
 		BackupData.cmd	prompt for e:
 		Unhandled exception. System.Threading.Tasks.TaskCanceledException: A task was canceled.	BackupManagerLibrary\GoogleDrive.cs:line 115
+		Integrate	PersonalBackup.cmd
+		test KeibaGoDataMiner	then push
