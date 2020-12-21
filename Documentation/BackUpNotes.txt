@@ -46,11 +46,11 @@ Files to back up
 SVN Server
 	https://stackoverflow.com/questions/16281172/how-to-setup-svnserve-service-to-run-on-windows
 Tasks
-	PersonalBackup	Fix disk space problem
-	Integrate	BackupData.cmd
-	Integrate	BackupVms.cmd / NomadBackup.cmd
-	Integrate	XamppBackup.cmd ?
-	Social	Restore all missing files
+	Deal with email maxing out storage size
+	AggregateException / TaskCanceledException not being handled right
+	Ignore vendor, node_modules directories
+	Deal with C:\Users\JamesMc\Data\ProgramData\PersonalData.tc
+	Deal with C:\Users\JamesMc\Data\ProgramData\Partition5.dat
 	Social	Clean up	Public	use links instead
 	Social	Clean up	Other	find better homes
 	Social	Clean up	Notes
@@ -70,6 +70,12 @@ Tasks
 	Social	History/2017/Me/VirtualRealityGig.jpg
 	Fix folder structure	Right now, all folders are just added to top level
 	Better return check for Authenticate
+	Back Up	Issue with Outlook Popups messing up outlook shutdown process
+		Integrate	XamppBackup.cmd ?
+		Social	Restore all missing files
+		PersonalBackup	Fix disk space problem
+		Integrate	BackupData.cmd
+		Integrate	BackupVms.cmd / NomadBackup.cmd
 		BackupData.cmd	prompt for e:
 		Unhandled exception. System.Threading.Tasks.TaskCanceledException: A task was canceled.	BackupManagerLibrary\GoogleDrive.cs:line 115
 		Integrate	PersonalBackup.cmd
