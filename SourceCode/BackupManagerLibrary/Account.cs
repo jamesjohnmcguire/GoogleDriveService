@@ -249,6 +249,11 @@ namespace BackupManagerLibrary
 			}
 			catch (AggregateException exception)
 			{
+				Log.Error(CultureInfo.InvariantCulture, m => m(
+					"AggregateException caught"));
+				Log.Error(CultureInfo.InvariantCulture, m => m(
+					exception.ToString()));
+
 				foreach (Exception innerExecption in exception.InnerExceptions)
 				{
 					if (innerExecption is TaskCanceledException)
@@ -268,10 +273,7 @@ namespace BackupManagerLibrary
 						innerExecption is InvalidOperationException ||
 						innerExecption is UnauthorizedAccessException)
 					{
-						Log.Error(CultureInfo.InvariantCulture, m => m(
-							exception.ToString()));
-
-						retries--;
+						retries = 0;
 					}
 					else
 					{
