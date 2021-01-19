@@ -182,16 +182,18 @@ namespace BackupManagerLibrary
 						{
 							foreach (FileInfo file in files)
 							{
+								bool retry = false;
 								bool success = false;
 								retries = 2;
 
 								while ((success == false) && (retries > 0))
 								{
 									success = BackUpFile(
-										serverFolder, serverFiles, file);
+										serverFolder, serverFiles, file, retry);
 
 									if ((success == false) && (retries > 0))
 									{
+										retry = true;
 										System.Threading.Thread.Sleep(200);
 									}
 								}
@@ -224,7 +226,8 @@ namespace BackupManagerLibrary
 		private bool BackUpFile(
 			Google.Apis.Drive.v3.Data.File serverFolder,
 			IList<Google.Apis.Drive.v3.Data.File> serverFiles,
-			FileInfo file)
+			FileInfo file,
+			bool retry)
 		{
 			bool success = false;
 
@@ -243,7 +246,7 @@ namespace BackupManagerLibrary
 						GoogleDrive.GetFileInList(
 							serverFiles, file.Name);
 
-				Upload(serverFolder, file, serverFile);
+				Upload(serverFolder, file, serverFile, retry);
 
 				success = true;
 			}
@@ -315,17 +318,18 @@ namespace BackupManagerLibrary
 		private void Upload(
 			Google.Apis.Drive.v3.Data.File serverFolder,
 			FileInfo file,
-			Google.Apis.Drive.v3.Data.File serverFile)
+			Google.Apis.Drive.v3.Data.File serverFile,
+			bool retry)
 		{
 			if (serverFile == null)
 			{
-				googleDrive.Upload(serverFolder.Id, file.FullName, null, false);
+				googleDrive.Upload(serverFolder.Id, file.FullName, null, retry);
 			}
 			else if (serverFile.ModifiedTime < file.LastWriteTime)
 			{
 				// local file is newer
 				googleDrive.Upload(
-					serverFolder.Id, file.FullName, serverFile.Id, false);
+					serverFolder.Id, file.FullName, serverFile.Id, retry);
 			}
 		}
 	}

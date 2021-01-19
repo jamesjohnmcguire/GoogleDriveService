@@ -33,7 +33,14 @@ namespace BackupManagerLibrary
 			DriveService.Scope.DriveScripts
 		};
 
+		// Included as member, as sometimes there is a
+		// need to recreate service.
+		private GoogleCredential credentialedAccount;
 		private DriveService driveService;
+
+		// Included as member, as sometimes there is a
+		// need to recreate service.
+		private BaseClientService.Initializer initializer;
 
 		public static Google.Apis.Drive.v3.Data.File GetFileInList(
 			IList<Google.Apis.Drive.v3.Data.File> files, string name)
@@ -80,12 +87,10 @@ namespace BackupManagerLibrary
 		{
 			bool authenticated;
 
-			GoogleCredential credentialedAccount =
-				GoogleCredential.FromFile(credentialsFile);
+			credentialedAccount = GoogleCredential.FromFile(credentialsFile);
 			credentialedAccount = credentialedAccount.CreateScoped(Scopes);
 
-			BaseClientService.Initializer initializer =
-				new BaseClientService.Initializer();
+			initializer = new BaseClientService.Initializer();
 			initializer.ApplicationName = "Backup Manager";
 			initializer.HttpClientInitializer = credentialedAccount;
 
@@ -164,6 +169,9 @@ namespace BackupManagerLibrary
 			{
 				TimeSpan timeOut = driveService.HttpClient.Timeout +
 					TimeSpan.FromSeconds(100);
+
+				// apparentely, we need to reset the drive service
+				driveService = new DriveService(initializer);
 				driveService.HttpClient.Timeout = timeOut;
 			}
 
