@@ -12,6 +12,12 @@ namespace BackupManagerLibrary
 {
 	public class Exclude
 	{
+		public Exclude(string path, ExcludeType excludeType)
+		{
+			Path = path;
+			ExcludeType = excludeType;
+		}
+
 		public string Path { get; set; }
 
 		public ExcludeType ExcludeType { get; set; }

@@ -144,9 +144,18 @@ namespace BackupManagerLibrary
 						}
 					}
 
+					// Check for default ignore paths
+					DirectoryInfo directoryInfo = new DirectoryInfo(path);
+					string directoryName = directoryInfo.Name;
+
+					if (directory.ExcludesContains(directoryName))
+					{
+						Exclude exclude = directory.GetExclude(directoryName);
+						processSubFolders = false;
+					}
+
 					if (processSubFolders == true)
 					{
-						DirectoryInfo directoryInfo = new DirectoryInfo(path);
 						FileInfo[] files = directoryInfo.GetFiles();
 
 						Google.Apis.Drive.v3.Data.File serverFolder =

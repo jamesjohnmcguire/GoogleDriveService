@@ -14,6 +14,15 @@ namespace BackupManagerLibrary
 	{
 		private readonly IList<Exclude> excludes = new List<Exclude>();
 
+		public Directory()
+		{
+			Exclude exclude =
+				new Exclude("node_modules", ExcludeType.AllSubDirectories);
+			excludes.Add(exclude);
+			exclude = new Exclude("vendor", ExcludeType.AllSubDirectories);
+			excludes.Add(exclude);
+		}
+
 		public string Path { get; set; }
 
 		public string Parent { get; set; }
