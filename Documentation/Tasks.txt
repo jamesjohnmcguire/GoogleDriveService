@@ -1,20 +1,27 @@
 GoogleDrive
-	Unhandled exception. System.FormatException: Input string was not in a correct format.
-	Add brief delay when TaskCanceledException
-	Try resume?
-	Change name of Authenticate
-	Test new accounts
-	PersonalBackup integration
-	Schtask	Nomad
-	Schtask	PersonalBackup
-	Schtask	BackUpManager
+	Ignore vendor, node_modules directories
+	Removed vendor, node_modules directories from server
+	Exclude by file
 	For each folder, check if server file no exists locally, if so, delete from drive
-	Find better home for log file
-	implement exponential backoff 
-	Google.GoogleApiException
+	Google.GoogleApiException	retry
+	Better return check for Authenticate
+	Back Up	Issue with Outlook Popups messing up outlook shutdown process
+	Change name of Authenticate
 	<NoWarn>NU1608;NU1701</NoWarn>
-	Files	C:\Users\JamesMc\Data\Clients\AxisPoint\OfJapan\SourceCode\Current\Web\data\PropertyImages
-	Create Service Accounts
+	Find better home for log file
+	InvalidOperationException	This instance has already started one or more requests. Properties can only be modified before sending the first request.	On setting timeout on existing instance.
+	'Log4Net 2.0.11' is not compatible with 'Common.Logging.Log4Net208 3.4.1 constraint: Log4Net (= 2.0.8)'.
+	TypeLoadException: Could not load type 'Common.Logging.ConfigurationSectionHandler' from assembly 'Common.Logging'.
+	Could not load type 'ConfigurationSectionHandler' from assembly
+	Finished
+		Unhandled exception. System.Threading.Tasks.TaskCanceledException: A task was canceled.	BackupManagerLibrary\GoogleDrive.cs:line 115
+		AggregateException / TaskCanceledException not being handled right
+		Unhandled exception. System.FormatException: Input string was not in a correct format.
+		Add brief delay when TaskCanceledException
+		Try resume?
+		Test new accounts
+		implement exponential backoff 
+		Create Service Accounts
 		Unhandled exception. System.AggregateException: One or more errors occurred. (A task was canceled.) System.Threading.Tasks.TaskCanceledException: A task was canceled.
 		Google.GoogleApiException: Google.Apis.Requests.RequestError File not found: 1Vx4k9wnOA-S99Zh0Y2gi-7koq94AeKOc. [404]
 		The service drive has thrown an exception: Google.GoogleApiException: Google.Apis.Requests.RequestError Forbidden
@@ -23,10 +30,7 @@ GoogleDrive
 		Add switch to skip CustomInitialization
 		GoogleApiException: The parents field is not directly writable in update requests. Use the addParents and removeParents parameters instead.
 		Newtonsoft.Json.JsonSerializationException
-		'Log4Net 2.0.11' is not compatible with 'Common.Logging.Log4Net208 3.4.1 constraint: Log4Net (= 2.0.8)'.
 		TypeLoadException: Could not load type 'log4net.Config.Log4NetConfigurationSectionHandler' from assembly 'log4net'.
-		TypeLoadException: Could not load type 'Common.Logging.ConfigurationSectionHandler' from assembly 'Common.Logging'.
-		Could not load type 'ConfigurationSectionHandler' from assembly
 		Create library
 		Add google drive nuget
 		Connect library
@@ -45,9 +49,12 @@ GoogleDrive
 		Specify sub folder when uploading
 		Only upload, if newer
 		Admin .git
-		Nomad
 		Jahmic service account
 Flickr
+	Clotho
+	Hide In Picture 
+	Free File Camouflage
+	test restore
 	https://stackoverflow.com/questions/8615196/how-can-i-retrieve-original-url-photo-with-flickr-net-api
 	test
 		manual make png
