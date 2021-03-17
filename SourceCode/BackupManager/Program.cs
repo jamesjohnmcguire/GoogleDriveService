@@ -9,7 +9,10 @@ using Common.Logging;
 using Serilog;
 using Serilog.Configuration;
 using Serilog.Events;
+using System;
 using System.Threading.Tasks;
+
+[assembly: CLSCompliant(true)]
 
 namespace BackupManager
 {
