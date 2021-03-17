@@ -28,3 +28,5 @@ bld/
 # NUNIT
 *.VisualState.xml
 TestResult.xml
+
+/SourceCode/DevelopmentTools/GoogleDriveCli/vendor
