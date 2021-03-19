@@ -1,19 +1,24 @@
 GoogleDrive
-	Ignore vendor, node_modules directories
-	Removed vendor, node_modules directories from server
+	Exclude vendor, node_modules, obj directories from server	testing
+	Remove vendor, node_modules, obj directories from server
 	Exclude by file
+	Exclude directories listed in .gitignore
+	Remove directories listed in .gitignore
 	For each folder, check if server file no exists locally, if so, delete from drive
+	Move configuration directory
 	Google.GoogleApiException	retry
+	<NoWarn>NU1608;NU1701</NoWarn>
+	Find better home for log file
 	Better return check for Authenticate
 	Back Up	Issue with Outlook Popups messing up outlook shutdown process
 	Change name of Authenticate
-	<NoWarn>NU1608;NU1701</NoWarn>
-	Find better home for log file
-	InvalidOperationException	This instance has already started one or more requests. Properties can only be modified before sending the first request.	On setting timeout on existing instance.
-	'Log4Net 2.0.11' is not compatible with 'Common.Logging.Log4Net208 3.4.1 constraint: Log4Net (= 2.0.8)'.
-	TypeLoadException: Could not load type 'Common.Logging.ConfigurationSectionHandler' from assembly 'Common.Logging'.
-	Could not load type 'ConfigurationSectionHandler' from assembly
 	Finished
+		InvalidOperationException	This instance has already started one or more requests. Properties can only be modified before sending the first request.	On setting timeout on existing instance.
+		'Log4Net 2.0.11' is not compatible with 'Common.Logging.Log4Net208 3.4.1 constraint: Log4Net (= 2.0.8)'.
+		TypeLoadException: Could not load type 'Common.Logging.ConfigurationSectionHandler' from assembly 'Common.Logging'.
+		Could not load type 'ConfigurationSectionHandler' from assembly
+		Copy command line support from GreenChannelWeb
+		Ignore vendor, node_modules directories
 		Unhandled exception. System.Threading.Tasks.TaskCanceledException: A task was canceled.	BackupManagerLibrary\GoogleDrive.cs:line 115
 		AggregateException / TaskCanceledException not being handled right
 		Unhandled exception. System.FormatException: Input string was not in a correct format.
