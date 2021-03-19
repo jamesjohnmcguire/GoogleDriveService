@@ -15,6 +15,7 @@ class GoogleDrive
 	protected $debug = null;
 
 	private $client = null;
+    private $root = null;
 	private $service = null;
 	private $serviceAccountFilePath = null;
 
@@ -24,7 +25,31 @@ class GoogleDrive
 
 		$this->client = $this->Authorize($authorizationType);
 
-		$this->service = new Google_Service_Drive($this->client);
+        $contents = file_get_contents(SERVICE_ACCOUNT_FILE);
+        $data = json_decode($contents);
+        $this->root = $data->root;
+
+        $this->service = new Google_Service_Drive($this->client);
+	}
+
+	public function About()
+	{
+		$this->debug->Show(Debug::DEBUG, "About begin");
+
+        $about = $this->service->about;
+
+        $options =
+        [
+            'fields' => 'storageQuota',
+            'prettyPrint' => true
+        ];
+
+        $response = $about->get($options);
+
+        print_r($response->storageQuota);
+        exit();
+
+		return $response;
 	}
 
 	public function DeleteAllFiles()
@@ -46,7 +71,7 @@ class GoogleDrive
 		$this->service->files->delete($fileId);
 	}
 
-	public function ListFiles()
+	public function ListFiles($showParent = false)
 	{
         $response = $this->GetFiles();
 
@@ -54,7 +79,18 @@ class GoogleDrive
 
 		foreach ($response as $file)
 		{
-			printf("Found file: %s (%s)\r\n", $file->name, $file->id);
+            //print_r($file);
+
+            if ($showParent == true)
+            {
+                printf("Found file: Id: %s Parent: %s Name: %s\r\n",
+                    $file->id, $file->parents[0], $file->name);
+                }
+            else
+            {
+                printf("Found file: Id: %s Name: %s\r\n",
+                    $file->id, $file->name);
+            }
 		}
 
 		return $response;
@@ -294,9 +330,18 @@ class GoogleDrive
 		// $files = new Google_Service_Drive_FileList($this->client);
 		// $response = $files->getFiles();
 
-		// Silly, but this seems to be needed, otherwise empty file list
-		$this->client->getAccessToken();
-		$response = $this->service->files->listFiles(array('supportsAllDrives' => true));
+        //'q' => "mimeType = 'application/vnd.google-apps.folder' and 'root' in parents",
+
+        $options =
+        [
+            'q' => "mimeType = 'application/vnd.google-apps.folder' and " .
+                "'$this->root' in parents",
+            'pageSize' => 200,
+            'supportsAllDrives' => true,
+            'fields' => "files(id, name, parents)"
+        ];
+
+        $response = $this->service->files->listFiles($options);
 
 		return $response;
 	}

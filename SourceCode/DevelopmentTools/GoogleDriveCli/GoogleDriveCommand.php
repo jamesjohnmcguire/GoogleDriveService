@@ -31,6 +31,9 @@ echo "Data is: $data\r\n";
 
 switch ($command)
 {
+    case 'about':
+        $googleDrive->About();
+        break;
     case 'delete':
         $googleDrive->DeleteFile($data);
         break;
