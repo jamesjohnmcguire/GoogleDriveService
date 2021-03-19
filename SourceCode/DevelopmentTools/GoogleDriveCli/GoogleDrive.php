@@ -231,7 +231,8 @@ class GoogleDrive
 
 		$client->setApplicationName('Google Drive API Video Uploader');
 		$client->setScopes(Google_Service_Drive::DRIVE_FILE);
-		$client->addScope("https://www.googleapis.com/auth/drive.file");
+		//$client->addScope("https://www.googleapis.com/auth/drive.file");
+		$client->addScope("https://www.googleapis.com/auth/drive");
 		$client->setAccessType('offline');
 
 		if ($authorizationType == 'ServiceAccount')
