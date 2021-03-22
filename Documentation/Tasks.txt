@@ -1,4 +1,11 @@
 GoogleDrive
+	Google Drive Api The user may not have granted the app write access to all of the children of file
+	Back Up	Clean out Jts folder
+	google-cloud-compliance@google.com	Potentially Compromised Credentials for jahmicdriveapi	Fri 5:37 PM	jahmic@gmail.com		
+	BackupPersonalData	Needs revising
+	Back ups	Rome ? Social ?
+	Back Ups	Exclude	C:\Users\JamesMc\Data\ProgramData\PostGreSQL\base	?
+	BackUp	Clean up service accounts
 	Exclude vendor, node_modules, obj directories from server	testing
 	Remove vendor, node_modules, obj directories from server
 	Exclude by file

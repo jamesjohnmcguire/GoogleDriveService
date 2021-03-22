@@ -23,6 +23,26 @@ Resources
 		https://stackoverflow.com/questions/41587763/how-to-provide-credentials-programmatically-to-use-google-drive-api-in-c-sharp-o
 		https://github.com/LindaLawton/Google-Dotnet-Samples/blob/Genreated-samples1.0/Drive%20API/v3/FilesSample.cs
 		https://developers.google.com/gdata/articles/debugging_client_libs
+
+		GoogleDriveCli\vendor\google\apiclient\src\Client.php
+
+		class Google_Service_Drive extends Google_Service
+			public function __construct(Google_Client $client, $rootUrl = null)
+			GoogleDriveCli\vendor\google\apiclient-services\src\Google\Service\Drive.php
+		class Google_Service_Drive_Drive extends Google_Model
+			GoogleDriveCli\vendor\google\apiclient-services\src\Google\Service\Drive\Drive.php
+		class Google_Service_Drive_About extends Google_Collection
+			GoogleDriveCli\vendor\google\apiclient-services\src\Google\Service\Drive\About.php
+		class Google_Collection extends \Google\Collection {}
+			GoogleDriveCli\vendor\google\apiclient\src\aliases.php
+
+		https://developers.google.com/resources/api-libraries/documentation/drive/v3/php/latest/class-Google_Service_Drive_About.html
+
+		google drive php example
+	storageQuota
+	1Vx4k9wnOA-S99Zh0Y2gi-7koq94AeKOc
+	listRequest.Fields = "files(id, webViewLink, size)";
+	https://stackoverflow.com/questions/16153539/list-all-top-level-folders-in-google-drive-api
 FlikrStorage Project
 	https://github.com/ricardobeat/filr
 	https://github.com/meltingice/flickr-store
