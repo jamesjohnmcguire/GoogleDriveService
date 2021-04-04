@@ -1,13 +1,9 @@
 GoogleDrive
-	Google Drive Api The user may not have granted the app write access to all of the children of file
 	Back Up	Clean out Jts folder
-	google-cloud-compliance@google.com	Potentially Compromised Credentials for jahmicdriveapi	Fri 5:37 PM	jahmic@gmail.com		
 	BackupPersonalData	Needs revising
 	Back ups	Rome ? Social ?
 	Back Ups	Exclude	C:\Users\JamesMc\Data\ProgramData\PostGreSQL\base	?
 	BackUp	Clean up service accounts
-	Exclude vendor, node_modules, obj directories from server	testing
-	Remove vendor, node_modules, obj directories from server
 	Exclude by file
 	Exclude directories listed in .gitignore
 	Remove directories listed in .gitignore
@@ -20,6 +16,10 @@ GoogleDrive
 	Back Up	Issue with Outlook Popups messing up outlook shutdown process
 	Change name of Authenticate
 	Finished
+		Exclude vendor, node_modules, obj directories from server	testing
+		Remove vendor, node_modules, obj directories from server
+		google-cloud-compliance@google.com	Potentially Compromised Credentials for jahmicdriveapi	Fri 5:37 PM	jahmic@gmail.com		
+		Google Drive Api The user may not have granted the app write access to all of the children of file
 		InvalidOperationException	This instance has already started one or more requests. Properties can only be modified before sending the first request.	On setting timeout on existing instance.
 		'Log4Net 2.0.11' is not compatible with 'Common.Logging.Log4Net208 3.4.1 constraint: Log4Net (= 2.0.8)'.
 		TypeLoadException: Could not load type 'Common.Logging.ConfigurationSectionHandler' from assembly 'Common.Logging'.
