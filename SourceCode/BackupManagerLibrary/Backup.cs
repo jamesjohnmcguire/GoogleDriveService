@@ -29,7 +29,12 @@ namespace BackupManagerLibrary
 			{
 				IList<Account> accounts = AccountsManager.LoadAccounts();
 
-				if (accounts.Count > 0)
+				if ((accounts == null) || (accounts.Count == 0))
+				{
+					Log.Error(CultureInfo.InvariantCulture, m => m(
+						"No accounts information"));
+				}
+				else
 				{
 					if (useCustomInitialization == true)
 					{

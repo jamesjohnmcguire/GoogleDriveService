@@ -53,14 +53,13 @@ namespace BackupManagerLibrary
 			{
 				string userProfilePath = Environment.GetFolderPath(
 					Environment.SpecialFolder.UserProfile);
-				string accountsPath = userProfilePath + @"\GoogleDrive";
+				string accountsPath = AccountsManager.DataPath;
 
 				if (System.IO.Directory.Exists(accountsPath))
 				{
 					string accountsFile = accountsPath + @"\" + ServiceAccount;
 
 					authenticated = googleDrive.Authenticate(accountsFile);
-					authenticated = true;
 				}
 			}
 			catch (Exception exception) when
