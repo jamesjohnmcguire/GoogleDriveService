@@ -104,8 +104,7 @@ namespace BackupManagerLibrary
 		public Google.Apis.Drive.v3.Data.File CreateFolder(
 			string parent, string folderName)
 		{
-			Google.Apis.Drive.v3.Data.File fileMetadata =
-				new Google.Apis.Drive.v3.Data.File();
+			Google.Apis.Drive.v3.Data.File fileMetadata = new ();
 
 			fileMetadata.Name = folderName;
 			fileMetadata.MimeType = "application/vnd.google-apps.folder";
@@ -175,14 +174,12 @@ namespace BackupManagerLibrary
 				driveService.HttpClient.Timeout = timeOut;
 			}
 
-			FileInfo file = new FileInfo(filePath);
+			FileInfo file = new (filePath);
 
-			Google.Apis.Drive.v3.Data.File fileMetadata =
-				new Google.Apis.Drive.v3.Data.File();
+			Google.Apis.Drive.v3.Data.File fileMetadata = new ();
 			fileMetadata.Name = file.Name;
 
-			using FileStream stream = new System.IO.FileStream(
-				filePath, System.IO.FileMode.Open);
+			using FileStream stream = new (filePath, System.IO.FileMode.Open);
 
 			string mimeType = MimeTypes.GetMimeType(file.Name);
 

@@ -144,7 +144,7 @@ namespace BackupManagerLibrary
 					}
 
 					// Check for default ignore paths
-					DirectoryInfo directoryInfo = new DirectoryInfo(path);
+					DirectoryInfo directoryInfo = new (path);
 					string directoryName = directoryInfo.Name;
 
 					if (directory.ExcludesContains(directoryName))

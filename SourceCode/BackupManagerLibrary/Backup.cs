@@ -94,7 +94,7 @@ namespace BackupManagerLibrary
 
 					foreach (string file in files)
 					{
-						System.IO.FileInfo fileInfo = new FileInfo(file);
+						System.IO.FileInfo fileInfo = new (file);
 
 						string destination = fileInfo.DirectoryName +
 							@"\Backups\" + fileInfo.Name;
@@ -102,7 +102,7 @@ namespace BackupManagerLibrary
 					}
 				}
 
-				using Process outlook = new Process();
+				using Process outlook = new ();
 				outlook.StartInfo.FileName =
 					@"C:\Program Files\Microsoft Office\root\Office16\OUTLOOK.EXE";
 				outlook.Start();

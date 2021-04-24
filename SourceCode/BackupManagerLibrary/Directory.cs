@@ -17,11 +17,11 @@ namespace BackupManagerLibrary
 		public Directory()
 		{
 			Exclude exclude =
-				new Exclude("node_modules", ExcludeType.AllSubDirectories);
+				new ("node_modules", ExcludeType.AllSubDirectories);
 			excludes.Add(exclude);
-			exclude = new Exclude("obj", ExcludeType.AllSubDirectories);
+			exclude = new ("obj", ExcludeType.AllSubDirectories);
 			excludes.Add(exclude);
-			exclude = new Exclude("vendor", ExcludeType.AllSubDirectories);
+			exclude = new ("vendor", ExcludeType.AllSubDirectories);
 			excludes.Add(exclude);
 		}
 

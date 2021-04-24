@@ -15,28 +15,31 @@ namespace BackupManagerLibrary
 {
 	public static class AccountsManager
 	{
+		private const string InternalDataPath =
+			@"\Data\ProgramData\GoogleDrive";
+
+		private const string MainDataFile = @"\Accounts.json";
+
 		private static readonly ILog Log = LogManager.GetLogger(
 			System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
 
-		private static string dataPath = @"\Data\ProgramData\GoogleDrive";
-		private static string mainDataFile = @"\Accounts.json";
-		private static string userProfilePath = Environment.GetFolderPath(
-			Environment.SpecialFolder.UserProfile);
+		private static readonly string UserProfilePath =
+			Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
 
 		public static string DataPath
 		{
-			get { return userProfilePath + dataPath; }
+			get { return UserProfilePath + InternalDataPath; }
 		}
 
 		public static IList<Account> LoadAccounts()
 		{
 			IList<Account> accounts = null;
 
-			string accountsPath = userProfilePath + dataPath;
+			string accountsPath = UserProfilePath + InternalDataPath;
 
 			if (System.IO.Directory.Exists(accountsPath))
 			{
-				string accountsFile = accountsPath + mainDataFile;
+				string accountsFile = accountsPath + MainDataFile;
 
 				if (System.IO.File.Exists(accountsFile))
 				{
