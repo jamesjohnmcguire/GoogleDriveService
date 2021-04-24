@@ -18,18 +18,13 @@ namespace BackupManager
 {
 	public static class Program
 	{
-		private const string LogFilePath = "Backup.log";
-		private const string OutputTemplate =
-			"[{Timestamp:yyyy-MM-dd HH:mm:ss} {Level:u3}] " +
-			"{Message:lj}{NewLine}{Exception}";
-
 		private static readonly ILog Log = LogManager.GetLogger(
 			System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
 
 		public static async Task Main(string[] args)
 		{
 			bool useCustomInitialization = true;
-			StartUp();
+			LogInitialization();
 
 			Log.Info("Starting Backup Manager");
 
@@ -43,13 +38,18 @@ namespace BackupManager
 			await Backup.Run(useCustomInitialization).ConfigureAwait(false);
 		}
 
-		private static void StartUp()
+		private static void LogInitialization()
 		{
+			string logFilePath = "Backup.log";
+			string outputTemplate =
+				"[{Timestamp:yyyy-MM-dd HH:mm:ss} {Level:u3}] " +
+				"{Message:lj}{NewLine}{Exception}";
+
 			LoggerConfiguration configuration = new LoggerConfiguration();
 			LoggerSinkConfiguration sinkConfiguration = configuration.WriteTo;
-			sinkConfiguration.Console(LogEventLevel.Verbose, OutputTemplate);
+			sinkConfiguration.Console(LogEventLevel.Verbose, outputTemplate);
 			sinkConfiguration.File(
-				LogFilePath, LogEventLevel.Verbose, OutputTemplate);
+				logFilePath, LogEventLevel.Verbose, outputTemplate);
 			Serilog.Log.Logger = configuration.CreateLogger();
 
 			LogManager.Adapter =
