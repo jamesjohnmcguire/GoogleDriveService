@@ -96,8 +96,7 @@ namespace BackupManagerLibrary
 					{
 						System.IO.FileInfo fileInfo = new (file);
 
-						string destination = fileInfo.DirectoryName +
-							@"\Backups\" + fileInfo.Name;
+						string destination = backupPath + fileInfo.Name;
 						System.IO.File.Copy(file, destination, true);
 					}
 				}
