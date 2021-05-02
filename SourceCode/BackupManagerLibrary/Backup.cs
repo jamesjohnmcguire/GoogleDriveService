@@ -14,7 +14,7 @@ using System.Globalization;
 using System.IO;
 using System.Threading.Tasks;
 
-[assembly: CLSCompliant(false)]
+[assembly: CLSCompliant(true)]
 
 namespace BackupManagerLibrary
 {
