@@ -27,7 +27,11 @@ class GoogleDrive
 
         $contents = file_get_contents(SERVICE_ACCOUNT_FILE);
         $data = json_decode($contents);
-        $this->root = $data->root;
+
+		if (property_exists($data, 'root'))
+		{
+			$this->root = $data->root;
+		}
 
         $this->service = new Google_Service_Drive($this->client);
 	}
@@ -79,8 +83,6 @@ class GoogleDrive
 
 		foreach ($response as $file)
 		{
-            //print_r($file);
-
             if ($showParent == true)
             {
                 printf("Found file: Id: %s Parent: %s Name: %s\r\n",
@@ -325,22 +327,48 @@ class GoogleDrive
         return $accessToken;
     }
 
-    private function GetFiles()
+    private function GetFiles(
+		$showOnlyFolders = false, $showOnlyRootLevel = false)
 	{
 		// returns empty array
 		// $files = new Google_Service_Drive_FileList($this->client);
 		// $response = $files->getFiles();
 
-        //'q' => "mimeType = 'application/vnd.google-apps.folder' and 'root' in parents",
-
         $options =
         [
-            'q' => "mimeType = 'application/vnd.google-apps.folder' and " .
-                "'$this->root' in parents",
             'pageSize' => 200,
             'supportsAllDrives' => true,
             'fields' => "files(id, name, parents)"
         ];
+
+		if ($showOnlyFolders == true && $showOnlyRootLevel == true)
+		{
+			if ($this->root != null)
+			{
+				$options['q'] = "mimeType = 'application/vnd.google-apps.folder'" .
+					" and '$this->root' in parents";
+			}
+			else
+			{
+				$options['q'] =
+					"mimeType = 'application/vnd.google-apps.folder'";
+			}
+		}
+		else if ($showOnlyFolders == true)
+		{
+			$options['q'] = "mimeType = 'application/vnd.google-apps.folder'";
+		}
+		else if ($showOnlyRootLevel == true)
+		{
+			if ($this->root != null)
+			{
+				$options['q'] = "'$this->root' in parents";
+			}
+			else
+			{
+				$options['q'] = "'root' in parents";
+			}
+		}
 
         $response = $this->service->files->listFiles($options);
 
