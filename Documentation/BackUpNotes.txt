@@ -1,4 +1,6 @@
 Google Drive
+	Finding RootSharedFolderId (aka Parent)
+		You need to manually open up your google drive account in a browser, then navigate to the folder where you want to be root shard folder and click share.  Add your service account email address there.  Also, copy the core part of the shared link, that is the RootSharedFolderId.
 	Working test
 		curl -i -v -H "Authorization: Bearer ya29.c.Ko4B4AdGrCaL70mj63gWploZ3Y06CYZvAupwKVFWXEPlV12KmRPGzra8Obs6mOASLjQO8XMhcF0-fT2NiHZdCbBSfHJ6zzYKLzhNqp_U7VrpRTr5ZLrIO9rCFqjnQ9nYodgdhVvOO3y_PhNc0Z1F2gdl7o0eqM9QZ64OtqB7dqHpMkJJ-5PKt4DDTiu_yM5Wvw" -H "Accept: application/json" -H "x-goog-api-client: gl-php/7.4.3 gdcl/2.4.0" -H "host: www.googleapis.com" -H "content-type: application/json" -H "user-agent: Google Drive API Video Uploader google-api-php-client/2.4.0" https://www.googleapis.com/drive/v3/files
 	Key Files
@@ -39,10 +41,7 @@ Resources
 		https://developers.google.com/resources/api-libraries/documentation/drive/v3/php/latest/class-Google_Service_Drive_About.html
 
 		google drive php example
-	storageQuota
-	1Vx4k9wnOA-S99Zh0Y2gi-7koq94AeKOc
-	listRequest.Fields = "files(id, webViewLink, size)";
-	https://stackoverflow.com/questions/16153539/list-all-top-level-folders-in-google-drive-api
+			https://stackoverflow.com/questions/16153539/list-all-top-level-folders-in-google-drive-api
 FlikrStorage Project
 	https://github.com/ricardobeat/filr
 	https://github.com/meltingice/flickr-store
