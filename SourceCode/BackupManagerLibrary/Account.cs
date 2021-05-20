@@ -89,9 +89,9 @@ namespace BackupManagerLibrary
 					directory.ExpandExcludes();
 
 					IList<Google.Apis.Drive.v3.Data.File> serverFiles =
-						googleDrive.GetFiles(directory.Parent);
+						googleDrive.GetFiles(directory.RootSharedFolderId);
 
-					await BackUp(directory, directory.Parent, path, serverFiles).
+					await BackUp(directory, directory.RootSharedFolderId, path, serverFiles).
 						ConfigureAwait(false);
 				}
 			}

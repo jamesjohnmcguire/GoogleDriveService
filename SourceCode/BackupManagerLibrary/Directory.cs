@@ -27,7 +27,7 @@ namespace BackupManagerLibrary
 
 		public string Path { get; set; }
 
-		public string Parent { get; set; }
+		public string RootSharedFolderId { get; set; }
 
 		public IList<Exclude> Excludes
 		{
