@@ -345,13 +345,15 @@ class GoogleDrive
 		{
 			if ($this->root != null)
 			{
-				$options['q'] = "mimeType = 'application/vnd.google-apps.folder'" .
+				$options['q'] =
+					"mimeType = 'application/vnd.google-apps.folder'" .
 					" and '$this->root' in parents";
 			}
 			else
 			{
 				$options['q'] =
-					"mimeType = 'application/vnd.google-apps.folder'";
+					"mimeType = 'application/vnd.google-apps.folder'" .
+					" and 'root' in parents";
 			}
 		}
 		else if ($showOnlyFolders == true)
