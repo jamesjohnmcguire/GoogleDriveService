@@ -55,10 +55,3 @@ FlikrStorage Project
 	https://www.flickr.com/cameraroll
 	https://www.flickr.com/photos/125800696@N02/20544612979/in/datetaken/
 	backup	flickrnet retrieve original
-Back Up Manager
-	Unhandled exception. The service drive has thrown an exception: Google.GoogleApiException
-	at BackupManagerLibrary.GoogleDrive.GetFiles(String parent) in C:\Users\JamesMc\Data\Clients\DigitalZenWorks\BackupManager\SourceCode\BackupManagerLibrary\GoogleDrive.cs:line 161
-	at BackupManagerLibrary.Account.BackUp() in C:\Users\JamesMc\Data\Clients\DigitalZenWorks\BackupManager\SourceCode\BackupManagerLibrary\Account.cs:line 91
-	at BackupManagerLibrary.Backup.Run(Boolean useCustomInitialization) in C:\Users\JamesMc\Data\Clients\DigitalZenWorks\BackupManager\SourceCode\BackupManagerLibrary\Backup.cs:line 51
-	at BackupManager.Program.Main(String[] args) in C:\Users\JamesMc\Data\Clients\DigitalZenWorks\BackupManager\SourceCode\BackupManager\Program.cs:line 38
-	at BackupManager.Program.<Main>(String[] args)

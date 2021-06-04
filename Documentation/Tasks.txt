@@ -1,75 +1,72 @@
-GoogleDrive
-	Back Up	Clean out Jts folder
-	BackupPersonalData	Needs revising
-	Back ups	Rome ? Social ?
-	Back Ups	Exclude	C:\Users\JamesMc\Data\ProgramData\PostGreSQL\base	?
-	BackUp	Clean up service accounts
-	Exclude by file
-	Exclude directories listed in .gitignore
-	Remove directories listed in .gitignore
-	For each folder, check if server file no exists locally, if so, delete from drive
-	Move configuration directory
-	Google.GoogleApiException	retry
-	<NoWarn>NU1608;NU1701</NoWarn>
-	Find better home for log file
-	Better return check for Authenticate
-	Back Up	Issue with Outlook Popups messing up outlook shutdown process
-	Change name of Authenticate
-	Finished
-		Exclude vendor, node_modules, obj directories from server	testing
-		Remove vendor, node_modules, obj directories from server
-		google-cloud-compliance@google.com	Potentially Compromised Credentials for jahmicdriveapi	Fri 5:37 PM	jahmic@gmail.com		
-		Google Drive Api The user may not have granted the app write access to all of the children of file
-		InvalidOperationException	This instance has already started one or more requests. Properties can only be modified before sending the first request.	On setting timeout on existing instance.
-		'Log4Net 2.0.11' is not compatible with 'Common.Logging.Log4Net208 3.4.1 constraint: Log4Net (= 2.0.8)'.
-		TypeLoadException: Could not load type 'Common.Logging.ConfigurationSectionHandler' from assembly 'Common.Logging'.
-		Could not load type 'ConfigurationSectionHandler' from assembly
-		Copy command line support from GreenChannelWeb
-		Ignore vendor, node_modules directories
-		Unhandled exception. System.Threading.Tasks.TaskCanceledException: A task was canceled.	BackupManagerLibrary\GoogleDrive.cs:line 115
-		AggregateException / TaskCanceledException not being handled right
-		Unhandled exception. System.FormatException: Input string was not in a correct format.
-		Add brief delay when TaskCanceledException
-		Try resume?
-		Test new accounts
-		implement exponential backoff 
-		Create Service Accounts
-		Unhandled exception. System.AggregateException: One or more errors occurred. (A task was canceled.) System.Threading.Tasks.TaskCanceledException: A task was canceled.
-		Google.GoogleApiException: Google.Apis.Requests.RequestError File not found: 1Vx4k9wnOA-S99Zh0Y2gi-7koq94AeKOc. [404]
-		The service drive has thrown an exception: Google.GoogleApiException: Google.Apis.Requests.RequestError Forbidden
-		Handle / catch TaskCanceledException
-		Increase time out
-		Add switch to skip CustomInitialization
-		GoogleApiException: The parents field is not directly writable in update requests. Use the addParents and removeParents parameters instead.
-		Newtonsoft.Json.JsonSerializationException
-		TypeLoadException: Could not load type 'log4net.Config.Log4NetConfigurationSectionHandler' from assembly 'log4net'.
-		Create library
-		Add google drive nuget
-		Connect library
-		Special cases	Pst files
-		Load accounts.json
-		for each account
-			Authenticate
-			Go through directories and files
-		Add logging
-		Rename log file
-		Double authenticate
-		Copy over files
-		Recurse into backup
-		Need to find out if folder exists
-		If folder doesn't exist create it
-		Specify sub folder when uploading
-		Only upload, if newer
-		Admin .git
-		Jahmic service account
+<NoWarn>NU1608;NU1701</NoWarn>
+Find better home for log file %appdata%
+Set configuration directory as command line parameter or configuration option in %appdata%
+Better return check for Authenticate
+Change name of Authenticate
+*.gdoc Google.GoogleApiException: Google.Apis.Requests.RequestError Invalid MIME type provided for the uploaded content.
+Unhandled exception. Google.GoogleApiException BackupManagerLibrary\GoogleDrive.cs:line 161
+Google.GoogleApiException	retry
+Handle? System.Net.Http.HttpRequestException: No such host is known. (www.googleapis.com:443)
+Handle? Google.GoogleApiException: Google.Apis.Requests.RequestError User rate limit exceeded.
+Back Up	Issue with Outlook Popups messing up outlook shutdown process
+Refactor Custom Step to run external script instead of hard coded commands
+ignore .vs, _svn, .svn directories
+Exclude directories listed in .gitignore
+Remove directories listed in .gitignore
+For each folder, check if server file no exists locally, if so, delete from drive
+Exclude by file
+
+Finished
+	Exclude vendor, node_modules, obj directories from server	testing
+	Remove vendor, node_modules, obj directories from server
+	google-cloud-compliance@google.com	Potentially Compromised Credentials for jahmicdriveapi	Fri 5:37 PM	jahmic@gmail.com		
+	Google Drive Api The user may not have granted the app write access to all of the children of file
+	InvalidOperationException	This instance has already started one or more requests. Properties can only be modified before sending the first request.	On setting timeout on existing instance.
+	'Log4Net 2.0.11' is not compatible with 'Common.Logging.Log4Net208 3.4.1 constraint: Log4Net (= 2.0.8)'.
+	TypeLoadException: Could not load type 'Common.Logging.ConfigurationSectionHandler' from assembly 'Common.Logging'.
+	Could not load type 'ConfigurationSectionHandler' from assembly
+	Copy command line support from GreenChannelWeb
+	Ignore vendor, node_modules directories
+	Unhandled exception. System.Threading.Tasks.TaskCanceledException: A task was canceled.	BackupManagerLibrary\GoogleDrive.cs:line 115
+	AggregateException / TaskCanceledException not being handled right
+	Unhandled exception. System.FormatException: Input string was not in a correct format.
+	Add brief delay when TaskCanceledException
+	Try resume?
+	Test new accounts
+	implement exponential backoff 
+	Create Service Accounts
+	Unhandled exception. System.AggregateException: One or more errors occurred. (A task was canceled.) System.Threading.Tasks.TaskCanceledException: A task was canceled.
+	Google.GoogleApiException: Google.Apis.Requests.RequestError File not found: 1Vx4k9wnOA-S99Zh0Y2gi-7koq94AeKOc. [404]
+	The service drive has thrown an exception: Google.GoogleApiException: Google.Apis.Requests.RequestError Forbidden
+	Handle / catch TaskCanceledException
+	Increase time out
+	Add switch to skip CustomInitialization
+	GoogleApiException: The parents field is not directly writable in update requests. Use the addParents and removeParents parameters instead.
+	Newtonsoft.Json.JsonSerializationException
+	TypeLoadException: Could not load type 'log4net.Config.Log4NetConfigurationSectionHandler' from assembly 'log4net'.
+	Create library
+	Add google drive nuget
+	Connect library
+	Special cases	Pst files
+	Load accounts.json
+	for each account
+		Authenticate
+		Go through directories and files
+	Add logging
+	Rename log file
+	Double authenticate
+	Copy over files
+	Recurse into backup
+	Need to find out if folder exists
+	If folder doesn't exist create it
+	Specify sub folder when uploading
+	Only upload, if newer
+	Admin .git
+	Jahmic service account
 Flickr
-	Clotho
-	Hide In Picture 
-	Free File Camouflage
 	test restore
 	https://stackoverflow.com/questions/8615196/how-can-i-retrieve-original-url-photo-with-flickr-net-api
-	test
-		manual make png
+	test manual make png
 	retrieve all
 	Create collection(s)
 	retrieve by hash
@@ -94,8 +91,6 @@ Flickr
 	to png again
 	password command line arg
 	encrypt filename?
-	390h
-	FC 65
 	fix test script
 	review faq & q and a
 	find out how to download pictures
