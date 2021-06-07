@@ -3,10 +3,14 @@
 	<PropertyGroup>
 		<AnalysisMode>AllEnabledByDefault</AnalysisMode>
 		<AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+		<AssemblyVersion>0.1.0.114</AssemblyVersion>
 		<CodeAnalysisRuleSet>..\CodeAnalysis.ruleset</CodeAnalysisRuleSet>
+		<Copyright>Copyright © 2021 James John McGuire</Copyright>
 		<EnableNETAnalyzers>true</EnableNETAnalyzers>
+		<FileVersion>0.1.0.114</FileVersion>
 		<TargetFramework>net5.0</TargetFramework>
 		<Platforms>AnyCPU;x64</Platforms>
+		<Version>0.1.0.114</Version>
 	</PropertyGroup>
 
 	<ItemGroup>
