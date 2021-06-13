@@ -77,7 +77,7 @@ class GoogleDrive
 
 	public function ListFiles($showParent = false)
 	{
-        $response = $this->GetFiles();
+        $response = $this->GetFiles(true, true);
 
 		$this->debug->Show(Debug::DEBUG, "Listing files");
 
