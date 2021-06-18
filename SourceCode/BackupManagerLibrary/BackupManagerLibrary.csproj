@@ -9,8 +9,9 @@
 		<EnableNETAnalyzers>true</EnableNETAnalyzers>
 		<FileVersion>0.1.0.114</FileVersion>
 		<GenerateDocumentationFile>true</GenerateDocumentationFile>
-		<TargetFramework>net5.0</TargetFramework>
+		<NeutralLanguage>en-US</NeutralLanguage>
 		<Platforms>AnyCPU;x64</Platforms>
+		<TargetFramework>net5.0</TargetFramework>
 		<Version>0.1.0.114</Version>
 	</PropertyGroup>
 
