@@ -19,15 +19,12 @@ namespace BackupManagerLibrary
 	public static class AccountsManager
 	{
 		private const string InternalDataPath =
-			@"\Data\ProgramData\GoogleDrive";
+			@"\DigitalZenWorks\BackUpManager";
 
 		private const string MainDataFile = @"\Accounts.json";
 
 		private static readonly ILog Log = LogManager.GetLogger(
 			System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
-
-		private static readonly string UserProfilePath =
-			Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
 
 		/// <summary>
 		/// Gets data path property.
@@ -35,7 +32,14 @@ namespace BackupManagerLibrary
 		/// <value>Data path property.</value>
 		public static string DataPath
 		{
-			get { return UserProfilePath + InternalDataPath; }
+			get
+			{
+				string baseDataDirectory = Environment.GetFolderPath(
+					Environment.SpecialFolder.ApplicationData,
+					Environment.SpecialFolderOption.Create);
+				string accountsPath = baseDataDirectory + InternalDataPath;
+				return accountsPath;
+			}
 		}
 
 		/// <summary>
@@ -46,7 +50,10 @@ namespace BackupManagerLibrary
 		{
 			IList<Account> accounts = null;
 
-			string accountsPath = UserProfilePath + InternalDataPath;
+			string baseDataDirectory = Environment.GetFolderPath(
+				Environment.SpecialFolder.ApplicationData,
+				Environment.SpecialFolderOption.Create);
+			string accountsPath = baseDataDirectory + InternalDataPath;
 
 			if (System.IO.Directory.Exists(accountsPath))
 			{
