@@ -78,7 +78,7 @@ namespace BackupManagerLibrary
 				string profilePath = Environment.GetFolderPath(
 					Environment.SpecialFolder.UserProfile);
 				string dataPath = profilePath + @"\Data\ProgramData\Outlook";
-				string backupPath = dataPath + @"\Backups";
+				string backupPath = dataPath + @"\Backups\";
 
 				if (System.IO.Directory.Exists(dataPath))
 				{
