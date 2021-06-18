@@ -22,11 +22,21 @@ namespace BackupManagerLibrary
 		/// </summary>
 		public Directory()
 		{
-			Exclude exclude =
-				new ("node_modules", ExcludeType.AllSubDirectories);
+			Exclude exclude = new ("_svn", ExcludeType.AllSubDirectories);
 			excludes.Add(exclude);
+
+			exclude = new (".svn", ExcludeType.AllSubDirectories);
+			excludes.Add(exclude);
+
+			exclude = new (".vs", ExcludeType.AllSubDirectories);
+			excludes.Add(exclude);
+
+			exclude = new ("node_modules", ExcludeType.AllSubDirectories);
+			excludes.Add(exclude);
+
 			exclude = new ("obj", ExcludeType.AllSubDirectories);
 			excludes.Add(exclude);
+
 			exclude = new ("vendor", ExcludeType.AllSubDirectories);
 			excludes.Add(exclude);
 		}
