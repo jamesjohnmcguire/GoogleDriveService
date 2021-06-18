@@ -17,6 +17,9 @@ using System.Threading.Tasks;
 
 namespace BackupManagerLibrary
 {
+	/// <summary>
+	/// Google drive class.
+	/// </summary>
 	public class GoogleDrive : IDisposable
 	{
 		private static readonly ILog Log = LogManager.GetLogger(
@@ -42,6 +45,12 @@ namespace BackupManagerLibrary
 		// need to recreate service.
 		private BaseClientService.Initializer initializer;
 
+		/// <summary>
+		/// Get file in list method.
+		/// </summary>
+		/// <param name="files">List of files.</param>
+		/// <param name="name">The file to retrieve.</param>
+		/// <returns>The retrieved file.</returns>
 		public static Google.Apis.Drive.v3.Data.File GetFileInList(
 			IList<Google.Apis.Drive.v3.Data.File> files, string name)
 		{
@@ -62,6 +71,11 @@ namespace BackupManagerLibrary
 			return file;
 		}
 
+		/// <summary>
+		/// Sanitize file name method.
+		/// </summary>
+		/// <param name="fileName">The file name to sanitize.</param>
+		/// <returns>The sanitized file name.</returns>
 		public static string SanitizeFileName(string fileName)
 		{
 			if (!string.IsNullOrWhiteSpace(fileName))
@@ -101,6 +115,12 @@ namespace BackupManagerLibrary
 			return authenticated;
 		}
 
+		/// <summary>
+		/// Create folder method.
+		/// </summary>
+		/// <param name="parent">The parent of the folder.</param>
+		/// <param name="folderName">The folder name.</param>
+		/// <returns>A file object of the folder.</returns>
 		public Google.Apis.Drive.v3.Data.File CreateFolder(
 			string parent, string folderName)
 		{
@@ -125,12 +145,19 @@ namespace BackupManagerLibrary
 			return file;
 		}
 
+		/// <summary>
+		/// Dispose method.
+		/// </summary>
 		public void Dispose()
 		{
 			Dispose(true);
 			GC.SuppressFinalize(this);
 		}
 
+		/// <summary>
+		/// Delete method.
+		/// </summary>
+		/// <param name="id">The id of the item to delete.</param>
 		public void Delete(string id)
 		{
 			FilesResource.DeleteRequest request = driveService.Files.Delete(id);
@@ -138,6 +165,11 @@ namespace BackupManagerLibrary
 			request.Execute();
 		}
 
+		/// <summary>
+		/// Get files method.
+		/// </summary>
+		/// <param name="parent">The parent folder.</param>
+		/// <returns>A list of files.</returns>
 		public IList<Google.Apis.Drive.v3.Data.File> GetFiles(string parent)
 		{
 			IList<Google.Apis.Drive.v3.Data.File> files;
@@ -161,6 +193,14 @@ namespace BackupManagerLibrary
 			return files;
 		}
 
+		/// <summary>
+		/// Upload method.
+		/// </summary>
+		/// <param name="folder">The folder to upload to.</param>
+		/// <param name="filePath">The file path to upload.</param>
+		/// <param name="fileId">The file id.</param>
+		/// <param name="retry">Indicates whether to retry
+		/// upon failure.</param>
 		public void Upload(
 			string folder, string filePath, string fileId, bool retry)
 		{
@@ -213,6 +253,10 @@ namespace BackupManagerLibrary
 			}
 		}
 
+		/// <summary>
+		/// Dispose method.
+		/// </summary>
+		/// <param name="disposing">Indicates currently disposing.</param>
 		protected virtual void Dispose(bool disposing)
 		{
 			if (disposing)

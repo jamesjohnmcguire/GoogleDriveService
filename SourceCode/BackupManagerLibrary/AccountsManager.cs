@@ -13,6 +13,9 @@ using System.IO;
 
 namespace BackupManagerLibrary
 {
+	/// <summary>
+	/// Google Service Accounts Manager.
+	/// </summary>
 	public static class AccountsManager
 	{
 		private const string InternalDataPath =
@@ -26,11 +29,19 @@ namespace BackupManagerLibrary
 		private static readonly string UserProfilePath =
 			Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
 
+		/// <summary>
+		/// Gets data path property.
+		/// </summary>
+		/// <value>Data path property.</value>
 		public static string DataPath
 		{
 			get { return UserProfilePath + InternalDataPath; }
 		}
 
+		/// <summary>
+		/// Load accounts method.
+		/// </summary>
+		/// <returns>A list of accounts.</returns>
 		public static IList<Account> LoadAccounts()
 		{
 			IList<Account> accounts = null;

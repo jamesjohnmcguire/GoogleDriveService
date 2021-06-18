@@ -16,11 +16,19 @@ using System.Threading.Tasks;
 
 namespace BackupManager
 {
+	/// <summary>
+	/// Back up manager program class.
+	/// </summary>
 	public static class Program
 	{
 		private static readonly ILog Log = LogManager.GetLogger(
 			System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
 
+		/// <summary>
+		/// The program's main entry point.
+		/// </summary>
+		/// <param name="args">An array of program arguments.</param>
+		/// <returns>A task indicating completion.</returns>
 		public static async Task Main(string[] args)
 		{
 			bool useCustomInitialization = true;

@@ -10,10 +10,16 @@ using System.Text;
 
 namespace BackupManagerLibrary
 {
+	/// <summary>
+	/// Directory custom class.
+	/// </summary>
 	public class Directory
 	{
 		private readonly IList<Exclude> excludes = new List<Exclude>();
 
+		/// <summary>
+		/// Initializes a new instance of the <see cref="Directory"/> class.
+		/// </summary>
 		public Directory()
 		{
 			Exclude exclude =
@@ -25,15 +31,31 @@ namespace BackupManagerLibrary
 			excludes.Add(exclude);
 		}
 
+		/// <summary>
+		/// Gets or sets path property.
+		/// </summary>
+		/// <value>Path property.</value>
 		public string Path { get; set; }
 
+		/// <summary>
+		/// Gets or sets root shared folder id property.
+		/// </summary>
+		/// <value>Root shared folder id property.</value>
 		public string RootSharedFolderId { get; set; }
 
+		/// <summary>
+		/// Gets excludes property.
+		/// </summary>
+		/// <value>Excludes property.</value>
 		public IList<Exclude> Excludes
 		{
 			get { return excludes; }
 		}
 
+		/// <summary>
+		/// Expand excludes method.
+		/// </summary>
+		/// <returns>A list of expanded excludes.</returns>
 		public IList<Exclude> ExpandExcludes()
 		{
 			foreach (Exclude exclude in excludes)
@@ -45,6 +67,12 @@ namespace BackupManagerLibrary
 			return excludes;
 		}
 
+		/// <summary>
+		/// Excludes contains method.
+		/// </summary>
+		/// <param name="path">The path to check.</param>
+		/// <returns>Indicates whether the path is in the
+		/// exludes list.</returns>
 		public bool ExcludesContains(string path)
 		{
 			bool contains = false;
@@ -69,6 +97,11 @@ namespace BackupManagerLibrary
 			return contains;
 		}
 
+		/// <summary>
+		/// Get exclude method.
+		/// </summary>
+		/// <param name="path">The path to check.</param>
+		/// <returns>The exclude of the path.</returns>
 		public Exclude GetExclude(string path)
 		{
 			Exclude foundExclude = null;

@@ -14,6 +14,9 @@ using System.Threading.Tasks;
 
 namespace BackupManagerLibrary
 {
+	/// <summary>
+	/// Google Service Account class.
+	/// </summary>
 	public class Account : IDisposable
 	{
 		private static readonly ILog Log = LogManager.GetLogger(
@@ -25,15 +28,30 @@ namespace BackupManagerLibrary
 
 		private int retries;
 
+		/// <summary>
+		/// Initializes a new instance of the <see cref="Account"/> class.
+		/// </summary>
 		public Account()
 		{
 			googleDrive = new GoogleDrive();
 		}
 
+		/// <summary>
+		/// Gets or sets account email property.
+		/// </summary>
+		/// <value>Account email property.</value>
 		public string Email { get; set; }
 
+		/// <summary>
+		/// Gets or sets service account property.
+		/// </summary>
+		/// <value>Service account property.</value>
 		public string ServiceAccount { get; set; }
 
+		/// <summary>
+		/// Gets directories property.
+		/// </summary>
+		/// <value>Directories property.</value>
 		public IList<Directory> Directories
 		{
 			get { return directories; }
@@ -73,6 +91,10 @@ namespace BackupManagerLibrary
 			return authenticated;
 		}
 
+		/// <summary>
+		/// Main back up method.
+		/// </summary>
+		/// <returns>A task indicating completion.</returns>
 		public async Task BackUp()
 		{
 			bool authenticated = Authenticate();
@@ -97,12 +119,19 @@ namespace BackupManagerLibrary
 			}
 		}
 
+		/// <summary>
+		/// Dispose method.
+		/// </summary>
 		public void Dispose()
 		{
 			Dispose(true);
 			GC.SuppressFinalize(this);
 		}
 
+		/// <summary>
+		/// Dispose method.
+		/// </summary>
+		/// <param name="disposing">Indicates currently disposing.</param>
 		protected virtual void Dispose(bool disposing)
 		{
 			if (disposing)

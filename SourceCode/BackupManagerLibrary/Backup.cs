@@ -18,11 +18,20 @@ using System.Threading.Tasks;
 
 namespace BackupManagerLibrary
 {
+	/// <summary>
+	/// Back up class.
+	/// </summary>
 	public static class Backup
 	{
 		private static readonly ILog Log = LogManager.GetLogger(
 			System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
 
+		/// <summary>
+		/// Run method.
+		/// </summary>
+		/// <param name="useCustomInitialization">Indicates whether to use
+		/// custom initialation.</param>
+		/// <returns>A task indicating completion.</returns>
 		public static async Task Run(bool useCustomInitialization)
 		{
 			try

@@ -10,6 +10,9 @@ using System.Text;
 
 namespace BackupManagerLibrary
 {
+	/// <summary>
+	/// Exclude type enum.
+	/// </summary>
 	public enum ExcludeType
 	{
 		/// <summary>
