@@ -144,6 +144,49 @@ namespace BackupManagerLibrary
 			// free native resources
 		}
 
+		private static bool CheckProcessRootFolder(
+			Directory directory, string path)
+		{
+			bool processFiles = true;
+
+			if (directory.ExcludesContains(path))
+			{
+				Exclude exclude = directory.GetExclude(path);
+				ExcludeType clause = exclude.ExcludeType;
+
+				if (clause == ExcludeType.OnlyRoot)
+				{
+					processFiles = false;
+				}
+			}
+
+			return processFiles;
+		}
+
+		private static bool CheckProcessSubFolders(
+			Directory directory, string path)
+		{
+			bool processSubFolders = true;
+
+			// Check for default ignore paths
+			DirectoryInfo directoryInfo = new (path);
+			string directoryName = directoryInfo.Name;
+
+			if (directory.ExcludesContains(path) ||
+				directory.ExcludesContains(directoryName))
+			{
+				Exclude exclude = directory.GetExclude(path);
+				ExcludeType clause = exclude.ExcludeType;
+
+				if (clause == ExcludeType.AllSubDirectories)
+				{
+					processSubFolders = false;
+				}
+			}
+
+			return processSubFolders;
+		}
+
 		private async Task BackUp(
 			Directory directory,
 			string parent,
@@ -154,88 +197,16 @@ namespace BackupManagerLibrary
 			{
 				if (System.IO.Directory.Exists(path))
 				{
-					bool processSubFolders = true;
-					bool processFiles = true;
-
-					if (directory.ExcludesContains(path))
-					{
-						Exclude exclude = directory.GetExclude(path);
-						ExcludeType clause = exclude.ExcludeType;
-
-						if (clause == ExcludeType.OnlyRoot)
-						{
-							processFiles = false;
-						}
-						else
-						{
-							processSubFolders = false;
-						}
-					}
-
-					// Check for default ignore paths
 					DirectoryInfo directoryInfo = new (path);
-					string directoryName = directoryInfo.Name;
 
-					if (directory.ExcludesContains(directoryName))
-					{
-						Exclude exclude = directory.GetExclude(directoryName);
-						processSubFolders = false;
-					}
+					bool processSubFolders =
+						CheckProcessSubFolders(directory, path);
 
 					if (processSubFolders == true)
 					{
-						FileInfo[] files = directoryInfo.GetFiles();
-
-						Google.Apis.Drive.v3.Data.File serverFolder =
-							GoogleDrive.GetFileInList(
-								serverFiles, directoryInfo.Name);
-
-						if (serverFolder == null)
-						{
-							serverFolder = googleDrive.CreateFolder(
-								parent, directoryInfo.Name);
-							System.Threading.Thread.Sleep(200);
-						}
-						else
-						{
-							serverFiles =
-								googleDrive.GetFiles(serverFolder.Id);
-							System.Threading.Thread.Sleep(200);
-						}
-
-						string[] subDirectories =
-							System.IO.Directory.GetDirectories(path);
-
-						foreach (string subDirectory in subDirectories)
-						{
-							await BackUp(
-								directory,
-								serverFolder.Id,
-								subDirectory,
-								serverFiles).ConfigureAwait(false);
-						}
-
-						if (processFiles == true)
-						{
-							foreach (FileInfo file in files)
-							{
-								bool retry = false;
-								bool success = false;
-								retries = 2;
-
-								while ((success == false) && (retries > 0))
-								{
-									success = BackUpFile(
-										serverFolder, serverFiles, file, retry);
-
-									if ((success == false) && (retries > 0))
-									{
-										retry = true;
-										System.Threading.Thread.Sleep(200);
-									}
-								}
-							}
-						}
+						await ProcessSubFolders(
+							directory, parent, path, serverFiles).
+							ConfigureAwait(false);
 					}
 				}
 			}
@@ -259,36 +230,9 @@ namespace BackupManagerLibrary
 					exception.ToString()));
 			}
 		}
-		private void CleanUp()
-		{
-			string[] files = Array.Empty<string>();
-
-			foreach (string file in files)
-			{
-				googleDrive.Delete(file);
-			}
-		}
-
-		private void Upload(
-			Google.Apis.Drive.v3.Data.File serverFolder,
-			FileInfo file,
-			Google.Apis.Drive.v3.Data.File serverFile,
-			bool retry)
-		{
-			if (serverFile == null)
-			{
-				googleDrive.Upload(serverFolder.Id, file.FullName, null, retry);
-			}
-			else if (serverFile.ModifiedTime < file.LastWriteTime)
-			{
-				// local file is newer
-				googleDrive.Upload(
-					serverFolder.Id, file.FullName, serverFile.Id, retry);
-			}
-		}
 
 		private bool BackUpFile(
-					Google.Apis.Drive.v3.Data.File serverFolder,
+			Google.Apis.Drive.v3.Data.File serverFolder,
 			IList<Google.Apis.Drive.v3.Data.File> serverFiles,
 			FileInfo file,
 			bool retry)
@@ -367,6 +311,107 @@ namespace BackupManagerLibrary
 			}
 
 			return success;
+		}
+
+		private void CleanUp()
+		{
+			string[] files = Array.Empty<string>();
+
+			foreach (string file in files)
+			{
+				googleDrive.Delete(file);
+			}
+		}
+
+		private void ProcessFiles(
+			FileInfo[] files,
+			Google.Apis.Drive.v3.Data.File serverFolder,
+			IList<Google.Apis.Drive.v3.Data.File> serverFiles)
+		{
+			foreach (FileInfo file in files)
+			{
+				bool retry = false;
+				bool success = false;
+				retries = 2;
+
+				while ((success == false) && (retries > 0))
+				{
+					success = BackUpFile(
+						serverFolder, serverFiles, file, retry);
+
+					if ((success == false) && (retries > 0))
+					{
+						retry = true;
+						System.Threading.Thread.Sleep(200);
+					}
+				}
+			}
+		}
+
+		private async Task ProcessSubFolders(
+			Directory directory,
+			string parent,
+			string path,
+			IList<Google.Apis.Drive.v3.Data.File> serverFiles)
+		{
+			DirectoryInfo directoryInfo = new (path);
+
+			FileInfo[] files = directoryInfo.GetFiles();
+
+			Google.Apis.Drive.v3.Data.File serverFolder =
+				GoogleDrive.GetFileInList(
+					serverFiles, directoryInfo.Name);
+
+			if (serverFolder == null)
+			{
+				serverFolder = googleDrive.CreateFolder(
+					parent, directoryInfo.Name);
+				System.Threading.Thread.Sleep(200);
+			}
+			else
+			{
+				serverFiles =
+					googleDrive.GetFiles(serverFolder.Id);
+				System.Threading.Thread.Sleep(200);
+			}
+
+			string[] subDirectories =
+				System.IO.Directory.GetDirectories(path);
+
+			foreach (string subDirectory in subDirectories)
+			{
+				await BackUp(
+					directory,
+					serverFolder.Id,
+					subDirectory,
+					serverFiles).ConfigureAwait(false);
+			}
+
+			bool processFiles =
+				CheckProcessRootFolder(directory, path);
+
+			if (processFiles == true)
+			{
+				ProcessFiles(files, serverFolder, serverFiles);
+			}
+		}
+
+		private void Upload(
+			Google.Apis.Drive.v3.Data.File serverFolder,
+			FileInfo file,
+			Google.Apis.Drive.v3.Data.File serverFile,
+			bool retry)
+		{
+			if (serverFile == null)
+			{
+				googleDrive.Upload(serverFolder.Id, file.FullName, null, retry);
+			}
+			else if (serverFile.ModifiedTime < file.LastWriteTime)
+			{
+				// local file is newer
+				googleDrive.Upload(
+					serverFolder.Id, file.FullName, serverFile.Id, retry);
+			}
 		}
 	}
 }
