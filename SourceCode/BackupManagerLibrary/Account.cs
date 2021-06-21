@@ -259,9 +259,36 @@ namespace BackupManagerLibrary
 					exception.ToString()));
 			}
 		}
+		private void CleanUp()
+		{
+			string[] files = Array.Empty<string>();
+
+			foreach (string file in files)
+			{
+				googleDrive.Delete(file);
+			}
+		}
+
+		private void Upload(
+			Google.Apis.Drive.v3.Data.File serverFolder,
+			FileInfo file,
+			Google.Apis.Drive.v3.Data.File serverFile,
+			bool retry)
+		{
+			if (serverFile == null)
+			{
+				googleDrive.Upload(serverFolder.Id, file.FullName, null, retry);
+			}
+			else if (serverFile.ModifiedTime < file.LastWriteTime)
+			{
+				// local file is newer
+				googleDrive.Upload(
+					serverFolder.Id, file.FullName, serverFile.Id, retry);
+			}
+		}
 
 		private bool BackUpFile(
-			Google.Apis.Drive.v3.Data.File serverFolder,
+					Google.Apis.Drive.v3.Data.File serverFolder,
 			IList<Google.Apis.Drive.v3.Data.File> serverFiles,
 			FileInfo file,
 			bool retry)
@@ -340,34 +367,6 @@ namespace BackupManagerLibrary
 			}
 
 			return success;
-		}
-
-		private void CleanUp()
-		{
-			string[] files = Array.Empty<string>();
-
-			foreach (string file in files)
-			{
-				googleDrive.Delete(file);
-			}
-		}
-
-		private void Upload(
-			Google.Apis.Drive.v3.Data.File serverFolder,
-			FileInfo file,
-			Google.Apis.Drive.v3.Data.File serverFile,
-			bool retry)
-		{
-			if (serverFile == null)
-			{
-				googleDrive.Upload(serverFolder.Id, file.FullName, null, retry);
-			}
-			else if (serverFile.ModifiedTime < file.LastWriteTime)
-			{
-				// local file is newer
-				googleDrive.Upload(
-					serverFolder.Id, file.FullName, serverFile.Id, retry);
-			}
 		}
 	}
 }
