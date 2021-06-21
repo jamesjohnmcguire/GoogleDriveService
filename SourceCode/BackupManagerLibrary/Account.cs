@@ -9,6 +9,7 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
+using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
 
@@ -346,6 +347,8 @@ namespace BackupManagerLibrary
 					}
 				}
 			}
+
+			RemoveAbandonedFiles(files, serverFiles);
 		}
 
 		private async Task ProcessSubFolders(
@@ -393,6 +396,24 @@ namespace BackupManagerLibrary
 			if (processFiles == true)
 			{
 				ProcessFiles(files, serverFolder, serverFiles);
+			}
+		}
+
+		private void RemoveAbandonedFiles(
+			FileInfo[] files,
+			IList<Google.Apis.Drive.v3.Data.File> serverFiles)
+		{
+			foreach (Google.Apis.Drive.v3.Data.File file in serverFiles)
+			{
+				string fileName = file.Name;
+				bool exists = files.Any(element => element.Name.Equals(
+					fileName, StringComparison.Ordinal));
+
+				if (exists == false)
+				{
+					googleDrive.Delete(fileName);
+					System.Threading.Thread.Sleep(200);
+				}
 			}
 		}
 
