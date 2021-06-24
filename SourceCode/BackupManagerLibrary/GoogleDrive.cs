@@ -175,7 +175,7 @@ namespace BackupManagerLibrary
 			IList<Google.Apis.Drive.v3.Data.File> files;
 			FilesResource.ListRequest listRequest = driveService.Files.List();
 
-			listRequest.Fields = "files(id, name, modifiedTime)";
+			listRequest.Fields = "files(id, name, mimeType, modifiedTime)";
 			listRequest.Q = $"'{parent}' in parents";
 			listRequest.PageSize = 1000;
 

@@ -390,6 +390,8 @@ namespace BackupManagerLibrary
 					serverFiles).ConfigureAwait(false);
 			}
 
+			RemoveAbandonedFolders(path, subDirectories, serverFiles);
+
 			bool processFiles =
 				CheckProcessRootFolder(directory, path);
 
@@ -405,14 +407,62 @@ namespace BackupManagerLibrary
 		{
 			foreach (Google.Apis.Drive.v3.Data.File file in serverFiles)
 			{
-				string fileName = file.Name;
-				bool exists = files.Any(element => element.Name.Equals(
-					fileName, StringComparison.Ordinal));
-
-				if (exists == false)
+				if (!file.MimeType.Equals(
+					"application/vnd.google-apps.folder",
+					StringComparison.Ordinal))
 				{
-					googleDrive.Delete(fileName);
-					System.Threading.Thread.Sleep(200);
+					string fileName = file.Name;
+					bool exists = files.Any(element => element.Name.Equals(
+						fileName, StringComparison.Ordinal));
+
+					if (exists == false)
+					{
+						fileName = GoogleDrive.SanitizeFileName(file.Name);
+
+						string message = string.Format(
+							CultureInfo.InvariantCulture,
+							"Deleting from Server: {0}",
+							fileName);
+						Log.Info(CultureInfo.InvariantCulture, m => m(
+							message));
+
+						googleDrive.Delete(file.Id);
+						System.Threading.Thread.Sleep(200);
+					}
+				}
+			}
+		}
+
+		private void RemoveAbandonedFolders(
+			string path,
+			string[] subDirectories,
+			IList<Google.Apis.Drive.v3.Data.File> serverFiles)
+		{
+			foreach (Google.Apis.Drive.v3.Data.File file in serverFiles)
+			{
+				if (file.MimeType.Equals(
+					"application/vnd.google-apps.folder",
+					StringComparison.Ordinal))
+				{
+					string folderPath = path + @"\" + file.Name;
+					bool exists = subDirectories.Any(element => element.Equals(
+						folderPath, StringComparison.Ordinal));
+
+					if (exists == false)
+					{
+						string fileName =
+							GoogleDrive.SanitizeFileName(file.Name);
+
+						string message = string.Format(
+							CultureInfo.InvariantCulture,
+							"Deleting from Server: {0}",
+							fileName);
+						Log.Info(CultureInfo.InvariantCulture, m => m(
+							message));
+
+						googleDrive.Delete(file.Id);
+						System.Threading.Thread.Sleep(200);
+					}
 				}
 			}
 		}
