@@ -1,6 +1,6 @@
 SET utils=%USERPROFILE%\Data\Commands
 
 CD %~dp0
-cd ..\..\BackUpManager\bin\x64
+cd ..\..\Bin\Release
 
-xcopy /D /E /H /I /R /S /Y Release %utils%
+xcopy /D /E /H /I /R /S /Y x64 %utils%
