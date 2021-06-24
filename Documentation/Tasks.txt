@@ -1,11 +1,9 @@
-ignore .vs, _svn, .svn directories
 *.gdoc Google.GoogleApiException: Google.Apis.Requests.RequestError Invalid MIME type provided for the uploaded content.
 Unhandled exception. Google.GoogleApiException BackupManagerLibrary\GoogleDrive.cs:line 161
 Try removing delays for non-upload functions
 Set configuration directory as command line parameter
 Better return check for Authenticate
 Change name of Authenticate
-
 Google.GoogleApiException	retry
 Handle? System.Net.Http.HttpRequestException: No such host is known. (www.googleapis.com:443)
 Handle? Google.GoogleApiException: Google.Apis.Requests.RequestError User rate limit exceeded.
@@ -17,6 +15,7 @@ For each folder, check if server file no exists locally, if so, delete from driv
 Exclude by file
 
 Finished
+	ignore .vs, _svn, .svn directories
 	Set configuration directory in %appdata%
 	Find better home for log file %appdata%
 	<NoWarn>NU1608;NU1701</NoWarn>
