@@ -421,7 +421,7 @@ namespace BackupManagerLibrary
 
 						string message = string.Format(
 							CultureInfo.InvariantCulture,
-							"Deleting from Server: {0}",
+							"Deleting file from Server: {0}",
 							fileName);
 						Log.Info(CultureInfo.InvariantCulture, m => m(
 							message));
@@ -455,7 +455,7 @@ namespace BackupManagerLibrary
 
 						string message = string.Format(
 							CultureInfo.InvariantCulture,
-							"Deleting from Server: {0}",
+							"Deleting folder from Server: {0}",
 							fileName);
 						Log.Info(CultureInfo.InvariantCulture, m => m(
 							message));
