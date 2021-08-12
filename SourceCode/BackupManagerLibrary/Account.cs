@@ -407,28 +407,36 @@ namespace BackupManagerLibrary
 		{
 			foreach (Google.Apis.Drive.v3.Data.File file in serverFiles)
 			{
-				if (!file.MimeType.Equals(
-					"application/vnd.google-apps.folder",
-					StringComparison.Ordinal))
+				try
 				{
-					string fileName = file.Name;
-					bool exists = files.Any(element => element.Name.Equals(
-						fileName, StringComparison.Ordinal));
-
-					if (exists == false)
+					if (!file.MimeType.Equals(
+						"application/vnd.google-apps.folder",
+						StringComparison.Ordinal))
 					{
-						fileName = GoogleDrive.SanitizeFileName(file.Name);
+						string fileName = file.Name;
+						bool exists = files.Any(element => element.Name.Equals(
+							fileName, StringComparison.Ordinal));
 
-						string message = string.Format(
-							CultureInfo.InvariantCulture,
-							"Deleting file from Server: {0}",
-							fileName);
-						Log.Info(CultureInfo.InvariantCulture, m => m(
-							message));
+						if (exists == false)
+						{
+							fileName = GoogleDrive.SanitizeFileName(file.Name);
 
-						googleDrive.Delete(file.Id);
-						System.Threading.Thread.Sleep(200);
+							string message = string.Format(
+								CultureInfo.InvariantCulture,
+								"Deleting file from Server: {0}",
+								fileName);
+							Log.Info(CultureInfo.InvariantCulture, m => m(
+								message));
+
+							googleDrive.Delete(file.Id);
+							System.Threading.Thread.Sleep(200);
+						}
 					}
+				}
+				catch (Google.GoogleApiException exception)
+				{
+					Log.Error(CultureInfo.InvariantCulture, m => m(
+						exception.ToString()));
 				}
 			}
 		}
@@ -440,29 +448,37 @@ namespace BackupManagerLibrary
 		{
 			foreach (Google.Apis.Drive.v3.Data.File file in serverFiles)
 			{
-				if (file.MimeType.Equals(
-					"application/vnd.google-apps.folder",
-					StringComparison.Ordinal))
+				try
 				{
-					string folderPath = path + @"\" + file.Name;
-					bool exists = subDirectories.Any(element => element.Equals(
-						folderPath, StringComparison.Ordinal));
-
-					if (exists == false)
+					if (file.MimeType.Equals(
+						"application/vnd.google-apps.folder",
+						StringComparison.Ordinal))
 					{
-						string fileName =
-							GoogleDrive.SanitizeFileName(file.Name);
+						string folderPath = path + @"\" + file.Name;
+						bool exists = subDirectories.Any(element => element.Equals(
+							folderPath, StringComparison.Ordinal));
 
-						string message = string.Format(
-							CultureInfo.InvariantCulture,
-							"Deleting folder from Server: {0}",
-							fileName);
-						Log.Info(CultureInfo.InvariantCulture, m => m(
-							message));
+						if (exists == false)
+						{
+							string fileName =
+								GoogleDrive.SanitizeFileName(file.Name);
 
-						googleDrive.Delete(file.Id);
-						System.Threading.Thread.Sleep(200);
+							string message = string.Format(
+								CultureInfo.InvariantCulture,
+								"Deleting folder from Server: {0}",
+								fileName);
+							Log.Info(CultureInfo.InvariantCulture, m => m(
+								message));
+
+							googleDrive.Delete(file.Id);
+							System.Threading.Thread.Sleep(200);
+						}
 					}
+				}
+				catch (Google.GoogleApiException exception)
+				{
+					Log.Error(CultureInfo.InvariantCulture, m => m(
+						exception.ToString()));
 				}
 			}
 		}
