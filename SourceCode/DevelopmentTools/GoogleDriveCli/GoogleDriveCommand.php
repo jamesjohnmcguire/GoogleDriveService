@@ -49,4 +49,4 @@ switch ($command)
         break;
 }
 
-$googleDrive->ListFiles();
+$googleDrive->ListFiles($data);

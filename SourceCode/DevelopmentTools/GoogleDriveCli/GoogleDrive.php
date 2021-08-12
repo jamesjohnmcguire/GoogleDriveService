@@ -15,7 +15,7 @@ class GoogleDrive
 	protected $debug = null;
 
 	private $client = null;
-    private $root = null;
+	private $root = null;
 	private $service = null;
 	private $serviceAccountFilePath = null;
 
@@ -25,40 +25,40 @@ class GoogleDrive
 
 		$this->client = $this->Authorize($authorizationType);
 
-        $contents = file_get_contents(SERVICE_ACCOUNT_FILE);
-        $data = json_decode($contents);
+		$contents = file_get_contents(SERVICE_ACCOUNT_FILE);
+		$data = json_decode($contents);
 
 		if (property_exists($data, 'root'))
 		{
 			$this->root = $data->root;
 		}
 
-        $this->service = new Google_Service_Drive($this->client);
+		$this->service = new Google_Service_Drive($this->client);
 	}
 
 	public function About()
 	{
 		$this->debug->Show(Debug::DEBUG, "About begin");
 
-        $about = $this->service->about;
+		$about = $this->service->about;
 
-        $options =
-        [
-            'fields' => 'storageQuota',
-            'prettyPrint' => true
-        ];
+		$options =
+		[
+			'fields' => 'storageQuota',
+			'prettyPrint' => true
+		];
 
-        $response = $about->get($options);
+		$response = $about->get($options);
 
-        print_r($response->storageQuota);
-        exit();
+		print_r($response->storageQuota);
+		exit();
 
 		return $response;
 	}
 
 	public function DeleteAllFiles()
 	{
-        $response = $this->GetFiles();
+		$response = $this->GetFiles();
 
 		foreach ($response as $file)
 		{
@@ -75,24 +75,29 @@ class GoogleDrive
 		$this->service->files->delete($fileId);
 	}
 
-	public function ListFiles($showParent = false)
+	public function ListFiles($parentId, $showParent = false)
 	{
-        $response = $this->GetFiles(true, true);
+		$response = $this->GetFiles($parentId, true, false);
 
 		$this->debug->Show(Debug::DEBUG, "Listing files");
 
 		foreach ($response as $file)
 		{
-            if ($showParent == true)
-            {
-                printf("Found file: Id: %s Parent: %s Name: %s\r\n",
-                    $file->id, $file->parents[0], $file->name);
-                }
-            else
-            {
-                printf("Found file: Id: %s Name: %s\r\n",
-                    $file->id, $file->name);
-            }
+			if ($showParent == true)
+			{
+				printf("Found file: Id: %s Parent: %s Name: %s\r\n",
+					$file->id, $file->parents[0], $file->name);
+				}
+			else
+			{
+				printf("Found file: Id: %s Name: %s\r\n",
+					$file->id, $file->name);
+				foreach($file->permissions as $user)
+				{
+					echo "role: $user->role email: $user->emailAddress\r\n";
+				}
+				echo "\r\n";
+			}
 		}
 
 		return $response;
@@ -195,35 +200,35 @@ class GoogleDrive
 		return $giantChunk;
 	}
 
-    private static function AuthorizeRequestUser($client)
-    {
-        $result = false;
+	private static function AuthorizeRequestUser($client)
+	{
+		$result = false;
 
-        // Request authorization from the user.
-        $client->setRedirectUri("urn:ietf:wg:oauth:2.0:oob");
-        $authUrl = $client->createAuthUrl();
-        printf("Open the following link in your browser:\n%s\n", $authUrl);
-        print 'Enter verification code: ';
-        $rawCode = fgets(STDIN);
-        $authCode = trim($rawCode);
+		// Request authorization from the user.
+		$client->setRedirectUri("urn:ietf:wg:oauth:2.0:oob");
+		$authUrl = $client->createAuthUrl();
+		printf("Open the following link in your browser:\n%s\n", $authUrl);
+		print 'Enter verification code: ';
+		$rawCode = fgets(STDIN);
+		$authCode = trim($rawCode);
 
-        // Exchange authorization code for an access token.
-        $accessToken = $client->fetchAccessTokenWithAuthCode($authCode);
-        $client->setAccessToken($accessToken);
+		// Exchange authorization code for an access token.
+		$accessToken = $client->fetchAccessTokenWithAuthCode($authCode);
+		$client->setAccessToken($accessToken);
 
-        // Check to see if there was an error.
-        if (array_key_exists('error', $accessToken))
-        {
-            $notice = join(', ', $accessToken);
-            Debug::ShowStatic(Debug::ERROR, $notice);
-        }
-        else
-        {
-            $result = true;
-        }
+		// Check to see if there was an error.
+		if (array_key_exists('error', $accessToken))
+		{
+			$notice = join(', ', $accessToken);
+			Debug::ShowStatic(Debug::ERROR, $notice);
+		}
+		else
+		{
+			$result = true;
+		}
 
-        return $result;
-    }
+		return $result;
+	}
 
 	private function Authorize($authorizationType)
 	{
@@ -254,92 +259,92 @@ class GoogleDrive
 			}
 			else
 			{
-                $this->debug->Show(Debug::DEBUG,
-                     'Missing environment GOOGLE_APPLICATION_CREDENTIALS');
-                $this->AuthorizeOAuth($client);
+				$this->debug->Show(Debug::DEBUG,
+					 'Missing environment GOOGLE_APPLICATION_CREDENTIALS');
+				$this->AuthorizeOAuth($client);
 			}
-        }
-        else if ($authorizationType == 'OAuth')
-        {
-            $this->AuthorizeOAuth($client);
-        }
+		}
+		else if ($authorizationType == 'OAuth')
+		{
+			$this->AuthorizeOAuth($client);
+		}
 		else
 		{
 			$this->debug->Show(Debug::DEBUG, 'Loading credentials from token');
-            $client->setPrompt('select_account consent');
-            $this->AuthorizeOAuth($client);
-            $this->SetAccessToken($client);
+			$client->setPrompt('select_account consent');
+			$this->AuthorizeOAuth($client);
+			$this->SetAccessToken($client);
 		}
 
 		return $client;
 	}
 
-    private function AuthorizeOAuth($client)
-    {
-        $credentialFile = null;
+	private function AuthorizeOAuth($client)
+	{
+		$credentialFile = null;
 
-        $this->debug->Show(Debug::DEBUG, 'Loading oauth credentials file');
+		$this->debug->Show(Debug::DEBUG, 'Loading oauth credentials file');
 
-        $checkFile = __DIR__ . '/' . CREDENTIALS_FILE;
-        if (file_exists($checkFile))
-        {
-            $credentialFile = $checkFile;
-        }
+		$checkFile = __DIR__ . '/' . CREDENTIALS_FILE;
+		if (file_exists($checkFile))
+		{
+			$credentialFile = $checkFile;
+		}
 
-        if (empty($credentialFile))
-        {
-            $this->debug->Show(Debug::ERROR, "Credentials file missing");
-        }
-        else
-        {
-            $accessToken = $this->GetAccessTokenFromJsonFile($credentialFile);
+		if (empty($credentialFile))
+		{
+			$this->debug->Show(Debug::ERROR, "Credentials file missing");
+		}
+		else
+		{
+			$accessToken = $this->GetAccessTokenFromJsonFile($credentialFile);
 
-            if (!empty($accessToken))
-            {
-                $client->setAccessToken($accessToken);
-            }
+			if (!empty($accessToken))
+			{
+				$client->setAccessToken($accessToken);
+			}
 
-            $client->setAuthConfig($credentialFile);
-        }
+			$client->setAuthConfig($credentialFile);
+		}
 
-        return $credentialFile;
-    }
+		return $credentialFile;
+	}
 
-    private function GetAccessTokenFromJsonFile($filePath)
-    {
-        $accessToken = null;
+	private function GetAccessTokenFromJsonFile($filePath)
+	{
+		$accessToken = null;
 
-        if (file_exists($filePath))
-        {
-            $contents = file_get_contents($filePath);
-            $jsonContents = json_decode($contents, true);
+		if (file_exists($filePath))
+		{
+			$contents = file_get_contents($filePath);
+			$jsonContents = json_decode($contents, true);
 
-            if (array_key_exists('access_token', $jsonContents))
-            {
-                $accessToken = $jsonContents['access_token'];
-            }
-        }
-        else
-        {
-            $this->debug->Show(Debug::DEBUG, 'JSON credentials file missing');
-        }
+			if (array_key_exists('access_token', $jsonContents))
+			{
+				$accessToken = $jsonContents['access_token'];
+			}
+		}
+		else
+		{
+			$this->debug->Show(Debug::DEBUG, 'JSON credentials file missing');
+		}
 
-        return $accessToken;
-    }
+		return $accessToken;
+	}
 
-    private function GetFiles(
-		$showOnlyFolders = false, $showOnlyRootLevel = false)
+	private function GetFiles(
+		$parentId, $showOnlyFolders = false, $showOnlyRootLevel = false)
 	{
 		// returns empty array
 		// $files = new Google_Service_Drive_FileList($this->client);
 		// $response = $files->getFiles();
 
-        $options =
-        [
-            'pageSize' => 200,
-            'supportsAllDrives' => true,
-            'fields' => "files(id, name, parents)"
-        ];
+		$options =
+		[
+			'pageSize' => 200,
+			'supportsAllDrives' => true,
+			'fields' => "files(id, name, parents, permissions)"
+		];
 
 		if ($showOnlyFolders == true && $showOnlyRootLevel == true)
 		{
@@ -351,14 +356,27 @@ class GoogleDrive
 			}
 			else
 			{
+				if (empty($parentId))
+				{
+					$parentId = 'root';
+				}
+
 				$options['q'] =
 					"mimeType = 'application/vnd.google-apps.folder'" .
-					" and 'root' in parents";
+					" and '$parentId' in parents";
 			}
 		}
 		else if ($showOnlyFolders == true)
 		{
 			$options['q'] = "mimeType = 'application/vnd.google-apps.folder'";
+
+			if (!empty($parentId))
+			{
+				$options['q'] =
+					"mimeType = 'application/vnd.google-apps.folder'" .
+					" and '$parentId' in parents";
+			}
+
 		}
 		else if ($showOnlyRootLevel == true)
 		{
@@ -372,22 +390,22 @@ class GoogleDrive
 			}
 		}
 
-        $response = $this->service->files->listFiles($options);
+		$response = $this->service->files->listFiles($options);
 
 		return $response;
 	}
 
-    // Load previously authorized token from a file, if it exists.
-    // The file token.json stores the user's access and refresh tokens,
-    // and is created automatically when the authorization flow completes
-    // for the first time (below).
-    private function SetAccessToken($client)
+	// Load previously authorized token from a file, if it exists.
+	// The file token.json stores the user's access and refresh tokens,
+	// and is created automatically when the authorization flow completes
+	// for the first time (below).
+	private function SetAccessToken($client)
 	{
 		$result = false;
 
 		$tokenPath = __DIR__ . '/' . TOKEN_FILE;
 
-        $accessToken = $this->GetAccessTokenFromJsonFile($tokenPath);
+		$accessToken = $this->GetAccessTokenFromJsonFile($tokenPath);
 
 		if (!empty($accessToken))
 		{
@@ -407,7 +425,7 @@ class GoogleDrive
 			}
 			else
 			{
-                $result = self::AuthorizeRequestUser($client);
+				$result = self::AuthorizeRequestUser($client);
 			}
 		}
 		else
@@ -417,8 +435,8 @@ class GoogleDrive
 
 		if ($result == true)
 		{
-            $this->UpdateJsonTokensFile($client, $tokenPath);
-        }
+			$this->UpdateJsonTokensFile($client, $tokenPath);
+		}
 
 		return $result;
 	}
@@ -432,18 +450,18 @@ class GoogleDrive
 		$options = array('transferOwnership' => 'true');
 
 		$this->service->permissions->create($file->id, $newPermission, $options);
-    }
+	}
 
-    private function UpdateJsonTokensFile($client, $tokenPath)
-    {
-        // Save the token to a file.
-        $path = dirname($tokenPath);
-        if (!file_exists($path))
-        {
-            mkdir($path, 0700, true);
-        }
+	private function UpdateJsonTokensFile($client, $tokenPath)
+	{
+		// Save the token to a file.
+		$path = dirname($tokenPath);
+		if (!file_exists($path))
+		{
+			mkdir($path, 0700, true);
+		}
 
-        $data = json_encode($client->getAccessToken());
-        file_put_contents($tokenPath, $data);
-    }
+		$data = json_encode($client->getAccessToken());
+		file_put_contents($tokenPath, $data);
+	}
 }
