@@ -75,9 +75,11 @@ class GoogleDrive
 		$this->service->files->delete($fileId);
 	}
 
-	public function ListFiles($parentId, $showParent = false)
+	public function ListFiles($parentId, $showParent = false,
+		$showOnlyFolders = false, $showOnlyRootLevel = false)
 	{
-		$response = $this->GetFiles($parentId, true, false);
+		$response = $this->GetFiles(
+			$parentId, $showOnlyFolders, $showOnlyRootLevel);
 
 		$this->debug->Show(Debug::DEBUG, "Listing files");
 
@@ -92,11 +94,13 @@ class GoogleDrive
 			{
 				printf("Found file: Id: %s Name: %s\r\n",
 					$file->id, $file->name);
+				/*
 				foreach($file->permissions as $user)
 				{
 					echo "role: $user->role email: $user->emailAddress\r\n";
 				}
 				echo "\r\n";
+				*/
 			}
 		}
 
@@ -341,7 +345,7 @@ class GoogleDrive
 
 		$options =
 		[
-			'pageSize' => 200,
+			'pageSize' => 1000,
 			'supportsAllDrives' => true,
 			'fields' => "files(id, name, parents, permissions)"
 		];
@@ -389,6 +393,15 @@ class GoogleDrive
 				$options['q'] = "'root' in parents";
 			}
 		}
+		else
+		{
+			if (!empty($parentId))
+			{
+				$options['q'] = "'$parentId' in parents";
+			}
+		}
+
+		print_r($options);
 
 		$response = $this->service->files->listFiles($options);
 
