@@ -145,6 +145,25 @@ namespace BackupManagerLibrary
 			// free native resources
 		}
 
+		private static bool CheckProcessFile(
+			Directory directory, string path)
+		{
+			bool processFile = true;
+
+			if (directory.ExcludesContains(path))
+			{
+				Exclude exclude = directory.GetExclude(path);
+				ExcludeType clause = exclude.ExcludeType;
+
+				if (clause == ExcludeType.File)
+				{
+					processFile = false;
+				}
+			}
+
+			return processFile;
+		}
+
 		private static bool CheckProcessRootFolder(
 			Directory directory, string path)
 		{
@@ -325,6 +344,7 @@ namespace BackupManagerLibrary
 		}
 
 		private void ProcessFiles(
+			Directory directory,
 			FileInfo[] files,
 			Google.Apis.Drive.v3.Data.File serverFolder,
 			IList<Google.Apis.Drive.v3.Data.File> serverFiles)
@@ -337,13 +357,32 @@ namespace BackupManagerLibrary
 
 				while ((success == false) && (retries > 0))
 				{
-					success = BackUpFile(
-						serverFolder, serverFiles, file, retry);
+					bool checkFile =
+						CheckProcessFile(directory, file.FullName);
 
-					if ((success == false) && (retries > 0))
+					if (checkFile == true)
 					{
-						retry = true;
-						System.Threading.Thread.Sleep(200);
+						success = BackUpFile(
+							serverFolder, serverFiles, file, retry);
+
+						if ((success == false) && (retries > 0))
+						{
+							retry = true;
+							System.Threading.Thread.Sleep(200);
+						}
+					}
+					else
+					{
+						string message = string.Format(
+							CultureInfo.InvariantCulture,
+							"Excluding file from Server: {0}",
+							file.FullName);
+						Log.Info(CultureInfo.InvariantCulture, m => m(
+							message));
+
+						RemoveAbandonedFile(file, serverFiles);
+
+						success = true;
 					}
 				}
 			}
@@ -371,12 +410,10 @@ namespace BackupManagerLibrary
 					parent, directoryInfo.Name);
 				System.Threading.Thread.Sleep(200);
 			}
-			else
-			{
-				serverFiles =
-					googleDrive.GetFiles(serverFolder.Id);
-				System.Threading.Thread.Sleep(200);
-			}
+
+			serverFiles =
+				googleDrive.GetFiles(serverFolder.Id);
+			System.Threading.Thread.Sleep(200);
 
 			string[] subDirectories =
 				System.IO.Directory.GetDirectories(path);
@@ -397,7 +434,49 @@ namespace BackupManagerLibrary
 
 			if (processFiles == true)
 			{
-				ProcessFiles(files, serverFolder, serverFiles);
+				ProcessFiles(directory, files, serverFolder, serverFiles);
+			}
+		}
+
+		private void RemoveAbandonedFile(
+			FileInfo file,
+			IList<Google.Apis.Drive.v3.Data.File> serverFiles)
+		{
+			foreach (Google.Apis.Drive.v3.Data.File serverFile in serverFiles)
+			{
+				try
+				{
+					if (!serverFile.MimeType.Equals(
+						"application/vnd.google-apps.folder",
+						StringComparison.Ordinal))
+					{
+						string serverFileName = serverFile.Name;
+
+						if (serverFileName.Equals(
+							file.Name, StringComparison.Ordinal))
+						{
+							string fileName = GoogleDrive.SanitizeFileName(
+								serverFileName);
+
+							string message = string.Format(
+								CultureInfo.InvariantCulture,
+								"Deleting file from Server: {0}",
+								fileName);
+							Log.Info(CultureInfo.InvariantCulture, m => m(
+								message));
+
+							googleDrive.Delete(serverFile.Id);
+							System.Threading.Thread.Sleep(200);
+
+							break;
+						}
+					}
+				}
+				catch (Google.GoogleApiException exception)
+				{
+					Log.Error(CultureInfo.InvariantCulture, m => m(
+						exception.ToString()));
+				}
 			}
 		}
 

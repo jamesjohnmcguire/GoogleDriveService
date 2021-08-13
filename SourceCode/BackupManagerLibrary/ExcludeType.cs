@@ -23,6 +23,11 @@ namespace BackupManagerLibrary
 		/// <summary>
 		/// Exclude the root directory and all sub directories.
 		/// </summary>
-		AllSubDirectories = 1
+		AllSubDirectories = 1,
+
+		/// <summary>
+		/// Exclude the specified file.
+		/// </summary>
+		File = 2
 	}
 }
