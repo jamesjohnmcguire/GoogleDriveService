@@ -13,6 +13,9 @@ $debugger = new Debug($debugLevel, $logFile);
 
 $command = null;
 $data = null;
+$showParent = false;
+$showOnlyFolders = false;
+$showOnlyRootLevel = false;
 
 if (!empty($argv[1]))
 {
@@ -22,6 +25,22 @@ if (!empty($argv[1]))
 if (!empty($argv[2]))
 {
     $data = $argv[2];
+}
+
+foreach ($argv as $argument)
+{
+	if ($argument == 'showParent')
+	{
+		$showParent = true;
+	}
+	else if ($argument == 'showOnlyFolders')
+	{
+		$showOnlyFolders = true;
+	}
+	else if ($argument == 'showOnlyRootLevel')
+	{
+		$showOnlyRootLevel = true;
+	}
 }
 
 $googleDrive = new GoogleDrive($debugger);
@@ -49,4 +68,5 @@ switch ($command)
         break;
 }
 
-$googleDrive->ListFiles($data);
+$googleDrive->ListFiles(
+	$data, $showParent, $showOnlyFolders, $showOnlyRootLevel);

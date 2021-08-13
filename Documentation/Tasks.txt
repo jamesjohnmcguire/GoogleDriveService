@@ -1,4 +1,4 @@
-*.gdoc Google.GoogleApiException: Google.Apis.Requests.RequestError Invalid MIME type provided for the uploaded content.
+*.gdoc Google.GoogleApiException: Google.Apis.Requests.RequestError Invalid MIME type provided for the uploaded content.	Need to override MIME type to json
 Unhandled exception. Google.GoogleApiException BackupManagerLibrary\GoogleDrive.cs:line 161
 Try removing delays for non-upload functions
 Set configuration directory as command line parameter
@@ -11,10 +11,10 @@ Back Up	Issue with Outlook Popups messing up outlook shutdown process
 Refactor Custom Step to run external script instead of hard coded commands
 Exclude directories listed in .gitignore
 Remove directories listed in .gitignore
-For each folder, check if server file no exists locally, if so, delete from drive
-Exclude by file
 
 Finished
+	For each folder, check if server file no exists locally, if so, delete from drive
+	Exclude by file
 	ignore .vs, _svn, .svn directories
 	Set configuration directory in %appdata%
 	Find better home for log file %appdata%
