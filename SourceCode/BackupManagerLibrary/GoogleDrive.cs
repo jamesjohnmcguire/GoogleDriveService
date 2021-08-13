@@ -72,7 +72,8 @@ namespace BackupManagerLibrary
 		}
 
 		/// <summary>
-		/// Sanitize file name method.
+		/// Sanitize file name method.  Currently, just removes '{' and '{'.
+		/// This is mainly used for logging, which tries to interpret those sympbols.
 		/// </summary>
 		/// <param name="fileName">The file name to sanitize.</param>
 		/// <returns>The sanitized file name.</returns>
