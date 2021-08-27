@@ -42,6 +42,7 @@ Resources
 
 		google drive php example
 			https://stackoverflow.com/questions/16153539/list-all-top-level-folders-in-google-drive-api
+		https://stackoverflow.com/questions/11304767/how-to-get-the-owner-of-file-using-google-drive-api
 FlikrStorage Project
 	https://github.com/ricardobeat/filr
 	https://github.com/meltingice/flickr-store

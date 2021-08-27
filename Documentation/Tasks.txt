@@ -11,6 +11,7 @@ Back Up	Issue with Outlook Popups messing up outlook shutdown process
 Refactor Custom Step to run external script instead of hard coded commands
 Exclude directories listed in .gitignore
 Remove directories listed in .gitignore
+ignore git files
 
 Finished
 	For each folder, check if server file no exists locally, if so, delete from drive
