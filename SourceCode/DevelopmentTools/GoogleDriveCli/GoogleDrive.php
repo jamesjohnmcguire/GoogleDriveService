@@ -82,6 +82,7 @@ class GoogleDrive
 			$parentId, $showOnlyFolders, $showOnlyRootLevel);
 
 		$this->debug->Show(Debug::DEBUG, "Listing files");
+		$this->debug->Show(Debug::DEBUG, "parent id: $parentId");
 
 		foreach ($response as $file)
 		{
