@@ -219,6 +219,8 @@ namespace BackupManagerLibrary
 				{
 					DirectoryInfo directoryInfo = new (path);
 
+					RemoveExcludedFolders(directory, path, serverFiles);
+
 					bool processSubFolders =
 						CheckProcessSubFolders(directory, path);
 
@@ -401,8 +403,7 @@ namespace BackupManagerLibrary
 			FileInfo[] files = directoryInfo.GetFiles();
 
 			Google.Apis.Drive.v3.Data.File serverFolder =
-				GoogleDrive.GetFileInList(
-					serverFiles, directoryInfo.Name);
+				GoogleDrive.GetFileInList(serverFiles, directoryInfo.Name);
 
 			if (serverFolder == null)
 			{
@@ -418,6 +419,8 @@ namespace BackupManagerLibrary
 			string[] subDirectories =
 				System.IO.Directory.GetDirectories(path);
 
+			RemoveAbandonedFolders(path, subDirectories, serverFiles);
+
 			foreach (string subDirectory in subDirectories)
 			{
 				await BackUp(
@@ -426,8 +429,6 @@ namespace BackupManagerLibrary
 					subDirectory,
 					serverFiles).ConfigureAwait(false);
 			}
-
-			RemoveAbandonedFolders(path, subDirectories, serverFiles);
 
 			bool processFiles =
 				CheckProcessRootFolder(directory, path);
@@ -558,6 +559,45 @@ namespace BackupManagerLibrary
 				{
 					Log.Error(CultureInfo.InvariantCulture, m => m(
 						exception.ToString()));
+				}
+			}
+		}
+
+		private void RemoveExcludedFolders(
+			Directory directory,
+			string path,
+			IList<Google.Apis.Drive.v3.Data.File> serverFiles)
+		{
+			// Check for default ignore paths
+			DirectoryInfo directoryInfo = new (path);
+			string directoryName = directoryInfo.Name;
+
+			if (directory.ExcludesContains(path) ||
+				directory.ExcludesContains(directoryName))
+			{
+				Exclude exclude = directory.GetExclude(path);
+				ExcludeType clause = exclude.ExcludeType;
+
+				if (clause == ExcludeType.AllSubDirectories)
+				{
+					Google.Apis.Drive.v3.Data.File serverFolder =
+					GoogleDrive.GetFileInList(serverFiles, directoryInfo.Name);
+
+					if (serverFolder != null)
+					{
+						string fileName =
+							GoogleDrive.SanitizeFileName(serverFolder.Name);
+
+						string message = string.Format(
+							CultureInfo.InvariantCulture,
+							"Deleting folder from Server: {0}",
+							fileName);
+						Log.Info(CultureInfo.InvariantCulture, m => m(
+							message));
+
+						googleDrive.Delete(serverFolder.Id);
+						System.Threading.Thread.Sleep(200);
+					}
 				}
 			}
 		}
