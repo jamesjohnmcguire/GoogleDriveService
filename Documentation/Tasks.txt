@@ -14,6 +14,7 @@ Remove directories listed in .gitignore
 ignore git files
 
 Finished
+	Google.Apis.Requests.RequestError	File not found: 1WNEqjjDtiyfn8wGjQoVy-gKyJ2SH_gm0. [404]
 	For each folder, check if server file no exists locally, if so, delete from drive
 	Exclude by file
 	ignore .vs, _svn, .svn directories
