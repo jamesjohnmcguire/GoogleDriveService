@@ -1,9 +1,18 @@
-﻿using System;
+﻿/////////////////////////////////////////////////////////////////////////////
+// <copyright file="ExcludeType.cs" company="James John McGuire">
+// Copyright © 2017 - 2021 James John McGuire. All Rights Reserved.
+// </copyright>
+/////////////////////////////////////////////////////////////////////////////
+
+using System;
 using System.Collections.Generic;
 using System.Text;
 
 namespace BackupManagerLibrary
 {
+	/// <summary>
+	/// Exclude type enum.
+	/// </summary>
 	public enum ExcludeType
 	{
 		/// <summary>
@@ -14,6 +23,11 @@ namespace BackupManagerLibrary
 		/// <summary>
 		/// Exclude the root directory and all sub directories.
 		/// </summary>
-		AllSubDirectories = 1
+		AllSubDirectories = 1,
+
+		/// <summary>
+		/// Exclude the specified file.
+		/// </summary>
+		File = 2
 	}
 }

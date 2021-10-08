@@ -1,6 +1,6 @@
 ﻿/////////////////////////////////////////////////////////////////////////////
 // <copyright file="Backup.cs" company="James John McGuire">
-// Copyright © 2017 - 2020 James John McGuire. All Rights Reserved.
+// Copyright © 2017 - 2021 James John McGuire. All Rights Reserved.
 // </copyright>
 /////////////////////////////////////////////////////////////////////////////
 
@@ -9,36 +9,55 @@ using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Configuration;
 using System.Diagnostics;
 using System.Globalization;
 using System.IO;
+using System.Threading.Tasks;
+
+[assembly: CLSCompliant(false)]
 
 namespace BackupManagerLibrary
 {
+	/// <summary>
+	/// Back up class.
+	/// </summary>
 	public static class Backup
 	{
 		private static readonly ILog Log = LogManager.GetLogger(
 			System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
 
-		public static void Run()
+		/// <summary>
+		/// Run method.
+		/// </summary>
+		/// <param name="useCustomInitialization">Indicates whether to use
+		/// custom initialation.</param>
+		/// <returns>A task indicating completion.</returns>
+		public static async Task Run(bool useCustomInitialization)
 		{
 			try
 			{
 				IList<Account> accounts = AccountsManager.LoadAccounts();
 
-				if (accounts.Count > 0)
+				if ((accounts == null) || (accounts.Count == 0))
 				{
-					DisplayConfig();
-					CustomInitialization();
+					Log.Error(CultureInfo.InvariantCulture, m => m(
+						"No accounts information"));
+				}
+				else
+				{
+					if (useCustomInitialization == true)
+					{
+						CustomInitialization();
+					}
 
 					foreach (Account account in accounts)
 					{
-						bool authenticated = account.Authenticate();
+						string name = account.ServiceAccount;
+						string message = "Backing up to account: " + name;
+						Log.Info(CultureInfo.InvariantCulture, m => m(
+							message));
 
-						if (authenticated == true)
-						{
-						}
+						await account.BackUp().ConfigureAwait(false);
 					}
 				}
 			}
@@ -68,7 +87,7 @@ namespace BackupManagerLibrary
 				string profilePath = Environment.GetFolderPath(
 					Environment.SpecialFolder.UserProfile);
 				string dataPath = profilePath + @"\Data\ProgramData\Outlook";
-				string backupPath = dataPath + @"\Backups";
+				string backupPath = dataPath + @"\Backups\";
 
 				if (System.IO.Directory.Exists(dataPath))
 				{
@@ -84,15 +103,14 @@ namespace BackupManagerLibrary
 
 					foreach (string file in files)
 					{
-						System.IO.FileInfo fileInfo = new FileInfo(file);
+						System.IO.FileInfo fileInfo = new (file);
 
-						string destination = fileInfo.DirectoryName +
-							@"\Backups\" + fileInfo.Name;
-						System.IO.File.Copy(file, destination);
+						string destination = backupPath + fileInfo.Name;
+						System.IO.File.Copy(file, destination, true);
 					}
 				}
 
-				using Process outlook = new Process();
+				using Process outlook = new ();
 				outlook.StartInfo.FileName =
 					@"C:\Program Files\Microsoft Office\root\Office16\OUTLOOK.EXE";
 				outlook.Start();
@@ -107,17 +125,6 @@ namespace BackupManagerLibrary
 			{
 				Log.Error(CultureInfo.InvariantCulture, m => m(
 					exception.ToString()));
-			}
-		}
-
-		private static void DisplayConfig()
-		{
-			foreach (string key in ConfigurationManager.AppSettings)
-			{
-				string value = ConfigurationManager.AppSettings[key];
-
-				Log.Info(CultureInfo.InvariantCulture, m => m(
-					"Config: " + key + ": " + value));
 			}
 		}
 	}

@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "BackupManager": {
+      "commandName": "Project",
+      "commandLineArgs": "false"
+    }
+  }
+}

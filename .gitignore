@@ -28,3 +28,8 @@ bld/
 # NUNIT
 *.VisualState.xml
 TestResult.xml
+
+/SourceCode/DevelopmentTools/GoogleDriveCli/LogFiles
+/SourceCode/DevelopmentTools/GoogleDriveCli/vendor
+
+/SourceCode/DevelopmentTools/GoogleDriveCli/GoogleDriveServiceAccount.json
