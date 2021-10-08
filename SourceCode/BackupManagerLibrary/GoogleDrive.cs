@@ -224,6 +224,14 @@ namespace BackupManagerLibrary
 
 			string mimeType = MimeTypes.GetMimeType(file.Name);
 
+			// over rides for wrongly marked files
+			string extension = file.Extension;
+			if (extension.Equals("gdoc", StringComparison.OrdinalIgnoreCase) ||
+				extension.Equals("gsheet", StringComparison.OrdinalIgnoreCase))
+			{
+				mimeType = "application/json";
+			}
+
 			if (string.IsNullOrWhiteSpace(fileId))
 			{
 				IList<string> parents = new List<string>();
