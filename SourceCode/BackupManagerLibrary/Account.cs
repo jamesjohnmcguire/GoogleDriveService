@@ -414,7 +414,6 @@ namespace BackupManagerLibrary
 
 			serverFiles =
 				googleDrive.GetFiles(serverFolder.Id);
-			System.Threading.Thread.Sleep(200);
 
 			string[] subDirectories =
 				System.IO.Directory.GetDirectories(path);
