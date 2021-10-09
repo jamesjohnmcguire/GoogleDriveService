@@ -229,6 +229,7 @@ namespace BackupManagerLibrary
 			if (extension.Equals("gdoc", StringComparison.OrdinalIgnoreCase) ||
 				extension.Equals("gsheet", StringComparison.OrdinalIgnoreCase))
 			{
+				Log.Info("Changing mime type to application/json");
 				mimeType = "application/json";
 			}
 
