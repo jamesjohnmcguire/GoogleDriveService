@@ -1,10 +1,7 @@
 {
     "require": {
-        "chrisyue/php-m3u8": "^2.1",
         "fabpot/goutte": "^4.0",
-        "phpmailer/phpmailer": "^6.0",
         "phpunit/phpunit": "^5.7",
-        "php-ffmpeg/php-ffmpeg": "^0.11.1",
         "google/apiclient": "^2.4"
     }
 }
