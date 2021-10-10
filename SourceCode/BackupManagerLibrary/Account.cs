@@ -207,6 +207,11 @@ namespace BackupManagerLibrary
 			return processSubFolders;
 		}
 
+		private static void Delay()
+		{
+			System.Threading.Thread.Sleep(180);
+		}
+
 		private async Task BackUp(
 			Directory directory,
 			string parent,
@@ -345,6 +350,22 @@ namespace BackupManagerLibrary
 			}
 		}
 
+		private void DeleteFromDrive(
+			Google.Apis.Drive.v3.Data.File file)
+		{
+			string fileName = GoogleDrive.SanitizeFileName(file.Name);
+
+			string message = string.Format(
+				CultureInfo.InvariantCulture,
+				"Deleting file from Server: {0}",
+				fileName);
+			Log.Info(CultureInfo.InvariantCulture, m => m(
+				message));
+
+			googleDrive.Delete(file.Id);
+			Delay();
+		}
+
 		private void ProcessFiles(
 			Directory directory,
 			FileInfo[] files,
@@ -414,7 +435,6 @@ namespace BackupManagerLibrary
 
 			serverFiles =
 				googleDrive.GetFiles(serverFolder.Id);
-			System.Threading.Thread.Sleep(200);
 
 			string[] subDirectories =
 				System.IO.Directory.GetDirectories(path);
@@ -456,19 +476,7 @@ namespace BackupManagerLibrary
 						if (serverFileName.Equals(
 							file.Name, StringComparison.Ordinal))
 						{
-							string fileName = GoogleDrive.SanitizeFileName(
-								serverFileName);
-
-							string message = string.Format(
-								CultureInfo.InvariantCulture,
-								"Deleting file from Server: {0}",
-								fileName);
-							Log.Info(CultureInfo.InvariantCulture, m => m(
-								message));
-
-							googleDrive.Delete(serverFile.Id);
-							System.Threading.Thread.Sleep(200);
-
+							DeleteFromDrive(serverFile);
 							break;
 						}
 					}
@@ -499,17 +507,7 @@ namespace BackupManagerLibrary
 
 						if (exists == false)
 						{
-							fileName = GoogleDrive.SanitizeFileName(file.Name);
-
-							string message = string.Format(
-								CultureInfo.InvariantCulture,
-								"Deleting file from Server: {0}",
-								fileName);
-							Log.Info(CultureInfo.InvariantCulture, m => m(
-								message));
-
-							googleDrive.Delete(file.Id);
-							System.Threading.Thread.Sleep(200);
+							DeleteFromDrive(file);
 						}
 					}
 				}
@@ -540,18 +538,7 @@ namespace BackupManagerLibrary
 
 						if (exists == false)
 						{
-							string fileName =
-								GoogleDrive.SanitizeFileName(file.Name);
-
-							string message = string.Format(
-								CultureInfo.InvariantCulture,
-								"Deleting folder from Server: {0}",
-								fileName);
-							Log.Info(CultureInfo.InvariantCulture, m => m(
-								message));
-
-							googleDrive.Delete(file.Id);
-							System.Threading.Thread.Sleep(200);
+							DeleteFromDrive(file);
 						}
 					}
 				}
@@ -581,22 +568,12 @@ namespace BackupManagerLibrary
 				if (clause == ExcludeType.AllSubDirectories)
 				{
 					Google.Apis.Drive.v3.Data.File serverFolder =
-					GoogleDrive.GetFileInList(serverFiles, directoryInfo.Name);
+						GoogleDrive.GetFileInList(
+							serverFiles, directoryInfo.Name);
 
 					if (serverFolder != null)
 					{
-						string fileName =
-							GoogleDrive.SanitizeFileName(serverFolder.Name);
-
-						string message = string.Format(
-							CultureInfo.InvariantCulture,
-							"Deleting folder from Server: {0}",
-							fileName);
-						Log.Info(CultureInfo.InvariantCulture, m => m(
-							message));
-
-						googleDrive.Delete(serverFolder.Id);
-						System.Threading.Thread.Sleep(200);
+						DeleteFromDrive(serverFolder);
 					}
 				}
 			}

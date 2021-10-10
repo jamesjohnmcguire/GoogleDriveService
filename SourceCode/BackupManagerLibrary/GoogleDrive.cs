@@ -226,9 +226,10 @@ namespace BackupManagerLibrary
 
 			// over rides for wrongly marked files
 			string extension = file.Extension;
-			if (extension.Equals("gdoc", StringComparison.OrdinalIgnoreCase) ||
-				extension.Equals("gsheet", StringComparison.OrdinalIgnoreCase))
+			if (extension.Equals(".gdoc", StringComparison.OrdinalIgnoreCase) ||
+				extension.Equals(".gsheet", StringComparison.OrdinalIgnoreCase))
 			{
+				Log.Info("Changing mime type to application/json");
 				mimeType = "application/json";
 			}
 
