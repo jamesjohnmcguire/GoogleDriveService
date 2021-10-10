@@ -21,7 +21,7 @@ namespace BackupManagerLibrary
 		private const string InternalDataPath =
 			@"\DigitalZenWorks\BackUpManager";
 
-		private const string MainDataFile = @"\Accounts.json";
+		private const string MainDataFile = @"\BackUp.json";
 
 		private static readonly ILog Log = LogManager.GetLogger(
 			System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
