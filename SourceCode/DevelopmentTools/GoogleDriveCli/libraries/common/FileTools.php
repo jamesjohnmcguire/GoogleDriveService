@@ -248,7 +248,7 @@ class FileTools
 		return $fullClass;
 	}
 
-	public static function GetRemoteSize($url, $debug = null)
+	public static function GetRemoteSize($url, $debug = null, $agent = null)
 	{
 		$size = null;
 
@@ -259,7 +259,11 @@ class FileTools
 		curl_setopt($curl, CURLOPT_HEADER, true);
 		curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
 		curl_setopt($curl, CURLOPT_FOLLOWLOCATION, true);
-		curl_setopt($curl, CURLOPT_USERAGENT, $this->agent);
+
+		if (!empty($agent))
+		{
+			curl_setopt($curl, CURLOPT_USERAGENT, $agent);
+		}
 
 		$data = curl_exec($curl);
 
