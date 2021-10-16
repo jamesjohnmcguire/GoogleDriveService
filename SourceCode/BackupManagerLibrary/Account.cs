@@ -372,6 +372,8 @@ namespace BackupManagerLibrary
 			Google.Apis.Drive.v3.Data.File serverFolder,
 			IList<Google.Apis.Drive.v3.Data.File> serverFiles)
 		{
+			RemoveAbandonedFiles(files, serverFiles);
+
 			foreach (FileInfo file in files)
 			{
 				bool retry = false;
@@ -409,8 +411,6 @@ namespace BackupManagerLibrary
 					}
 				}
 			}
-
-			RemoveAbandonedFiles(files, serverFiles);
 		}
 
 		private async Task ProcessSubFolders(
