@@ -25,13 +25,7 @@ class GoogleDrive
 
 		$this->client = $this->Authorize($authorizationType);
 
-		$contents = file_get_contents(SERVICE_ACCOUNT_FILE);
-		$data = json_decode($contents);
-
-		if (property_exists($data, 'root'))
-		{
-			$this->root = $data->root;
-		}
+		$this->GetRootFromFile();
 
 		$this->service = new Google_Service_Drive($this->client);
 	}
@@ -237,8 +231,6 @@ class GoogleDrive
 
 	private function Authorize($authorizationType)
 	{
-		$this->serviceAccountFilePath = __DIR__ . '/' . SERVICE_ACCOUNT_FILE;
-
 		$client = new Google_Client();
 
 		$client->setApplicationName('Google Drive API Video Uploader');
@@ -249,25 +241,7 @@ class GoogleDrive
 
 		if ($authorizationType == 'ServiceAccount')
 		{
-			$this->debug->Show(Debug::DEBUG,
-				'Setting environment variable GOOGLE_APPLICATION_CREDENTIALS ' .
-				"to $this->serviceAccountFilePath" .PHP_EOL);
-
-			putenv(
-				"GOOGLE_APPLICATION_CREDENTIALS=$this->serviceAccountFilePath");
-
-			if (getenv('GOOGLE_APPLICATION_CREDENTIALS'))
-			{
-				$this->debug->Show(Debug::DEBUG, 'using default credentials ' .
-					'from environment GOOGLE_APPLICATION_CREDENTIALS' .PHP_EOL);
-				$client->useApplicationDefaultCredentials();
-			}
-			else
-			{
-				$this->debug->Show(Debug::DEBUG,
-					 'Missing environment GOOGLE_APPLICATION_CREDENTIALS');
-				$this->AuthorizeOAuth($client);
-			}
+			$client = $this->AuthorizeServiceAccount($client);
 		}
 		else if ($authorizationType == 'OAuth')
 		{
@@ -313,6 +287,50 @@ class GoogleDrive
 		}
 
 		return $credentialFile;
+	}
+
+	private function AuthorizeServiceAccount($client)
+	{
+		$this->serviceAccountFilePath =
+			getenv('GOOGLE_APPLICATION_CREDENTIALS');
+
+		if ($this->serviceAccountFilePath !== false)
+		{
+			$this->debug->Show(Debug::DEBUG, 'Using default credentials ' .
+				'from environment GOOGLE_APPLICATION_CREDENTIALS' . PHP_EOL);
+			$this->debug->Show(Debug::DEBUG, 'File is: ' .
+				$this->serviceAccountFilePath . PHP_EOL);
+
+			$client->useApplicationDefaultCredentials();
+		}
+		else
+		{
+			$this->serviceAccountFilePath =
+				__DIR__ . '/' . SERVICE_ACCOUNT_FILE;
+
+			$exists = file_exists($this->serviceAccountFilePath);
+			if ($exists === true)
+			{
+				$this->debug->Show(Debug::DEBUG,
+					'Setting environment variable ' .
+					'GOOGLE_APPLICATION_CREDENTIALS to ' .
+					$this->serviceAccountFilePath . PHP_EOL);
+	
+				putenv('GOOGLE_APPLICATION_CREDENTIALS=' .
+					$this->serviceAccountFilePath);
+
+				$client->useApplicationDefaultCredentials();
+			}
+			else
+			{
+				$this->debug->Show(Debug::DEBUG,
+					'Missing environment GOOGLE_APPLICATION_CREDENTIALS. ' . 
+					'Defaulting to OAuth');
+				$this->AuthorizeOAuth($client);
+			}
+		}
+
+		return $client;
 	}
 
 	private function GetAccessTokenFromJsonFile($filePath)
@@ -407,6 +425,17 @@ class GoogleDrive
 		$response = $this->service->files->listFiles($options);
 
 		return $response;
+	}
+
+	private function GetRootFromFile()
+	{
+		$contents = file_get_contents($this->serviceAccountFilePath);
+		$data = json_decode($contents);
+
+		if (property_exists($data, 'root'))
+		{
+			$this->root = $data->root;
+		}
 	}
 
 	// Load previously authorized token from a file, if it exists.
