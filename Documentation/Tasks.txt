@@ -1,4 +1,8 @@
-*.gdoc Google.GoogleApiException: Google.Apis.Requests.RequestError Invalid MIME type provided for the uploaded content.	Need to override MIME type to json
+GoogleDriveCLI	list owner as well
+Improve build.cmd with composer install and md LogFiles
+GoogleDriveCLI	paths to long?	ERROR: Can not open output file : The filename, directory name, or volume label syntax is incorrect. : C:\Users\JamesMc\Data\Clients\DigitalZenWorks\BackupManager\SourceCode\DevelopmentTools\GoogleDriveCli/vendor/composer/0545aeab\googleapis-google-api-php-client-services-ea99097\src\ServiceNetworking\Resource\ServicesProjectsServicenetworkingGlobalNetworksPeeredDnsDomains.php
+Doesn't remove top-level directories that are no longer listed in the configuration file	RemoveAbandedFolders at the very top level
+Always uploading every run - ProjectArchive\Metropolis\archive2\wp-content\themes\metropolis-core\library\scripts\cache\042e2cd9fb79c5bbe07747f2b4fa2e31.png
 Unhandled exception. Google.GoogleApiException BackupManagerLibrary\GoogleDrive.cs:line 161
 Try removing delays for non-upload functions
 Set configuration directory as command line parameter
@@ -14,6 +18,9 @@ Remove directories listed in .gitignore
 ignore git files
 
 Finished
+	Didn't remove files previously uploaded that are now on the exclude list
+	PHP Fatal error:  Uncaught DomainException: Unable to read the credential file specified by  GOOGLE_APPLICATION_CREDENTIALS: file ProgramData\GoogleDrive\JamesSanServiceAccount.json
+	*.gdoc Google.GoogleApiException: Google.Apis.Requests.RequestError Invalid MIME type provided for the uploaded content.	Need to override MIME type to json
 	Google.Apis.Requests.RequestError	File not found: 1WNEqjjDtiyfn8wGjQoVy-gKyJ2SH_gm0. [404]
 	For each folder, check if server file no exists locally, if so, delete from drive
 	Exclude by file
