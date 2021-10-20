@@ -16,6 +16,12 @@ $data = null;
 $showParent = false;
 $showOnlyFolders = false;
 $showOnlyRootLevel = false;
+$options =
+[
+	'showParent' => false,
+	'showOnlyFolders' => false,
+	'showOnlyRootLevel' => false
+];
 
 if (!empty($argv[1]))
 {
@@ -24,26 +30,25 @@ if (!empty($argv[1]))
 
 if (!empty($argv[2]))
 {
-    $data = $argv[2];
+	$exists = array_key_exists($argv[2], $options);
+
+	if ($exists === false)
+	{
+		$data = $argv[2];
+	}
 }
 
 foreach ($argv as $argument)
 {
-	if ($argument == 'showParent')
+	$exists = array_key_exists($argument, $options);
+
+	if ($exists === true)
 	{
-		$showParent = true;
-	}
-	else if ($argument == 'showOnlyFolders')
-	{
-		$showOnlyFolders = true;
-	}
-	else if ($argument == 'showOnlyRootLevel')
-	{
-		$showOnlyRootLevel = true;
+		$options[$argument] = true;
 	}
 }
 
-$googleDrive = new GoogleDrive($debugger);
+$googleDrive = new GoogleDrive($debugger, $options);
 
 echo "Command is: $command\r\n";
 echo "Data is: $data\r\n";
@@ -68,5 +73,4 @@ switch ($command)
         break;
 }
 
-$googleDrive->ListFiles(
-	$data, $showParent, $showOnlyFolders, $showOnlyRootLevel);
+$googleDrive->ListFiles($data);

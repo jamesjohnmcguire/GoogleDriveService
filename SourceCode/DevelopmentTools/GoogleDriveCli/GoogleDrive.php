@@ -18,10 +18,19 @@ class GoogleDrive
 	private $root = null;
 	private $service = null;
 	private $serviceAccountFilePath = null;
+	private $showOnlyFolders = false;
+	private $showOnlyRootLevel = false;
+	private $showParent = false;
 
-	public function __construct($debug, $authorizationType = 'ServiceAccount')
+	public function __construct(
+		$debug, $options = [], $authorizationType = 'ServiceAccount')
 	{
 		$this->debug = $debug;
+
+		foreach ($options as $key => $option)
+		{
+			$this->$key = $option;
+		}
 
 		$this->client = $this->Authorize($authorizationType);
 
@@ -69,26 +78,34 @@ class GoogleDrive
 		$this->service->files->delete($fileId);
 	}
 
-	public function ListFiles($parentId, $showParent = false,
-		$showOnlyFolders = false, $showOnlyRootLevel = false)
+	public function ListFiles($parentId = null)
 	{
 		$response = $this->GetFiles(
-			$parentId, $showOnlyFolders, $showOnlyRootLevel);
+			$parentId, $this->showOnlyFolders, $this->showOnlyRootLevel);
 
 		$this->debug->Show(Debug::DEBUG, "Listing files");
 		$this->debug->Show(Debug::DEBUG, "parent id: $parentId");
 
+		echo "\r\n";
+
+		if ($this->showParent == true)
+		{
+			echo "Found file: Id\t\tParent\t\tName\r\n";
+		}
+		else
+		{
+			echo "Found file: Id\t\t\t\tName\r\n";
+		}
+
 		foreach ($response as $file)
 		{
-			if ($showParent == true)
+			if ($this->showParent == true)
 			{
-				printf("Found file: Id: %s Parent: %s Name: %s\r\n",
-					$file->id, $file->parents[0], $file->name);
-				}
+				echo "$file->id\tfile->parents[0]\t$file->name\r\n";
+			}
 			else
 			{
-				printf("Found file: Id: %s Name: %s\r\n",
-					$file->id, $file->name);
+				echo "$file->id\t$file->name\r\n";
 				/*
 				foreach($file->permissions as $user)
 				{
@@ -391,6 +408,9 @@ class GoogleDrive
 		}
 		else if ($showOnlyFolders == true)
 		{
+			echo "showOnlyFolders is true\r\n";
+			echo "parentId: $parentId\r\n";
+
 			$options['q'] = "mimeType = 'application/vnd.google-apps.folder'";
 
 			if (!empty($parentId))
