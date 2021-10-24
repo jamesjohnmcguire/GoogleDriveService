@@ -173,23 +173,40 @@ namespace BackupManagerLibrary
 		/// <returns>A list of files.</returns>
 		public IList<Google.Apis.Drive.v3.Data.File> GetFiles(string parent)
 		{
-			IList<Google.Apis.Drive.v3.Data.File> files;
+			List<Google.Apis.Drive.v3.Data.File> files = new ();
 			FilesResource.ListRequest listRequest = driveService.Files.List();
 
-			listRequest.Fields = "files(id, name, mimeType, modifiedTime)";
+			listRequest.Fields = "files(id, name, mimeType, modifiedTime), " +
+				"nextPageToken";
 			listRequest.Q = $"'{parent}' in parents";
 			listRequest.PageSize = 1000;
 
-			Google.Apis.Drive.v3.Data.FileList filesList = listRequest.Execute();
-			files = filesList.Files;
+			do
+			{
+				try
+				{
+					string message = string.Format(
+						CultureInfo.InvariantCulture,
+						"Retrieved files from: {0} count: {1}",
+						parent,
+						files.Count);
+					Log.Info(CultureInfo.InvariantCulture, m => m(
+						message));
 
-			string message = string.Format(
-				CultureInfo.InvariantCulture,
-				"Retrieved files from: {0} count: {1}",
-				parent,
-				files.Count);
-			Log.Info(CultureInfo.InvariantCulture, m => m(
-				message));
+					Google.Apis.Drive.v3.Data.FileList filesList =
+						listRequest.Execute();
+					files.AddRange(filesList.Files);
+
+					listRequest.PageToken = filesList.NextPageToken;
+				}
+				catch (Google.GoogleApiException exception)
+				{
+					Log.Error(CultureInfo.InvariantCulture, m => m(
+						exception.ToString()));
+					listRequest.PageToken = null;
+				}
+			}
+			while (!string.IsNullOrEmpty(listRequest.PageToken));
 
 			return files;
 		}
