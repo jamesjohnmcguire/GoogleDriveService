@@ -53,7 +53,6 @@ namespace BackupManager
 		private static string GetVersion()
 		{
 			Assembly assembly = Assembly.GetExecutingAssembly();
-			string location = assembly.Location;
 
 			AssemblyName assemblyName = assembly.GetName();
 			Version version = assemblyName.Version;
