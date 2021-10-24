@@ -1,8 +1,8 @@
-REM Examples
-REM Command upload videos/jp/GreenChannelWeb/2020-10-25.mp4
-REM Command list
-REM Command deleteall
-REM Command delete 1IcurHhUiafHbqw8qfw1UEGGLrGGFzDqH
+@ECHO OFF
+ECHO Examples
+ECHO Command list
+ECHO Command deleteall
+ECHO Command delete 1IcurHhUiafHbqw8qfw1UEGGLrGGFzDqH
 
 @ECHO OFF
 cd %~dp0
