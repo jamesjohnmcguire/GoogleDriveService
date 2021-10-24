@@ -80,7 +80,7 @@ class GoogleDrive
 
 	public function ListFiles($parentId = null)
 	{
-		$response = $this->GetFiles(
+		$files = $this->GetFiles(
 			$parentId, $this->showOnlyFolders, $this->showOnlyRootLevel);
 
 		$this->debug->Show(Debug::DEBUG, "Listing files");
@@ -90,22 +90,23 @@ class GoogleDrive
 
 		if ($this->showParent == true)
 		{
-			echo "Found file: Id\t\tParent\t\tName\r\n";
+			echo "Id\t\t\t\tParent\t\tName\r\n";
 		}
 		else
 		{
-			echo "Found file: Id\t\t\t\tName\r\n";
+			echo "Id\t\t\t\t  Name\r\n";
 		}
 
-		foreach ($response as $file)
+		foreach ($files as $file)
 		{
 			if ($this->showParent == true)
 			{
-				echo "$file->id\tfile->parents[0]\t$file->name\r\n";
+				$parent = $file->parents[0];
+				echo "$file->id $parent $file->name\r\n";
 			}
 			else
 			{
-				echo "$file->id\t$file->name\r\n";
+				echo "$file->id $file->name\r\n";
 				/*
 				foreach($file->permissions as $user)
 				{
@@ -116,7 +117,11 @@ class GoogleDrive
 			}
 		}
 
-		return $response;
+		$count = count($files);
+		echo "\r\n";
+		echo "total count: $count\r\n";
+
+		return $files;
 	}
 
 	public function UploadFile($file)
@@ -379,11 +384,14 @@ class GoogleDrive
 		// $files = new Google_Service_Drive_FileList($this->client);
 		// $response = $files->getFiles();
 
+		// Including 'permissions' in fields will limit the result set to 100.
+		$fileFields = 'id, mimeType, name, parents, webContentLink';
+
 		$options =
 		[
 			'pageSize' => 1000,
 			'supportsAllDrives' => true,
-			'fields' => "files(id, name, parents, permissions)"
+			'fields' => "files($fileFields), nextPageToken"
 		];
 
 		if ($showOnlyFolders == true && $showOnlyRootLevel == true)
@@ -442,9 +450,32 @@ class GoogleDrive
 
 		print_r($options);
 
-		$response = $this->service->files->listFiles($options);
+		$files = [];
+		$pageToken = null;
+		do
+		{
+			try
+			{
+				if ($pageToken !== null)
+				{
+					$options['pageToken'] = $pageToken;
+				}
 
-		return $response;
+				echo "Retrieving next set of files. token: $pageToken\r\n";
+				$response = $this->service->files->listFiles($options);
+
+				$files = array_merge($files, $response->files);
+				$pageToken = $response->getNextPageToken();
+			}
+			catch (Exception $exception)
+			{
+				$message = $exception->getMessage();
+				echo "An error occurred: $message\r\n";
+				$pageToken = null;
+			}
+		} while ($pageToken !== null);
+
+		return $files;
 	}
 
 	private function GetRootFromFile()
