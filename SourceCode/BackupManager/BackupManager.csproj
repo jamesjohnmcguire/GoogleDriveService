@@ -3,17 +3,18 @@
 	<PropertyGroup>
 		<AnalysisMode>AllEnabledByDefault</AnalysisMode>
 		<AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
-		<AssemblyVersion>0.1.0.114</AssemblyVersion>
+		<AssemblyVersion>0.1.0.177</AssemblyVersion>
 		<CodeAnalysisRuleSet>..\CodeAnalysis.ruleset</CodeAnalysisRuleSet>
 		<Copyright>Copyright © 2006 - 2021</Copyright>
 		<EnableNETAnalyzers>true</EnableNETAnalyzers>
-		<FileVersion>0.1.0.114</FileVersion>
+		<FileVersion>0.1.0.177</FileVersion>
 		<GenerateDocumentationFile>true</GenerateDocumentationFile>
 		<NeutralLanguage>en-US</NeutralLanguage>
 		<OutputPath>$(SolutionDir)\Bin\$(Configuration)\$(Platform)</OutputPath>
 		<OutputType>Exe</OutputType>
 		<Platforms>AnyCPU;x64</Platforms>
 		<TargetFramework>net5.0</TargetFramework>
+		<Version>0.1.0.177</Version>
 	</PropertyGroup>
 
 	<ItemGroup>
