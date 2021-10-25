@@ -139,7 +139,11 @@ namespace BackupManagerLibrary
 			request.Fields = "id, name, parents";
 			Google.Apis.Drive.v3.Data.File file = request.Execute();
 
-			string message = "Folder ID: " + file.Id;
+			string message = string.Format(
+				CultureInfo.InvariantCulture,
+				"Created Folder ID: {0} Name {1}",
+				file.Id,
+				file.Name);
 			Log.Info(CultureInfo.InvariantCulture, m => m(
 				message));
 

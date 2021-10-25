@@ -47,6 +47,7 @@ namespace BackupManagerLibrary
 				{
 					if (useCustomInitialization == true)
 					{
+						Log.Info("Using custom initialization");
 						CustomInitialization();
 					}
 
