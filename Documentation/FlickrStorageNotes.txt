@@ -1,0 +1,12 @@
+https://github.com/ricardobeat/filr
+https://github.com/meltingice/flickr-store
+
+FlickrStorage backup [directory | file] -norecurse
+FlickrStorage restore [group]
+
+https://www.google.com/?gfe_rd=cr&ei=nBvTVf_8MaTD8AfwopygAw&gws_rd=ssl,cr&fg=1#q=flickrnet+retrieve+photo
+http://www.4guysfromrolla.com/articles/091609-1.aspx
+https://flickrnet.codeplex.com/wikipage?title=Examples&referringTitle=Home
+https://www.flickr.com/cameraroll
+https://www.flickr.com/photos/125800696@N02/20544612979/in/datetaken/
+backup	flickrnet retrieve original
