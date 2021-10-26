@@ -18,6 +18,17 @@ Google Drive
 
 		when any
 			processing list --
+	Google\Service\Drive\FileList Object
+		[collection_key:protected] => files
+		[filesType:protected] => Google\Service\Drive\DriveFile
+		[filesDataType:protected] => array
+		[incompleteSearch] =>
+		[kind] =>
+		[nextPageToken] => ~!!~AI9FV7SpiNbY0FpFQqt2I_75FFV2Qv2oFo3hUq8oejmqNeE_609DWXL9_YoT6QwnpaTDxlH0Vw39qyQ-k06cewQ4qfv4-Qu60Psdqg33bfJbq42EbIvZRMse46-0fM5zXyIEI1LwH-kIlp8nMWeufRHynQLbQjw6k6fnsINeoowx8b2c5XIVHH9_emU-KhyPvSnNs1Ob2P57UMibJkrLBEXp8xqwkSpvbD2OPC5F-yW88ifdolTdLlTXKOJffI2APkE1tUzXZ_JEFadm2F9Jtd1_WdVOCvqdqg==
+		[internal_gapi_mappings:protected] => Array
+		[modelData:protected] => Array
+		[processed:protected] => Array
+		[files] => Array
 Resources
 	Google Drive
 		https://developers.google.com/api-client-library/dotnet/guide/media_upload#:~:text=The%20default%20chunk%20size%20is,to%20any%20multiple%20of%20256KB.

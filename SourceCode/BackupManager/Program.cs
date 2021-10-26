@@ -10,6 +10,9 @@ using Serilog;
 using Serilog.Configuration;
 using Serilog.Events;
 using System;
+using System.Diagnostics;
+using System.Globalization;
+using System.Reflection;
 using System.Threading.Tasks;
 
 [assembly: CLSCompliant(true)]
@@ -31,19 +34,40 @@ namespace BackupManager
 		/// <returns>A task indicating completion.</returns>
 		public static async Task Main(string[] args)
 		{
-			bool useCustomInitialization = true;
-			LogInitialization();
-
-			Log.Info("Starting Backup Manager");
-
-			if ((args != null) && (args.Length > 0) &&
-				args[0].Equals(
-					"false", System.StringComparison.OrdinalIgnoreCase))
+			try
 			{
-				useCustomInitialization = false;
-			}
+				bool useCustomInitialization = true;
+				LogInitialization();
+				string version = GetVersion();
 
-			await Backup.Run(useCustomInitialization).ConfigureAwait(false);
+				Log.Info("Starting Backup Manager Version: " + version);
+
+				if ((args != null) && (args.Length > 0) &&
+					args[0].Equals(
+						"false", System.StringComparison.OrdinalIgnoreCase))
+				{
+					useCustomInitialization = false;
+				}
+
+				await Backup.Run(useCustomInitialization).ConfigureAwait(false);
+			}
+			catch (Exception exception)
+			{
+				Log.Error(exception.ToString());
+
+				throw;
+			}
+		}
+
+		private static string GetVersion()
+		{
+			Assembly assembly = Assembly.GetExecutingAssembly();
+
+			AssemblyName assemblyName = assembly.GetName();
+			Version version = assemblyName.Version;
+			string assemblyVersion = version.ToString();
+
+			return assemblyVersion;
 		}
 
 		private static void LogInitialization()
@@ -68,6 +92,37 @@ namespace BackupManager
 
 			LogManager.Adapter =
 				new Common.Logging.Serilog.SerilogFactoryAdapter();
+		}
+
+		private static void ShowHelp(string additionalMessage)
+		{
+			Assembly assembly = Assembly.GetExecutingAssembly();
+			string location = assembly.Location;
+
+			FileVersionInfo versionInfo =
+				FileVersionInfo.GetVersionInfo(location);
+
+			string companyName = versionInfo.CompanyName;
+			string copyright = versionInfo.LegalCopyright;
+
+			AssemblyName assemblyName = assembly.GetName();
+			string name = assemblyName.Name;
+			Version version = assemblyName.Version;
+			string assemblyVersion = version.ToString();
+
+			string header = string.Format(
+				CultureInfo.CurrentCulture,
+				"{0} {1} {2} {3}",
+				name,
+				assemblyVersion,
+				copyright,
+				companyName);
+			Log.Info(header);
+
+			if (!string.IsNullOrWhiteSpace(additionalMessage))
+			{
+				Log.Info(additionalMessage);
+			}
 		}
 	}
 }

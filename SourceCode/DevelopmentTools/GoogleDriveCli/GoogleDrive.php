@@ -18,20 +18,23 @@ class GoogleDrive
 	private $root = null;
 	private $service = null;
 	private $serviceAccountFilePath = null;
+	private $showOnlyFolders = false;
+	private $showOnlyRootLevel = false;
+	private $showParent = false;
 
-	public function __construct($debug, $authorizationType = 'ServiceAccount')
+	public function __construct(
+		$debug, $options = [], $authorizationType = 'ServiceAccount')
 	{
 		$this->debug = $debug;
 
+		foreach ($options as $key => $option)
+		{
+			$this->$key = $option;
+		}
+
 		$this->client = $this->Authorize($authorizationType);
 
-		$contents = file_get_contents(SERVICE_ACCOUNT_FILE);
-		$data = json_decode($contents);
-
-		if (property_exists($data, 'root'))
-		{
-			$this->root = $data->root;
-		}
+		$this->GetRootFromFile();
 
 		$this->service = new Google_Service_Drive($this->client);
 	}
@@ -75,26 +78,35 @@ class GoogleDrive
 		$this->service->files->delete($fileId);
 	}
 
-	public function ListFiles($parentId, $showParent = false,
-		$showOnlyFolders = false, $showOnlyRootLevel = false)
+	public function ListFiles($parentId = null)
 	{
-		$response = $this->GetFiles(
-			$parentId, $showOnlyFolders, $showOnlyRootLevel);
+		$files = $this->GetFiles(
+			$parentId, $this->showOnlyFolders, $this->showOnlyRootLevel);
 
 		$this->debug->Show(Debug::DEBUG, "Listing files");
 		$this->debug->Show(Debug::DEBUG, "parent id: $parentId");
 
-		foreach ($response as $file)
+		echo "\r\n";
+
+		if ($this->showParent == true)
 		{
-			if ($showParent == true)
+			echo "Id\t\t\t\tParent\t\tName\r\n";
+		}
+		else
+		{
+			echo "Id\t\t\t\t  Name\r\n";
+		}
+
+		foreach ($files as $file)
+		{
+			if ($this->showParent == true)
 			{
-				printf("Found file: Id: %s Parent: %s Name: %s\r\n",
-					$file->id, $file->parents[0], $file->name);
-				}
+				$parent = $file->parents[0];
+				echo "$file->id $parent $file->name\r\n";
+			}
 			else
 			{
-				printf("Found file: Id: %s Name: %s\r\n",
-					$file->id, $file->name);
+				echo "$file->id $file->name\r\n";
 				/*
 				foreach($file->permissions as $user)
 				{
@@ -105,7 +117,11 @@ class GoogleDrive
 			}
 		}
 
-		return $response;
+		$count = count($files);
+		echo "\r\n";
+		echo "total count: $count\r\n";
+
+		return $files;
 	}
 
 	public function UploadFile($file)
@@ -237,8 +253,6 @@ class GoogleDrive
 
 	private function Authorize($authorizationType)
 	{
-		$this->serviceAccountFilePath = __DIR__ . '/' . SERVICE_ACCOUNT_FILE;
-
 		$client = new Google_Client();
 
 		$client->setApplicationName('Google Drive API Video Uploader');
@@ -249,25 +263,7 @@ class GoogleDrive
 
 		if ($authorizationType == 'ServiceAccount')
 		{
-			$this->debug->Show(Debug::DEBUG,
-				'Setting environment variable GOOGLE_APPLICATION_CREDENTIALS ' .
-				"to $this->serviceAccountFilePath" .PHP_EOL);
-
-			putenv(
-				"GOOGLE_APPLICATION_CREDENTIALS=$this->serviceAccountFilePath");
-
-			if (getenv('GOOGLE_APPLICATION_CREDENTIALS'))
-			{
-				$this->debug->Show(Debug::DEBUG, 'using default credentials ' .
-					'from environment GOOGLE_APPLICATION_CREDENTIALS' .PHP_EOL);
-				$client->useApplicationDefaultCredentials();
-			}
-			else
-			{
-				$this->debug->Show(Debug::DEBUG,
-					 'Missing environment GOOGLE_APPLICATION_CREDENTIALS');
-				$this->AuthorizeOAuth($client);
-			}
+			$client = $this->AuthorizeServiceAccount($client);
 		}
 		else if ($authorizationType == 'OAuth')
 		{
@@ -315,6 +311,50 @@ class GoogleDrive
 		return $credentialFile;
 	}
 
+	private function AuthorizeServiceAccount($client)
+	{
+		$this->serviceAccountFilePath =
+			getenv('GOOGLE_APPLICATION_CREDENTIALS');
+
+		if ($this->serviceAccountFilePath !== false)
+		{
+			$this->debug->Show(Debug::DEBUG, 'Using default credentials ' .
+				'from environment GOOGLE_APPLICATION_CREDENTIALS' . PHP_EOL);
+			$this->debug->Show(Debug::DEBUG, 'File is: ' .
+				$this->serviceAccountFilePath . PHP_EOL);
+
+			$client->useApplicationDefaultCredentials();
+		}
+		else
+		{
+			$this->serviceAccountFilePath =
+				__DIR__ . '/' . SERVICE_ACCOUNT_FILE;
+
+			$exists = file_exists($this->serviceAccountFilePath);
+			if ($exists === true)
+			{
+				$this->debug->Show(Debug::DEBUG,
+					'Setting environment variable ' .
+					'GOOGLE_APPLICATION_CREDENTIALS to ' .
+					$this->serviceAccountFilePath . PHP_EOL);
+	
+				putenv('GOOGLE_APPLICATION_CREDENTIALS=' .
+					$this->serviceAccountFilePath);
+
+				$client->useApplicationDefaultCredentials();
+			}
+			else
+			{
+				$this->debug->Show(Debug::DEBUG,
+					'Missing environment GOOGLE_APPLICATION_CREDENTIALS. ' . 
+					'Defaulting to OAuth');
+				$this->AuthorizeOAuth($client);
+			}
+		}
+
+		return $client;
+	}
+
 	private function GetAccessTokenFromJsonFile($filePath)
 	{
 		$accessToken = null;
@@ -344,11 +384,14 @@ class GoogleDrive
 		// $files = new Google_Service_Drive_FileList($this->client);
 		// $response = $files->getFiles();
 
+		// Including 'permissions' in fields will limit the result set to 100.
+		$fileFields = 'id, mimeType, name, parents, webContentLink';
+
 		$options =
 		[
 			'pageSize' => 1000,
 			'supportsAllDrives' => true,
-			'fields' => "files(id, name, parents, permissions)"
+			'fields' => "files($fileFields), nextPageToken"
 		];
 
 		if ($showOnlyFolders == true && $showOnlyRootLevel == true)
@@ -373,6 +416,9 @@ class GoogleDrive
 		}
 		else if ($showOnlyFolders == true)
 		{
+			echo "showOnlyFolders is true\r\n";
+			echo "parentId: $parentId\r\n";
+
 			$options['q'] = "mimeType = 'application/vnd.google-apps.folder'";
 
 			if (!empty($parentId))
@@ -404,9 +450,43 @@ class GoogleDrive
 
 		print_r($options);
 
-		$response = $this->service->files->listFiles($options);
+		$files = [];
+		$pageToken = null;
+		do
+		{
+			try
+			{
+				if ($pageToken !== null)
+				{
+					$options['pageToken'] = $pageToken;
+				}
 
-		return $response;
+				echo "Retrieving next set of files. token: $pageToken\r\n";
+				$response = $this->service->files->listFiles($options);
+
+				$files = array_merge($files, $response->files);
+				$pageToken = $response->getNextPageToken();
+			}
+			catch (Exception $exception)
+			{
+				$message = $exception->getMessage();
+				echo "An error occurred: $message\r\n";
+				$pageToken = null;
+			}
+		} while ($pageToken !== null);
+
+		return $files;
+	}
+
+	private function GetRootFromFile()
+	{
+		$contents = file_get_contents($this->serviceAccountFilePath);
+		$data = json_decode($contents);
+
+		if (property_exists($data, 'root'))
+		{
+			$this->root = $data->root;
+		}
 	}
 
 	// Load previously authorized token from a file, if it exists.

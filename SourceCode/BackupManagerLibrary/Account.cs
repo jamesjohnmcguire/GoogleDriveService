@@ -372,6 +372,8 @@ namespace BackupManagerLibrary
 			Google.Apis.Drive.v3.Data.File serverFolder,
 			IList<Google.Apis.Drive.v3.Data.File> serverFiles)
 		{
+			RemoveAbandonedFiles(files, serverFiles);
+
 			foreach (FileInfo file in files)
 			{
 				bool retry = false;
@@ -391,7 +393,7 @@ namespace BackupManagerLibrary
 						if ((success == false) && (retries > 0))
 						{
 							retry = true;
-							System.Threading.Thread.Sleep(200);
+							Delay();
 						}
 					}
 					else
@@ -409,8 +411,6 @@ namespace BackupManagerLibrary
 					}
 				}
 			}
-
-			RemoveAbandonedFiles(files, serverFiles);
 		}
 
 		private async Task ProcessSubFolders(
@@ -430,7 +430,7 @@ namespace BackupManagerLibrary
 			{
 				serverFolder = googleDrive.CreateFolder(
 					parent, directoryInfo.Name);
-				System.Threading.Thread.Sleep(200);
+				Delay();
 			}
 
 			serverFiles =
