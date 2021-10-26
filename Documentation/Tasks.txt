@@ -1,4 +1,3 @@
-Flickr	Move into its own branch
 Refactor Custom Step to run external script instead of hard coded commands
 GoogleDriveCLI	Move into its own project
 GoogleDriveCLI	Improve build.cmd with composer install and md LogFiles
@@ -16,6 +15,7 @@ Set configuration directory as command line parameter
 Handle? System.Net.Http.HttpRequestException: No such host is known. (www.googleapis.com:443)
 
 Finished
+	Flickr	Move into its own branch
 	Handle? Google.GoogleApiException: Google.Apis.Requests.RequestError User rate limit exceeded.
 	Try removing delays for non-upload functions
 	Unhandled exception. Google.GoogleApiException BackupManagerLibrary\GoogleDrive.cs:line 161
@@ -75,37 +75,3 @@ Finished
 	Specify sub folder when uploading
 	Only upload, if newer
 	Admin .git
-	Jahmic service account
-Flickr
-	test restore
-	https://stackoverflow.com/questions/8615196/how-can-i-retrieve-original-url-photo-with-flickr-net-api
-	test manual make png
-	retrieve all
-	Create collection(s)
-	retrieve by hash
-	retrieve by name
-	large files?
-	raw png make
-	finish help
-	encrypt directly into image
-	CA2232	Mark Windows Forms entry points with STAThread	Mark the entry point method 'Program.Main(string[])' in assembly with an STAThreadAttribute console application
-	help details
-	password readchars
-	change password confirm for decode
-	what to do when a file already exists?
-	delete temp files	enc
-	delete temp files	png
-	set path when directory
-	no args
-	commands but no args
-	review encryption blocks
-	add test to encode and decode
-	add file format version
-	to png again
-	password command line arg
-	encrypt filename?
-	fix test script
-	review faq & q and a
-	find out how to download pictures
-	find out how to download original
-	find a way to map url/encoded filename with that of the original (for downloading)

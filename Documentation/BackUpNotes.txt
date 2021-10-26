@@ -54,16 +54,3 @@ Resources
 		google drive php example
 			https://stackoverflow.com/questions/16153539/list-all-top-level-folders-in-google-drive-api
 		https://stackoverflow.com/questions/11304767/how-to-get-the-owner-of-file-using-google-drive-api
-FlikrStorage Project
-	https://github.com/ricardobeat/filr
-	https://github.com/meltingice/flickr-store
-
-	FlickrStorage backup [directory | file] -norecurse
-	FlickrStorage restore [group]
-
-	https://www.google.com/?gfe_rd=cr&ei=nBvTVf_8MaTD8AfwopygAw&gws_rd=ssl,cr&fg=1#q=flickrnet+retrieve+photo
-	http://www.4guysfromrolla.com/articles/091609-1.aspx
-	https://flickrnet.codeplex.com/wikipage?title=Examples&referringTitle=Home
-	https://www.flickr.com/cameraroll
-	https://www.flickr.com/photos/125800696@N02/20544612979/in/datetaken/
-	backup	flickrnet retrieve original
