@@ -67,6 +67,3 @@ FlikrStorage Project
 	https://www.flickr.com/cameraroll
 	https://www.flickr.com/photos/125800696@N02/20544612979/in/datetaken/
 	backup	flickrnet retrieve original
-
-RemoveAbandonedFolders(path, subDirectories, serverFiles);
-
