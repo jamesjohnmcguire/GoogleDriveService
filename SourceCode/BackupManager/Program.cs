@@ -34,20 +34,29 @@ namespace BackupManager
 		/// <returns>A task indicating completion.</returns>
 		public static async Task Main(string[] args)
 		{
-			bool useCustomInitialization = true;
-			LogInitialization();
-			string version = GetVersion();
-
-			Log.Info("Starting Backup Manager Version: " + version);
-
-			if ((args != null) && (args.Length > 0) &&
-				args[0].Equals(
-					"false", System.StringComparison.OrdinalIgnoreCase))
+			try
 			{
-				useCustomInitialization = false;
-			}
+				bool useCustomInitialization = true;
+				LogInitialization();
+				string version = GetVersion();
 
-			await Backup.Run(useCustomInitialization).ConfigureAwait(false);
+				Log.Info("Starting Backup Manager Version: " + version);
+
+				if ((args != null) && (args.Length > 0) &&
+					args[0].Equals(
+						"false", System.StringComparison.OrdinalIgnoreCase))
+				{
+					useCustomInitialization = false;
+				}
+
+				await Backup.Run(useCustomInitialization).ConfigureAwait(false);
+			}
+			catch (Exception exception)
+			{
+				Log.Error(exception.ToString());
+
+				throw;
+			}
 		}
 
 		private static string GetVersion()
