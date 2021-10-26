@@ -393,7 +393,7 @@ namespace BackupManagerLibrary
 						if ((success == false) && (retries > 0))
 						{
 							retry = true;
-							System.Threading.Thread.Sleep(200);
+							Delay();
 						}
 					}
 					else
@@ -430,7 +430,7 @@ namespace BackupManagerLibrary
 			{
 				serverFolder = googleDrive.CreateFolder(
 					parent, directoryInfo.Name);
-				System.Threading.Thread.Sleep(200);
+				Delay();
 			}
 
 			serverFiles =
