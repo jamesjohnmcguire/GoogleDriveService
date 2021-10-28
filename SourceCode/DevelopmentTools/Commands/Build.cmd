@@ -3,7 +3,7 @@ CD ..\..
 
 IF EXIST Bin\Release\x64\NUL DEL /Q Bin\Release\x64\*.*
 
-dotnet build --configuration Release
+dotnet build --configuration Release -p:Platform=x64
 
 IF "%1"=="release" GOTO release
 GOTO end
