@@ -29,10 +29,8 @@ namespace BackupManagerLibrary
 		/// <summary>
 		/// Run method.
 		/// </summary>
-		/// <param name="useCustomInitialization">Indicates whether to use
-		/// custom initialation.</param>
 		/// <returns>A task indicating completion.</returns>
-		public static async Task Run(bool useCustomInitialization)
+		public static async Task Run()
 		{
 			try
 			{
@@ -45,12 +43,6 @@ namespace BackupManagerLibrary
 				}
 				else
 				{
-					if (useCustomInitialization == true)
-					{
-						Log.Info("Using custom initialization");
-						CustomInitialization();
-					}
-
 					foreach (Account account in accounts)
 					{
 						string name = account.ServiceAccount;
@@ -64,65 +56,6 @@ namespace BackupManagerLibrary
 			}
 			catch (Exception exception) when
 				(exception is JsonException)
-			{
-				Log.Error(CultureInfo.InvariantCulture, m => m(
-					exception.ToString()));
-			}
-		}
-
-		private static void CustomInitialization()
-		{
-			try
-			{
-				Log.Info(CultureInfo.InvariantCulture, m => m(
-					"CustomInitialization"));
-				Process[] processes = Process.GetProcessesByName("outlook");
-
-				foreach (Process process in processes)
-				{
-					process.CloseMainWindow();
-					process.WaitForExit();
-				}
-
-				// copy PSTs to backup
-				string profilePath = Environment.GetFolderPath(
-					Environment.SpecialFolder.UserProfile);
-				string dataPath = profilePath + @"\Data\ProgramData\Outlook";
-				string backupPath = dataPath + @"\Backups\";
-
-				if (System.IO.Directory.Exists(dataPath))
-				{
-					if (!System.IO.Directory.Exists(backupPath))
-					{
-						System.IO.Directory.CreateDirectory(backupPath);
-					}
-
-					string[] files = System.IO.Directory.GetFiles(dataPath);
-
-					Log.Info(CultureInfo.InvariantCulture, m => m(
-						"CustomInitialization: Copying files"));
-
-					foreach (string file in files)
-					{
-						System.IO.FileInfo fileInfo = new (file);
-
-						string destination = backupPath + fileInfo.Name;
-						System.IO.File.Copy(file, destination, true);
-					}
-				}
-
-				using Process outlook = new ();
-				outlook.StartInfo.FileName =
-					@"C:\Program Files\Microsoft Office\root\Office16\OUTLOOK.EXE";
-				outlook.Start();
-			}
-			catch (Exception exception) when
-				(exception is ArgumentException ||
-				exception is ArgumentNullException ||
-				exception is InvalidOperationException ||
-				exception is PlatformNotSupportedException ||
-				exception is SystemException ||
-				exception is Win32Exception)
 			{
 				Log.Error(CultureInfo.InvariantCulture, m => m(
 					exception.ToString()));
