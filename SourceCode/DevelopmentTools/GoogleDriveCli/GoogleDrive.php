@@ -385,7 +385,8 @@ class GoogleDrive
 		// $response = $files->getFiles();
 
 		// Including 'permissions' in fields will limit the result set to 100.
-		$fileFields = 'id, mimeType, name, parents, webContentLink';
+		$fileFields =
+			'id, mimeType, name, ownedByMe, owners, parents, webContentLink';
 
 		$options =
 		[
@@ -461,7 +462,6 @@ class GoogleDrive
 					$options['pageToken'] = $pageToken;
 				}
 
-				echo "Retrieving next set of files. token: $pageToken\r\n";
 				$response = $this->service->files->listFiles($options);
 
 				$files = array_merge($files, $response->files);

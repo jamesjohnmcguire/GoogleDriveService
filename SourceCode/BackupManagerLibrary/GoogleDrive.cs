@@ -180,10 +180,14 @@ namespace BackupManagerLibrary
 			List<Google.Apis.Drive.v3.Data.File> files = new ();
 			FilesResource.ListRequest listRequest = driveService.Files.List();
 
-			listRequest.Fields = "files(id, name, mimeType, modifiedTime), " +
-				"nextPageToken";
-			listRequest.Q = $"'{parent}' in parents";
+			string fileFields = "id, name, mimeType, modifiedTime, " +
+				"ownedByMe, owners, parents, webContentLink";
+			listRequest.Fields = string.Format(
+				CultureInfo.InvariantCulture,
+				"files({0}), nextPageToken",
+				fileFields);
 			listRequest.PageSize = 1000;
+			listRequest.Q = $"'{parent}' in parents";
 
 			do
 			{

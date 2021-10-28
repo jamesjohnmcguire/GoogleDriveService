@@ -353,17 +353,20 @@ namespace BackupManagerLibrary
 		private void DeleteFromDrive(
 			Google.Apis.Drive.v3.Data.File file)
 		{
-			string fileName = GoogleDrive.SanitizeFileName(file.Name);
+			if (file.OwnedByMe == true)
+			{
+				string fileName = GoogleDrive.SanitizeFileName(file.Name);
 
-			string message = string.Format(
-				CultureInfo.InvariantCulture,
-				"Deleting file from Server: {0}",
-				fileName);
-			Log.Info(CultureInfo.InvariantCulture, m => m(
-				message));
+				string message = string.Format(
+					CultureInfo.InvariantCulture,
+					"Deleting file from Server: {0}",
+					fileName);
+				Log.Info(CultureInfo.InvariantCulture, m => m(
+					message));
 
-			googleDrive.Delete(file.Id);
-			Delay();
+				googleDrive.Delete(file.Id);
+				Delay();
+			}
 		}
 
 		private void ProcessFiles(
