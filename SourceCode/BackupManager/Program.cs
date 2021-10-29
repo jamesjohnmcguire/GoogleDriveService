@@ -30,26 +30,17 @@ namespace BackupManager
 		/// <summary>
 		/// The program's main entry point.
 		/// </summary>
-		/// <param name="args">An array of program arguments.</param>
 		/// <returns>A task indicating completion.</returns>
-		public static async Task Main(string[] args)
+		public static async Task Main()
 		{
 			try
 			{
-				bool useCustomInitialization = true;
 				LogInitialization();
 				string version = GetVersion();
 
 				Log.Info("Starting Backup Manager Version: " + version);
 
-				if ((args != null) && (args.Length > 0) &&
-					args[0].Equals(
-						"false", System.StringComparison.OrdinalIgnoreCase))
-				{
-					useCustomInitialization = false;
-				}
-
-				await Backup.Run(useCustomInitialization).ConfigureAwait(false);
+				await Backup.Run().ConfigureAwait(false);
 			}
 			catch (Exception exception)
 			{
