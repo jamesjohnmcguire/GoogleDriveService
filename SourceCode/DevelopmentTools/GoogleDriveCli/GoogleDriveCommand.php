@@ -18,9 +18,10 @@ $showOnlyFolders = false;
 $showOnlyRootLevel = false;
 $options =
 [
-	'showParent' => false,
 	'showOnlyFolders' => false,
-	'showOnlyRootLevel' => false
+	'showOnlyRootLevel' => false,
+	'showParent' => false,
+	'showShared' => false
 ];
 
 if (!empty($argv[1]))
@@ -65,6 +66,7 @@ switch ($command)
         $googleDrive->DeleteAllFiles();
         break;
     case 'list':
+		$googleDrive->ListFiles($data);
         break;
     case 'upload':
         $googleDrive->UploadFile($data);
@@ -72,5 +74,3 @@ switch ($command)
     default:
         break;
 }
-
-$googleDrive->ListFiles($data);
