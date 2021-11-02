@@ -21,6 +21,7 @@ class GoogleDrive
 	private $showOnlyFolders = false;
 	private $showOnlyRootLevel = false;
 	private $showParent = false;
+	private $showShared = false;
 
 	public function __construct(
 		$debug, $options = [], $authorizationType = 'ServiceAccount')
@@ -61,12 +62,21 @@ class GoogleDrive
 
 	public function DeleteAllFiles()
 	{
-		$response = $this->GetFiles();
+		$response = $this->GetFiles(null);
 
 		foreach ($response as $file)
 		{
-			printf("Deleting file: %s (%s)\r\n", $file->name, $file->id);
-			$this->service->files->delete($file->id);
+			try
+			{
+				echo "\033[36mDeleting id: " . 
+					"$file->id Name $file->name\033[0m\r\n";
+				$this->service->files->delete($file->id);
+			}
+			catch (Exception $exception)
+			{
+				$message = $exception->getMessage();
+				echo "\033[31mError: $message\033[0m\r\n";
+			}
 		}
 
 		return $response;
@@ -74,8 +84,16 @@ class GoogleDrive
 
 	public function DeleteFile($fileId)
 	{
-		printf("Deleting file with id: %s\r\n", $fileId);
-		$this->service->files->delete($fileId);
+		try
+		{
+			echo "\033[36mDeleting file with id: $fileId\033[0m\r\n";
+			$this->service->files->delete($fileId);
+		}
+		catch (Exception $exception)
+		{
+			$message = $exception->getMessage();
+			echo "\033[31mError: $message\033[0m\r\n";
+		}
 	}
 
 	public function ListFiles($parentId = null)
@@ -88,32 +106,52 @@ class GoogleDrive
 
 		echo "\r\n";
 
+		if ($this->showShared === true)
+		{
+			echo "  ";
+		}
+
 		if ($this->showParent == true)
 		{
-			echo "Id\t\t\t\tParent\t\tName\r\n";
+			echo "Id\t\t\t\t    Parent\t\tName\r\n";
 		}
 		else
 		{
-			echo "Id\t\t\t\t  Name\r\n";
+			echo "Id\t\t\t\t  Name\tOwner\r\n";
 		}
 
 		foreach ($files as $file)
 		{
-			if ($this->showParent == true)
+			if ($this->showShared === true)
+			{
+				if ($file->ownedByMe === true)
+				{
+					echo "* ";
+				}
+				else
+				{
+					echo "  ";
+				}
+			}
+
+			if (!empty($file->parents))
 			{
 				$parent = $file->parents[0];
+			}
+			else
+			{
+				$parent = '<none>';
+			}
+
+			if ($this->showParent == true)
+			{
 				echo "$file->id $parent $file->name\r\n";
 			}
 			else
 			{
-				echo "$file->id $file->name\r\n";
-				/*
-				foreach($file->permissions as $user)
-				{
-					echo "role: $user->role email: $user->emailAddress\r\n";
-				}
-				echo "\r\n";
-				*/
+				$owner = $file->owners[0]->emailAddress;
+
+				echo "$file->id\t$file->name\r\n";
 			}
 		}
 
@@ -390,10 +428,12 @@ class GoogleDrive
 
 		$options =
 		[
+			'fields' => "files($fileFields), nextPageToken",
 			'pageSize' => 1000,
-			'supportsAllDrives' => true,
-			'fields' => "files($fileFields), nextPageToken"
+			'q' => '',
+			'supportsAllDrives' => true
 		];
+
 
 		if ($showOnlyFolders == true && $showOnlyRootLevel == true)
 		{
@@ -449,6 +489,15 @@ class GoogleDrive
 			}
 		}
 
+		if (empty($options['q']))
+		{
+			$options['q'] = "'me' in owners";
+		}
+		else
+		{
+			$options['q'] .= " and 'me' in owners";
+		}
+
 		print_r($options);
 
 		$files = [];
@@ -470,7 +519,7 @@ class GoogleDrive
 			catch (Exception $exception)
 			{
 				$message = $exception->getMessage();
-				echo "An error occurred: $message\r\n";
+				echo "Error: $message\r\n";
 				$pageToken = null;
 			}
 		} while ($pageToken !== null);

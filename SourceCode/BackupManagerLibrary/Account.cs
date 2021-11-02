@@ -106,6 +106,13 @@ namespace BackupManagerLibrary
 
 				foreach (Directory directory in Directories)
 				{
+					// This helps in maintaining the service accounts, as
+					// without it, files tend to fall into the 'black hole' of
+					// the service account.
+					DirectoryInfo directoryInfo = new (directory.Path);
+					string name = directoryInfo.Name;
+					ConnectRoot(name);
+
 					string path = Environment.ExpandEnvironmentVariables(
 						directory.Path);
 
@@ -350,6 +357,42 @@ namespace BackupManagerLibrary
 			}
 		}
 
+		private void ConnectRoot(string directoryName)
+		{
+			bool found = false;
+
+			IList<Google.Apis.Drive.v3.Data.File> serverFiles =
+				googleDrive.GetFiles("root");
+
+			foreach (Google.Apis.Drive.v3.Data.File file in serverFiles)
+			{
+				try
+				{
+					if (file.MimeType.Equals(
+						"application/vnd.google-apps.folder",
+						StringComparison.Ordinal))
+					{
+						found = file.Name.Equals(
+							directoryName, StringComparison.Ordinal);
+						if (found == true)
+						{
+							break;
+						}
+					}
+				}
+				catch (Google.GoogleApiException exception)
+				{
+					Log.Error(CultureInfo.InvariantCulture, m => m(
+						exception.ToString()));
+				}
+			}
+
+			if (found == false)
+			{
+				googleDrive.CreateFolder("root", directoryName);
+			}
+		}
+
 		private void DeleteFromDrive(
 			Google.Apis.Drive.v3.Data.File file)
 		{
@@ -431,13 +474,12 @@ namespace BackupManagerLibrary
 
 			if (serverFolder == null)
 			{
-				serverFolder = googleDrive.CreateFolder(
-					parent, directoryInfo.Name);
+				serverFolder =
+					googleDrive.CreateFolder(parent, directoryInfo.Name);
 				Delay();
 			}
 
-			serverFiles =
-				googleDrive.GetFiles(serverFolder.Id);
+			serverFiles = googleDrive.GetFiles(serverFolder.Id);
 
 			string[] subDirectories =
 				System.IO.Directory.GetDirectories(path);
