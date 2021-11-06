@@ -255,6 +255,8 @@ namespace BackupManagerLibrary
 				exception is NullReferenceException ||
 				exception is IOException ||
 				exception is PathTooLongException ||
+				exception is System.Net.Http.HttpRequestException ||
+				exception is System.Net.Sockets.SocketException ||
 				exception is System.Security.SecurityException ||
 				exception is TargetException ||
 				exception is TaskCanceledException ||
