@@ -233,7 +233,7 @@ namespace BackupManagerLibrary
 
 			IList<Google.Apis.Drive.v3.Data.User> owners = serverFolder.Owners;
 
-			string ownersInfo = "owners: ";
+			string ownersInfo = "owners:";
 			foreach (var user in owners)
 			{
 				var item = user.EmailAddress;
@@ -244,7 +244,7 @@ namespace BackupManagerLibrary
 
 			IList<string> parents = serverFolder.Parents;
 
-			string parentsInfo = "parents: ";
+			string parentsInfo = "parents:";
 			foreach (string item in parents)
 			{
 				parentsInfo += " " + item;
