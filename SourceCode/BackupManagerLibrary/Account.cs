@@ -118,6 +118,8 @@ namespace BackupManagerLibrary
 
 					directory.ExpandExcludes();
 
+					Log.Info("Checking account default root shared folder");
+
 					IList<Google.Apis.Drive.v3.Data.File> serverFiles =
 						googleDrive.GetFiles(directory.RootSharedFolderId);
 
@@ -216,7 +218,52 @@ namespace BackupManagerLibrary
 
 		private static void Delay()
 		{
-			System.Threading.Thread.Sleep(180);
+			System.Threading.Thread.Sleep(190);
+		}
+
+		private static void ReportServerFolderInformation(
+			Google.Apis.Drive.v3.Data.File serverFolder)
+		{
+			string message = string.Format(
+				CultureInfo.InvariantCulture,
+				"Checking server file {0} {1}",
+				serverFolder.Id,
+				serverFolder.Name);
+			Log.Info(message);
+
+			IList<Google.Apis.Drive.v3.Data.User> owners = serverFolder.Owners;
+
+			string ownersInfo = "owners: ";
+			foreach (var user in owners)
+			{
+				var item = user.EmailAddress;
+				ownersInfo += " " + item;
+			}
+
+			Log.Info(ownersInfo);
+
+			IList<string> parents = serverFolder.Parents;
+
+			string parentsInfo = "parents: ";
+			foreach (string item in parents)
+			{
+				parentsInfo += " " + item;
+			}
+
+			Log.Info(parentsInfo);
+
+			if (serverFolder.OwnedByMe == true)
+			{
+				Log.Info("File owned by me");
+			}
+			else if (serverFolder.Shared == true)
+			{
+				Log.Info("File shared with me");
+			}
+			else
+			{
+				Log.Info("File is neither owned by or shared with me");
+			}
 		}
 
 		private async Task BackUp(
@@ -480,6 +527,8 @@ namespace BackupManagerLibrary
 					googleDrive.CreateFolder(parent, directoryInfo.Name);
 				Delay();
 			}
+
+			ReportServerFolderInformation(serverFolder);
 
 			serverFiles = googleDrive.GetFiles(serverFolder.Id);
 
