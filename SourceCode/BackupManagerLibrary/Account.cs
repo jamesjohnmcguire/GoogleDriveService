@@ -224,45 +224,67 @@ namespace BackupManagerLibrary
 		private static void ReportServerFolderInformation(
 			Google.Apis.Drive.v3.Data.File serverFolder)
 		{
-			string message = string.Format(
-				CultureInfo.InvariantCulture,
-				"Checking server file {0} {1}",
-				serverFolder.Id,
-				serverFolder.Name);
-			Log.Info(message);
-
-			IList<Google.Apis.Drive.v3.Data.User> owners = serverFolder.Owners;
-
-			string ownersInfo = "owners:";
-			foreach (var user in owners)
+			if (serverFolder == null)
 			{
-				var item = user.EmailAddress;
-				ownersInfo += " " + item;
-			}
-
-			Log.Info(ownersInfo);
-
-			IList<string> parents = serverFolder.Parents;
-
-			string parentsInfo = "parents:";
-			foreach (string item in parents)
-			{
-				parentsInfo += " " + item;
-			}
-
-			Log.Info(parentsInfo);
-
-			if (serverFolder.OwnedByMe == true)
-			{
-				Log.Info("File owned by me");
-			}
-			else if (serverFolder.Shared == true)
-			{
-				Log.Info("File shared with me");
+				Log.Warn("server folder is null");
 			}
 			else
 			{
-				Log.Info("File is neither owned by or shared with me");
+				string message = string.Format(
+					CultureInfo.InvariantCulture,
+					"Checking server file {0} {1}",
+					serverFolder.Id,
+					serverFolder.Name);
+				Log.Info(message);
+
+				if (serverFolder.Owners == null)
+				{
+					Log.Warn("server folder owners null");
+				}
+				else
+				{
+					IList<Google.Apis.Drive.v3.Data.User> owners =
+						serverFolder.Owners;
+
+					string ownersInfo = "owners:";
+					foreach (var user in owners)
+					{
+						var item = user.EmailAddress;
+						ownersInfo += " " + item;
+					}
+
+					Log.Info(ownersInfo);
+				}
+
+				if (serverFolder.Parents == null)
+				{
+					Log.Warn("server folder parents is null");
+				}
+				else
+				{
+					IList<string> parents = serverFolder.Parents;
+
+					string parentsInfo = "parents:";
+					foreach (string item in parents)
+					{
+						parentsInfo += " " + item;
+					}
+
+					Log.Info(parentsInfo);
+				}
+
+				if (serverFolder.OwnedByMe == true)
+				{
+					Log.Info("File owned by me");
+				}
+				else if (serverFolder.Shared == true)
+				{
+					Log.Info("File shared with me");
+				}
+				else
+				{
+					Log.Info("File is neither owned by or shared with me");
+				}
 			}
 		}
 
