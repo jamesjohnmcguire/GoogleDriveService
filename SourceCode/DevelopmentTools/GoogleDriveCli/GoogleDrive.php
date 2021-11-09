@@ -96,6 +96,30 @@ class GoogleDrive
 		}
 	}
 
+	public function GetFile($fileId)
+	{
+		try
+		{
+			$fileFields = 'createdTime, id, mimeType, modifiedTime, name, ' .
+				'ownedByMe, owners, parents, size, webContentLink';
+
+			$options =
+			[
+				'fields' => "$fileFields"
+			];
+
+			echo "\033[36mGetting file with id: $fileId\033[0m\r\n";
+			$file = $this->service->files->get($fileId, $options);
+
+			print_r($file);
+		}
+		catch (Exception $exception)
+		{
+			$message = $exception->getMessage();
+			echo "\033[31mError: $message\033[0m\r\n";
+		}
+	}
+
 	public function ListFiles($parentId = null)
 	{
 		$files = $this->GetFiles(
