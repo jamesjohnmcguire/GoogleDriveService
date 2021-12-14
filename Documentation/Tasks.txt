@@ -3,6 +3,7 @@ GoogleDriveCLI	Move into its own project
 GoogleDriveCLI	Improve build.cmd with composer install and md LogFiles
 GoogleDriveCLI	list owner as well
 GoogleDriveCLI	paths to long?	ERROR: Can not open output file : The filename, directory name, or volume label syntax is incorrect. : C:\Users\JamesMc\Data\Clients\DigitalZenWorks\BackupManager\SourceCode\DevelopmentTools\GoogleDriveCli/vendor/composer/0545aeab\googleapis-google-api-php-client-services-ea99097\src\ServiceNetworking\Resource\ServicesProjectsServicenetworkingGlobalNetworksPeeredDnsDomains.php
+Retry	The service drive has thrown an exception: Google.GoogleApiException: Google.Apis.Requests.RequestError	Internal Error [500]
 Doesn't remove top-level directories that are no longer listed in the configuration file	RemoveAbandedFolders at the very top level
 Better return check for Authenticate
 Change name of Authenticate
