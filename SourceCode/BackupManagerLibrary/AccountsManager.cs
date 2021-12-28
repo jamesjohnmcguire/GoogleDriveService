@@ -68,14 +68,12 @@ namespace BackupManagerLibrary
 				}
 				else
 				{
-					Log.Error(CultureInfo.InvariantCulture, m => m(
-						"Accounts file doesn't exist"));
+					Log.Error("Accounts file doesn't exist");
 				}
 			}
 			else
 			{
-				Log.Error(CultureInfo.InvariantCulture, m => m(
-					"Accounts path doesn't exist"));
+				Log.Error("Accounts path doesn't exist");
 			}
 
 			return accounts;

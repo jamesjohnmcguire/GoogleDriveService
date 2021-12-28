@@ -38,8 +38,7 @@ namespace BackupManagerLibrary
 
 				if ((accounts == null) || (accounts.Count == 0))
 				{
-					Log.Error(CultureInfo.InvariantCulture, m => m(
-						"No accounts information"));
+					Log.Error("No accounts information");
 				}
 				else
 				{
@@ -47,8 +46,7 @@ namespace BackupManagerLibrary
 					{
 						string name = account.ServiceAccount;
 						string message = "Backing up to account: " + name;
-						Log.Info(CultureInfo.InvariantCulture, m => m(
-							message));
+						Log.Info(message);
 
 						await account.BackUp().ConfigureAwait(false);
 					}
@@ -57,8 +55,7 @@ namespace BackupManagerLibrary
 			catch (Exception exception) when
 				(exception is JsonException)
 			{
-				Log.Error(CultureInfo.InvariantCulture, m => m(
-					exception.ToString()));
+				Log.Error(exception.ToString());
 			}
 		}
 	}

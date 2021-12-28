@@ -85,8 +85,7 @@ namespace BackupManagerLibrary
 				(exception is ArgumentException ||
 				exception is FileNotFoundException)
 			{
-				Log.Error(CultureInfo.InvariantCulture, m => m(
-					exception.ToString()));
+				Log.Error(exception.ToString());
 			}
 
 			return authenticated;
@@ -331,8 +330,7 @@ namespace BackupManagerLibrary
 				exception is TaskCanceledException ||
 				exception is UnauthorizedAccessException)
 			{
-				Log.Error(CultureInfo.InvariantCulture, m => m(
-					exception.ToString()));
+				Log.Error(exception.ToString());
 			}
 		}
 
@@ -352,8 +350,7 @@ namespace BackupManagerLibrary
 					CultureInfo.InvariantCulture,
 					"Checking: {0}",
 					fileName);
-				Log.Info(CultureInfo.InvariantCulture, m => m(
-					message));
+				Log.Info(message);
 
 				Google.Apis.Drive.v3.Data.File serverFile =
 						GoogleDrive.GetFileInList(
@@ -365,17 +362,14 @@ namespace BackupManagerLibrary
 			}
 			catch (AggregateException exception)
 			{
-				Log.Error(CultureInfo.InvariantCulture, m => m(
-					"AggregateException caught"));
-				Log.Error(CultureInfo.InvariantCulture, m => m(
-					exception.ToString()));
+				Log.Error("AggregateException caught");
+				Log.Error(exception.ToString());
 
 				foreach (Exception innerExecption in exception.InnerExceptions)
 				{
 					if (innerExecption is TaskCanceledException)
 					{
-						Log.Warn(CultureInfo.InvariantCulture, m => m(
-							exception.ToString()));
+						Log.Warn(exception.ToString());
 
 						retries--;
 					}
@@ -409,8 +403,7 @@ namespace BackupManagerLibrary
 				exception is InvalidOperationException ||
 				exception is UnauthorizedAccessException)
 			{
-				Log.Error(CultureInfo.InvariantCulture, m => m(
-					exception.ToString()));
+				Log.Error(exception.ToString());
 
 				retries = 0;
 			}
@@ -453,8 +446,7 @@ namespace BackupManagerLibrary
 				}
 				catch (Google.GoogleApiException exception)
 				{
-					Log.Error(CultureInfo.InvariantCulture, m => m(
-						exception.ToString()));
+					Log.Error(exception.ToString());
 				}
 			}
 
@@ -475,8 +467,7 @@ namespace BackupManagerLibrary
 					CultureInfo.InvariantCulture,
 					"Deleting file from Server: {0}",
 					fileName);
-				Log.Info(CultureInfo.InvariantCulture, m => m(
-					message));
+				Log.Info(message);
 
 				googleDrive.Delete(file.Id);
 				Delay();
@@ -519,8 +510,7 @@ namespace BackupManagerLibrary
 							CultureInfo.InvariantCulture,
 							"Excluding file from Server: {0}",
 							file.FullName);
-						Log.Info(CultureInfo.InvariantCulture, m => m(
-							message));
+						Log.Info(message);
 
 						RemoveAbandonedFile(file, serverFiles);
 
@@ -601,8 +591,7 @@ namespace BackupManagerLibrary
 				}
 				catch (Google.GoogleApiException exception)
 				{
-					Log.Error(CultureInfo.InvariantCulture, m => m(
-						exception.ToString()));
+					Log.Error(exception.ToString());
 				}
 			}
 		}
@@ -631,8 +620,7 @@ namespace BackupManagerLibrary
 				}
 				catch (Google.GoogleApiException exception)
 				{
-					Log.Error(CultureInfo.InvariantCulture, m => m(
-						exception.ToString()));
+					Log.Error(exception.ToString());
 				}
 			}
 		}
@@ -662,8 +650,7 @@ namespace BackupManagerLibrary
 				}
 				catch (Google.GoogleApiException exception)
 				{
-					Log.Error(CultureInfo.InvariantCulture, m => m(
-						exception.ToString()));
+					Log.Error(exception.ToString());
 				}
 			}
 		}
