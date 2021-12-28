@@ -3,16 +3,16 @@
 	<PropertyGroup>
 		<AnalysisMode>AllEnabledByDefault</AnalysisMode>
 		<AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
-		<AssemblyVersion>0.1.0.202</AssemblyVersion>
+		<AssemblyVersion>0.1.0.203</AssemblyVersion>
 		<CodeAnalysisRuleSet>..\CodeAnalysis.ruleset</CodeAnalysisRuleSet>
 		<Copyright>Copyright © 2021 James John McGuire</Copyright>
 		<EnableNETAnalyzers>true</EnableNETAnalyzers>
-		<FileVersion>0.1.0.202</FileVersion>
+		<FileVersion>0.1.0.203</FileVersion>
 		<GenerateDocumentationFile>true</GenerateDocumentationFile>
 		<NeutralLanguage>en-US</NeutralLanguage>
 		<OutputPath>$(SolutionDir)\Bin\$(Configuration)\$(Platform)</OutputPath>
 		<TargetFramework>net6.0</TargetFramework>
-		<Version>0.1.0.202</Version>
+		<Version>0.1.0.203</Version>
 	</PropertyGroup>
 
 	<ItemGroup>
