@@ -1,8 +1,8 @@
-GoogleDriveCLI	Improve build.cmd with composer install and md LogFiles
-GoogleDriveCLI	list owner as well
-GoogleDriveCLI	paths to long?	ERROR: Can not open output file : The filename, directory name, or volume label syntax is incorrect. : C:\Users\JamesMc\Data\Clients\DigitalZenWorks\BackupManager\SourceCode\DevelopmentTools\GoogleDriveCli/vendor/composer/0545aeab\googleapis-google-api-php-client-services-ea99097\src\ServiceNetworking\Resource\ServicesProjectsServicenetworkingGlobalNetworksPeeredDnsDomains.php
-Retry	The service drive has thrown an exception: Google.GoogleApiException: Google.Apis.Requests.RequestError	Internal Error [500]
+free native resources	needed?
 Doesn't remove top-level directories that are no longer listed in the configuration file	RemoveAbandedFolders at the very top level
+System.FormatException: Input string was not in a correct format.	BackupManagerLibrary\Backup.cs:line 60
+Reformat lines greater than 80
+Retry	The service drive has thrown an exception: Google.GoogleApiException: Google.Apis.Requests.RequestError	Internal Error [500]
 Better return check for Authenticate
 Change name of Authenticate
 Exclude directories listed in .gitignore
@@ -13,6 +13,7 @@ Set configuration directory as command line parameter
 Handle? System.Net.Http.HttpRequestException: No such host is known. (www.googleapis.com:443)
 
 Finished
+	Remove m => m from logging
 	Back Up	Issue with Outlook Popups messing up outlook shutdown process
 	Refactor Custom Step to run external script instead of hard coded commands
 	GoogleDriveCLI	Move into its own project
