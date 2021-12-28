@@ -11,7 +11,6 @@
 		<GenerateDocumentationFile>true</GenerateDocumentationFile>
 		<NeutralLanguage>en-US</NeutralLanguage>
 		<OutputPath>$(SolutionDir)\Bin\$(Configuration)\$(Platform)</OutputPath>
-		<Platforms>AnyCPU;x64</Platforms>
 		<TargetFramework>net5.0</TargetFramework>
 		<Version>0.1.0.202</Version>
 	</PropertyGroup>
