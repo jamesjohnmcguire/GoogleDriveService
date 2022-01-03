@@ -1,6 +1,6 @@
 ﻿/////////////////////////////////////////////////////////////////////////////
 // <copyright file="GlobalSuppressions.cs" company="James John McGuire">
-// Copyright © 2017 - 2021 James John McGuire. All Rights Reserved.
+// Copyright © 2017 - 2022 James John McGuire. All Rights Reserved.
 // </copyright>
 //
 // This file is used by Code Analysis to maintain SuppressMessage

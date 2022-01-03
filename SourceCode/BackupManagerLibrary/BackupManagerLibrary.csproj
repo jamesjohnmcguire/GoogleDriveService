@@ -5,7 +5,7 @@
 		<AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
 		<AssemblyVersion>0.1.0.203</AssemblyVersion>
 		<CodeAnalysisRuleSet>..\CodeAnalysis.ruleset</CodeAnalysisRuleSet>
-		<Copyright>Copyright © 2021 James John McGuire</Copyright>
+		<Copyright>Copyright © 2021 - 2022 James John McGuire</Copyright>
 		<EnableNETAnalyzers>true</EnableNETAnalyzers>
 		<FileVersion>0.1.0.203</FileVersion>
 		<GenerateDocumentationFile>true</GenerateDocumentationFile>
