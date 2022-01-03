@@ -65,6 +65,9 @@ switch ($command)
     case 'deleteall':
         $googleDrive->DeleteAllFiles();
         break;
+    case 'get':
+        $googleDrive->GetFile($data);
+        break;
     case 'list':
 		$googleDrive->ListFiles($data);
         break;

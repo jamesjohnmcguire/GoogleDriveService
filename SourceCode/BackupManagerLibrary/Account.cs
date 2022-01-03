@@ -1,6 +1,6 @@
 ﻿/////////////////////////////////////////////////////////////////////////////
 // <copyright file="Account.cs" company="James John McGuire">
-// Copyright © 2017 - 2021 James John McGuire. All Rights Reserved.
+// Copyright © 2017 - 2022 James John McGuire. All Rights Reserved.
 // </copyright>
 /////////////////////////////////////////////////////////////////////////////
 
@@ -85,8 +85,7 @@ namespace BackupManagerLibrary
 				(exception is ArgumentException ||
 				exception is FileNotFoundException)
 			{
-				Log.Error(CultureInfo.InvariantCulture, m => m(
-					exception.ToString()));
+				Log.Error(exception.ToString());
 			}
 
 			return authenticated;
@@ -117,6 +116,8 @@ namespace BackupManagerLibrary
 						directory.Path);
 
 					directory.ExpandExcludes();
+
+					Log.Info("Checking account default root shared folder");
 
 					IList<Google.Apis.Drive.v3.Data.File> serverFiles =
 						googleDrive.GetFiles(directory.RootSharedFolderId);
@@ -216,7 +217,74 @@ namespace BackupManagerLibrary
 
 		private static void Delay()
 		{
-			System.Threading.Thread.Sleep(180);
+			System.Threading.Thread.Sleep(190);
+		}
+
+		private static void ReportServerFolderInformation(
+			Google.Apis.Drive.v3.Data.File serverFolder)
+		{
+			if (serverFolder == null)
+			{
+				Log.Warn("server folder is null");
+			}
+			else
+			{
+				string message = string.Format(
+					CultureInfo.InvariantCulture,
+					"Checking server file {0} {1}",
+					serverFolder.Id,
+					serverFolder.Name);
+				Log.Info(message);
+
+				if (serverFolder.Owners == null)
+				{
+					Log.Warn("server folder owners null");
+				}
+				else
+				{
+					IList<Google.Apis.Drive.v3.Data.User> owners =
+						serverFolder.Owners;
+
+					string ownersInfo = "owners:";
+					foreach (var user in owners)
+					{
+						var item = user.EmailAddress;
+						ownersInfo += " " + item;
+					}
+
+					Log.Info(ownersInfo);
+				}
+
+				if (serverFolder.Parents == null)
+				{
+					Log.Warn("server folder parents is null");
+				}
+				else
+				{
+					IList<string> parents = serverFolder.Parents;
+
+					string parentsInfo = "parents:";
+					foreach (string item in parents)
+					{
+						parentsInfo += " " + item;
+					}
+
+					Log.Info(parentsInfo);
+				}
+
+				if (serverFolder.OwnedByMe == true)
+				{
+					Log.Info("File owned by me");
+				}
+				else if (serverFolder.Shared == true)
+				{
+					Log.Info("File shared with me");
+				}
+				else
+				{
+					Log.Info("File is neither owned by or shared with me");
+				}
+			}
 		}
 
 		private async Task BackUp(
@@ -262,8 +330,7 @@ namespace BackupManagerLibrary
 				exception is TaskCanceledException ||
 				exception is UnauthorizedAccessException)
 			{
-				Log.Error(CultureInfo.InvariantCulture, m => m(
-					exception.ToString()));
+				Log.Error(exception.ToString());
 			}
 		}
 
@@ -283,8 +350,7 @@ namespace BackupManagerLibrary
 					CultureInfo.InvariantCulture,
 					"Checking: {0}",
 					fileName);
-				Log.Info(CultureInfo.InvariantCulture, m => m(
-					message));
+				Log.Info(message);
 
 				Google.Apis.Drive.v3.Data.File serverFile =
 						GoogleDrive.GetFileInList(
@@ -296,17 +362,14 @@ namespace BackupManagerLibrary
 			}
 			catch (AggregateException exception)
 			{
-				Log.Error(CultureInfo.InvariantCulture, m => m(
-					"AggregateException caught"));
-				Log.Error(CultureInfo.InvariantCulture, m => m(
-					exception.ToString()));
+				Log.Error("AggregateException caught");
+				Log.Error(exception.ToString());
 
 				foreach (Exception innerExecption in exception.InnerExceptions)
 				{
 					if (innerExecption is TaskCanceledException)
 					{
-						Log.Warn(CultureInfo.InvariantCulture, m => m(
-							exception.ToString()));
+						Log.Warn(exception.ToString());
 
 						retries--;
 					}
@@ -340,8 +403,7 @@ namespace BackupManagerLibrary
 				exception is InvalidOperationException ||
 				exception is UnauthorizedAccessException)
 			{
-				Log.Error(CultureInfo.InvariantCulture, m => m(
-					exception.ToString()));
+				Log.Error(exception.ToString());
 
 				retries = 0;
 			}
@@ -384,8 +446,7 @@ namespace BackupManagerLibrary
 				}
 				catch (Google.GoogleApiException exception)
 				{
-					Log.Error(CultureInfo.InvariantCulture, m => m(
-						exception.ToString()));
+					Log.Error(exception.ToString());
 				}
 			}
 
@@ -406,8 +467,7 @@ namespace BackupManagerLibrary
 					CultureInfo.InvariantCulture,
 					"Deleting file from Server: {0}",
 					fileName);
-				Log.Info(CultureInfo.InvariantCulture, m => m(
-					message));
+				Log.Info(message);
 
 				googleDrive.Delete(file.Id);
 				Delay();
@@ -450,8 +510,7 @@ namespace BackupManagerLibrary
 							CultureInfo.InvariantCulture,
 							"Excluding file from Server: {0}",
 							file.FullName);
-						Log.Info(CultureInfo.InvariantCulture, m => m(
-							message));
+						Log.Info(message);
 
 						RemoveAbandonedFile(file, serverFiles);
 
@@ -480,6 +539,8 @@ namespace BackupManagerLibrary
 					googleDrive.CreateFolder(parent, directoryInfo.Name);
 				Delay();
 			}
+
+			ReportServerFolderInformation(serverFolder);
 
 			serverFiles = googleDrive.GetFiles(serverFolder.Id);
 
@@ -530,8 +591,7 @@ namespace BackupManagerLibrary
 				}
 				catch (Google.GoogleApiException exception)
 				{
-					Log.Error(CultureInfo.InvariantCulture, m => m(
-						exception.ToString()));
+					Log.Error(exception.ToString());
 				}
 			}
 		}
@@ -560,8 +620,7 @@ namespace BackupManagerLibrary
 				}
 				catch (Google.GoogleApiException exception)
 				{
-					Log.Error(CultureInfo.InvariantCulture, m => m(
-						exception.ToString()));
+					Log.Error(exception.ToString());
 				}
 			}
 		}
@@ -591,8 +650,7 @@ namespace BackupManagerLibrary
 				}
 				catch (Google.GoogleApiException exception)
 				{
-					Log.Error(CultureInfo.InvariantCulture, m => m(
-						exception.ToString()));
+					Log.Error(exception.ToString());
 				}
 			}
 		}

@@ -1,6 +1,6 @@
 ﻿/////////////////////////////////////////////////////////////////////////////
 // <copyright file="GoogleDrive.cs" company="James John McGuire">
-// Copyright © 2017 - 2021 James John McGuire. All Rights Reserved.
+// Copyright © 2017 - 2022 James John McGuire. All Rights Reserved.
 // </copyright>
 /////////////////////////////////////////////////////////////////////////////
 
@@ -144,8 +144,7 @@ namespace BackupManagerLibrary
 				"Created Folder ID: {0} Name {1}",
 				file.Id,
 				file.Name);
-			Log.Info(CultureInfo.InvariantCulture, m => m(
-				message));
+			Log.Info(message);
 
 			return file;
 		}
@@ -198,8 +197,7 @@ namespace BackupManagerLibrary
 						"Retrieved files from: {0} count: {1}",
 						parent,
 						files.Count);
-					Log.Info(CultureInfo.InvariantCulture, m => m(
-						message));
+					Log.Info(message);
 
 					Google.Apis.Drive.v3.Data.FileList filesList =
 						listRequest.Execute();
@@ -209,8 +207,7 @@ namespace BackupManagerLibrary
 				}
 				catch (Google.GoogleApiException exception)
 				{
-					Log.Error(CultureInfo.InvariantCulture, m => m(
-						exception.ToString()));
+					Log.Error(exception.ToString());
 					listRequest.PageToken = null;
 				}
 			}
@@ -312,14 +309,12 @@ namespace BackupManagerLibrary
 				progress.Status,
 				progress.BytesSent);
 
-			Log.Info(CultureInfo.InvariantCulture, m => m(
-				message));
+			Log.Info(message);
 
 			if (progress.Exception != null)
 			{
 				message = progress.Exception.ToString();
-				Log.Error(CultureInfo.InvariantCulture, m => m(
-					message));
+				Log.Error(message);
 			}
 		}
 
@@ -329,8 +324,7 @@ namespace BackupManagerLibrary
 			string fileName = SanitizeFileName(file.Name);
 			string message = fileName + " was uploaded successfully";
 
-			Log.Info(CultureInfo.InvariantCulture, m => m(
-				message));
+			Log.Info(message);
 		}
 	}
 }

@@ -96,6 +96,30 @@ class GoogleDrive
 		}
 	}
 
+	public function GetFile($fileId)
+	{
+		try
+		{
+			$fileFields = 'createdTime, id, mimeType, modifiedTime, name, ' .
+				'ownedByMe, owners, parents, size, webContentLink';
+
+			$options =
+			[
+				'fields' => "$fileFields"
+			];
+
+			echo "\033[36mGetting file with id: $fileId\033[0m\r\n";
+			$file = $this->service->files->get($fileId, $options);
+
+			print_r($file);
+		}
+		catch (Exception $exception)
+		{
+			$message = $exception->getMessage();
+			echo "\033[31mError: $message\033[0m\r\n";
+		}
+	}
+
 	public function ListFiles($parentId = null)
 	{
 		$files = $this->GetFiles(
@@ -108,16 +132,31 @@ class GoogleDrive
 
 		if ($this->showShared === true)
 		{
+			$this->debug->Show(
+				Debug::DEBUG, "Showing files also shared with me");
 			echo "  ";
-		}
 
-		if ($this->showParent == true)
-		{
-			echo "Id\t\t\t\t    Parent\t\tName\r\n";
+			if ($this->showParent == true)
+			{
+				echo "Id\t\t\t\t    Parent\t\tName\tOwner\r\n";
+			}
+			else
+			{
+				echo "Id\t\t\t\t  Name\tOwner\r\n";
+			}
 		}
 		else
 		{
-			echo "Id\t\t\t\t  Name\tOwner\r\n";
+			$this->debug->Show(Debug::DEBUG, "Showing files only owned by me");
+
+			if ($this->showParent == true)
+			{
+				echo "Id\t\t\t\t    Parent\t\tName\r\n";
+			}
+			else
+			{
+				echo "Id\t\t\t\t  Name\r\n";
+			}
 		}
 
 		foreach ($files as $file)
@@ -149,9 +188,15 @@ class GoogleDrive
 			}
 			else
 			{
-				$owner = $file->owners[0]->emailAddress;
-
-				echo "$file->id\t$file->name\r\n";
+				if ($this->showShared === true)
+				{
+					$owner = $file->owners[0]->emailAddress;
+					echo "$file->id $file->name\t$owner\r\n";
+				}
+				else
+				{
+					echo "$file->id $file->name\r\n";
+				}
 			}
 		}
 
@@ -489,13 +534,16 @@ class GoogleDrive
 			}
 		}
 
-		if (empty($options['q']))
+		if ($this->showShared == false)
 		{
-			$options['q'] = "'me' in owners";
-		}
-		else
-		{
-			$options['q'] .= " and 'me' in owners";
+			if (empty($options['q']))
+			{
+				$options['q'] = "'me' in owners";
+			}
+			else
+			{
+				$options['q'] .= " and 'me' in owners";
+			}
 		}
 
 		print_r($options);

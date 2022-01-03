@@ -1,15 +1,15 @@
 CD %~dp0
 CD ..\..
 
-IF EXIST Bin\Release\x64\NUL DEL /Q Bin\Release\x64\*.*
+IF EXIST Bin\Release\AnyCPU\NUL DEL /Q Bin\Release\AnyCPU\*.*
 
-dotnet build --configuration Release -p:Platform=x64
+dotnet build --configuration Release
 
 IF "%1"=="release" GOTO release
 GOTO end
 
 :release
-CD Bin\Release\x64
+CD Bin\Release\AnyCPU
 
 7z u BackUpManager.zip . -xr!*.json -xr!ref
 
