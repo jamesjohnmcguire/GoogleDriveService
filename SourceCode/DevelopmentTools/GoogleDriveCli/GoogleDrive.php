@@ -35,29 +35,36 @@ class GoogleDrive
 
 		$this->client = $this->Authorize($authorizationType);
 
-		$this->GetRootFromFile();
+		if ($this->client != null)
+		{
+			$this->GetRootFromFile();
 
-		$this->service = new Google_Service_Drive($this->client);
+			$this->service = new Google_Service_Drive($this->client);
+		}
 	}
 
 	public function About()
 	{
 		$this->debug->Show(Debug::DEBUG, "About begin");
 
-		$about = $this->service->about;
+		if ($this->service === null)
+		{
+			echo "ERROR: service object does not exist!";
+		}
+		else
+		{
+			$about = $this->service->about;
 
-		$options =
-		[
-			'fields' => 'storageQuota',
-			'prettyPrint' => true
-		];
+			$options =
+			[
+				'fields' => 'storageQuota',
+				'prettyPrint' => true
+			];
 
-		$response = $about->get($options);
+			$response = $about->get($options);
 
-		print_r($response->storageQuota);
-		exit();
-
-		return $response;
+			print_r($response->storageQuota);
+		}
 	}
 
 	public function DeleteAllFiles()
@@ -429,9 +436,8 @@ class GoogleDrive
 			else
 			{
 				$this->debug->Show(Debug::DEBUG,
-					'Missing environment GOOGLE_APPLICATION_CREDENTIALS. ' . 
-					'Defaulting to OAuth');
-				$this->AuthorizeOAuth($client);
+					'Missing environment GOOGLE_APPLICATION_CREDENTIALS. ');
+				$client = null;
 			}
 		}
 
