@@ -324,6 +324,13 @@ class Debug
 		if (null != $logFile)
 		{
 			$time = date('Y-m-d H:i:s');
+
+			$directory = dirname($logFile);
+			if (!is_dir($directory))
+			{
+				mkdir($directory);
+			}
+
 			file_put_contents($logFile, $time.' '.$message.PHP_EOL,
 				FILE_APPEND | LOCK_EX);
 		}
