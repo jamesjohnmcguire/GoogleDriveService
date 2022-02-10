@@ -110,7 +110,9 @@ namespace BackupManagerLibrary
 					// the service account.
 					DirectoryInfo directoryInfo = new (directory.Path);
 					string name = directoryInfo.Name;
-					ConnectRoot(name);
+
+					CreateTopLevelLink(
+						"root", name, directory.RootSharedFolderId);
 
 					string path = Environment.ExpandEnvironmentVariables(
 						directory.Path);
@@ -453,6 +455,18 @@ namespace BackupManagerLibrary
 			if (found == false)
 			{
 				googleDrive.CreateFolder("root", directoryName);
+			}
+		}
+
+		private void CreateTopLevelLink(
+			string parentId, string linkName, string targetId)
+		{
+			bool found = googleDrive.DoesDriveItemExist(
+				parentId, linkName, "application/vnd.google-apps.shortcut");
+
+			if (found == false)
+			{
+				googleDrive.CreateLink(parentId, linkName, targetId);
 			}
 		}
 
