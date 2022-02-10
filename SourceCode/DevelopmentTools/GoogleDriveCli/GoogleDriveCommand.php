@@ -74,6 +74,14 @@ else
 		case 'get':
 			$googleDrive->GetFile($data);
 			break;
+		case 'help':
+			echo "Examples\r\n";
+			echo "Command get <file id>\r\n";
+			echo "Command list\r\n";
+			echo "Command list showParent showOnlyRootLevel showOnlyFolders showShared \r\n";
+			echo "Command deleteall\r\n";
+			echo "Command delete 1IcurHhUiafHbqw8qfw1UEGGLrGGFzDqH\r\n";
+			break;
 		case 'list':
 			$googleDrive->ListFiles($data);
 			break;
