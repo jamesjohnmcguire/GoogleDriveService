@@ -189,15 +189,6 @@ namespace BackupManagerLibrary
 		}
 
 		/// <summary>
-		/// Dispose method.
-		/// </summary>
-		public void Dispose()
-		{
-			Dispose(true);
-			GC.SuppressFinalize(this);
-		}
-
-		/// <summary>
 		/// Delete method.
 		/// </summary>
 		/// <param name="id">The id of the item to delete.</param>
@@ -207,6 +198,15 @@ namespace BackupManagerLibrary
 				driveService.Files.Delete(id);
 
 			request.Execute();
+		}
+
+		/// <summary>
+		/// Dispose method.
+		/// </summary>
+		public void Dispose()
+		{
+			Dispose(true);
+			GC.SuppressFinalize(this);
 		}
 
 		/// <summary>
