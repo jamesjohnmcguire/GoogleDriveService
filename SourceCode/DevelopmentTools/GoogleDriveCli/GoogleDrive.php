@@ -560,7 +560,7 @@ class GoogleDrive
 		return $files;
 	}
 
-	private function GetCcoreSharedParentFolderIdFromFile()
+	private function GetCoreSharedParentFolderIdFromFile()
 	{
 		$contents = file_get_contents($this->serviceAccountFilePath);
 		$data = json_decode($contents);
