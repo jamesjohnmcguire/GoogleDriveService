@@ -13,7 +13,6 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
-using System.Threading.Tasks;
 
 namespace BackupManagerLibrary
 {
@@ -73,7 +72,8 @@ namespace BackupManagerLibrary
 
 		/// <summary>
 		/// Sanitize file name method.  Currently, just removes '{' and '{'.
-		/// This is mainly used for logging, which tries to interpret those sympbols.
+		/// This is mainly used for logging, which tries to interpret
+		/// those sympbols.
 		/// </summary>
 		/// <param name="fileName">The file name to sanitize.</param>
 		/// <returns>The sanitized file name.</returns>
@@ -203,7 +203,8 @@ namespace BackupManagerLibrary
 		/// <param name="id">The id of the item to delete.</param>
 		public void Delete(string id)
 		{
-			FilesResource.DeleteRequest request = driveService.Files.Delete(id);
+			FilesResource.DeleteRequest request =
+				driveService.Files.Delete(id);
 
 			request.Execute();
 		}
@@ -346,10 +347,12 @@ namespace BackupManagerLibrary
 
 			string mimeType = MimeTypes.GetMimeType(file.Name);
 
-			// over rides for wrongly marked files
+			// overrides for wrongly marked files
 			string extension = file.Extension;
-			if (extension.Equals(".gdoc", StringComparison.OrdinalIgnoreCase) ||
-				extension.Equals(".gsheet", StringComparison.OrdinalIgnoreCase))
+			if (extension.Equals(
+				".gdoc", StringComparison.OrdinalIgnoreCase) ||
+				extension.Equals(
+					".gsheet", StringComparison.OrdinalIgnoreCase))
 			{
 				Log.Info("Changing mime type to application/json");
 				mimeType = "application/json";

@@ -105,14 +105,15 @@ namespace BackupManagerLibrary
 
 				foreach (Directory directory in Directories)
 				{
+					string coreSharedParentFolderId =
+						directory.RootSharedFolderId;
 					// This helps in maintaining the service accounts, as
 					// without it, files tend to fall into the 'black hole' of
 					// the service account.
 					DirectoryInfo directoryInfo = new (directory.Path);
 					string name = directoryInfo.Name;
 
-					CreateTopLevelLink(
-						"root", name, directory.RootSharedFolderId);
+					CreateTopLevelLink("root", name, coreSharedParentFolderId);
 
 					string path = Environment.ExpandEnvironmentVariables(
 						directory.Path);
@@ -122,9 +123,10 @@ namespace BackupManagerLibrary
 					Log.Info("Checking account default root shared folder");
 
 					IList<Google.Apis.Drive.v3.Data.File> serverFiles =
-						googleDrive.GetFiles(directory.RootSharedFolderId);
+						googleDrive.GetFiles(coreSharedParentFolderId);
 
-					await BackUp(directory, directory.RootSharedFolderId, path, serverFiles).
+					await BackUp(
+						directory, coreSharedParentFolderId, path, serverFiles).
 						ConfigureAwait(false);
 				}
 			}
@@ -653,8 +655,9 @@ namespace BackupManagerLibrary
 						StringComparison.Ordinal))
 					{
 						string folderPath = path + @"\" + file.Name;
-						bool exists = subDirectories.Any(element => element.Equals(
-							folderPath, StringComparison.Ordinal));
+						bool exists =
+							subDirectories.Any(element => element.Equals(
+								folderPath, StringComparison.Ordinal));
 
 						if (exists == false)
 						{
@@ -706,7 +709,8 @@ namespace BackupManagerLibrary
 		{
 			if (serverFile == null)
 			{
-				googleDrive.Upload(serverFolder.Id, file.FullName, null, retry);
+				googleDrive.Upload(
+					serverFolder.Id, file.FullName, null, retry);
 			}
 			else if (serverFile.ModifiedTime < file.LastWriteTime)
 			{

@@ -93,8 +93,8 @@ namespace BackupManagerLibrary
 
 				var directoryInfo = System.IO.Directory.GetParent(path);
 
-				string excludeCheckPath =
-					System.IO.Path.GetFullPath(exclude.Path, directoryInfo.FullName);
+				string excludeCheckPath = System.IO.Path.GetFullPath(
+					exclude.Path, directoryInfo.FullName);
 
 				if (checkPath.Equals(
 					excludeCheckPath, StringComparison.OrdinalIgnoreCase))
@@ -122,8 +122,8 @@ namespace BackupManagerLibrary
 
 				var directoryInfo = System.IO.Directory.GetParent(path);
 
-				string excludeCheckPath =
-					System.IO.Path.GetFullPath(exclude.Path, directoryInfo.FullName);
+				string excludeCheckPath = System.IO.Path.GetFullPath(
+					exclude.Path, directoryInfo.FullName);
 
 				if (checkPath.Equals(
 					excludeCheckPath, StringComparison.OrdinalIgnoreCase))
