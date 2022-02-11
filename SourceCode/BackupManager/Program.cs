@@ -99,7 +99,6 @@ namespace BackupManager
 
 			if (!string.IsNullOrWhiteSpace(location))
 			{
-
 				FileVersionInfo versionInfo =
 				FileVersionInfo.GetVersionInfo(location);
 
