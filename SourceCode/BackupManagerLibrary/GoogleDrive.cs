@@ -100,20 +100,25 @@ namespace BackupManagerLibrary
 		/// <returns>True upon success,false otherwise.</returns>
 		public bool Authorize(string credentialsFile)
 		{
-			bool authenticated;
+			bool authorized = false;
 
-			credentialedAccount = GoogleCredential.FromFile(credentialsFile);
-			credentialedAccount = credentialedAccount.CreateScoped(Scopes);
+			if (!string.IsNullOrEmpty(credentialsFile) &&
+				File.Exists(credentialsFile))
+			{
+				credentialedAccount =
+					GoogleCredential.FromFile(credentialsFile);
+				credentialedAccount = credentialedAccount.CreateScoped(Scopes);
 
-			initializer = new BaseClientService.Initializer();
-			initializer.ApplicationName = "Backup Manager";
-			initializer.HttpClientInitializer = credentialedAccount;
+				initializer = new BaseClientService.Initializer();
+				initializer.ApplicationName = "Backup Manager";
+				initializer.HttpClientInitializer = credentialedAccount;
 
-			driveService = new DriveService(initializer);
+				driveService = new DriveService(initializer);
 
-			authenticated = true;
+				authorized = true;
+			}
 
-			return authenticated;
+			return authorized;
 		}
 
 		/// <summary>
