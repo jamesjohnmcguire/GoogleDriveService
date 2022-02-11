@@ -1,12 +1,4 @@
 Library	Improve parameters
-Remove png file
-Update https://github.com/jamesjohnmcguire/GoogleDriveService/blob/main/Documentation/Sample.BackUp.json
-Reformat lines greater than 80
-Better return check for Authenticate
-Change name of Authenticate
-Update release
-
-General	Update 'root' naming conventions	root as a name will, from now on, refer only account (either core or service) root folders.  What was previously called RootSharedFolderId will be called CoreSharedParentFolderId
 Doesn't remove top-level directories that are no longer listed in the configuration file	RemoveAbandedFolders at the very top level
 Console	Establish clear starting point for console
 Implement https://stackoverflow.com/questions/50416340/how-to-find-the-whole-hierarchy-of-parent-folders-for-a-google-drive-file
@@ -20,6 +12,12 @@ ignore git files
 free native resources	needed?
 
 Finished
+	Update https://github.com/jamesjohnmcguire/GoogleDriveService/blob/main/Documentation/Sample.BackUp.json
+	General	Update 'root' naming conventions	root as a name will, from now on, refer only account (either core or service) root folders.  What was previously called RootSharedFolderId will be called CoreSharedParentFolderId
+	Better return check for Authenticate
+	Change name of Authenticate
+	Reformat lines greater than 80
+	Remove png file
 	Console	Resolve 'root' issues	When using showOnlyRootLevel, use 'root' or the given folder?
 	ConnectRoot	Need to check the actual file id to insure that it is actually the same folder
 	Library	one-time ProgramData connect root
