@@ -90,25 +90,36 @@ namespace BackupManager
 			Assembly assembly = Assembly.GetExecutingAssembly();
 			string location = assembly.Location;
 
-			FileVersionInfo versionInfo =
+			if (string.IsNullOrWhiteSpace(location))
+			{
+				// Single file apps have no assemblies.
+				Process process = Process.GetCurrentProcess();
+				location = process.MainModule.FileName;
+			}
+
+			if (!string.IsNullOrWhiteSpace(location))
+			{
+
+				FileVersionInfo versionInfo =
 				FileVersionInfo.GetVersionInfo(location);
 
-			string companyName = versionInfo.CompanyName;
-			string copyright = versionInfo.LegalCopyright;
+				string companyName = versionInfo.CompanyName;
+				string copyright = versionInfo.LegalCopyright;
 
-			AssemblyName assemblyName = assembly.GetName();
-			string name = assemblyName.Name;
-			Version version = assemblyName.Version;
-			string assemblyVersion = version.ToString();
+				AssemblyName assemblyName = assembly.GetName();
+				string name = assemblyName.Name;
+				Version version = assemblyName.Version;
+				string assemblyVersion = version.ToString();
 
-			string header = string.Format(
-				CultureInfo.CurrentCulture,
-				"{0} {1} {2} {3}",
-				name,
-				assemblyVersion,
-				copyright,
-				companyName);
-			Log.Info(header);
+				string header = string.Format(
+					CultureInfo.CurrentCulture,
+					"{0} {1} {2} {3}",
+					name,
+					assemblyVersion,
+					copyright,
+					companyName);
+				Log.Info(header);
+			}
 
 			if (!string.IsNullOrWhiteSpace(additionalMessage))
 			{
