@@ -107,6 +107,7 @@ namespace BackupManagerLibrary
 				{
 					string coreSharedParentFolderId =
 						directory.CoreSharedParentFolderId;
+
 					// This helps in maintaining the service accounts, as
 					// without it, files tend to fall into the 'black hole' of
 					// the service account.
@@ -422,41 +423,6 @@ namespace BackupManagerLibrary
 			foreach (string file in files)
 			{
 				googleDrive.Delete(file);
-			}
-		}
-
-		private void ConnectRoot(string directoryName)
-		{
-			bool found = false;
-
-			IList<Google.Apis.Drive.v3.Data.File> serverFiles =
-				googleDrive.GetFiles("root");
-
-			foreach (Google.Apis.Drive.v3.Data.File file in serverFiles)
-			{
-				try
-				{
-					if (file.MimeType.Equals(
-						"application/vnd.google-apps.folder",
-						StringComparison.Ordinal))
-					{
-						found = file.Name.Equals(
-							directoryName, StringComparison.Ordinal);
-						if (found == true)
-						{
-							break;
-						}
-					}
-				}
-				catch (Google.GoogleApiException exception)
-				{
-					Log.Error(exception.ToString());
-				}
-			}
-
-			if (found == false)
-			{
-				googleDrive.CreateFolder("root", directoryName);
 			}
 		}
 

@@ -169,7 +169,7 @@ namespace BackupManagerLibrary
 			fileMetadata.Name = linkName;
 			fileMetadata.MimeType = "application/vnd.google-apps.shortcut";
 			Google.Apis.Drive.v3.Data.File.ShortcutDetailsData shortCut =
-				new Google.Apis.Drive.v3.Data.File.ShortcutDetailsData();
+				new ();
 
 			shortCut.TargetId = targetId;
 			fileMetadata.ShortcutDetails = shortCut;
@@ -310,8 +310,7 @@ namespace BackupManagerLibrary
 		{
 			if (file != null)
 			{
-				Google.Apis.Drive.v3.Data.File placeHolder =
-					new Google.Apis.Drive.v3.Data.File();
+				Google.Apis.Drive.v3.Data.File placeHolder = new ();
 
 				FilesResource.UpdateRequest updateRequest =
 					driveService.Files.Update(placeHolder, file.Id);
