@@ -64,7 +64,7 @@ namespace BackupManagerLibrary
 		/// https://developers.google.com/accounts/docs/OAuth2#serviceaccount.
 		/// </summary>
 		/// <returns>True upon success,false otherwise.</returns>
-		public bool Authenticate()
+		public bool Authorize()
 		{
 			bool authenticated = false;
 
@@ -78,7 +78,7 @@ namespace BackupManagerLibrary
 				{
 					string accountsFile = accountsPath + @"\" + ServiceAccount;
 
-					authenticated = googleDrive.Authenticate(accountsFile);
+					authenticated = googleDrive.Authorize(accountsFile);
 				}
 			}
 			catch (Exception exception) when
@@ -97,7 +97,7 @@ namespace BackupManagerLibrary
 		/// <returns>A task indicating completion.</returns>
 		public async Task BackUp()
 		{
-			bool authenticated = Authenticate();
+			bool authenticated = Authorize();
 
 			if (authenticated == true)
 			{

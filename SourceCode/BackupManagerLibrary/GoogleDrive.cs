@@ -98,7 +98,7 @@ namespace BackupManagerLibrary
 		/// <param name="credentialsFile">A file contiaining the credentials
 		/// information.</param>
 		/// <returns>True upon success,false otherwise.</returns>
-		public bool Authenticate(string credentialsFile)
+		public bool Authorize(string credentialsFile)
 		{
 			bool authenticated;
 
