@@ -48,10 +48,10 @@ namespace BackupManagerLibrary
 		public string Path { get; set; }
 
 		/// <summary>
-		/// Gets or sets root shared folder id property.
+		/// Gets or sets the core shared parent folder id property.
 		/// </summary>
-		/// <value>Root shared folder id property.</value>
-		public string RootSharedFolderId { get; set; }
+		/// <value>The core shared parent folder id property.</value>
+		public string CoreSharedParentFolderId { get; set; }
 
 		/// <summary>
 		/// Gets excludes property.

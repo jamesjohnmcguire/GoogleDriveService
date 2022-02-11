@@ -106,7 +106,7 @@ namespace BackupManagerLibrary
 				foreach (Directory directory in Directories)
 				{
 					string coreSharedParentFolderId =
-						directory.RootSharedFolderId;
+						directory.CoreSharedParentFolderId;
 					// This helps in maintaining the service accounts, as
 					// without it, files tend to fall into the 'black hole' of
 					// the service account.
