@@ -126,6 +126,8 @@ namespace BackupManagerLibrary
 					IList<Google.Apis.Drive.v3.Data.File> serverFiles =
 						googleDrive.GetFiles(coreSharedParentFolderId);
 
+					RemoveTopLevelAbandonedFiles(serverFiles);
+
 					await BackUp(
 						directory, coreSharedParentFolderId, path, serverFiles).
 						ConfigureAwait(false);
@@ -662,6 +664,38 @@ namespace BackupManagerLibrary
 					if (serverFolder != null)
 					{
 						DeleteFromDrive(serverFolder);
+					}
+				}
+			}
+		}
+
+		private void RemoveTopLevelAbandonedFiles(
+			IList<Google.Apis.Drive.v3.Data.File> serverFiles)
+		{
+			int count = serverFiles.Count;
+
+			for (int index = count - 1; index >= 0; index--)
+			{
+				Google.Apis.Drive.v3.Data.File file = serverFiles[index];
+				if (file.OwnedByMe == true)
+				{
+					bool found = false;
+
+					foreach (Directory directory in directories)
+					{
+						string name = Path.GetFileName(directory.Path);
+
+						if (name.Equals(
+							file.Name, StringComparison.OrdinalIgnoreCase))
+						{
+							found = true;
+							break;
+						}
+					}
+
+					if (found == false)
+					{
+						DeleteFromDrive(file);
 					}
 				}
 			}
