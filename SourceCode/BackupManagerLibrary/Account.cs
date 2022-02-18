@@ -175,23 +175,23 @@ namespace BackupManagerLibrary
 			{
 				CleanUp();
 
-				foreach (DriveMapping directory in DriveMappings)
+				foreach (DriveMapping driveMapping in DriveMappings)
 				{
 					string driveParentFolderId =
-						directory.DriveParentFolderId;
+						driveMapping.DriveParentFolderId;
 
 					// This helps in maintaining the service accounts, as
 					// without it, files tend to fall into the 'black hole' of
 					// the service account.
-					DirectoryInfo directoryInfo = new (directory.Path);
+					DirectoryInfo directoryInfo = new (driveMapping.Path);
 					string name = directoryInfo.Name;
 
 					CreateTopLevelLink(name, driveParentFolderId);
 
 					string path = Environment.ExpandEnvironmentVariables(
-						directory.Path);
+						driveMapping.Path);
 
-					directory.ExpandExcludes();
+					driveMapping.ExpandExcludes();
 
 					Log.Info("Checking account default root shared folder");
 
@@ -201,7 +201,7 @@ namespace BackupManagerLibrary
 					RemoveTopLevelAbandonedFiles(serverFiles);
 
 					await BackUp(
-						directory, driveParentFolderId, path, serverFiles).
+						driveMapping, driveParentFolderId, path, serverFiles).
 						ConfigureAwait(false);
 				}
 			}
