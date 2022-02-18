@@ -524,8 +524,6 @@ namespace BackupManagerLibrary
 				Delay();
 			}
 
-			ReportServerFolderInformation(serverFolder);
-
 			serverFiles = googleDrive.GetFiles(serverFolder.Id);
 
 			string[] subDirectories =
