@@ -59,7 +59,7 @@ namespace BackupManagerLibrary
 		/// Gets or sets the core shared parent folder id property.
 		/// </summary>
 		/// <value>The core shared parent folder id property.</value>
-		public string CoreSharedParentFolderId { get; set; }
+		public string DriveParentFolderId { get; set; }
 
 		/// <summary>
 		/// Gets excludes property.

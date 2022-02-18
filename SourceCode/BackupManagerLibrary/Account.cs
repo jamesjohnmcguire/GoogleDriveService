@@ -105,8 +105,8 @@ namespace BackupManagerLibrary
 
 				foreach (Directory directory in Directories)
 				{
-					string coreSharedParentFolderId =
-						directory.CoreSharedParentFolderId;
+					string driveParentFolderId =
+						directory.DriveParentFolderId;
 
 					// This helps in maintaining the service accounts, as
 					// without it, files tend to fall into the 'black hole' of
@@ -114,7 +114,7 @@ namespace BackupManagerLibrary
 					DirectoryInfo directoryInfo = new (directory.Path);
 					string name = directoryInfo.Name;
 
-					CreateTopLevelLink("root", name, coreSharedParentFolderId);
+					CreateTopLevelLink("root", name, driveParentFolderId);
 
 					string path = Environment.ExpandEnvironmentVariables(
 						directory.Path);
@@ -124,12 +124,12 @@ namespace BackupManagerLibrary
 					Log.Info("Checking account default root shared folder");
 
 					IList<Google.Apis.Drive.v3.Data.File> serverFiles =
-						googleDrive.GetFiles(coreSharedParentFolderId);
+						googleDrive.GetFiles(driveParentFolderId);
 
 					RemoveTopLevelAbandonedFiles(serverFiles);
 
 					await BackUp(
-						directory, coreSharedParentFolderId, path, serverFiles).
+						directory, driveParentFolderId, path, serverFiles).
 						ConfigureAwait(false);
 				}
 			}
