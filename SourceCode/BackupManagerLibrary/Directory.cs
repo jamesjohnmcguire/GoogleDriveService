@@ -4,8 +4,10 @@
 // </copyright>
 /////////////////////////////////////////////////////////////////////////////
 
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Text;
 
 namespace BackupManagerLibrary
@@ -22,23 +24,29 @@ namespace BackupManagerLibrary
 		/// </summary>
 		public Directory()
 		{
-			Exclude exclude = new ("_svn", ExcludeType.AllSubDirectories);
-			excludes.Add(exclude);
+			string baseDataDirectory = Environment.GetFolderPath(
+				Environment.SpecialFolder.ApplicationData,
+				Environment.SpecialFolderOption.Create);
+			string settingsPath = baseDataDirectory +
+				"/DigitalZenWorks/BackUpManager/Settings.json";
 
-			exclude = new (".svn", ExcludeType.AllSubDirectories);
-			excludes.Add(exclude);
+			if (System.IO.File.Exists(settingsPath))
+			{
+				string settingsText = File.ReadAllText(settingsPath);
 
-			exclude = new (".vs", ExcludeType.AllSubDirectories);
-			excludes.Add(exclude);
+				Settings settings = JsonConvert.DeserializeObject<Settings>(
+						settingsText);
 
-			exclude = new ("node_modules", ExcludeType.AllSubDirectories);
-			excludes.Add(exclude);
-
-			exclude = new ("obj", ExcludeType.AllSubDirectories);
-			excludes.Add(exclude);
-
-			exclude = new ("vendor", ExcludeType.AllSubDirectories);
-			excludes.Add(exclude);
+				if (settings != null && settings.GlobalExcludes != null)
+				{
+					foreach (string excludeName in settings.GlobalExcludes)
+					{
+						Exclude exclude =
+							new (excludeName, ExcludeType.AllSubDirectories);
+						excludes.Add(exclude);
+					}
+				}
+			}
 		}
 
 		/// <summary>
@@ -110,7 +118,8 @@ namespace BackupManagerLibrary
 			{
 				string checkPath = System.IO.Path.GetFullPath(path);
 
-				var directoryInfo = System.IO.Directory.GetParent(path);
+				DirectoryInfo directoryInfo =
+					System.IO.Directory.GetParent(path);
 
 				string excludeCheckPath = System.IO.Path.GetFullPath(
 					exclude.Path, directoryInfo.FullName);
