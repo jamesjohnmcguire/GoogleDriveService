@@ -233,13 +233,13 @@ namespace BackupManagerLibrary
 		}
 
 		private static bool CheckProcessFile(
-			DriveMapping directory, string path)
+			DriveMapping driveMapping, string path)
 		{
 			bool processFile = true;
 
-			if (directory.ExcludesContains(path))
+			if (driveMapping.ExcludesContains(path))
 			{
-				Exclude exclude = directory.GetExclude(path);
+				Exclude exclude = driveMapping.GetExclude(path);
 				ExcludeType clause = exclude.ExcludeType;
 
 				if (clause == ExcludeType.File)
@@ -252,13 +252,13 @@ namespace BackupManagerLibrary
 		}
 
 		private static bool CheckProcessRootFolder(
-			DriveMapping directory, string path)
+			DriveMapping driveMapping, string path)
 		{
 			bool processFiles = true;
 
-			if (directory.ExcludesContains(path))
+			if (driveMapping.ExcludesContains(path))
 			{
-				Exclude exclude = directory.GetExclude(path);
+				Exclude exclude = driveMapping.GetExclude(path);
 				ExcludeType clause = exclude.ExcludeType;
 
 				if (clause == ExcludeType.OnlyRoot)
@@ -271,7 +271,7 @@ namespace BackupManagerLibrary
 		}
 
 		private static bool CheckProcessSubFolders(
-			DriveMapping directory, string path)
+			DriveMapping driveMapping, string path)
 		{
 			bool processSubFolders = true;
 
@@ -279,10 +279,10 @@ namespace BackupManagerLibrary
 			DirectoryInfo directoryInfo = new (path);
 			string directoryName = directoryInfo.Name;
 
-			if (directory.ExcludesContains(path) ||
-				directory.ExcludesContains(directoryName))
+			if (driveMapping.ExcludesContains(path) ||
+				driveMapping.ExcludesContains(directoryName))
 			{
-				Exclude exclude = directory.GetExclude(path);
+				Exclude exclude = driveMapping.GetExclude(path);
 				ExcludeType clause = exclude.ExcludeType;
 
 				if (clause == ExcludeType.AllSubDirectories)
@@ -300,7 +300,7 @@ namespace BackupManagerLibrary
 		}
 
 		private async Task BackUp(
-			DriveMapping directory,
+			DriveMapping driveMapping,
 			string parent,
 			string path,
 			IList<Google.Apis.Drive.v3.Data.File> serverFiles)
@@ -311,15 +311,15 @@ namespace BackupManagerLibrary
 				{
 					DirectoryInfo directoryInfo = new (path);
 
-					RemoveExcludedFolders(directory, path, serverFiles);
+					RemoveExcludedFolders(driveMapping, path, serverFiles);
 
 					bool processSubFolders =
-						CheckProcessSubFolders(directory, path);
+						CheckProcessSubFolders(driveMapping, path);
 
 					if (processSubFolders == true)
 					{
 						await ProcessSubFolders(
-							directory, parent, path, serverFiles).
+							driveMapping, parent, path, serverFiles).
 							ConfigureAwait(false);
 					}
 				}
@@ -463,7 +463,7 @@ namespace BackupManagerLibrary
 		}
 
 		private void ProcessFiles(
-			DriveMapping directory,
+			DriveMapping driveMapping,
 			FileInfo[] files,
 			Google.Apis.Drive.v3.Data.File serverFolder,
 			IList<Google.Apis.Drive.v3.Data.File> serverFiles)
@@ -479,7 +479,7 @@ namespace BackupManagerLibrary
 				while ((success == false) && (retries > 0))
 				{
 					bool checkFile =
-						CheckProcessFile(directory, file.FullName);
+						CheckProcessFile(driveMapping, file.FullName);
 
 					if (checkFile == true)
 					{
@@ -509,7 +509,7 @@ namespace BackupManagerLibrary
 		}
 
 		private async Task ProcessSubFolders(
-			DriveMapping directory,
+			DriveMapping driveMapping,
 			string parent,
 			string path,
 			IList<Google.Apis.Drive.v3.Data.File> serverFiles)
@@ -538,18 +538,18 @@ namespace BackupManagerLibrary
 			foreach (string subDirectory in subDirectories)
 			{
 				await BackUp(
-					directory,
+					driveMapping,
 					serverFolder.Id,
 					subDirectory,
 					serverFiles).ConfigureAwait(false);
 			}
 
 			bool processFiles =
-				CheckProcessRootFolder(directory, path);
+				CheckProcessRootFolder(driveMapping, path);
 
 			if (processFiles == true)
 			{
-				ProcessFiles(directory, files, serverFolder, serverFiles);
+				ProcessFiles(driveMapping, files, serverFolder, serverFiles);
 			}
 		}
 
@@ -643,7 +643,7 @@ namespace BackupManagerLibrary
 		}
 
 		private void RemoveExcludedFolders(
-			DriveMapping directory,
+			DriveMapping driveMapping,
 			string path,
 			IList<Google.Apis.Drive.v3.Data.File> serverFiles)
 		{
@@ -651,10 +651,10 @@ namespace BackupManagerLibrary
 			DirectoryInfo directoryInfo = new (path);
 			string directoryName = directoryInfo.Name;
 
-			if (directory.ExcludesContains(path) ||
-				directory.ExcludesContains(directoryName))
+			if (driveMapping.ExcludesContains(path) ||
+				driveMapping.ExcludesContains(directoryName))
 			{
-				Exclude exclude = directory.GetExclude(path);
+				Exclude exclude = driveMapping.GetExclude(path);
 				ExcludeType clause = exclude.ExcludeType;
 
 				if (clause == ExcludeType.AllSubDirectories)
@@ -683,9 +683,9 @@ namespace BackupManagerLibrary
 				{
 					bool found = false;
 
-					foreach (DriveMapping directory in driveMappings)
+					foreach (DriveMapping driveMapping in driveMappings)
 					{
-						string name = Path.GetFileName(directory.Path);
+						string name = Path.GetFileName(driveMapping.Path);
 
 						if (name.Equals(
 							file.Name, StringComparison.OrdinalIgnoreCase))
