@@ -87,21 +87,11 @@ namespace BackupManagerLibrary
 		{
 			bool contains = false;
 
-			foreach (Exclude exclude in excludes)
+			Exclude exclude = GetExclude(path);
+
+			if (exclude != null)
 			{
-				string checkPath = System.IO.Path.GetFullPath(path);
-
-				var directoryInfo = System.IO.Directory.GetParent(path);
-
-				string excludeCheckPath = System.IO.Path.GetFullPath(
-					exclude.Path, directoryInfo.FullName);
-
-				if (checkPath.Equals(
-					excludeCheckPath, StringComparison.OrdinalIgnoreCase))
-				{
-					contains = true;
-					break;
-				}
+				contains = true;
 			}
 
 			return contains;
