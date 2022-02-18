@@ -59,6 +59,77 @@ namespace BackupManagerLibrary
 		}
 
 		/// <summary>
+		/// Report server folder information.
+		/// </summary>
+		/// <param name="serverFolder">The server folder to report on.</param>
+		public static void ReportServerFolderInformation(
+			Google.Apis.Drive.v3.Data.File serverFolder)
+		{
+			if (serverFolder == null)
+			{
+				Log.Warn("server folder is null");
+			}
+			else
+			{
+				string message = string.Format(
+					CultureInfo.InvariantCulture,
+					"Checking server file {0} {1}",
+					serverFolder.Id,
+					serverFolder.Name);
+				Log.Info(message);
+
+				if (serverFolder.Owners == null)
+				{
+					Log.Warn("server folder owners null");
+				}
+				else
+				{
+					IList<Google.Apis.Drive.v3.Data.User> owners =
+						serverFolder.Owners;
+
+					string ownersInfo = "owners:";
+					foreach (var user in owners)
+					{
+						var item = user.EmailAddress;
+						ownersInfo += " " + item;
+					}
+
+					Log.Info(ownersInfo);
+				}
+
+				if (serverFolder.Parents == null)
+				{
+					Log.Warn("server folder parents is null");
+				}
+				else
+				{
+					IList<string> parents = serverFolder.Parents;
+
+					string parentsInfo = "parents:";
+					foreach (string item in parents)
+					{
+						parentsInfo += " " + item;
+					}
+
+					Log.Info(parentsInfo);
+				}
+
+				if (serverFolder.OwnedByMe == true)
+				{
+					Log.Info("File owned by me");
+				}
+				else if (serverFolder.Shared == true)
+				{
+					Log.Info("File shared with me");
+				}
+				else
+				{
+					Log.Info("File is neither owned by or shared with me");
+				}
+			}
+		}
+
+		/// <summary>
 		/// Authenticating to Google using a Service account
 		/// Documentation:
 		/// https://developers.google.com/accounts/docs/OAuth2#serviceaccount.
@@ -225,73 +296,6 @@ namespace BackupManagerLibrary
 		private static void Delay()
 		{
 			System.Threading.Thread.Sleep(190);
-		}
-
-		private static void ReportServerFolderInformation(
-			Google.Apis.Drive.v3.Data.File serverFolder)
-		{
-			if (serverFolder == null)
-			{
-				Log.Warn("server folder is null");
-			}
-			else
-			{
-				string message = string.Format(
-					CultureInfo.InvariantCulture,
-					"Checking server file {0} {1}",
-					serverFolder.Id,
-					serverFolder.Name);
-				Log.Info(message);
-
-				if (serverFolder.Owners == null)
-				{
-					Log.Warn("server folder owners null");
-				}
-				else
-				{
-					IList<Google.Apis.Drive.v3.Data.User> owners =
-						serverFolder.Owners;
-
-					string ownersInfo = "owners:";
-					foreach (var user in owners)
-					{
-						var item = user.EmailAddress;
-						ownersInfo += " " + item;
-					}
-
-					Log.Info(ownersInfo);
-				}
-
-				if (serverFolder.Parents == null)
-				{
-					Log.Warn("server folder parents is null");
-				}
-				else
-				{
-					IList<string> parents = serverFolder.Parents;
-
-					string parentsInfo = "parents:";
-					foreach (string item in parents)
-					{
-						parentsInfo += " " + item;
-					}
-
-					Log.Info(parentsInfo);
-				}
-
-				if (serverFolder.OwnedByMe == true)
-				{
-					Log.Info("File owned by me");
-				}
-				else if (serverFolder.Shared == true)
-				{
-					Log.Info("File shared with me");
-				}
-				else
-				{
-					Log.Info("File is neither owned by or shared with me");
-				}
-			}
 		}
 
 		private async Task BackUp(
