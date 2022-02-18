@@ -1,6 +1,9 @@
 CD %~dp0
 CD ..\..
 
+REM IF "%1"=="release" CALL VersionUpdate BackUpManagerLibrary\BackupManagerLibrary.csproj
+REM IF "%1"=="release" CALL VersionUpdate BackUpManager\BackupManager.csproj
+
 IF EXIST Bin\Release\AnyCPU\NUL DEL /Q Bin\Release\AnyCPU\*.*
 
 dotnet build --configuration Release
