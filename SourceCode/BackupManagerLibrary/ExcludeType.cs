@@ -21,7 +21,7 @@ namespace BackupManagerLibrary
 		OnlyRoot = 0,
 
 		/// <summary>
-		/// Exclude the root directory and all sub directories.
+		/// Exclude the root directory and all sub driveMappings.
 		/// </summary>
 		AllSubDirectories = 1,
 

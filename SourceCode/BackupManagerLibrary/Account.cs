@@ -23,7 +23,8 @@ namespace BackupManagerLibrary
 		private static readonly ILog Log = LogManager.GetLogger(
 			System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
 
-		private readonly IList<DriveMapping> directories = new List<DriveMapping>();
+		private readonly IList<DriveMapping> driveMappings =
+			new List<DriveMapping>();
 
 		private GoogleDrive googleDrive;
 
@@ -50,12 +51,12 @@ namespace BackupManagerLibrary
 		public string ServiceAccount { get; set; }
 
 		/// <summary>
-		/// Gets directories property.
+		/// Gets driveMappings property.
 		/// </summary>
-		/// <value>Directories property.</value>
-		public IList<DriveMapping> Directories
+		/// <value>DriveMappings property.</value>
+		public IList<DriveMapping> DriveMappings
 		{
-			get { return directories; }
+			get { return driveMappings; }
 		}
 
 		/// <summary>
@@ -174,7 +175,7 @@ namespace BackupManagerLibrary
 			{
 				CleanUp();
 
-				foreach (DriveMapping directory in Directories)
+				foreach (DriveMapping directory in DriveMappings)
 				{
 					string driveParentFolderId =
 						directory.DriveParentFolderId;
@@ -683,7 +684,7 @@ namespace BackupManagerLibrary
 				{
 					bool found = false;
 
-					foreach (DriveMapping directory in directories)
+					foreach (DriveMapping directory in driveMappings)
 					{
 						string name = Path.GetFileName(directory.Path);
 
