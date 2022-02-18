@@ -186,7 +186,7 @@ namespace BackupManagerLibrary
 					DirectoryInfo directoryInfo = new (directory.Path);
 					string name = directoryInfo.Name;
 
-					CreateTopLevelLink("root", name, driveParentFolderId);
+					CreateTopLevelLink(name, driveParentFolderId);
 
 					string path = Environment.ExpandEnvironmentVariables(
 						directory.Path);
@@ -433,15 +433,14 @@ namespace BackupManagerLibrary
 			}
 		}
 
-		private void CreateTopLevelLink(
-			string parentId, string linkName, string targetId)
+		private void CreateTopLevelLink(string linkName, string targetId)
 		{
 			bool found = googleDrive.DoesDriveItemExist(
-				parentId, linkName, "application/vnd.google-apps.shortcut");
+				"root", linkName, "application/vnd.google-apps.shortcut");
 
 			if (found == false)
 			{
-				googleDrive.CreateLink(parentId, linkName, targetId);
+				googleDrive.CreateLink("root", linkName, targetId);
 			}
 		}
 
