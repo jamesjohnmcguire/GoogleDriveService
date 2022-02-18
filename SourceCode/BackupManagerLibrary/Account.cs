@@ -23,7 +23,7 @@ namespace BackupManagerLibrary
 		private static readonly ILog Log = LogManager.GetLogger(
 			System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
 
-		private readonly IList<Directory> directories = new List<Directory>();
+		private readonly IList<DriveMapping> directories = new List<DriveMapping>();
 
 		private GoogleDrive googleDrive;
 
@@ -53,7 +53,7 @@ namespace BackupManagerLibrary
 		/// Gets directories property.
 		/// </summary>
 		/// <value>Directories property.</value>
-		public IList<Directory> Directories
+		public IList<DriveMapping> Directories
 		{
 			get { return directories; }
 		}
@@ -103,7 +103,7 @@ namespace BackupManagerLibrary
 			{
 				CleanUp();
 
-				foreach (Directory directory in Directories)
+				foreach (DriveMapping directory in Directories)
 				{
 					string driveParentFolderId =
 						directory.DriveParentFolderId;
@@ -161,7 +161,7 @@ namespace BackupManagerLibrary
 		}
 
 		private static bool CheckProcessFile(
-			Directory directory, string path)
+			DriveMapping directory, string path)
 		{
 			bool processFile = true;
 
@@ -180,7 +180,7 @@ namespace BackupManagerLibrary
 		}
 
 		private static bool CheckProcessRootFolder(
-			Directory directory, string path)
+			DriveMapping directory, string path)
 		{
 			bool processFiles = true;
 
@@ -199,7 +199,7 @@ namespace BackupManagerLibrary
 		}
 
 		private static bool CheckProcessSubFolders(
-			Directory directory, string path)
+			DriveMapping directory, string path)
 		{
 			bool processSubFolders = true;
 
@@ -295,7 +295,7 @@ namespace BackupManagerLibrary
 		}
 
 		private async Task BackUp(
-			Directory directory,
+			DriveMapping directory,
 			string parent,
 			string path,
 			IList<Google.Apis.Drive.v3.Data.File> serverFiles)
@@ -459,7 +459,7 @@ namespace BackupManagerLibrary
 		}
 
 		private void ProcessFiles(
-			Directory directory,
+			DriveMapping directory,
 			FileInfo[] files,
 			Google.Apis.Drive.v3.Data.File serverFolder,
 			IList<Google.Apis.Drive.v3.Data.File> serverFiles)
@@ -505,7 +505,7 @@ namespace BackupManagerLibrary
 		}
 
 		private async Task ProcessSubFolders(
-			Directory directory,
+			DriveMapping directory,
 			string parent,
 			string path,
 			IList<Google.Apis.Drive.v3.Data.File> serverFiles)
@@ -639,7 +639,7 @@ namespace BackupManagerLibrary
 		}
 
 		private void RemoveExcludedFolders(
-			Directory directory,
+			DriveMapping directory,
 			string path,
 			IList<Google.Apis.Drive.v3.Data.File> serverFiles)
 		{
@@ -679,7 +679,7 @@ namespace BackupManagerLibrary
 				{
 					bool found = false;
 
-					foreach (Directory directory in directories)
+					foreach (DriveMapping directory in directories)
 					{
 						string name = Path.GetFileName(directory.Path);
 

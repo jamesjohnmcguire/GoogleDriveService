@@ -1,5 +1,5 @@
 ﻿/////////////////////////////////////////////////////////////////////////////
-// <copyright file="Directory.cs" company="James John McGuire">
+// <copyright file="DriveMapping.cs" company="James John McGuire">
 // Copyright © 2017 - 2022 James John McGuire. All Rights Reserved.
 // </copyright>
 /////////////////////////////////////////////////////////////////////////////
@@ -13,16 +13,16 @@ using System.Text;
 namespace BackupManagerLibrary
 {
 	/// <summary>
-	/// Directory custom class.
+	/// DriveMapping custom class.
 	/// </summary>
-	public class Directory
+	public class DriveMapping
 	{
 		private readonly IList<Exclude> excludes = new List<Exclude>();
 
 		/// <summary>
-		/// Initializes a new instance of the <see cref="Directory"/> class.
+		/// Initializes a new instance of the <see cref="DriveMapping"/> class.
 		/// </summary>
-		public Directory()
+		public DriveMapping()
 		{
 			string baseDataDirectory = Environment.GetFolderPath(
 				Environment.SpecialFolder.ApplicationData,
