@@ -4,9 +4,9 @@ CD ..\..
 REM IF "%1"=="release" CALL VersionUpdate BackUpManagerLibrary\BackupManagerLibrary.csproj
 REM IF "%1"=="release" CALL VersionUpdate BackUpManager\BackupManager.csproj
 
-IF EXIST Bin\Release\AnyCPU\NUL DEL /Q Bin\Release\AnyCPU\*.*
-
-dotnet build --configuration Release
+CALL dotnet publish --configuration Release --runtime linux-x64 --self-contained true -p:PublishSingleFile=true -o Binaries\Linux MusicManager
+CALL dotnet publish --configuration Release --runtime osx-x64 --self-contained true -p:PublishSingleFile=true -o Binaries\MacOS MusicManager
+CALL dotnet publish --configuration Release --runtime win-x64 --self-contained true -p:PublishReadyToRun=true -p:PublishSingleFile=true --output Binaries\Windows MusicManager
 
 IF "%1"=="release" GOTO release
 GOTO end
