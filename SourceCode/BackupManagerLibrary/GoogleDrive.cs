@@ -130,26 +130,36 @@ namespace BackupManagerLibrary
 		public Google.Apis.Drive.v3.Data.File CreateFolder(
 			string parent, string folderName)
 		{
-			Google.Apis.Drive.v3.Data.File fileMetadata = new ();
+			Google.Apis.Drive.v3.Data.File file = null;
 
-			fileMetadata.Name = folderName;
-			fileMetadata.MimeType = "application/vnd.google-apps.folder";
+			if (string.IsNullOrWhiteSpace(parent))
+			{
+				Log.Error("GetFiles: parent is empty");
+				Log.Error("StackTrace: " + Environment.StackTrace);
+			}
+			else
+			{
+				Google.Apis.Drive.v3.Data.File fileMetadata = new ();
 
-			IList<string> parents = new List<string>();
-			parents.Add(parent);
-			fileMetadata.Parents = parents;
+				fileMetadata.Name = folderName;
+				fileMetadata.MimeType = "application/vnd.google-apps.folder";
 
-			FilesResource.CreateRequest request =
-				driveService.Files.Create(fileMetadata);
-			request.Fields = "id, name, parents";
-			Google.Apis.Drive.v3.Data.File file = request.Execute();
+				IList<string> parents = new List<string>();
+				parents.Add(parent);
+				fileMetadata.Parents = parents;
 
-			string message = string.Format(
-				CultureInfo.InvariantCulture,
-				"Created Folder ID: {0} Name {1}",
-				file.Id,
-				file.Name);
-			Log.Info(message);
+				FilesResource.CreateRequest request =
+					driveService.Files.Create(fileMetadata);
+				request.Fields = "id, name, parents";
+				file = request.Execute();
+
+				string message = string.Format(
+					CultureInfo.InvariantCulture,
+					"Created Folder ID: {0} Name {1}",
+					file.Id,
+					file.Name);
+				Log.Info(message);
+			}
 
 			return file;
 		}
@@ -260,42 +270,53 @@ namespace BackupManagerLibrary
 		/// <returns>A list of files.</returns>
 		public IList<Google.Apis.Drive.v3.Data.File> GetFiles(string parent)
 		{
-			List<Google.Apis.Drive.v3.Data.File> files = new ();
-			FilesResource.ListRequest listRequest = driveService.Files.List();
+			List<Google.Apis.Drive.v3.Data.File> files = null;
 
-			string fileFields = "id, name, mimeType, modifiedTime, " +
-				"ownedByMe, owners, parents, webContentLink";
-			listRequest.Fields = string.Format(
-				CultureInfo.InvariantCulture,
-				"files({0}), nextPageToken",
-				fileFields);
-			listRequest.PageSize = 1000;
-			listRequest.Q = $"'{parent}' in parents";
-
-			do
+			if (string.IsNullOrWhiteSpace(parent))
 			{
-				try
-				{
-					string message = string.Format(
-						CultureInfo.InvariantCulture,
-						"Retrieved files from: {0} count: {1}",
-						parent,
-						files.Count);
-					Log.Info(message);
-
-					Google.Apis.Drive.v3.Data.FileList filesList =
-						listRequest.Execute();
-					files.AddRange(filesList.Files);
-
-					listRequest.PageToken = filesList.NextPageToken;
-				}
-				catch (Google.GoogleApiException exception)
-				{
-					Log.Error(exception.ToString());
-					listRequest.PageToken = null;
-				}
+				Log.Error("GetFiles: parent is empty");
+				Log.Error("StackTrace: " + Environment.StackTrace);
 			}
-			while (!string.IsNullOrEmpty(listRequest.PageToken));
+			else
+			{
+				files = new ();
+				FilesResource.ListRequest listRequest =
+					driveService.Files.List();
+
+				string fileFields = "id, name, mimeType, modifiedTime, " +
+					"ownedByMe, owners, parents, webContentLink";
+				listRequest.Fields = string.Format(
+					CultureInfo.InvariantCulture,
+					"files({0}), nextPageToken",
+					fileFields);
+				listRequest.PageSize = 1000;
+				listRequest.Q = $"'{parent}' in parents";
+
+				do
+				{
+					try
+					{
+						string message = string.Format(
+							CultureInfo.InvariantCulture,
+							"Retrieved files from: {0} count: {1}",
+							parent,
+							files.Count);
+						Log.Info(message);
+
+						Google.Apis.Drive.v3.Data.FileList filesList =
+							listRequest.Execute();
+						files.AddRange(filesList.Files);
+
+						listRequest.PageToken = filesList.NextPageToken;
+					}
+					catch (Google.GoogleApiException exception)
+					{
+						Log.Error(exception.ToString());
+						listRequest.PageToken = null;
+					}
+				}
+				while (!string.IsNullOrEmpty(listRequest.PageToken));
+			}
 
 			return files;
 		}
