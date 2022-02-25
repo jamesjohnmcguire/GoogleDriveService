@@ -180,6 +180,13 @@ namespace BackupManagerLibrary
 					string driveParentFolderId =
 						driveMapping.DriveParentFolderId;
 
+					string message = string.Format(
+						CultureInfo.InvariantCulture,
+						"Checking: {0} - {1}",
+						driveParentFolderId,
+						driveMapping.Path);
+					Log.Info(message);
+
 					// This helps in maintaining the service accounts, as
 					// without it, files tend to fall into the 'black hole' of
 					// the service account.
