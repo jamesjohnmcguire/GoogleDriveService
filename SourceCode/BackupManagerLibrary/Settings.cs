@@ -1,33 +1,26 @@
 ﻿/////////////////////////////////////////////////////////////////////////////
-// <copyright file="ExcludeType.cs" company="James John McGuire">
+// <copyright file="Settings.cs" company="James John McGuire">
 // Copyright © 2017 - 2022 James John McGuire. All Rights Reserved.
 // </copyright>
 /////////////////////////////////////////////////////////////////////////////
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace BackupManagerLibrary
 {
 	/// <summary>
-	/// Exclude type enum.
+	/// Represents a set of settings.
 	/// </summary>
-	public enum ExcludeType
+	public class Settings
 	{
 		/// <summary>
-		/// Only exclude the root directory.
+		/// Gets or sets a list of global excludes.
 		/// </summary>
-		OnlyRoot = 0,
-
-		/// <summary>
-		/// Exclude the root directory and all sub driveMappings.
-		/// </summary>
-		AllSubDirectories = 1,
-
-		/// <summary>
-		/// Exclude the specified file.
-		/// </summary>
-		File = 2
+		/// <value>A list of global excludes.</value>
+		public IReadOnlyList<string> GlobalExcludes { get; set; }
 	}
 }

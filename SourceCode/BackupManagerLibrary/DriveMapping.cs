@@ -1,44 +1,52 @@
 ﻿/////////////////////////////////////////////////////////////////////////////
-// <copyright file="Directory.cs" company="James John McGuire">
+// <copyright file="DriveMapping.cs" company="James John McGuire">
 // Copyright © 2017 - 2022 James John McGuire. All Rights Reserved.
 // </copyright>
 /////////////////////////////////////////////////////////////////////////////
 
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Text;
 
 namespace BackupManagerLibrary
 {
 	/// <summary>
-	/// Directory custom class.
+	/// DriveMapping custom class.
 	/// </summary>
-	public class Directory
+	public class DriveMapping
 	{
 		private readonly IList<Exclude> excludes = new List<Exclude>();
 
 		/// <summary>
-		/// Initializes a new instance of the <see cref="Directory"/> class.
+		/// Initializes a new instance of the <see cref="DriveMapping"/> class.
 		/// </summary>
-		public Directory()
+		public DriveMapping()
 		{
-			Exclude exclude = new ("_svn", ExcludeType.AllSubDirectories);
-			excludes.Add(exclude);
+			string baseDataDirectory = Environment.GetFolderPath(
+				Environment.SpecialFolder.ApplicationData,
+				Environment.SpecialFolderOption.Create);
+			string settingsPath = baseDataDirectory +
+				"/DigitalZenWorks/BackUpManager/Settings.json";
 
-			exclude = new (".svn", ExcludeType.AllSubDirectories);
-			excludes.Add(exclude);
+			if (System.IO.File.Exists(settingsPath))
+			{
+				string settingsText = File.ReadAllText(settingsPath);
 
-			exclude = new (".vs", ExcludeType.AllSubDirectories);
-			excludes.Add(exclude);
+				Settings settings = JsonConvert.DeserializeObject<Settings>(
+						settingsText);
 
-			exclude = new ("node_modules", ExcludeType.AllSubDirectories);
-			excludes.Add(exclude);
-
-			exclude = new ("obj", ExcludeType.AllSubDirectories);
-			excludes.Add(exclude);
-
-			exclude = new ("vendor", ExcludeType.AllSubDirectories);
-			excludes.Add(exclude);
+				if (settings != null && settings.GlobalExcludes != null)
+				{
+					foreach (string excludeName in settings.GlobalExcludes)
+					{
+						Exclude exclude =
+							new (excludeName, ExcludeType.AllSubDirectories);
+						excludes.Add(exclude);
+					}
+				}
+			}
 		}
 
 		/// <summary>
@@ -48,10 +56,10 @@ namespace BackupManagerLibrary
 		public string Path { get; set; }
 
 		/// <summary>
-		/// Gets or sets root shared folder id property.
+		/// Gets or sets the core shared parent folder id property.
 		/// </summary>
-		/// <value>Root shared folder id property.</value>
-		public string RootSharedFolderId { get; set; }
+		/// <value>The core shared parent folder id property.</value>
+		public string DriveParentFolderId { get; set; }
 
 		/// <summary>
 		/// Gets excludes property.
@@ -87,21 +95,11 @@ namespace BackupManagerLibrary
 		{
 			bool contains = false;
 
-			foreach (Exclude exclude in excludes)
+			Exclude exclude = GetExclude(path);
+
+			if (exclude != null)
 			{
-				string checkPath = System.IO.Path.GetFullPath(path);
-
-				var directoryInfo = System.IO.Directory.GetParent(path);
-
-				string excludeCheckPath =
-					System.IO.Path.GetFullPath(exclude.Path, directoryInfo.FullName);
-
-				if (checkPath.Equals(
-					excludeCheckPath, StringComparison.OrdinalIgnoreCase))
-				{
-					contains = true;
-					break;
-				}
+				contains = true;
 			}
 
 			return contains;
@@ -120,10 +118,11 @@ namespace BackupManagerLibrary
 			{
 				string checkPath = System.IO.Path.GetFullPath(path);
 
-				var directoryInfo = System.IO.Directory.GetParent(path);
+				DirectoryInfo directoryInfo =
+					System.IO.Directory.GetParent(path);
 
-				string excludeCheckPath =
-					System.IO.Path.GetFullPath(exclude.Path, directoryInfo.FullName);
+				string excludeCheckPath = System.IO.Path.GetFullPath(
+					exclude.Path, directoryInfo.FullName);
 
 				if (checkPath.Equals(
 					excludeCheckPath, StringComparison.OrdinalIgnoreCase))

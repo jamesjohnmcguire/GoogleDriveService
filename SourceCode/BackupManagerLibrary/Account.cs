@@ -23,7 +23,8 @@ namespace BackupManagerLibrary
 		private static readonly ILog Log = LogManager.GetLogger(
 			System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
 
-		private readonly IList<Directory> directories = new List<Directory>();
+		private readonly IList<DriveMapping> driveMappings =
+			new List<DriveMapping>();
 
 		private GoogleDrive googleDrive;
 
@@ -50,177 +51,19 @@ namespace BackupManagerLibrary
 		public string ServiceAccount { get; set; }
 
 		/// <summary>
-		/// Gets directories property.
+		/// Gets driveMappings property.
 		/// </summary>
-		/// <value>Directories property.</value>
-		public IList<Directory> Directories
+		/// <value>DriveMappings property.</value>
+		public IList<DriveMapping> DriveMappings
 		{
-			get { return directories; }
+			get { return driveMappings; }
 		}
 
 		/// <summary>
-		/// Authenticating to Google using a Service account
-		/// Documentation:
-		/// https://developers.google.com/accounts/docs/OAuth2#serviceaccount.
+		/// Report server folder information.
 		/// </summary>
-		/// <returns>True upon success,false otherwise.</returns>
-		public bool Authenticate()
-		{
-			bool authenticated = false;
-
-			try
-			{
-				string userProfilePath = Environment.GetFolderPath(
-					Environment.SpecialFolder.UserProfile);
-				string accountsPath = AccountsManager.DataPath;
-
-				if (System.IO.Directory.Exists(accountsPath))
-				{
-					string accountsFile = accountsPath + @"\" + ServiceAccount;
-
-					authenticated = googleDrive.Authenticate(accountsFile);
-				}
-			}
-			catch (Exception exception) when
-				(exception is ArgumentException ||
-				exception is FileNotFoundException)
-			{
-				Log.Error(exception.ToString());
-			}
-
-			return authenticated;
-		}
-
-		/// <summary>
-		/// Main back up method.
-		/// </summary>
-		/// <returns>A task indicating completion.</returns>
-		public async Task BackUp()
-		{
-			bool authenticated = Authenticate();
-
-			if (authenticated == true)
-			{
-				CleanUp();
-
-				foreach (Directory directory in Directories)
-				{
-					// This helps in maintaining the service accounts, as
-					// without it, files tend to fall into the 'black hole' of
-					// the service account.
-					DirectoryInfo directoryInfo = new (directory.Path);
-					string name = directoryInfo.Name;
-					ConnectRoot(name);
-
-					string path = Environment.ExpandEnvironmentVariables(
-						directory.Path);
-
-					directory.ExpandExcludes();
-
-					Log.Info("Checking account default root shared folder");
-
-					IList<Google.Apis.Drive.v3.Data.File> serverFiles =
-						googleDrive.GetFiles(directory.RootSharedFolderId);
-
-					await BackUp(directory, directory.RootSharedFolderId, path, serverFiles).
-						ConfigureAwait(false);
-				}
-			}
-		}
-
-		/// <summary>
-		/// Dispose method.
-		/// </summary>
-		public void Dispose()
-		{
-			Dispose(true);
-			GC.SuppressFinalize(this);
-		}
-
-		/// <summary>
-		/// Dispose method.
-		/// </summary>
-		/// <param name="disposing">Indicates currently disposing.</param>
-		protected virtual void Dispose(bool disposing)
-		{
-			if (disposing)
-			{
-				// dispose managed resources
-				googleDrive.Dispose();
-				googleDrive = null;
-			}
-
-			// free native resources
-		}
-
-		private static bool CheckProcessFile(
-			Directory directory, string path)
-		{
-			bool processFile = true;
-
-			if (directory.ExcludesContains(path))
-			{
-				Exclude exclude = directory.GetExclude(path);
-				ExcludeType clause = exclude.ExcludeType;
-
-				if (clause == ExcludeType.File)
-				{
-					processFile = false;
-				}
-			}
-
-			return processFile;
-		}
-
-		private static bool CheckProcessRootFolder(
-			Directory directory, string path)
-		{
-			bool processFiles = true;
-
-			if (directory.ExcludesContains(path))
-			{
-				Exclude exclude = directory.GetExclude(path);
-				ExcludeType clause = exclude.ExcludeType;
-
-				if (clause == ExcludeType.OnlyRoot)
-				{
-					processFiles = false;
-				}
-			}
-
-			return processFiles;
-		}
-
-		private static bool CheckProcessSubFolders(
-			Directory directory, string path)
-		{
-			bool processSubFolders = true;
-
-			// Check for default ignore paths
-			DirectoryInfo directoryInfo = new (path);
-			string directoryName = directoryInfo.Name;
-
-			if (directory.ExcludesContains(path) ||
-				directory.ExcludesContains(directoryName))
-			{
-				Exclude exclude = directory.GetExclude(path);
-				ExcludeType clause = exclude.ExcludeType;
-
-				if (clause == ExcludeType.AllSubDirectories)
-				{
-					processSubFolders = false;
-				}
-			}
-
-			return processSubFolders;
-		}
-
-		private static void Delay()
-		{
-			System.Threading.Thread.Sleep(190);
-		}
-
-		private static void ReportServerFolderInformation(
+		/// <param name="serverFolder">The server folder to report on.</param>
+		public static void ReportServerFolderInformation(
 			Google.Apis.Drive.v3.Data.File serverFolder)
 		{
 			if (serverFolder == null)
@@ -287,8 +130,184 @@ namespace BackupManagerLibrary
 			}
 		}
 
+		/// <summary>
+		/// Authenticating to Google using a Service account
+		/// Documentation:
+		/// https://developers.google.com/accounts/docs/OAuth2#serviceaccount.
+		/// </summary>
+		/// <returns>True upon success,false otherwise.</returns>
+		public bool Authorize()
+		{
+			bool authenticated = false;
+
+			try
+			{
+				string userProfilePath = Environment.GetFolderPath(
+					Environment.SpecialFolder.UserProfile);
+				string accountsPath = AccountsManager.DataPath;
+
+				if (System.IO.Directory.Exists(accountsPath))
+				{
+					string accountsFile = accountsPath + @"\" + ServiceAccount;
+
+					authenticated = googleDrive.Authorize(accountsFile);
+				}
+			}
+			catch (Exception exception) when
+				(exception is ArgumentException ||
+				exception is FileNotFoundException)
+			{
+				Log.Error(exception.ToString());
+			}
+
+			return authenticated;
+		}
+
+		/// <summary>
+		/// Main back up method.
+		/// </summary>
+		/// <returns>A task indicating completion.</returns>
+		public async Task BackUp()
+		{
+			bool authenticated = Authorize();
+
+			if (authenticated == true)
+			{
+				CleanUp();
+
+				foreach (DriveMapping driveMapping in DriveMappings)
+				{
+					string driveParentFolderId =
+						driveMapping.DriveParentFolderId;
+
+					string message = string.Format(
+						CultureInfo.InvariantCulture,
+						"Checking: {0} - {1}",
+						driveParentFolderId,
+						driveMapping.Path);
+					Log.Info(message);
+
+					// This helps in maintaining the service accounts, as
+					// without it, files tend to fall into the 'black hole' of
+					// the service account.
+					DirectoryInfo directoryInfo = new (driveMapping.Path);
+					string name = directoryInfo.Name;
+
+					CreateTopLevelLink(name, driveParentFolderId);
+
+					string path = Environment.ExpandEnvironmentVariables(
+						driveMapping.Path);
+
+					driveMapping.ExpandExcludes();
+
+					Log.Info("Checking account default root shared folder");
+
+					IList<Google.Apis.Drive.v3.Data.File> serverFiles =
+						googleDrive.GetFiles(driveParentFolderId);
+
+					RemoveTopLevelAbandonedFiles(serverFiles);
+
+					await BackUp(
+						driveMapping, driveParentFolderId, path, serverFiles).
+						ConfigureAwait(false);
+				}
+			}
+		}
+
+		/// <summary>
+		/// Dispose method.
+		/// </summary>
+		public void Dispose()
+		{
+			Dispose(true);
+			GC.SuppressFinalize(this);
+		}
+
+		/// <summary>
+		/// Dispose method.
+		/// </summary>
+		/// <param name="disposing">Indicates currently disposing.</param>
+		protected virtual void Dispose(bool disposing)
+		{
+			if (disposing)
+			{
+				// dispose managed resources
+				googleDrive.Dispose();
+				googleDrive = null;
+			}
+
+			// free native resources
+		}
+
+		private static bool CheckProcessFile(
+			DriveMapping driveMapping, string path)
+		{
+			bool processFile = true;
+
+			if (driveMapping.ExcludesContains(path))
+			{
+				Exclude exclude = driveMapping.GetExclude(path);
+				ExcludeType clause = exclude.ExcludeType;
+
+				if (clause == ExcludeType.File)
+				{
+					processFile = false;
+				}
+			}
+
+			return processFile;
+		}
+
+		private static bool CheckProcessRootFolder(
+			DriveMapping driveMapping, string path)
+		{
+			bool processFiles = true;
+
+			if (driveMapping.ExcludesContains(path))
+			{
+				Exclude exclude = driveMapping.GetExclude(path);
+				ExcludeType clause = exclude.ExcludeType;
+
+				if (clause == ExcludeType.OnlyRoot)
+				{
+					processFiles = false;
+				}
+			}
+
+			return processFiles;
+		}
+
+		private static bool CheckProcessSubFolders(
+			DriveMapping driveMapping, string path)
+		{
+			bool processSubFolders = true;
+
+			// Check for default ignore paths
+			DirectoryInfo directoryInfo = new (path);
+			string directoryName = directoryInfo.Name;
+
+			if (driveMapping.ExcludesContains(path) ||
+				driveMapping.ExcludesContains(directoryName))
+			{
+				Exclude exclude = driveMapping.GetExclude(path);
+				ExcludeType clause = exclude.ExcludeType;
+
+				if (clause == ExcludeType.AllSubDirectories)
+				{
+					processSubFolders = false;
+				}
+			}
+
+			return processSubFolders;
+		}
+
+		private static void Delay()
+		{
+			System.Threading.Thread.Sleep(190);
+		}
+
 		private async Task BackUp(
-			Directory directory,
+			DriveMapping driveMapping,
 			string parent,
 			string path,
 			IList<Google.Apis.Drive.v3.Data.File> serverFiles)
@@ -299,15 +318,15 @@ namespace BackupManagerLibrary
 				{
 					DirectoryInfo directoryInfo = new (path);
 
-					RemoveExcludedFolders(directory, path, serverFiles);
+					RemoveExcludedFolders(driveMapping, path, serverFiles);
 
 					bool processSubFolders =
-						CheckProcessSubFolders(directory, path);
+						CheckProcessSubFolders(driveMapping, path);
 
 					if (processSubFolders == true)
 					{
 						await ProcessSubFolders(
-							directory, parent, path, serverFiles).
+							driveMapping, parent, path, serverFiles).
 							ConfigureAwait(false);
 					}
 				}
@@ -421,38 +440,14 @@ namespace BackupManagerLibrary
 			}
 		}
 
-		private void ConnectRoot(string directoryName)
+		private void CreateTopLevelLink(string linkName, string targetId)
 		{
-			bool found = false;
-
-			IList<Google.Apis.Drive.v3.Data.File> serverFiles =
-				googleDrive.GetFiles("root");
-
-			foreach (Google.Apis.Drive.v3.Data.File file in serverFiles)
-			{
-				try
-				{
-					if (file.MimeType.Equals(
-						"application/vnd.google-apps.folder",
-						StringComparison.Ordinal))
-					{
-						found = file.Name.Equals(
-							directoryName, StringComparison.Ordinal);
-						if (found == true)
-						{
-							break;
-						}
-					}
-				}
-				catch (Google.GoogleApiException exception)
-				{
-					Log.Error(exception.ToString());
-				}
-			}
+			bool found = googleDrive.DoesDriveItemExist(
+				"root", linkName, "application/vnd.google-apps.shortcut");
 
 			if (found == false)
 			{
-				googleDrive.CreateFolder("root", directoryName);
+				googleDrive.CreateLink("root", linkName, targetId);
 			}
 		}
 
@@ -475,7 +470,7 @@ namespace BackupManagerLibrary
 		}
 
 		private void ProcessFiles(
-			Directory directory,
+			DriveMapping driveMapping,
 			FileInfo[] files,
 			Google.Apis.Drive.v3.Data.File serverFolder,
 			IList<Google.Apis.Drive.v3.Data.File> serverFiles)
@@ -491,7 +486,7 @@ namespace BackupManagerLibrary
 				while ((success == false) && (retries > 0))
 				{
 					bool checkFile =
-						CheckProcessFile(directory, file.FullName);
+						CheckProcessFile(driveMapping, file.FullName);
 
 					if (checkFile == true)
 					{
@@ -521,7 +516,7 @@ namespace BackupManagerLibrary
 		}
 
 		private async Task ProcessSubFolders(
-			Directory directory,
+			DriveMapping driveMapping,
 			string parent,
 			string path,
 			IList<Google.Apis.Drive.v3.Data.File> serverFiles)
@@ -540,8 +535,6 @@ namespace BackupManagerLibrary
 				Delay();
 			}
 
-			ReportServerFolderInformation(serverFolder);
-
 			serverFiles = googleDrive.GetFiles(serverFolder.Id);
 
 			string[] subDirectories =
@@ -552,18 +545,18 @@ namespace BackupManagerLibrary
 			foreach (string subDirectory in subDirectories)
 			{
 				await BackUp(
-					directory,
+					driveMapping,
 					serverFolder.Id,
 					subDirectory,
 					serverFiles).ConfigureAwait(false);
 			}
 
 			bool processFiles =
-				CheckProcessRootFolder(directory, path);
+				CheckProcessRootFolder(driveMapping, path);
 
 			if (processFiles == true)
 			{
-				ProcessFiles(directory, files, serverFolder, serverFiles);
+				ProcessFiles(driveMapping, files, serverFolder, serverFiles);
 			}
 		}
 
@@ -639,8 +632,9 @@ namespace BackupManagerLibrary
 						StringComparison.Ordinal))
 					{
 						string folderPath = path + @"\" + file.Name;
-						bool exists = subDirectories.Any(element => element.Equals(
-							folderPath, StringComparison.Ordinal));
+						bool exists =
+							subDirectories.Any(element => element.Equals(
+								folderPath, StringComparison.Ordinal));
 
 						if (exists == false)
 						{
@@ -656,7 +650,7 @@ namespace BackupManagerLibrary
 		}
 
 		private void RemoveExcludedFolders(
-			Directory directory,
+			DriveMapping driveMapping,
 			string path,
 			IList<Google.Apis.Drive.v3.Data.File> serverFiles)
 		{
@@ -664,10 +658,10 @@ namespace BackupManagerLibrary
 			DirectoryInfo directoryInfo = new (path);
 			string directoryName = directoryInfo.Name;
 
-			if (directory.ExcludesContains(path) ||
-				directory.ExcludesContains(directoryName))
+			if (driveMapping.ExcludesContains(path) ||
+				driveMapping.ExcludesContains(directoryName))
 			{
-				Exclude exclude = directory.GetExclude(path);
+				Exclude exclude = driveMapping.GetExclude(path);
 				ExcludeType clause = exclude.ExcludeType;
 
 				if (clause == ExcludeType.AllSubDirectories)
@@ -684,6 +678,38 @@ namespace BackupManagerLibrary
 			}
 		}
 
+		private void RemoveTopLevelAbandonedFiles(
+			IList<Google.Apis.Drive.v3.Data.File> serverFiles)
+		{
+			int count = serverFiles.Count;
+
+			for (int index = count - 1; index >= 0; index--)
+			{
+				Google.Apis.Drive.v3.Data.File file = serverFiles[index];
+				if (file.OwnedByMe == true)
+				{
+					bool found = false;
+
+					foreach (DriveMapping driveMapping in driveMappings)
+					{
+						string name = Path.GetFileName(driveMapping.Path);
+
+						if (name.Equals(
+							file.Name, StringComparison.OrdinalIgnoreCase))
+						{
+							found = true;
+							break;
+						}
+					}
+
+					if (found == false)
+					{
+						DeleteFromDrive(file);
+					}
+				}
+			}
+		}
+
 		private void Upload(
 			Google.Apis.Drive.v3.Data.File serverFolder,
 			FileInfo file,
@@ -692,7 +718,8 @@ namespace BackupManagerLibrary
 		{
 			if (serverFile == null)
 			{
-				googleDrive.Upload(serverFolder.Id, file.FullName, null, retry);
+				googleDrive.Upload(
+					serverFolder.Id, file.FullName, null, retry);
 			}
 			else if (serverFile.ModifiedTime < file.LastWriteTime)
 			{

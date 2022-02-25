@@ -54,26 +54,41 @@ $googleDrive = new GoogleDrive($debugger, $options);
 echo "Command is: $command\r\n";
 echo "Data is: $data\r\n";
 
-switch ($command)
+if ($googleDrive === null)
 {
-    case 'about':
-        $googleDrive->About();
-        break;
-    case 'delete':
-        $googleDrive->DeleteFile($data);
-        break;
-    case 'deleteall':
-        $googleDrive->DeleteAllFiles();
-        break;
-    case 'get':
-        $googleDrive->GetFile($data);
-        break;
-    case 'list':
-		$googleDrive->ListFiles($data);
-        break;
-    case 'upload':
-        $googleDrive->UploadFile($data);
-        break;
-    default:
-        break;
+	echo "ERROR: google drive object does not exist!";
+}
+else
+{
+	switch ($command)
+	{
+		case 'about':
+			$googleDrive->About();
+			break;
+		case 'delete':
+			$googleDrive->DeleteFile($data);
+			break;
+		case 'deleteall':
+			$googleDrive->DeleteAllFiles();
+			break;
+		case 'get':
+			$googleDrive->GetFile($data);
+			break;
+		case 'help':
+			echo "Examples\r\n";
+			echo "Command get <file id>\r\n";
+			echo "Command list\r\n";
+			echo "Command list showParent showOnlyRootLevel showOnlyFolders showShared \r\n";
+			echo "Command deleteall\r\n";
+			echo "Command delete 1IcurHhUiafHbqw8qfw1UEGGLrGGFzDqH\r\n";
+			break;
+		case 'list':
+			$googleDrive->ListFiles($data);
+			break;
+		case 'upload':
+			$googleDrive->UploadFile($data);
+			break;
+		default:
+			break;
+	}
 }

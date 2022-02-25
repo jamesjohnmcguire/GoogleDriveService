@@ -5,7 +5,7 @@
 		"Directories":
 		[
 			{
-				"RootSharedFolderId": "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX",
+				"CoreSharedParentFolderId": "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX",
 				"Path": "%USERPROFILE%/",
 				"Excludes":
 				[

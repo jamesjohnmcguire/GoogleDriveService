@@ -13,7 +13,6 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
-using System.Threading.Tasks;
 
 namespace BackupManagerLibrary
 {
@@ -73,7 +72,8 @@ namespace BackupManagerLibrary
 
 		/// <summary>
 		/// Sanitize file name method.  Currently, just removes '{' and '{'.
-		/// This is mainly used for logging, which tries to interpret those sympbols.
+		/// This is mainly used for logging, which tries to interpret
+		/// those sympbols.
 		/// </summary>
 		/// <param name="fileName">The file name to sanitize.</param>
 		/// <returns>The sanitized file name.</returns>
@@ -98,22 +98,27 @@ namespace BackupManagerLibrary
 		/// <param name="credentialsFile">A file contiaining the credentials
 		/// information.</param>
 		/// <returns>True upon success,false otherwise.</returns>
-		public bool Authenticate(string credentialsFile)
+		public bool Authorize(string credentialsFile)
 		{
-			bool authenticated;
+			bool authorized = false;
 
-			credentialedAccount = GoogleCredential.FromFile(credentialsFile);
-			credentialedAccount = credentialedAccount.CreateScoped(Scopes);
+			if (!string.IsNullOrEmpty(credentialsFile) &&
+				File.Exists(credentialsFile))
+			{
+				credentialedAccount =
+					GoogleCredential.FromFile(credentialsFile);
+				credentialedAccount = credentialedAccount.CreateScoped(Scopes);
 
-			initializer = new BaseClientService.Initializer();
-			initializer.ApplicationName = "Backup Manager";
-			initializer.HttpClientInitializer = credentialedAccount;
+				initializer = new BaseClientService.Initializer();
+				initializer.ApplicationName = "Backup Manager";
+				initializer.HttpClientInitializer = credentialedAccount;
 
-			driveService = new DriveService(initializer);
+				driveService = new DriveService(initializer);
 
-			authenticated = true;
+				authorized = true;
+			}
 
-			return authenticated;
+			return authorized;
 		}
 
 		/// <summary>
@@ -125,10 +130,59 @@ namespace BackupManagerLibrary
 		public Google.Apis.Drive.v3.Data.File CreateFolder(
 			string parent, string folderName)
 		{
+			Google.Apis.Drive.v3.Data.File file = null;
+
+			if (string.IsNullOrWhiteSpace(parent))
+			{
+				Log.Error("GetFiles: parent is empty");
+				Log.Error("StackTrace: " + Environment.StackTrace);
+			}
+			else
+			{
+				Google.Apis.Drive.v3.Data.File fileMetadata = new ();
+
+				fileMetadata.Name = folderName;
+				fileMetadata.MimeType = "application/vnd.google-apps.folder";
+
+				IList<string> parents = new List<string>();
+				parents.Add(parent);
+				fileMetadata.Parents = parents;
+
+				FilesResource.CreateRequest request =
+					driveService.Files.Create(fileMetadata);
+				request.Fields = "id, name, parents";
+				file = request.Execute();
+
+				string message = string.Format(
+					CultureInfo.InvariantCulture,
+					"Created Folder ID: {0} Name {1}",
+					file.Id,
+					file.Name);
+				Log.Info(message);
+			}
+
+			return file;
+		}
+
+		/// <summary>
+		/// Create link method.
+		/// </summary>
+		/// <param name="parent">The parent of the folder.</param>
+		/// <param name="linkName">The link name.</param>
+		/// <param name="targetId">The target of the link.</param>
+		/// <returns>A file object of the folder.</returns>
+		public Google.Apis.Drive.v3.Data.File CreateLink(
+			string parent, string linkName, string targetId)
+		{
 			Google.Apis.Drive.v3.Data.File fileMetadata = new ();
 
-			fileMetadata.Name = folderName;
-			fileMetadata.MimeType = "application/vnd.google-apps.folder";
+			fileMetadata.Name = linkName;
+			fileMetadata.MimeType = "application/vnd.google-apps.shortcut";
+			Google.Apis.Drive.v3.Data.File.ShortcutDetailsData shortCut =
+				new ();
+
+			shortCut.TargetId = targetId;
+			fileMetadata.ShortcutDetails = shortCut;
 
 			IList<string> parents = new List<string>();
 			parents.Add(parent);
@@ -150,6 +204,18 @@ namespace BackupManagerLibrary
 		}
 
 		/// <summary>
+		/// Delete method.
+		/// </summary>
+		/// <param name="id">The id of the item to delete.</param>
+		public void Delete(string id)
+		{
+			FilesResource.DeleteRequest request =
+				driveService.Files.Delete(id);
+
+			request.Execute();
+		}
+
+		/// <summary>
 		/// Dispose method.
 		/// </summary>
 		public void Dispose()
@@ -159,14 +225,42 @@ namespace BackupManagerLibrary
 		}
 
 		/// <summary>
-		/// Delete method.
+		/// Does drive item exist.
 		/// </summary>
-		/// <param name="id">The id of the item to delete.</param>
-		public void Delete(string id)
+		/// <param name="parentId">The parent id to check in.</param>
+		/// <param name="itemName">The name of the item.</param>
+		/// <param name="mimeType">The mime type of the item.</param>
+		/// <returns>Indicates whether the item was found or not.</returns>
+		public bool DoesDriveItemExist(
+			string parentId, string itemName, string mimeType)
 		{
-			FilesResource.DeleteRequest request = driveService.Files.Delete(id);
+			bool found = false;
 
-			request.Execute();
+			IList<Google.Apis.Drive.v3.Data.File> serverFiles =
+				GetFiles(parentId);
+
+			foreach (Google.Apis.Drive.v3.Data.File file in serverFiles)
+			{
+				try
+				{
+					if (file.MimeType.Equals(
+						mimeType, StringComparison.Ordinal))
+					{
+						found = file.Name.Equals(
+							itemName, StringComparison.Ordinal);
+						if (found == true)
+						{
+							break;
+						}
+					}
+				}
+				catch (Google.GoogleApiException exception)
+				{
+					Log.Error(exception.ToString());
+				}
+			}
+
+			return found;
 		}
 
 		/// <summary>
@@ -176,44 +270,76 @@ namespace BackupManagerLibrary
 		/// <returns>A list of files.</returns>
 		public IList<Google.Apis.Drive.v3.Data.File> GetFiles(string parent)
 		{
-			List<Google.Apis.Drive.v3.Data.File> files = new ();
-			FilesResource.ListRequest listRequest = driveService.Files.List();
+			List<Google.Apis.Drive.v3.Data.File> files = null;
 
-			string fileFields = "id, name, mimeType, modifiedTime, " +
-				"ownedByMe, owners, parents, webContentLink";
-			listRequest.Fields = string.Format(
-				CultureInfo.InvariantCulture,
-				"files({0}), nextPageToken",
-				fileFields);
-			listRequest.PageSize = 1000;
-			listRequest.Q = $"'{parent}' in parents";
-
-			do
+			if (string.IsNullOrWhiteSpace(parent))
 			{
-				try
-				{
-					string message = string.Format(
-						CultureInfo.InvariantCulture,
-						"Retrieved files from: {0} count: {1}",
-						parent,
-						files.Count);
-					Log.Info(message);
-
-					Google.Apis.Drive.v3.Data.FileList filesList =
-						listRequest.Execute();
-					files.AddRange(filesList.Files);
-
-					listRequest.PageToken = filesList.NextPageToken;
-				}
-				catch (Google.GoogleApiException exception)
-				{
-					Log.Error(exception.ToString());
-					listRequest.PageToken = null;
-				}
+				Log.Error("GetFiles: parent is empty");
+				Log.Error("StackTrace: " + Environment.StackTrace);
 			}
-			while (!string.IsNullOrEmpty(listRequest.PageToken));
+			else
+			{
+				files = new ();
+				FilesResource.ListRequest listRequest =
+					driveService.Files.List();
+
+				string fileFields = "id, name, mimeType, modifiedTime, " +
+					"ownedByMe, owners, parents, webContentLink";
+				listRequest.Fields = string.Format(
+					CultureInfo.InvariantCulture,
+					"files({0}), nextPageToken",
+					fileFields);
+				listRequest.PageSize = 1000;
+				listRequest.Q = $"'{parent}' in parents";
+
+				do
+				{
+					try
+					{
+						string message = string.Format(
+							CultureInfo.InvariantCulture,
+							"Retrieved files from: {0} count: {1}",
+							parent,
+							files.Count);
+						Log.Info(message);
+
+						Google.Apis.Drive.v3.Data.FileList filesList =
+							listRequest.Execute();
+						files.AddRange(filesList.Files);
+
+						listRequest.PageToken = filesList.NextPageToken;
+					}
+					catch (Google.GoogleApiException exception)
+					{
+						Log.Error(exception.ToString());
+						listRequest.PageToken = null;
+					}
+				}
+				while (!string.IsNullOrEmpty(listRequest.PageToken));
+			}
 
 			return files;
+		}
+
+		/// <summary>
+		/// Move a drive file.
+		/// </summary>
+		/// <param name="file">The file.</param>
+		/// <param name="destinationId">The id of destination folder.</param>
+		public void MoveFile(
+			Google.Apis.Drive.v3.Data.File file, string destinationId)
+		{
+			if (file != null)
+			{
+				Google.Apis.Drive.v3.Data.File placeHolder = new ();
+
+				FilesResource.UpdateRequest updateRequest =
+					driveService.Files.Update(placeHolder, file.Id);
+
+				updateRequest.AddParents = destinationId;
+				updateRequest.RemoveParents = file.Parents[0];
+				updateRequest.Execute();
+			}
 		}
 
 		/// <summary>
@@ -246,10 +372,12 @@ namespace BackupManagerLibrary
 
 			string mimeType = MimeTypes.GetMimeType(file.Name);
 
-			// over rides for wrongly marked files
+			// overrides for wrongly marked files
 			string extension = file.Extension;
-			if (extension.Equals(".gdoc", StringComparison.OrdinalIgnoreCase) ||
-				extension.Equals(".gsheet", StringComparison.OrdinalIgnoreCase))
+			if (extension.Equals(
+				".gdoc", StringComparison.OrdinalIgnoreCase) ||
+				extension.Equals(
+					".gsheet", StringComparison.OrdinalIgnoreCase))
 			{
 				Log.Info("Changing mime type to application/json");
 				mimeType = "application/json";

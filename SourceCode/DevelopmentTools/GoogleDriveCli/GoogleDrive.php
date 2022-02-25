@@ -15,7 +15,7 @@ class GoogleDrive
 	protected $debug = null;
 
 	private $client = null;
-	private $root = null;
+	private $coreSharedParentFolderId = null;
 	private $service = null;
 	private $serviceAccountFilePath = null;
 	private $showOnlyFolders = false;
@@ -35,29 +35,36 @@ class GoogleDrive
 
 		$this->client = $this->Authorize($authorizationType);
 
-		$this->GetRootFromFile();
+		if ($this->client != null)
+		{
+			$this->GetCoreSharedParentFolderIdFromFile();
 
-		$this->service = new Google_Service_Drive($this->client);
+			$this->service = new Google_Service_Drive($this->client);
+		}
 	}
 
 	public function About()
 	{
 		$this->debug->Show(Debug::DEBUG, "About begin");
 
-		$about = $this->service->about;
+		if ($this->service === null)
+		{
+			echo "ERROR: service object does not exist!";
+		}
+		else
+		{
+			$about = $this->service->about;
 
-		$options =
-		[
-			'fields' => 'storageQuota',
-			'prettyPrint' => true
-		];
+			$options =
+			[
+				'fields' => 'storageQuota',
+				'prettyPrint' => true
+			];
 
-		$response = $about->get($options);
+			$response = $about->get($options);
 
-		print_r($response->storageQuota);
-		exit();
-
-		return $response;
+			print_r($response->storageQuota);
+		}
 	}
 
 	public function DeleteAllFiles()
@@ -179,7 +186,7 @@ class GoogleDrive
 			}
 			else
 			{
-				$parent = '<none>';
+				$parent = '\033[31m <none> \033[0m';
 			}
 
 			if ($this->showParent == true)
@@ -429,9 +436,8 @@ class GoogleDrive
 			else
 			{
 				$this->debug->Show(Debug::DEBUG,
-					'Missing environment GOOGLE_APPLICATION_CREDENTIALS. ' . 
-					'Defaulting to OAuth');
-				$this->AuthorizeOAuth($client);
+					'Missing environment GOOGLE_APPLICATION_CREDENTIALS. ');
+				$client = null;
 			}
 		}
 
@@ -482,23 +488,9 @@ class GoogleDrive
 
 		if ($showOnlyFolders == true && $showOnlyRootLevel == true)
 		{
-			if ($this->root != null)
-			{
-				$options['q'] =
-					"mimeType = 'application/vnd.google-apps.folder'" .
-					" and '$this->root' in parents";
-			}
-			else
-			{
-				if (empty($parentId))
-				{
-					$parentId = 'root';
-				}
-
-				$options['q'] =
-					"mimeType = 'application/vnd.google-apps.folder'" .
-					" and '$parentId' in parents";
-			}
+			$options['q'] =
+				"mimeType = 'application/vnd.google-apps.folder'" .
+				" and 'root' in parents";
 		}
 		else if ($showOnlyFolders == true)
 		{
@@ -517,14 +509,7 @@ class GoogleDrive
 		}
 		else if ($showOnlyRootLevel == true)
 		{
-			if ($this->root != null)
-			{
-				$options['q'] = "'$this->root' in parents";
-			}
-			else
-			{
-				$options['q'] = "'root' in parents";
-			}
+			$options['q'] = "'root' in parents";
 		}
 		else
 		{
@@ -575,14 +560,15 @@ class GoogleDrive
 		return $files;
 	}
 
-	private function GetRootFromFile()
+	private function GetCoreSharedParentFolderIdFromFile()
 	{
 		$contents = file_get_contents($this->serviceAccountFilePath);
 		$data = json_decode($contents);
 
-		if (property_exists($data, 'root'))
+		if (property_exists($data, 'core_shared_parent_folder_id'))
 		{
-			$this->root = $data->root;
+			$this->coreSharedParentFolderId =
+				$data->core_shared_parent_folder_id;
 		}
 	}
 

@@ -1,18 +1,35 @@
 CD %~dp0
 CD ..\..
 
-IF EXIST Bin\Release\AnyCPU\NUL DEL /Q Bin\Release\AnyCPU\*.*
+REM IF "%1"=="release" CALL VersionUpdate BackUpManagerLibrary\BackupManagerLibrary.csproj
+REM IF "%1"=="release" CALL VersionUpdate BackUpManager\BackupManager.csproj
 
-dotnet build --configuration Release
+CALL dotnet publish --configuration Release -p:PublishSingleFile=true --runtime linux-x64 --self-contained true -o Release\linux-x64 BackUpManager
+CALL dotnet publish --configuration Release -p:PublishSingleFile=true --runtime osx-x64 --self-contained true -o Release\osx-x64 BackUpManager
+CALL dotnet publish --configuration Release -p:PublishReadyToRun=true;PublishSingleFile=true --runtime win-x64 --self-contained true --output Release\win-x64 BackUpManager
 
 IF "%1"=="release" GOTO release
 GOTO end
 
 :release
-CD Bin\Release\AnyCPU
+CD Release\linux-x64
+7z u BackUpManager-linux-x64.zip .
+MOVE BackUpManager-linux-x64.zip ..
 
-7z u BackUpManager.zip . -xr!*.json -xr!ref
+CD ..\osx-x64
+7z u BackUpManager-osx-x64.zip .
+MOVE BackUpManager-osx-x64.zip ..
 
-hub release create -a BackUpManager.zip -m "%2" v%2
+CD ..\win-x64
+7z u BackUpManager-win-x64.zip .
+MOVE BackUpManager-win-x64.zip ..
+
+CD ..
+REM Unfortunately, the following command does not work from the windows command
+REM console.  Use a bash terminal.
+REM gh release create v%2 --notes %3 *.zip
+
+REM Old style
+REM hub release create -a BackUpManager.zip -m "%2" v%2
 
 :end
