@@ -33,5 +33,6 @@ TestResult.xml
 /SourceCode/DevelopmentTools/GoogleDriveCli/vendor
 
 /SourceCode/DevelopmentTools/GoogleDriveCli/GoogleDriveServiceAccount.json
+/SourceCode/DevelopmentTools/GoogleDriveCli/credentials.json
 
 Release/
