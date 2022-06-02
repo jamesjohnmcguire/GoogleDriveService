@@ -2,6 +2,8 @@
 
 include_once 'vendor/autoload.php';
 
+defined('CREDENTIALS_FILE') or define('CREDENTIALS_FILE', 'credentials.json');
+
 enum Mode
 {
 	case None;
@@ -28,7 +30,7 @@ class GoogleAuthorization
 		$result = false;
 
 		// TODO: set to null if client is always returned
-		$client = new Google_Client();
+		//$client = new Google_Client();
 
 		switch ($mode)
 		{
@@ -171,33 +173,39 @@ class GoogleAuthorization
 	{
 		$client = new Google_Client();
 
+		$client->setAccessType('offline');
 		$client->setApplicationName('Google Drive API Video Uploader');
+		$client->setPrompt('select_account consent');
 		// TODO: Check if this is best scope
 		$client->setScopes(Google_Service_Drive::DRIVE_FILE);
 		$client->addScope("https://www.googleapis.com/auth/drive");
-		$client->setAccessType('offline');
+
+		$client->setAuthConfig(CREDENTIALS_FILE);
 
 		$authorizationUrl = $client->createAuthUrl();
 		$authorizationCode =
 			self::PromptForAuthorizationCodeCli($authorizationUrl);
 
 		$accessToken = $client->fetchAccessTokenWithAuthCode($authorizationCode);
-		$client = self::SetAccessToken($accessToken);
+		$client = self::SetAccessToken($client, $accessToken);
 
 		return $client;
 	}
 
-	private static function SetAccessToken($accessToken)
+	private static function SetAccessToken($client, $accessToken)
 	{
-		$client = null;
+		$updatedClient = null;
 		$isValid = IsValidJson($accessToken);
 
-		if (isValid == true)
+		if ((isValid == true) && (!array_key_exists('error', $accessToken)))
 		{
-			$client = new Google_Client();
 			$client->setAccessToken($accessToken);
+			$updatedClient = new $client;
+
+			$json =  json_encode($accessToken);
+			file_put_contents(CREDENTIALS_FILE, $json);
 		}
 
-		return $client;
+		return $updatedClient;
 	}
 }
