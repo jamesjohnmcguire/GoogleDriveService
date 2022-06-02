@@ -18,4 +18,35 @@ $credentialFile = __DIR__ . '/' . CREDENTIALS_FILE;
 
 $client->setAuthConfig($credentialFile);
 
+//$client->setRedirectUri("urn:ietf:wg:oauth:2.0:oob");
 $authorizationUrl = $client->createAuthUrl();
+
+echo 'Open the following link in your browser:' . PHP_EOL;
+echo $authorizationUrl . PHP_EOL;
+echo 'Enter verification code: ';
+
+$authorizationCode = fgets(STDIN);
+$$authorizationCode = trim($authorizationCode);
+echo $authorizationCode . PHP_EOL;
+
+$accessToken = $client->fetchAccessTokenWithAuthCode($authorizationCode);
+echo "ACCESS TOKEN: " . PHP_EOL;
+print_r ($accessToken);
+echo PHP_EOL;
+
+if (array_key_exists('error', $accessToken))
+{
+	echo "ERROR:" . PHP_EOL;
+	print_r ($accessToken);
+	echo PHP_EOL;
+}
+else
+{
+	$client->setAccessToken($accessToken);
+	
+	$json =  json_encode($accessToken);
+	$credentialsFile = 'cretentials_new.json';
+	echo "Saving to file: " . $credentialsFile . PHP_EOL;
+	file_put_contents($credentialsFile, $json);
+}
+
