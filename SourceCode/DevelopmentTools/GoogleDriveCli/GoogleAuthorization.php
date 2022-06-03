@@ -3,6 +3,7 @@
 include_once 'vendor/autoload.php';
 
 defined('CREDENTIALS_FILE') or define('CREDENTIALS_FILE', 'credentials.json');
+defined('TOKEN_FILE') or define('TOKEN_FILE', 'tokens.json');
 
 enum Mode
 {
@@ -19,7 +20,7 @@ class GoogleAuthorization
 	// TODO: Remove if going with just static approach
 	private $client = null;
 	private Mode $mode = Mode::None;
-	public string $TokenFilePath = null;
+	//public string $TokenFilePath = null;
 
 	public static function Authorize (
 		Mode $mode,
@@ -31,14 +32,15 @@ class GoogleAuthorization
 
 		// TODO: set to null if client is always returned
 		//$client = new Google_Client();
+		$client = null;
 
 		switch ($mode)
 		{
-			case OAuth:
+			case Mode::OAuth:
 				break;
-			case ServiceAccount:
+			case Mode::ServiceAccount:
 				break;
-			case Token:
+			case Mode::Token:
 				$client = AuthorizeByToken($tokenFile);
 				break;
 			}
@@ -195,15 +197,15 @@ class GoogleAuthorization
 	private static function SetAccessToken($client, $accessToken)
 	{
 		$updatedClient = null;
-		$isValid = IsValidJson($accessToken);
 
-		if ((isValid == true) && (!array_key_exists('error', $accessToken)))
+		if ((is_array($accessToken)) &&
+			(!array_key_exists('error', $accessToken)))
 		{
 			$client->setAccessToken($accessToken);
 			$updatedClient = new $client;
 
 			$json =  json_encode($accessToken);
-			file_put_contents(CREDENTIALS_FILE, $json);
+			file_put_contents(TOKEN_FILE, $json);
 		}
 
 		return $updatedClient;
