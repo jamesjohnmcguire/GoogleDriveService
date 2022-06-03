@@ -1,6 +1,7 @@
 <?php
 
 include_once 'vendor/autoload.php';
+require_once 'GoogleAuthorization.php';
 
 defined('CREDENTIALS_FILE') or define('CREDENTIALS_FILE', 'credentials.json');
 
@@ -49,3 +50,10 @@ function TestRawRequestUser()
 		file_put_contents($credentialsFile, $json);
 	}
 }
+
+function TestRequestUser()
+{
+	GoogleAuthorization::Authorize(Mode::Request, '', '', '');
+}
+
+TestRequestUser();
