@@ -40,7 +40,8 @@ class GoogleAuthorization
 			case Mode::ServiceAccount:
 				break;
 			case Mode::Token:
-				$client = AuthorizeByToken($tokensFile);
+				$client = self::AuthorizeByToken(
+					$credentialsFile, $tokensFile, $name, $scopes);
 				break;
 			}
 
@@ -61,23 +62,27 @@ class GoogleAuthorization
 		return $client;
 	}
 
-	private static function AuthorizeByToken($tokenFilePath)
+	private static function AuthorizeByToken(
+		$credentialsFile, $tokensFilePath, $name, $scopes)
 	{	
 		$client = null;
-		$accessToken = self::AuthorizeByTokenFile($client, $tokenFilePath);
+		$accessToken = self::AuthorizeByTokenFile($client, $tokensFilePath);
 
 		if ($accessToken === null)
 		{
 			$accessToken = self::AuthorizeByTokenLocal($client);
 		}
 
-		$client = self::SetAccessToken($accessToken);
+		$client = self::SetClient($credentialsFile, $name, $scopes);
+
+		$client = self::SetAccessToken($client, $accessToken, $tokensFilePath);
 
 		return $client;
 	}
 
 	private static function AuthorizeByTokenLocal($client)
 	{
+		// last chance attempt of hard coded file name
 		$tokenFilePath = 'token.json';
 
 		$accessToken = self::AuthorizeByTokenFile($client, $tokenFilePath);
@@ -91,7 +96,7 @@ class GoogleAuthorization
 
 		if (file_exists($tokenFilePath))
 		{
-			$fileContents = file_get_contents($tokenPath);
+			$fileContents = file_get_contents($tokenFilePath);
 			$accessToken = json_decode($fileContents, true);
 		}
 
@@ -174,14 +179,7 @@ class GoogleAuthorization
 	private static function RequestAuthorization(
 		string $credentialsFile, $tokensFile, string $name, array $scopes)
 	{
-		$client = new Google_Client();
-
-		$client->setAccessType('offline');
-		$client->setApplicationName($name);
-		$client->setPrompt('select_account consent');
-		$client->setScopes($scopes);
-
-		$client->setAuthConfig($credentialsFile);
+		$client = self::SetClient($credentialsFile, $name, $scopes);
 
 		$authorizationUrl = $client->createAuthUrl();
 		$authorizationCode =
@@ -198,16 +196,31 @@ class GoogleAuthorization
 	{
 		$updatedClient = null;
 
-		if ((is_array($accessToken)) &&
-			(!array_key_exists('error', $accessToken)))
+		if ((is_array($tokens)) &&
+			(!array_key_exists('error', $tokens)))
 		{
-			$client->setAccessToken($accessToken);
+			$client->setAccessToken($tokens);
 			$updatedClient = new $client;
 
-			$json =  json_encode($accessToken);
+			$json =  json_encode($tokens);
 			file_put_contents($tokensFile, $json);
 		}
 
 		return $updatedClient;
+	}
+
+	private static function SetClient(
+		string $credentialsFile, string $name, array $scopes)
+	{
+		$client = new Google_Client();
+
+		$client->setAccessType('offline');
+		$client->setApplicationName($name);
+		$client->setPrompt('select_account consent');
+		$client->setScopes($scopes);
+
+		$client->setAuthConfig($credentialsFile);
+
+		return $client;
 	}
 }
