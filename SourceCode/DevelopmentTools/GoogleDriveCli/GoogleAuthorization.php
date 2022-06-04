@@ -26,7 +26,9 @@ class GoogleAuthorization
 		Mode $mode,
 		string $serviceAccountJsonFile,
 		string $accessTokenFile,
-		string $tokenFile)
+		string $tokenFile,
+		string $name,
+		array $scopes)
 	{
 		$result = false;
 
@@ -48,7 +50,7 @@ class GoogleAuthorization
 		// Final fall back, request user confirmation through web page
 		if ($client === null)
 		{
-			$client == self::RequestAuthorization();
+			$client == self::RequestAuthorization($name, $scropes);
 		}
 
 		return $result;
@@ -171,16 +173,14 @@ class GoogleAuthorization
 		return $authorizationCode;
 	}
 
-	private static function RequestAuthorization()
+	private static function RequestAuthorization(string $name, array $scopes)
 	{
 		$client = new Google_Client();
 
 		$client->setAccessType('offline');
-		$client->setApplicationName('Google Drive API Video Uploader');
+		$client->setApplicationName($name);
 		$client->setPrompt('select_account consent');
-		// TODO: Check if this is best scope
-		$client->setScopes(Google_Service_Drive::DRIVE_FILE);
-		$client->addScope("https://www.googleapis.com/auth/drive");
+		$client->setScopes($scopes);
 
 		$client->setAuthConfig(CREDENTIALS_FILE);
 
