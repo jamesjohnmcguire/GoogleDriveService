@@ -53,7 +53,13 @@ function TestRawRequestUser()
 
 function TestRequestUser()
 {
-	GoogleAuthorization::Authorize(Mode::Request, '', '', '');
+	GoogleAuthorization::Authorize(
+		Mode::Request,
+		'',
+		'credentials.json',
+		'',
+		'Google Drive API Video Uploader',
+		['https://www.googleapis.com/auth/drive']);
 }
 
 TestRequestUser();

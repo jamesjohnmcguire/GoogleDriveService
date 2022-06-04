@@ -2,7 +2,6 @@
 
 include_once 'vendor/autoload.php';
 
-defined('CREDENTIALS_FILE') or define('CREDENTIALS_FILE', 'credentials.json');
 defined('TOKEN_FILE') or define('TOKEN_FILE', 'tokens.json');
 
 enum Mode
@@ -25,8 +24,8 @@ class GoogleAuthorization
 	public static function Authorize (
 		Mode $mode,
 		string $serviceAccountJsonFile,
-		string $accessTokenFile,
-		string $tokenFile,
+		string $credentialsFile,
+		string $tokensFile,
 		string $name,
 		array $scopes)
 	{
@@ -43,14 +42,15 @@ class GoogleAuthorization
 			case Mode::ServiceAccount:
 				break;
 			case Mode::Token:
-				$client = AuthorizeByToken($tokenFile);
+				$client = AuthorizeByToken($tokensFile);
 				break;
 			}
 
 		// Final fall back, request user confirmation through web page
 		if ($client === null)
 		{
-			$client == self::RequestAuthorization($name, $scropes);
+			$client =
+				self::RequestAuthorization($credentialsFile, $name, $scopes);
 		}
 
 		return $result;
@@ -173,7 +173,8 @@ class GoogleAuthorization
 		return $authorizationCode;
 	}
 
-	private static function RequestAuthorization(string $name, array $scopes)
+	private static function RequestAuthorization(
+		string $credentialsFile, string $name, array $scopes)
 	{
 		$client = new Google_Client();
 
@@ -182,7 +183,7 @@ class GoogleAuthorization
 		$client->setPrompt('select_account consent');
 		$client->setScopes($scopes);
 
-		$client->setAuthConfig(CREDENTIALS_FILE);
+		$client->setAuthConfig($credentialsFile);
 
 		$authorizationUrl = $client->createAuthUrl();
 		$authorizationCode =
