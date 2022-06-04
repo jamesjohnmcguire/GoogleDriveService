@@ -2,8 +2,6 @@
 
 include_once 'vendor/autoload.php';
 
-defined('TOKEN_FILE') or define('TOKEN_FILE', 'tokens.json');
-
 enum Mode
 {
 	case None;
@@ -49,8 +47,8 @@ class GoogleAuthorization
 		// Final fall back, request user confirmation through web page
 		if ($client === null)
 		{
-			$client =
-				self::RequestAuthorization($credentialsFile, $name, $scopes);
+			$client = self::RequestAuthorization(
+				$credentialsFile, $tokensFile, $name, $scopes);
 		}
 
 		return $result;
@@ -174,7 +172,7 @@ class GoogleAuthorization
 	}
 
 	private static function RequestAuthorization(
-		string $credentialsFile, string $name, array $scopes)
+		string $credentialsFile, $tokensFile, string $name, array $scopes)
 	{
 		$client = new Google_Client();
 
@@ -189,13 +187,14 @@ class GoogleAuthorization
 		$authorizationCode =
 			self::PromptForAuthorizationCodeCli($authorizationUrl);
 
-		$accessToken = $client->fetchAccessTokenWithAuthCode($authorizationCode);
-		$client = self::SetAccessToken($client, $accessToken);
+		$accessToken =
+			$client->fetchAccessTokenWithAuthCode($authorizationCode);
+		$client = self::SetAccessToken($client, $accessToken, $tokensFile);
 
 		return $client;
 	}
 
-	private static function SetAccessToken($client, $accessToken)
+	private static function SetAccessToken($client, $tokens, $tokensFile)
 	{
 		$updatedClient = null;
 
@@ -206,7 +205,7 @@ class GoogleAuthorization
 			$updatedClient = new $client;
 
 			$json =  json_encode($accessToken);
-			file_put_contents(TOKEN_FILE, $json);
+			file_put_contents($tokensFile, $json);
 		}
 
 		return $updatedClient;
