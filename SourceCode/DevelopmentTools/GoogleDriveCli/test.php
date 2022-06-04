@@ -62,4 +62,15 @@ function TestRequestUser()
 		['https://www.googleapis.com/auth/drive']);
 }
 
-TestRequestUser();
+function TestTokens()
+{
+	GoogleAuthorization::Authorize(
+		Mode::Token,
+		'',
+		'credentials.json',
+		'tokens.json',
+		'Google Drive API Video Uploader',
+		['https://www.googleapis.com/auth/drive']);
+}
+
+TestTokens();
