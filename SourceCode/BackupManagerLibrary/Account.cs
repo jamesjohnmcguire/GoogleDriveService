@@ -442,12 +442,19 @@ namespace BackupManagerLibrary
 
 		private void CreateTopLevelLink(string linkName, string targetId)
 		{
-			bool found = googleDrive.DoesDriveItemExist(
-				"root", linkName, "application/vnd.google-apps.shortcut");
-
-			if (found == false)
+			try
 			{
-				googleDrive.CreateLink("root", linkName, targetId);
+				bool found = googleDrive.DoesDriveItemExist(
+					"root", linkName, "application/vnd.google-apps.shortcut");
+
+				if (found == false)
+				{
+					googleDrive.CreateLink("root", linkName, targetId);
+				}
+			}
+			catch (Google.GoogleApiException exception)
+			{
+				Log.Error(exception.ToString());
 			}
 		}
 
