@@ -62,15 +62,36 @@ function TestRequestUser()
 		['https://www.googleapis.com/auth/drive']);
 }
 
+function TestServiceAccount()
+{
+	$client = GoogleAuthorization::Authorize(
+		Mode::Token,
+		'',
+		'',
+		'',
+		'Google Drive API Video Uploader',
+		['https://www.googleapis.com/auth/drive']);
+
+	if ($client != null)
+	{
+		echo 'Client seems valid' . PHP_EOL;
+	}
+}
+
 function TestTokens()
 {
-	GoogleAuthorization::Authorize(
+	$client = GoogleAuthorization::Authorize(
 		Mode::Token,
 		'',
 		'credentials.json',
 		'tokens.json',
 		'Google Drive API Video Uploader',
 		['https://www.googleapis.com/auth/drive']);
+
+	if ($client != null)
+	{
+		echo 'Client seems valid' . PHP_EOL;
+	}
 }
 
 TestTokens();

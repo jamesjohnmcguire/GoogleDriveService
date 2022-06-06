@@ -21,16 +21,12 @@ class GoogleAuthorization
 
 	public static function Authorize (
 		Mode $mode,
-		string $serviceAccountJsonFile,
+		string $serviceAccountFile,
 		string $credentialsFile,
 		string $tokensFile,
 		string $name,
 		array $scopes)
 	{
-		$result = false;
-
-		// TODO: set to null if client is always returned
-		//$client = new Google_Client();
 		$client = null;
 
 		switch ($mode)
@@ -38,6 +34,8 @@ class GoogleAuthorization
 			case Mode::OAuth:
 				break;
 			case Mode::ServiceAccount:
+				$client = self::AuthorizeServiceAccount(
+					$serviceAccountFile, $name, $scopes);
 				break;
 			case Mode::Token:
 				$client = self::AuthorizeByToken(
@@ -52,7 +50,7 @@ class GoogleAuthorization
 				$credentialsFile, $tokensFile, $name, $scopes);
 		}
 
-		return $result;
+		return $client;
 	}
 
 	private static function AuthorizeByOAuth()
@@ -99,8 +97,30 @@ class GoogleAuthorization
 			$fileContents = file_get_contents($tokenFilePath);
 			$accessToken = json_decode($fileContents, true);
 		}
+		else
+		{
+			echo 'WARNING: token file doesn\'t exist - ' . $tokenFilePath .
+				PHP_EOL;
+		}
 
 		return $accessToken;
+	}
+
+	private static function AuthorizeServiceAccount(
+		$serviceAccountFilePath, $name, $scopes)
+	{
+		$client = self::SetClient(null, $name, $scopes);
+
+		if (file_exists($serviceAccountFilePath))
+		{
+			putenv('GOOGLE_APPLICATION_CREDENTIALS=' . $serviceAccountFilePath);
+		}
+
+		// else, nothing else to do...
+
+		$client->useApplicationDefaultCredentials();
+
+		return $client;
 	}
 
 	private static function AuthorizeToken($client, $accessToken)
@@ -205,6 +225,15 @@ class GoogleAuthorization
 			$json =  json_encode($tokens);
 			file_put_contents($tokensFile, $json);
 		}
+		else if (array_key_exists('error', $tokens))
+		{
+			echo 'Error key exists in tokens' . PHP_EOL;
+		}
+		else
+		{
+			echo 'Tokens is not an array' . PHP_EOL;
+		}
+
 
 		return $updatedClient;
 	}
@@ -219,7 +248,10 @@ class GoogleAuthorization
 		$client->setPrompt('select_account consent');
 		$client->setScopes($scopes);
 
-		$client->setAuthConfig($credentialsFile);
+		if (!empty($credentialsFile))
+		{
+			$client->setAuthConfig($credentialsFile);
+		}
 
 		return $client;
 	}
