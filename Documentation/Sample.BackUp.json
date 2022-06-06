@@ -2,20 +2,20 @@
 	{
 		"Email": "somebody@example.com",
 		"ServiceAccount": "SomebodyServiceAccount.json",
-		"Directories":
+		"DriveMappings":
 		[
 			{
-				"CoreSharedParentFolderId": "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX",
+				"DriveParentFolderId": "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX",
 				"Path": "%USERPROFILE%/",
 				"Excludes":
 				[
 					{
-						"Path": "%USERPROFILE%/ChromeBackUp",
-						"ExcludeType": 1
+						"Path": "%USERPROFILE%/InstanceData",
+						"ExcludeType": 0
 					},
 					{
-						"Path": "%USERPROFILE%/Outlook",
-						"ExcludeType": 0
+						"Path": "%USERPROFILE%/Temp",
+						"ExcludeType": 1
 					},
 					{
 						"Path": "%USERPROFILE%/SomeBigTemporaryFile.tmp",
