@@ -50,13 +50,34 @@ namespace BackupManager
 			}
 		}
 
-		private static string GetVersion()
+		private static FileVersionInfo GetAssemblyInformation()
 		{
+			FileVersionInfo fileVersionInfo = null;
+
 			Assembly assembly = Assembly.GetExecutingAssembly();
 
-			AssemblyName assemblyName = assembly.GetName();
-			Version version = assemblyName.Version;
-			string assemblyVersion = version.ToString();
+			string location = assembly.Location;
+
+			if (string.IsNullOrWhiteSpace(location))
+			{
+				// Single file apps have no assemblies.
+				Process process = Process.GetCurrentProcess();
+				location = process.MainModule.FileName;
+			}
+
+			if (!string.IsNullOrWhiteSpace(location))
+			{
+				fileVersionInfo = FileVersionInfo.GetVersionInfo(location);
+			}
+
+			return fileVersionInfo;
+		}
+
+		private static string GetVersion()
+		{
+			FileVersionInfo fileVersionInfo = GetAssemblyInformation();
+
+			string assemblyVersion = fileVersionInfo.FileVersion;
 
 			return assemblyVersion;
 		}
