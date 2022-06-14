@@ -1,12 +1,11 @@
 CD %~dp0
 CD ..\..
 
-REM IF "%1"=="release" CALL VersionUpdate BackUpManagerLibrary\BackupManagerLibrary.csproj
-REM IF "%1"=="release" CALL VersionUpdate BackUpManager\BackupManager.csproj
+rd /s /q Release
 
-CALL dotnet publish --configuration Release -p:PublishSingleFile=true --runtime linux-x64 --self-contained true -o Release\linux-x64 BackUpManager
-CALL dotnet publish --configuration Release -p:PublishSingleFile=true --runtime osx-x64 --self-contained true -o Release\osx-x64 BackUpManager
-CALL dotnet publish --configuration Release -p:PublishReadyToRun=true;PublishSingleFile=true --runtime win-x64 --self-contained true --output Release\win-x64 BackUpManager
+dotnet publish --configuration Release -p:PublishSingleFile=true --runtime linux-x64 --self-contained -o Release\linux-x64 BackUpManager
+dotnet publish --configuration Release -p:PublishSingleFile=true --runtime osx-x64 --self-contained -o Release\osx-x64 BackUpManager
+dotnet publish --configuration Release -p:PublishReadyToRun=true;PublishSingleFile=true --runtime=win-x64 --self-contained --output Release\win-x64 BackUpManager
 
 IF "%1"=="release" GOTO release
 GOTO end
