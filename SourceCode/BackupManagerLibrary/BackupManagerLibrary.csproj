@@ -18,8 +18,8 @@
 	<ItemGroup>
 		<PackageReference Include="Common.Logging" Version="3.4.1" />
 		<PackageReference Include="Common.Logging.Core" Version="3.4.1" />
-		<PackageReference Include="Google.Apis.Drive.v3" Version="1.55.0.2601" />
-		<PackageReference Include="MimeTypes" Version="2.3.0">
+		<PackageReference Include="Google.Apis.Drive.v3" Version="1.57.0.2684" />
+		<PackageReference Include="MimeTypes" Version="2.4.0">
 			<PrivateAssets>all</PrivateAssets>
 			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 		</PackageReference>
