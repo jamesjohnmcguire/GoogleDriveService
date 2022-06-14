@@ -43,8 +43,8 @@ class GoogleAuthorization
 				break;
 			}
 
-		// Final fall back, request user confirmation through web page
-		if ($client === null)
+		// Final fall back, prompt user for confirmation code through web page
+		if ($client === null && PHP_SAPI === 'cli')
 		{
 			$client = self::RequestAuthorization(
 				$credentialsFile, $tokensFile, $name, $scopes);
@@ -199,15 +199,25 @@ class GoogleAuthorization
 	private static function RequestAuthorization(
 		string $credentialsFile, $tokensFile, string $name, array $scopes)
 	{
-		$client = self::SetClient($credentialsFile, $name, $scopes);
+		$client = null;
 
-		$authorizationUrl = $client->createAuthUrl();
-		$authorizationCode =
-			self::PromptForAuthorizationCodeCli($authorizationUrl);
+		if (PHP_SAPI !== 'cli')
+		{
+			echo 'WARNING: Requesting user authorization only works at the ' .
+			'command line' . PHP_EOL;
+		}
+		else
+		{
+			$client = self::SetClient($credentialsFile, $name, $scopes);
 
-		$accessToken =
-			$client->fetchAccessTokenWithAuthCode($authorizationCode);
-		$client = self::SetAccessToken($client, $accessToken, $tokensFile);
+			$authorizationUrl = $client->createAuthUrl();
+			$authorizationCode =
+				self::PromptForAuthorizationCodeCli($authorizationUrl);
+	
+			$accessToken =
+				$client->fetchAccessTokenWithAuthCode($authorizationCode);
+			$client = self::SetAccessToken($client, $accessToken, $tokensFile);
+		}
 
 		return $client;
 	}
