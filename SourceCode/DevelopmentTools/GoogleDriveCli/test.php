@@ -94,4 +94,5 @@ function TestTokens()
 	}
 }
 
+TestRequestUser();
 TestTokens();
