@@ -25,13 +25,16 @@ class GoogleAuthorization
 		string $credentialsFile,
 		string $tokensFile,
 		string $name,
-		array $scopes)
+		array $scopes,
+		string $redirectUrl)
 	{
 		$client = null;
 
 		switch ($mode)
 		{
 			case Mode::OAuth:
+				$client = self::AuthorizeOAuth(
+					$credentialsFile, $name, $scopes,$redirectUrl);
 				break;
 			case Mode::ServiceAccount:
 				$client = self::AuthorizeServiceAccount(
@@ -53,9 +56,34 @@ class GoogleAuthorization
 		return $client;
 	}
 
-	private static function AuthorizeOAuth()
+	private static function AuthorizeOAuth(string $credentialsFile,
+		string $name, array $scopes, string $redirectUrl)
 	{
 		$client = null;
+
+		if (PHP_SAPI === 'cli')
+		{
+			echo 'WARNING: OAuth redirecting only works on the web' . PHP_EOL;
+		}
+		else
+		{
+			$client = self::SetClient($credentialsFile, $name, $scopes);
+
+			if (isset($_GET['code']))
+			{
+				$code = $_GET['code'];
+				$token = $client->fetchAccessTokenWithAuthCode($code]);
+				$client->setAccessToken($token);
+			}
+			else
+			{
+				$redirectUrl = filter_var($redirectUrl, FILTER_SANITIZE_URL);
+				$client->setRedirectUri($redirectUrl);
+
+				$authorizationUrl = $client->createAuthUrl();
+				header('Location: ' . $authorizationUrl);
+			}
+		}
 
 		return $client;
 	}
