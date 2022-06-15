@@ -38,7 +38,7 @@ class GoogleAuthorization
 					$serviceAccountFile, $name, $scopes);
 				break;
 			case Mode::Token:
-				$client = self::AuthorizeByToken(
+				$client = self::AuthorizeToken(
 					$credentialsFile, $tokensFile, $name, $scopes);
 				break;
 			}
@@ -53,57 +53,11 @@ class GoogleAuthorization
 		return $client;
 	}
 
-	private static function AuthorizeByOAuth()
+	private static function AuthorizeOAuth()
 	{
 		$client = null;
 
 		return $client;
-	}
-
-	private static function AuthorizeByToken(
-		$credentialsFile, $tokensFilePath, $name, $scopes)
-	{	
-		$client = null;
-		$accessToken = self::AuthorizeByTokenFile($client, $tokensFilePath);
-
-		if ($accessToken === null)
-		{
-			$accessToken = self::AuthorizeByTokenLocal($client);
-		}
-
-		$client = self::SetClient($credentialsFile, $name, $scopes);
-
-		$client = self::SetAccessToken($client, $accessToken, $tokensFilePath);
-
-		return $client;
-	}
-
-	private static function AuthorizeByTokenLocal($client)
-	{
-		// last chance attempt of hard coded file name
-		$tokenFilePath = 'token.json';
-
-		$accessToken = self::AuthorizeByTokenFile($client, $tokenFilePath);
-
-		return $accessToken;
-	}
-
-	private static function AuthorizeByTokenFile($client, $tokenFilePath)
-	{
-		$accessToken = null;
-
-		if (file_exists($tokenFilePath))
-		{
-			$fileContents = file_get_contents($tokenFilePath);
-			$accessToken = json_decode($fileContents, true);
-		}
-		else
-		{
-			echo 'WARNING: token file doesn\'t exist - ' . $tokenFilePath .
-				PHP_EOL;
-		}
-
-		return $accessToken;
 	}
 
 	private static function AuthorizeServiceAccount(
@@ -123,50 +77,50 @@ class GoogleAuthorization
 		return $client;
 	}
 
-	private static function AuthorizeToken($client, $accessToken)
-	{
-		$result = false;
+	private static function AuthorizeToken(
+		$credentialsFile, $tokensFilePath, $name, $scopes)
+	{	
+		$client = null;
+		$accessToken = self::AuthorizeTokenFile($client, $tokensFilePath);
 
-		// log
-
-		$client->setPrompt('select_account consent');
-		$client->setAccessToken($accessToken);
-
-		$result = $client->isAccessTokenExpired();
-
-		if ($result !== true)
+		if ($accessToken === null)
 		{
-			// Refresh the token if possible, else fetch a new one.
-			$refreshToken = $client->getRefreshToken();
-
-			if ($refreshToken !== null)
-			{
-				$client->fetchAccessTokenWithRefreshToken($refreshToken);
-				$result = true;
-			}
-			else
-			{
-				// Request authorization from the user.
-				$authorizationCode =
-					self::PromptForAuthorizationCodeCli($authorizationUrl);
-
-				// Exchange authorization code for an access token.
-				$accessToken =
-					$client->fetchAccessTokenWithAuthCode($authorizationCode);
-				$client->setAccessToken($accessToken);
-
-				// Check to see if there was an error.
-				if (array_key_exists('error', $accessToken))
-				{
-					$message = join(', ', $accessToken);
-					throw new Exception($message);
-				}
-
-				$result = true;
-			}
+			$accessToken = self::AuthorizeTokenLocal($client);
 		}
 
-		return $result;
+		$client = self::SetClient($credentialsFile, $name, $scopes);
+
+		$client = self::SetAccessToken($client, $accessToken, $tokensFilePath);
+
+		return $client;
+	}
+
+	private static function AuthorizeTokenLocal($client)
+	{
+		// last chance attempt of hard coded file name
+		$tokenFilePath = 'token.json';
+
+		$accessToken = self::AuthorizeTokenFile($client, $tokenFilePath);
+
+		return $accessToken;
+	}
+
+	private static function AuthorizeTokenFile($client, $tokenFilePath)
+	{
+		$accessToken = null;
+
+		if (file_exists($tokenFilePath))
+		{
+			$fileContents = file_get_contents($tokenFilePath);
+			$accessToken = json_decode($fileContents, true);
+		}
+		else
+		{
+			echo 'WARNING: token file doesn\'t exist - ' . $tokenFilePath .
+				PHP_EOL;
+		}
+
+		return $accessToken;
 	}
 
 	private static function IsValidJson($string)
