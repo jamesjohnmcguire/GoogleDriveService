@@ -5,6 +5,23 @@ require_once 'GoogleAuthorization.php';
 
 defined('CREDENTIALS_FILE') or define('CREDENTIALS_FILE', 'credentials.json');
 
+function TestOauth()
+{
+	$client = GoogleAuthorization::Authorize(
+		Mode::OAuth,
+		'',
+		'credentials.json',
+		'tokens.json',
+		'Google Drive API Video Uploader',
+		['https://www.googleapis.com/auth/drive'],
+		'http://localhost:8000/test.php');
+
+	if ($client != null)
+	{
+		echo 'Client seems valid' . PHP_EOL;
+	}
+}
+
 function TestRawRequestUser()
 {
 	$client = new Google_Client();
@@ -96,3 +113,5 @@ function TestTokens()
 
 TestRequestUser();
 TestTokens();
+echo 'Testing OAutho...' . PHP_EOL;
+TestOauth();
