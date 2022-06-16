@@ -26,7 +26,7 @@ class GoogleAuthorization
 		string $tokensFile,
 		string $name,
 		array $scopes,
-		string $redirectUrl)
+		string $redirectUrl = null)
 	{
 		$client = null;
 
@@ -69,17 +69,18 @@ class GoogleAuthorization
 		{
 			$client = self::SetClient($credentialsFile, $name, $scopes);
 
+			$redirectUrl = filter_var($redirectUrl, FILTER_SANITIZE_URL);
+			$client->setRedirectUri($redirectUrl);
+
 			if (isset($_GET['code']))
 			{
 				$code = $_GET['code'];
-				$token = $client->fetchAccessTokenWithAuthCode($code]);
+				$token = $client->fetchAccessTokenWithAuthCode($code);
 				$client->setAccessToken($token);
 			}
 			else
 			{
-				$redirectUrl = filter_var($redirectUrl, FILTER_SANITIZE_URL);
-				$client->setRedirectUri($redirectUrl);
-
+				echo 'trying redirect...' . PHP_EOL;
 				$authorizationUrl = $client->createAuthUrl();
 				header('Location: ' . $authorizationUrl);
 			}
