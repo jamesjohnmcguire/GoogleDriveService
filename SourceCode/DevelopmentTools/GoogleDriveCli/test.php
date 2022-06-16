@@ -5,9 +5,34 @@ require_once 'GoogleAuthorization.php';
 
 defined('CREDENTIALS_FILE') or define('CREDENTIALS_FILE', 'credentials.json');
 
-function TestOauth()
+function TestDiscover()
 {
 	$client = GoogleAuthorization::Authorize(
+		Mode::Discover,
+		'',
+		'credentials.json',
+		'tokens.json',
+		'Google Drive API Video Uploader',
+		['https://www.googleapis.com/auth/drive'],
+		'http://localhost:8000/test.php');
+
+	if ($client != null)
+	{
+		echo 'Client seems valid' . PHP_EOL;
+	}
+}
+
+function TestOauth()
+{
+	echo 'Testing OAutho...' . PHP_EOL;
+
+	if (PHP_SAPI === 'cli')
+	{
+		echo 'WARNING: OAuth redirecting only works on the web' . PHP_EOL;
+	}
+	else
+	{
+		$client = GoogleAuthorization::Authorize(
 		Mode::OAuth,
 		'',
 		'credentials.json',
@@ -15,6 +40,7 @@ function TestOauth()
 		'Google Drive API Video Uploader',
 		['https://www.googleapis.com/auth/drive'],
 		'http://localhost:8000/test.php');
+	}
 
 	if ($client != null)
 	{
@@ -97,6 +123,8 @@ function TestServiceAccount()
 
 function TestTokens()
 {
+	echo 'Testing Tokens...' . PHP_EOL;
+
 	$client = GoogleAuthorization::Authorize(
 		Mode::Token,
 		'',
@@ -111,7 +139,7 @@ function TestTokens()
 	}
 }
 
+TestDiscover();
 TestRequestUser();
 TestTokens();
-echo 'Testing OAutho...' . PHP_EOL;
 TestOauth();

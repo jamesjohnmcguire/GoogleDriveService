@@ -32,6 +32,24 @@ class GoogleAuthorization
 
 		switch ($mode)
 		{
+			case Mode::Discover:
+				$client = self::AuthorizeToken(
+					$credentialsFile, $tokensFile, $name, $scopes);
+				
+				if ($client === null)
+				{
+					$client = self::AuthorizeServiceAccount(
+						$serviceAccountFile, $name, $scopes);
+
+					// Http fall back, redirect user for confirmation
+					if ($client === null && PHP_SAPI !== 'cli')
+					{
+						$client = self::RequestAuthorization(
+							$credentialsFile, $tokensFile, $name, $scopes);
+					}
+					// else use final fall back
+				}
+				break;
 			case Mode::OAuth:
 				$client = self::AuthorizeOAuth(
 					$credentialsFile, $name, $scopes,$redirectUrl);
@@ -99,7 +117,8 @@ class GoogleAuthorization
 			putenv('GOOGLE_APPLICATION_CREDENTIALS=' . $serviceAccountFilePath);
 		}
 
-		// else, nothing else to do...
+		// else, nothing else to do...  if GOOGLE_APPLICATION_CREDENTIALS is
+		// already set, Google API will use that
 
 		$client->useApplicationDefaultCredentials();
 
