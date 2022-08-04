@@ -453,7 +453,7 @@ class GoogleDrive
 
 			if (array_key_exists('access_token', $jsonContents))
 			{
-				$accessToken = $jsonContents['access_token'];
+				$accessToken = $jsonContents;
 			}
 		}
 		else
