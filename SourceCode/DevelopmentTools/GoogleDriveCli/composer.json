@@ -3,6 +3,12 @@
         "phpunit/phpunit": "^9.5"
     },
     "require": {
-        "google/apiclient": "^2.11"
+        "google/apiclient": "^2.11",
+        "digitalzenworks/google-api-authorization": "^1.0"
+    },
+    "config": {
+        "allow-plugins": {
+            "dealerdirect/phpcodesniffer-composer-installer": true
+        }
     }
 }

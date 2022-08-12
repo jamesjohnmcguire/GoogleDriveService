@@ -3,6 +3,9 @@ include_once 'vendor/autoload.php';
 require_once "libraries/common/common.php";
 require_once "libraries/common/debug.php";
 
+use DigitalZenWorks\GoogleApiAuthorization\Authorizer;
+use DigitalZenWorks\GoogleApiAuthorization\Mode;
+
 defined('CREDENTIALS_FILE') or define('CREDENTIALS_FILE', 'ProjectCredentials.json');
 defined('SHARED_FOLDER') or
 	define('SHARED_FOLDER', '1Mnztj-6iGYfnI0EkXCV-y7cizfekg5X9');
@@ -33,7 +36,14 @@ class GoogleDrive
 			$this->$key = $option;
 		}
 
-		$this->client = $this->Authorize($authorizationType);
+		$this->client = Authorizer::authorize(
+			Mode::ServiceAccount,
+			null,
+			$this->serviceAccountFilePath,
+			null,
+			'Google Drive API File Uploader',
+			['https://www.googleapis.com/auth/drive'],
+			null);
 
 		if ($this->client != null)
 		{
@@ -311,159 +321,6 @@ class GoogleDrive
 		return $giantChunk;
 	}
 
-	private static function AuthorizeRequestUser($client)
-	{
-		$result = false;
-
-		// Request authorization from the user.
-		$client->setRedirectUri("urn:ietf:wg:oauth:2.0:oob");
-		$authUrl = $client->createAuthUrl();
-		printf("Open the following link in your browser:\n%s\n", $authUrl);
-		print 'Enter verification code: ';
-		$rawCode = fgets(STDIN);
-		$authCode = trim($rawCode);
-
-		// Exchange authorization code for an access token.
-		$accessToken = $client->fetchAccessTokenWithAuthCode($authCode);
-		$client->setAccessToken($accessToken);
-
-		// Check to see if there was an error.
-		if (array_key_exists('error', $accessToken))
-		{
-			$notice = join(', ', $accessToken);
-			Debug::ShowStatic(Debug::ERROR, $notice);
-		}
-		else
-		{
-			$result = true;
-		}
-
-		return $result;
-	}
-
-	private function Authorize($authorizationType)
-	{
-		$client = new Google_Client();
-
-		$client->setApplicationName('Google Drive API Video Uploader');
-		$client->setScopes("https://www.googleapis.com/auth/drive");
-		$client->setAccessType('offline');
-
-		if ($authorizationType == 'ServiceAccount')
-		{
-			$client = $this->AuthorizeServiceAccount($client);
-		}
-		else if ($authorizationType == 'OAuth')
-		{
-			$this->AuthorizeOAuth($client);
-		}
-		else
-		{
-			$this->debug->Show(Debug::DEBUG, 'Loading credentials from token');
-			$client->setPrompt('select_account consent');
-			$this->AuthorizeOAuth($client);
-			$this->SetAccessToken($client);
-		}
-
-		return $client;
-	}
-
-	private function AuthorizeOAuth($client)
-	{
-		$credentialFile = null;
-
-		$this->debug->Show(Debug::DEBUG, 'Loading oauth credentials file');
-
-		$checkFile = __DIR__ . '/' . CREDENTIALS_FILE;
-		if (file_exists($checkFile))
-		{
-			$credentialFile = $checkFile;
-		}
-
-		if (empty($credentialFile))
-		{
-			$this->debug->Show(Debug::ERROR, "Credentials file missing");
-		}
-		else
-		{
-			$accessToken = $this->GetAccessTokenFromJsonFile($credentialFile);
-
-			if (!empty($accessToken))
-			{
-				$client->setAccessToken($accessToken);
-			}
-
-			$client->setAuthConfig($credentialFile);
-		}
-
-		return $credentialFile;
-	}
-
-	private function AuthorizeServiceAccount($client)
-	{
-		$this->serviceAccountFilePath =
-			getenv('GOOGLE_APPLICATION_CREDENTIALS');
-
-		if ($this->serviceAccountFilePath !== false)
-		{
-			$this->debug->Show(Debug::DEBUG, 'Using default credentials ' .
-				'from environment GOOGLE_APPLICATION_CREDENTIALS' . PHP_EOL);
-			$this->debug->Show(Debug::DEBUG, 'File is: ' .
-				$this->serviceAccountFilePath . PHP_EOL);
-
-			$client->useApplicationDefaultCredentials();
-		}
-		else
-		{
-			$this->serviceAccountFilePath =
-				__DIR__ . '/' . SERVICE_ACCOUNT_FILE;
-
-			$exists = file_exists($this->serviceAccountFilePath);
-			if ($exists === true)
-			{
-				$this->debug->Show(Debug::DEBUG,
-					'Setting environment variable ' .
-					'GOOGLE_APPLICATION_CREDENTIALS to ' .
-					$this->serviceAccountFilePath . PHP_EOL);
-	
-				putenv('GOOGLE_APPLICATION_CREDENTIALS=' .
-					$this->serviceAccountFilePath);
-
-				$client->useApplicationDefaultCredentials();
-			}
-			else
-			{
-				$this->debug->Show(Debug::DEBUG,
-					'Missing environment GOOGLE_APPLICATION_CREDENTIALS. ');
-				$client = null;
-			}
-		}
-
-		return $client;
-	}
-
-	private function GetAccessTokenFromJsonFile($filePath)
-	{
-		$accessToken = null;
-
-		if (file_exists($filePath))
-		{
-			$contents = file_get_contents($filePath);
-			$jsonContents = json_decode($contents, true);
-
-			if (array_key_exists('access_token', $jsonContents))
-			{
-				$accessToken = $jsonContents;
-			}
-		}
-		else
-		{
-			$this->debug->Show(Debug::DEBUG, 'JSON credentials file missing');
-		}
-
-		return $accessToken;
-	}
-
 	private function GetFiles(
 		$parentId, $showOnlyFolders = false, $showOnlyRootLevel = false)
 	{
@@ -560,60 +417,17 @@ class GoogleDrive
 
 	private function GetCoreSharedParentFolderIdFromFile()
 	{
-		$contents = file_get_contents($this->serviceAccountFilePath);
-		$data = json_decode($contents);
-
-		if (property_exists($data, 'core_shared_parent_folder_id'))
+		if (!empty($this->serviceAccountFilePath)  && file_exists($this->serviceAccountFilePath))
 		{
-			$this->coreSharedParentFolderId =
-				$data->core_shared_parent_folder_id;
-		}
-	}
+			$contents = file_get_contents($this->serviceAccountFilePath);
+			$data = json_decode($contents);
 
-	// Load previously authorized token from a file, if it exists.
-	// The file token.json stores the user's access and refresh tokens,
-	// and is created automatically when the authorization flow completes
-	// for the first time (below).
-	private function SetAccessToken($client)
-	{
-		$result = false;
-
-		$tokenPath = __DIR__ . '/' . TOKEN_FILE;
-
-		$accessToken = $this->GetAccessTokenFromJsonFile($tokenPath);
-
-		if (!empty($accessToken))
-		{
-			$client->setAccessToken($accessToken);
-		}
-
-		// If there is no previous token or it's expired.
-		if ($client->isAccessTokenExpired())
-		{
-			// Refresh the token if possible, else fetch a new one.
-			if ($client->getRefreshToken())
+			if (property_exists($data, 'core_shared_parent_folder_id'))
 			{
-				$refreshToken = $client->getRefreshToken();
-				$client->fetchAccessTokenWithRefreshToken($refreshToken);
-
-				$result = true;
-			}
-			else
-			{
-				$result = self::AuthorizeRequestUser($client);
+				$this->coreSharedParentFolderId =
+					$data->core_shared_parent_folder_id;
 			}
 		}
-		else
-		{
-			$result = true;
-		}
-
-		if ($result == true)
-		{
-			$this->UpdateJsonTokensFile($client, $tokenPath);
-		}
-
-		return $result;
 	}
 
 	private function TransferOwnership($email, $file)
@@ -625,18 +439,5 @@ class GoogleDrive
 		$options = array('transferOwnership' => 'true');
 
 		$this->service->permissions->create($file->id, $newPermission, $options);
-	}
-
-	private function UpdateJsonTokensFile($client, $tokenPath)
-	{
-		// Save the token to a file.
-		$path = dirname($tokenPath);
-		if (!file_exists($path))
-		{
-			mkdir($path, 0700, true);
-		}
-
-		$data = json_encode($client->getAccessToken());
-		file_put_contents($tokenPath, $data);
 	}
 }
