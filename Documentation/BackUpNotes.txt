@@ -1,5 +1,6 @@
 Tasks
 	Review, catch HttpRequestException
+	Improve README
 Google Drive
 	Finding RootSharedFolderId (aka Parent)
 		You need to manually open up your google drive account in a browser, then navigate to the folder where you want to be root shard folder and click share.  Add your service account email address there.  Also, copy the core part of the shared link, that is the RootSharedFolderId.
