@@ -54,16 +54,11 @@ namespace BackupManager
 		{
 			FileVersionInfo fileVersionInfo = null;
 
-			Assembly assembly = Assembly.GetExecutingAssembly();
+			// Bacause single file apps have no assemblies, get the information
+			// from the process.
+			Process process = Process.GetCurrentProcess();
 
-			string location = assembly.Location;
-
-			if (string.IsNullOrWhiteSpace(location))
-			{
-				// Single file apps have no assemblies.
-				Process process = Process.GetCurrentProcess();
-				location = process.MainModule.FileName;
-			}
+			string location = process.MainModule.FileName;
 
 			if (!string.IsNullOrWhiteSpace(location))
 			{
@@ -75,9 +70,14 @@ namespace BackupManager
 
 		private static string GetVersion()
 		{
+			string assemblyVersion = string.Empty;
+
 			FileVersionInfo fileVersionInfo = GetAssemblyInformation();
 
-			string assemblyVersion = fileVersionInfo.FileVersion;
+			if (fileVersionInfo != null)
+			{
+				assemblyVersion = fileVersionInfo.FileVersion;
+			}
 
 			return assemblyVersion;
 		}
@@ -108,28 +108,14 @@ namespace BackupManager
 
 		private static void ShowHelp(string additionalMessage)
 		{
-			Assembly assembly = Assembly.GetExecutingAssembly();
-			string location = assembly.Location;
+			FileVersionInfo fileVersionInfo = GetAssemblyInformation();
 
-			if (string.IsNullOrWhiteSpace(location))
+			if (fileVersionInfo != null)
 			{
-				// Single file apps have no assemblies.
-				Process process = Process.GetCurrentProcess();
-				location = process.MainModule.FileName;
-			}
-
-			if (!string.IsNullOrWhiteSpace(location))
-			{
-				FileVersionInfo versionInfo =
-				FileVersionInfo.GetVersionInfo(location);
-
-				string companyName = versionInfo.CompanyName;
-				string copyright = versionInfo.LegalCopyright;
-
-				AssemblyName assemblyName = assembly.GetName();
-				string name = assemblyName.Name;
-				Version version = assemblyName.Version;
-				string assemblyVersion = version.ToString();
+				string assemblyVersion = fileVersionInfo.FileVersion;
+				string companyName = fileVersionInfo.CompanyName;
+				string copyright = fileVersionInfo.LegalCopyright;
+				string name = fileVersionInfo.FileName;
 
 				string header = string.Format(
 					CultureInfo.CurrentCulture,
