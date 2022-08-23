@@ -1,14 +1,17 @@
 Tasks
 	Review, catch HttpRequestException
-	Improve README
+	Improve README - specifically the use of the json file
+	Remove single file app warnings
+	Review use of email
+	Improve APIs
+	Add support for other services, such as OneDrive
+	Implement help command
+	Change version format
 Google Drive
 	Finding RootSharedFolderId (aka Parent)
 		You need to manually open up your google drive account in a browser, then navigate to the folder where you want to be root shard folder and click share.  Add your service account email address there.  Also, copy the core part of the shared link, that is the RootSharedFolderId.
 	Working test
 		curl -i -v -H "Authorization: Bearer ya29.c.Ko4B4AdGrCaL70mj63gWploZ3Y06CYZvAupwKVFWXEPlV12KmRPGzra8Obs6mOASLjQO8XMhcF0-fT2NiHZdCbBSfHJ6zzYKLzhNqp_U7VrpRTr5ZLrIO9rCFqjnQ9nYodgdhVvOO3y_PhNc0Z1F2gdl7o0eqM9QZ64OtqB7dqHpMkJJ-5PKt4DDTiu_yM5Wvw" -H "Accept: application/json" -H "x-goog-api-client: gl-php/7.4.3 gdcl/2.4.0" -H "host: www.googleapis.com" -H "content-type: application/json" -H "user-agent: Google Drive API Video Uploader google-api-php-client/2.4.0" https://www.googleapis.com/drive/v3/files
-	Key Files
-		vendor\google\apiclient-services\src\Google\Service\Drive\FileList.php
-		vendor\google\apiclient\src\Google\Collection.php
 	Async Version
 		System.Threading.Tasks.TaskCanceledException
 		ObjectDisposedException
@@ -39,21 +42,3 @@ Resources
 		https://stackoverflow.com/questions/41587763/how-to-provide-credentials-programmatically-to-use-google-drive-api-in-c-sharp-o
 		https://github.com/LindaLawton/Google-Dotnet-Samples/blob/Genreated-samples1.0/Drive%20API/v3/FilesSample.cs
 		https://developers.google.com/gdata/articles/debugging_client_libs
-
-		GoogleDriveCli\vendor\google\apiclient\src\Client.php
-
-		class Google_Service_Drive extends Google_Service
-			public function __construct(Google_Client $client, $rootUrl = null)
-			GoogleDriveCli\vendor\google\apiclient-services\src\Google\Service\Drive.php
-		class Google_Service_Drive_Drive extends Google_Model
-			GoogleDriveCli\vendor\google\apiclient-services\src\Google\Service\Drive\Drive.php
-		class Google_Service_Drive_About extends Google_Collection
-			GoogleDriveCli\vendor\google\apiclient-services\src\Google\Service\Drive\About.php
-		class Google_Collection extends \Google\Collection {}
-			GoogleDriveCli\vendor\google\apiclient\src\aliases.php
-
-		https://developers.google.com/resources/api-libraries/documentation/drive/v3/php/latest/class-Google_Service_Drive_About.html
-
-		google drive php example
-			https://stackoverflow.com/questions/16153539/list-all-top-level-folders-in-google-drive-api
-		https://stackoverflow.com/questions/11304767/how-to-get-the-owner-of-file-using-google-drive-api
