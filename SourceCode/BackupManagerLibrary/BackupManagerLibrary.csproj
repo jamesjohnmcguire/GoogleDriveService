@@ -3,12 +3,16 @@
 	<PropertyGroup>
 		<AnalysisMode>All</AnalysisMode>
 		<AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+		<AssemblyName>DigitalZenWorks.BackUp.Library</AssemblyName>
 		<AssemblyVersion>1.0.0.0</AssemblyVersion>
+		<Authors>James John McGuire</Authors>
 		<CodeAnalysisRuleSet>..\CodeAnalysis.ruleset</CodeAnalysisRuleSet>
+		<Company>Digital Zen Works</Company>
 		<Copyright>Copyright © 2021 - 2022 James John McGuire</Copyright>
 		<EnableNETAnalyzers>true</EnableNETAnalyzers>
 		<FileVersion>1.0.208.0</FileVersion>
 		<GenerateDocumentationFile>true</GenerateDocumentationFile>
+		<LangVersion>Latest</LangVersion>
 		<NeutralLanguage>en-US</NeutralLanguage>
 		<OutputPath>$(SolutionDir)\Bin\$(Configuration)\$(Platform)</OutputPath>
 		<TargetFramework>net6.0</TargetFramework>
