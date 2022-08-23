@@ -1,11 +1,11 @@
 CD %~dp0
-CD ..\..
+CD ..\SourceCode
 
-rd /s /q Release
+IF EXIST Release\NUL rd /s /q Release
 
-dotnet publish --configuration Release -p:PublishSingleFile=true --runtime linux-x64 --self-contained -o Release\linux-x64 BackUpManager
-dotnet publish --configuration Release -p:PublishSingleFile=true --runtime osx-x64 --self-contained -o Release\osx-x64 BackUpManager
-dotnet publish --configuration Release -p:PublishReadyToRun=true;PublishSingleFile=true --runtime=win-x64 --self-contained --output Release\win-x64 BackUpManager
+dotnet publish --configuration Release --output Release\linux-x64 -p:PublishSingleFile=true --runtime linux-x64 --self-contained BackUpManager
+dotnet publish --configuration Release --output Release\osx-x64 -p:PublishSingleFile=true --runtime osx-x64 --self-contained BackUpManager
+dotnet publish --configuration Release --output Release\win-x64 -p:PublishReadyToRun=true -p:PublishSingleFile=true --runtime=win-x64 --self-contained BackUpManager
 
 IF "%1"=="release" GOTO release
 GOTO end
