@@ -1,12 +1,13 @@
 Tasks
-	Improve README - specifically the use of the json file
-	Review, catch HttpRequestException
 	Implement help command
+	Add first time use, like installer
 	Enable different types of authorization
 	Improve APIs
 	Add support for other services, such as OneDrive
 
 	Finished
+		Review, catch HttpRequestException
+		Improve README - specifically the use of the json file
 		Change version format
 		Remove single file app warnings
 		Review use of email
