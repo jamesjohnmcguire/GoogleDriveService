@@ -452,7 +452,10 @@ namespace BackupManagerLibrary
 					googleDrive.CreateLink("root", linkName, targetId);
 				}
 			}
-			catch (Google.GoogleApiException exception)
+			catch (Exception exception) when
+				(exception is Google.GoogleApiException ||
+				exception is System.Net.Http.HttpRequestException ||
+				exception is System.Net.Sockets.SocketException)
 			{
 				Log.Error(exception.ToString());
 			}
