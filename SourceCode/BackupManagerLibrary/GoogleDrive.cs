@@ -95,7 +95,7 @@ namespace BackupManagerLibrary
 		/// Documentation:
 		/// https://developers.google.com/accounts/docs/OAuth2#serviceaccount.
 		/// </summary>
-		/// <param name="credentialsFile">A file contiaining the credentials
+		/// <param name="credentialsFile">A file containing the credentials
 		/// information.</param>
 		/// <returns>True upon success,false otherwise.</returns>
 		public bool Authorize(string credentialsFile)
