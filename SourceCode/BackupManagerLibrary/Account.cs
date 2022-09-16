@@ -480,12 +480,30 @@ namespace BackupManagerLibrary
 		}
 
 		private void ProcessFiles(
+			string path,
 			DriveMapping driveMapping,
 			FileInfo[] files,
 			Google.Apis.Drive.v3.Data.File serverFolder,
 			IList<Google.Apis.Drive.v3.Data.File> serverFiles)
 		{
-			RemoveAbandonedFiles(files, serverFiles);
+			bool skipThisDirectory = false;
+
+			if (driveMapping.ExcludesContains(path))
+			{
+				Exclude exclude = driveMapping.GetExclude(path);
+				ExcludeType clause = exclude.ExcludeType;
+
+				if (clause == ExcludeType.Keep)
+				{
+					// Files have been marked as keep.
+					skipThisDirectory = true;
+				}
+			}
+
+			if (skipThisDirectory == false)
+			{
+				RemoveAbandonedFiles(files, serverFiles);
+			}
 
 			foreach (FileInfo file in files)
 			{
@@ -566,7 +584,8 @@ namespace BackupManagerLibrary
 
 			if (processFiles == true)
 			{
-				ProcessFiles(driveMapping, files, serverFolder, serverFiles);
+				ProcessFiles(
+					path, driveMapping, files, serverFolder, serverFiles);
 			}
 		}
 
