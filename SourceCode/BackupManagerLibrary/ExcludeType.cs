@@ -28,6 +28,11 @@ namespace BackupManagerLibrary
 		/// <summary>
 		/// Exclude the specified file.
 		/// </summary>
-		File = 2
+		File = 2,
+
+		/// <summary>
+		/// Keep the files in Google Drive, even if they don't exist locally.
+		/// </summary>
+		Keep = 3
 	}
 }
