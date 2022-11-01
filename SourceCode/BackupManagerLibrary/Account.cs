@@ -193,7 +193,8 @@ namespace BackupManagerLibrary
 					DirectoryInfo directoryInfo = new (driveMapping.Path);
 					string name = directoryInfo.Name;
 
-					CreateTopLevelLink(name, driveParentFolderId);
+					await CreateTopLevelLink(name, driveParentFolderId).
+						ConfigureAwait(false);
 
 					string path = Environment.ExpandEnvironmentVariables(
 						driveMapping.Path);
