@@ -203,7 +203,8 @@ namespace BackupManagerLibrary
 					Log.Info("Checking account default root shared folder");
 
 					IList<Google.Apis.Drive.v3.Data.File> serverFiles =
-						googleDrive.GetFiles(driveParentFolderId);
+						await googleDrive.GetFilesAsync(driveParentFolderId).
+						ConfigureAwait(false);
 
 					RemoveTopLevelAbandonedFiles(serverFiles);
 
@@ -440,12 +441,13 @@ namespace BackupManagerLibrary
 			}
 		}
 
-		private void CreateTopLevelLink(string linkName, string targetId)
+		private async Task CreateTopLevelLink(string linkName, string targetId)
 		{
 			try
 			{
-				bool found = googleDrive.DoesDriveItemExist(
-					"root", linkName, "application/vnd.google-apps.shortcut");
+				bool found = await googleDrive.DoesDriveItemExist(
+					"root", linkName, "application/vnd.google-apps.shortcut").
+					ConfigureAwait(false);
 
 				if (found == false)
 				{
@@ -563,7 +565,8 @@ namespace BackupManagerLibrary
 				Delay();
 			}
 
-			serverFiles = googleDrive.GetFiles(serverFolder.Id);
+			serverFiles = await googleDrive.GetFilesAsync(serverFolder.Id).
+				ConfigureAwait(false);
 
 			string[] subDirectories =
 				System.IO.Directory.GetDirectories(path);

@@ -13,6 +13,7 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
+using System.Threading.Tasks;
 
 namespace BackupManagerLibrary
 {
@@ -231,13 +232,13 @@ namespace BackupManagerLibrary
 		/// <param name="itemName">The name of the item.</param>
 		/// <param name="mimeType">The mime type of the item.</param>
 		/// <returns>Indicates whether the item was found or not.</returns>
-		public bool DoesDriveItemExist(
+		public async Task<bool> DoesDriveItemExist(
 			string parentId, string itemName, string mimeType)
 		{
 			bool found = false;
 
 			IList<Google.Apis.Drive.v3.Data.File> serverFiles =
-				GetFiles(parentId);
+				await GetFilesAsync(parentId).ConfigureAwait(false);
 
 			foreach (Google.Apis.Drive.v3.Data.File file in serverFiles)
 			{
@@ -264,11 +265,12 @@ namespace BackupManagerLibrary
 		}
 
 		/// <summary>
-		/// Get files method.
+		/// Get files async method.
 		/// </summary>
 		/// <param name="parent">The parent folder.</param>
 		/// <returns>A list of files.</returns>
-		public IList<Google.Apis.Drive.v3.Data.File> GetFiles(string parent)
+		public async Task<IList<Google.Apis.Drive.v3.Data.File>> GetFilesAsync(
+			string parent)
 		{
 			List<Google.Apis.Drive.v3.Data.File> files = null;
 
@@ -304,7 +306,9 @@ namespace BackupManagerLibrary
 						Log.Info(message);
 
 						Google.Apis.Drive.v3.Data.FileList filesList =
-							listRequest.Execute();
+							await listRequest.ExecuteAsync()
+							.ConfigureAwait(false);
+
 						files.AddRange(filesList.Files);
 
 						listRequest.PageToken = filesList.NextPageToken;
