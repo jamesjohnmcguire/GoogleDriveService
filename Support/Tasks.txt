@@ -1,3 +1,4 @@
+Pipeline Fix	Run dotnet restore	MSBUILD : error MSB1003: Specify a project or solution file. The current working directory does not contain a project or solution file.
 https://github.com/jamesjohnmcguire/GoogleDriveService	Fix README formatting
 Library	Improve parameters
 Doesn't remove top-level directories that are no longer listed in the configuration file	RemoveAbandedFolders at the very top level
