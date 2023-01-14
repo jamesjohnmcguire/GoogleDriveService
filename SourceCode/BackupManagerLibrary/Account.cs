@@ -446,6 +446,8 @@ namespace BackupManagerLibrary
 		{
 			try
 			{
+				linkName += ".lnk";
+
 				bool found = await googleDrive.DoesDriveItemExist(
 					"root", linkName, "application/vnd.google-apps.shortcut").
 					ConfigureAwait(false);
