@@ -1,5 +1,10 @@
-Pipeline Fix	Run dotnet restore	MSBUILD : error MSB1003: Specify a project or solution file. The current working directory does not contain a project or solution file.
+Update Json config to new configuration
 https://github.com/jamesjohnmcguire/GoogleDriveService	Fix README formatting
+Implement help command
+Add first time use, like installer
+Enable different types of authorization
+Improve APIs
+Add support for other services, such as OneDrive
 Library	Improve parameters
 Doesn't remove top-level directories that are no longer listed in the configuration file	RemoveAbandedFolders at the very top level
 Console	Establish clear starting point for console
@@ -14,6 +19,12 @@ ignore git files
 free native resources	needed?
 
 Finished
+	Pipeline Fix	Run dotnet restore	MSBUILD : error MSB1003: Specify a project or solution file. The current working directory does not contain a project or solution file.
+	Review, catch HttpRequestException
+	Improve README - specifically the use of the json file
+	Change version format
+	Remove single file app warnings
+	Review use of email
 	GoogleDriveService/Documentation/Sample.BackUp.json
 	The service drive has thrown an exception:	Google.GoogleApiException: Google.Apis.Requests.RequestError
 	Update https://github.com/jamesjohnmcguire/GoogleDriveService/blob/main/Documentation/Sample.BackUp.json

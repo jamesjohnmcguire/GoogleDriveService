@@ -1,16 +1,10 @@
-Tasks
-	Implement help command
-	Add first time use, like installer
-	Enable different types of authorization
-	Improve APIs
-	Add support for other services, such as OneDrive
-
-	Finished
-		Review, catch HttpRequestException
-		Improve README - specifically the use of the json file
-		Change version format
-		Remove single file app warnings
-		Review use of email
+Json
+	New Configuration
+		Top	Service Account
+			Sub Top Key	The immediate directory to be backed up
+				"DriveParentFolderId": "1iGwePlkxdI-phn_2cIIImhnnEaciqBgO",
+				"Path": "%USERPROFILE%/Data/External",
+				Excludes
 Google Drive
 	Finding RootSharedFolderId (aka Parent)
 		You need to manually open up your google drive account in a browser, then navigate to the folder where you want to be root shard folder and click share.  Add your service account email address there.  Also, copy the core part of the shared link, that is the RootSharedFolderId.
