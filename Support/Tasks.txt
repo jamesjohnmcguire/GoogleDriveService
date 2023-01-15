@@ -1,5 +1,6 @@
 Update Json config to new configuration
 https://github.com/jamesjohnmcguire/GoogleDriveService	Fix README formatting
+Improve Message:	Created Folder ID: 1k_XOMirfTlDlB-sx19qyPT4TKnpZoxTO Name Becky!
 Implement help command
 Add first time use, like installer
 Enable different types of authorization
