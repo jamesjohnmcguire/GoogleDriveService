@@ -313,8 +313,6 @@ namespace BackupManagerLibrary
 			{
 				if (System.IO.Directory.Exists(path))
 				{
-					DirectoryInfo directoryInfo = new (path);
-
 					RemoveExcludedItemsFromServer(driveMapping, serverFiles);
 
 					bool processSubFolders =
