@@ -265,6 +265,19 @@ namespace BackupManagerLibrary
 		}
 
 		/// <summary>
+		/// Get google drive file by id.
+		/// </summary>
+		/// <param name="driveId">The id of the google file.</param>
+		/// <returns>The file object.</returns>
+		public Google.Apis.Drive.v3.Data.File GetFileById(string driveId)
+		{
+			Google.Apis.Drive.v3.Data.File file =
+				driveService.Files.Get(driveId).Execute();
+
+			return file;
+		}
+
+		/// <summary>
 		/// Get files async method.
 		/// </summary>
 		/// <param name="parent">The parent folder.</param>
