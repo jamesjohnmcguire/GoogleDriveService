@@ -202,8 +202,11 @@ namespace BackupManagerLibrary
 
 					RemoveTopLevelAbandonedFiles(serverFiles);
 
+					Google.Apis.Drive.v3.Data.File rootFile =
+						googleDrive.GetFileById(driveParentFolderId);
+
 					await BackUp(
-						driveMapping, driveParentFolderId, path, serverFiles).
+						driveMapping, driveParentFolderId, path, rootFile).
 						ConfigureAwait(false);
 				}
 			}
@@ -307,13 +310,22 @@ namespace BackupManagerLibrary
 			DriveMapping driveMapping,
 			string parent,
 			string path,
-			IList<Google.Apis.Drive.v3.Data.File> serverFiles)
+			Google.Apis.Drive.v3.Data.File serverFolder)
 		{
 			try
 			{
 				if (System.IO.Directory.Exists(path))
 				{
+					IList<Google.Apis.Drive.v3.Data.File> serverFiles =
+						await googleDrive.GetFilesAsync(serverFolder.Id).
+							ConfigureAwait(false);
+
 					RemoveExcludedItemsFromServer(driveMapping, serverFiles);
+
+					string[] subDirectories =
+						System.IO.Directory.GetDirectories(path);
+
+					RemoveAbandonedFolders(path, subDirectories, serverFiles);
 
 					bool processSubFolders =
 						CheckProcessSubFolders(driveMapping, path);
@@ -578,7 +590,7 @@ namespace BackupManagerLibrary
 					driveMapping,
 					serverFolder.Id,
 					subDirectory,
-					serverFiles).ConfigureAwait(false);
+					serverFolder).ConfigureAwait(false);
 			}
 
 			bool processFiles =
