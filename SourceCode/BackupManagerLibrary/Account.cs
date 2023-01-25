@@ -319,7 +319,7 @@ namespace BackupManagerLibrary
 				{
 					DirectoryInfo directoryInfo = new (path);
 
-					RemoveExcludedFolders(driveMapping, path, serverFiles);
+					RemoveExcludedItemsFromServer(driveMapping, serverFiles);
 
 					bool processSubFolders =
 						CheckProcessSubFolders(driveMapping, path);
@@ -706,6 +706,29 @@ namespace BackupManagerLibrary
 					if (serverFolder != null)
 					{
 						DeleteFromDrive(serverFolder);
+					}
+				}
+			}
+		}
+
+		private void RemoveExcludedItemsFromServer(
+			DriveMapping driveMapping,
+			IList<Google.Apis.Drive.v3.Data.File> serverFiles)
+		{
+			foreach (Google.Apis.Drive.v3.Data.File serverFile in serverFiles)
+			{
+				foreach (Exclude exclude in driveMapping.Excludes)
+				{
+					ExcludeType clause = exclude.ExcludeType;
+
+					if (clause == ExcludeType.AllSubDirectories ||
+						clause == ExcludeType.File)
+					{
+						if (serverFile.Name.Equals(
+							exclude.Path, StringComparison.OrdinalIgnoreCase))
+						{
+							DeleteFromDrive(serverFile);
+						}
 					}
 				}
 			}
