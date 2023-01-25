@@ -284,18 +284,20 @@ namespace BackupManagerLibrary
 		{
 			bool processSubFolders = true;
 
-			// Check for default ignore paths
 			DirectoryInfo directoryInfo = new (path);
 			string directoryName = directoryInfo.Name;
 
-			if (driveMapping.ExcludesContains(path))
+			foreach (Exclude exclude in driveMapping.Excludes)
 			{
-				Exclude exclude = driveMapping.GetExclude(path);
 				ExcludeType clause = exclude.ExcludeType;
 
 				if (clause == ExcludeType.AllSubDirectories)
 				{
-					processSubFolders = false;
+					if (exclude.Path.Equals(
+						directoryName, StringComparison.OrdinalIgnoreCase))
+					{
+						processSubFolders = false;
+					}
 				}
 			}
 
