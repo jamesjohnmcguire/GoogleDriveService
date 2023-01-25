@@ -97,9 +97,15 @@ namespace BackupManager
 
 			LoggerConfiguration configuration = new ();
 			LoggerSinkConfiguration sinkConfiguration = configuration.WriteTo;
-			sinkConfiguration.Console(LogEventLevel.Verbose, outputTemplate);
+			sinkConfiguration.Console(
+				LogEventLevel.Verbose,
+				outputTemplate,
+				CultureInfo.CurrentCulture);
 			sinkConfiguration.File(
-				logFilePath, LogEventLevel.Verbose, outputTemplate);
+				logFilePath,
+				LogEventLevel.Verbose,
+				outputTemplate,
+				CultureInfo.CurrentCulture);
 			Serilog.Log.Logger = configuration.CreateLogger();
 
 			LogManager.Adapter =
