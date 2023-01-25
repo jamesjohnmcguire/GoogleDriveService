@@ -185,14 +185,9 @@ namespace BackupManagerLibrary
 						driveMapping.Path);
 					Log.Info(message);
 
-					// This helps in maintaining the service accounts, as
-					// without it, files tend to fall into the 'black hole' of
-					// the service account.
-					DirectoryInfo directoryInfo = new (driveMapping.Path);
-					string name = directoryInfo.Name;
-
-					await CreateTopLevelLink(name, driveParentFolderId).
-						ConfigureAwait(false);
+					await CreateTopLevelLink(
+						driveMapping, driveParentFolderId).
+							ConfigureAwait(false);
 
 					string path = Environment.ExpandEnvironmentVariables(
 						driveMapping.Path);
@@ -432,11 +427,24 @@ namespace BackupManagerLibrary
 			return success;
 		}
 
-		private async Task CreateTopLevelLink(string linkName, string targetId)
+		/// <summary>
+		/// Create top level link.
+		/// </summary>
+		/// <remarks>This helps in maintaining the service accounts, as
+		/// without it, files tend to fall into the 'black hole' of
+		/// the service account.</remarks>
+		/// <param name="driveMapping">The drive mapping.</param>
+		/// <param name="targetId">The target id.</param>
+		/// <returns>A task indicating completion.</returns>
+		private async Task CreateTopLevelLink(
+			DriveMapping driveMapping, string targetId)
 		{
 			try
 			{
-				linkName += ".lnk";
+				DirectoryInfo directoryInfo = new (driveMapping.Path);
+				string name = directoryInfo.Name;
+
+				string linkName = name + ".lnk";
 
 				bool found = await googleDrive.DoesDriveItemExist(
 					"root", linkName, "application/vnd.google-apps.shortcut").
