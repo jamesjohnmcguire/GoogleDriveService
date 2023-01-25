@@ -19,7 +19,7 @@ namespace BackupManagerLibrary
 	/// </summary>
 	public class DriveMapping
 	{
-		private readonly IList<Exclude> excludes = new List<Exclude>();
+		private IList<Exclude> excludes = new List<Exclude>();
 
 		/// <summary>
 		/// Initializes a new instance of the <see cref="DriveMapping"/> class.
@@ -83,6 +83,19 @@ namespace BackupManagerLibrary
 				exclude.Path = Environment.ExpandEnvironmentVariables(
 					exclude.Path);
 				exclude.Path = System.IO.Path.GetFullPath(exclude.Path);
+
+				if (exclude.ExcludeType == ExcludeType.File &&
+					exclude.Path.Contains(
+						'*', StringComparison.OrdinalIgnoreCase))
+				{
+					IList<Exclude> newExcludes = ExpandWildCard(exclude.Path);
+
+					if (newExcludes.Count > 0)
+					{
+						excludes.Remove(exclude);
+						excludes = excludes.Concat(newExcludes).ToList();
+					}
+				}
 			}
 
 			return excludes;
@@ -188,6 +201,34 @@ namespace BackupManagerLibrary
 			}
 
 			return matched;
+		}
+
+		private static IList<Exclude> ExpandWildCard(string path)
+		{
+			IList<Exclude> newExcludes = new List<Exclude>();
+
+			if (path.Contains(
+				'*', StringComparison.OrdinalIgnoreCase))
+			{
+				int index = path.IndexOf(
+					'*', StringComparison.OrdinalIgnoreCase);
+				string pattern = path.Substring(index);
+
+				Matcher matcher = new ();
+				matcher.AddInclude(pattern);
+
+				string directory = System.IO.Path.GetDirectoryName(path);
+				IEnumerable<string> matchingFiles =
+					matcher.GetResultsInFullPath(directory);
+
+				foreach (string match in matchingFiles)
+				{
+					Exclude exclude = new Exclude(match, ExcludeType.File);
+					newExcludes.Add(exclude);
+				}
+			}
+
+			return newExcludes;
 		}
 	}
 }
