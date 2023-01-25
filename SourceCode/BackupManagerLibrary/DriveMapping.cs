@@ -78,17 +78,24 @@ namespace BackupManagerLibrary
 		/// <returns>A list of expanded excludes.</returns>
 		public IList<Exclude> ExpandExcludes()
 		{
-			foreach (Exclude exclude in excludes)
+			for (int index = excludes.Count - 1; index >= 0; index--)
 			{
+				Exclude exclude = excludes[index];
+
 				exclude.Path = Environment.ExpandEnvironmentVariables(
 					exclude.Path);
-				exclude.Path = System.IO.Path.GetFullPath(exclude.Path);
+
+				if (exclude.ExcludeType != ExcludeType.AllSubDirectories)
+				{
+					exclude.Path = System.IO.Path.GetFullPath(exclude.Path);
+				}
 
 				if (exclude.ExcludeType == ExcludeType.File &&
 					exclude.Path.Contains(
 						'*', StringComparison.OrdinalIgnoreCase))
 				{
-					IList<Exclude> newExcludes = ExpandWildCard(exclude.Path);
+					IList<Exclude> newExcludes =
+						ExpandWildCard(exclude.Path);
 
 					if (newExcludes.Count > 0)
 					{
