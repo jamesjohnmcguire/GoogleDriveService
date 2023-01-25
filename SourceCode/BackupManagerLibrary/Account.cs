@@ -173,8 +173,6 @@ namespace BackupManagerLibrary
 
 			if (authenticated == true)
 			{
-				CleanUp();
-
 				foreach (DriveMapping driveMapping in DriveMappings)
 				{
 					string driveParentFolderId =
@@ -432,16 +430,6 @@ namespace BackupManagerLibrary
 			}
 
 			return success;
-		}
-
-		private void CleanUp()
-		{
-			string[] files = Array.Empty<string>();
-
-			foreach (string file in files)
-			{
-				googleDrive.Delete(file);
-			}
 		}
 
 		private async Task CreateTopLevelLink(string linkName, string targetId)
