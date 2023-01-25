@@ -288,8 +288,7 @@ namespace BackupManagerLibrary
 			DirectoryInfo directoryInfo = new (path);
 			string directoryName = directoryInfo.Name;
 
-			if (driveMapping.ExcludesContains(path) ||
-				driveMapping.ExcludesContains(directoryName))
+			if (driveMapping.ExcludesContains(path))
 			{
 				Exclude exclude = driveMapping.GetExclude(path);
 				ExcludeType clause = exclude.ExcludeType;
@@ -693,8 +692,7 @@ namespace BackupManagerLibrary
 			DirectoryInfo directoryInfo = new (path);
 			string directoryName = directoryInfo.Name;
 
-			if (driveMapping.ExcludesContains(path) ||
-				driveMapping.ExcludesContains(directoryName))
+			if (driveMapping.ExcludesContains(path))
 			{
 				Exclude exclude = driveMapping.GetExclude(path);
 				ExcludeType clause = exclude.ExcludeType;
