@@ -246,12 +246,13 @@ namespace BackupManagerLibrary
 		{
 			bool processFile = true;
 
-			if (driveMapping.ExcludesContains(path))
+			foreach (Exclude exclude in driveMapping.Excludes)
 			{
-				Exclude exclude = driveMapping.GetExclude(path);
 				ExcludeType clause = exclude.ExcludeType;
 
-				if (clause == ExcludeType.File)
+				if (clause == ExcludeType.File &&
+					exclude.Path.Equals(
+						path, StringComparison.OrdinalIgnoreCase))
 				{
 					processFile = false;
 				}
