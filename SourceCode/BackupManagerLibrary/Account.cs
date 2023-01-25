@@ -682,34 +682,6 @@ namespace BackupManagerLibrary
 			}
 		}
 
-		private void RemoveExcludedFolders(
-			DriveMapping driveMapping,
-			string path,
-			IList<Google.Apis.Drive.v3.Data.File> serverFiles)
-		{
-			// Check for default ignore paths
-			DirectoryInfo directoryInfo = new (path);
-			string directoryName = directoryInfo.Name;
-
-			if (driveMapping.ExcludesContains(path))
-			{
-				Exclude exclude = driveMapping.GetExclude(path);
-				ExcludeType clause = exclude.ExcludeType;
-
-				if (clause == ExcludeType.AllSubDirectories)
-				{
-					Google.Apis.Drive.v3.Data.File serverFolder =
-						GoogleDrive.GetFileInList(
-							serverFiles, directoryInfo.Name);
-
-					if (serverFolder != null)
-					{
-						DeleteFromDrive(serverFolder);
-					}
-				}
-			}
-		}
-
 		private void RemoveExcludedItemsFromServer(
 			DriveMapping driveMapping,
 			IList<Google.Apis.Drive.v3.Data.File> serverFiles)
