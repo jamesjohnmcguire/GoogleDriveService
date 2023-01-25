@@ -4,10 +4,12 @@
 // </copyright>
 /////////////////////////////////////////////////////////////////////////////
 
+using Microsoft.Extensions.FileSystemGlobbing;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Text;
 
 namespace BackupManagerLibrary
@@ -80,6 +82,7 @@ namespace BackupManagerLibrary
 			{
 				exclude.Path = Environment.ExpandEnvironmentVariables(
 					exclude.Path);
+				exclude.Path = System.IO.Path.GetFullPath(exclude.Path);
 			}
 
 			return excludes;
@@ -116,16 +119,9 @@ namespace BackupManagerLibrary
 
 			foreach (Exclude exclude in excludes)
 			{
-				string checkPath = System.IO.Path.GetFullPath(path);
+				bool matched = CheckExclude(exclude, path);
 
-				DirectoryInfo directoryInfo =
-					System.IO.Directory.GetParent(path);
-
-				string excludeCheckPath = System.IO.Path.GetFullPath(
-					exclude.Path, directoryInfo.FullName);
-
-				if (checkPath.Equals(
-					excludeCheckPath, StringComparison.OrdinalIgnoreCase))
+				if (matched == true)
 				{
 					foundExclude = exclude;
 					break;
@@ -133,6 +129,65 @@ namespace BackupManagerLibrary
 			}
 
 			return foundExclude;
+		}
+
+		private static bool CheckExclude(Exclude exclude, string path)
+		{
+			bool matched = false;
+
+			string checkPath = System.IO.Path.GetFullPath(path);
+
+			DirectoryInfo directoryInfo =
+				System.IO.Directory.GetParent(path);
+
+			string excludeCheckPath = System.IO.Path.GetFullPath(
+				exclude.Path, directoryInfo.FullName);
+
+			if (checkPath.Equals(
+				excludeCheckPath, StringComparison.OrdinalIgnoreCase))
+			{
+				matched = true;
+			}
+			else
+			{
+				bool isWildCardExclude =
+					CheckWildCards(exclude, path, checkPath);
+
+				if (isWildCardExclude == true)
+				{
+					matched = true;
+				}
+			}
+
+			return matched;
+		}
+
+		private static bool CheckWildCards(
+			Exclude exclude, string path, string checkPath)
+		{
+			bool matched = false;
+
+			if (exclude.Path.Contains(
+				'*', StringComparison.OrdinalIgnoreCase))
+			{
+				int index = exclude.Path.IndexOf(
+					'*', StringComparison.OrdinalIgnoreCase);
+				string pattern = exclude.Path.Substring(index);
+
+				Matcher matcher = new ();
+				matcher.AddInclude(pattern);
+
+				string directory = System.IO.Path.GetDirectoryName(path);
+				IEnumerable<string> matchingFiles =
+					matcher.GetResultsInFullPath(directory);
+
+				if (matchingFiles.Contains(checkPath))
+				{
+					matched = true;
+				}
+			}
+
+			return matched;
 		}
 	}
 }
