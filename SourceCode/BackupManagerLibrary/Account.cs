@@ -193,8 +193,10 @@ namespace BackupManagerLibrary
 					await CreateTopLevelLink(
 						driveParentFolderId, path).ConfigureAwait(false);
 
+					string parentPath = Path.GetDirectoryName(path);
+
 					await RemoveTopLevelAbandonedFiles(
-						driveParentFolderId, path).ConfigureAwait(false);
+						driveParentFolderId, parentPath).ConfigureAwait(false);
 
 					await BackUp(
 						driveMapping, driveParentFolderId, path).
