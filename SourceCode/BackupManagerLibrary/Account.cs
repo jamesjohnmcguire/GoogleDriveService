@@ -269,7 +269,7 @@ namespace BackupManagerLibrary
 			return processFiles;
 		}
 
-		private static bool CheckProcessSubFolders(
+		private static bool ShouldProcessFolder(
 			DriveMapping driveMapping, string path)
 		{
 			bool processSubFolders = true;
@@ -308,26 +308,52 @@ namespace BackupManagerLibrary
 			{
 				if (System.IO.Directory.Exists(path))
 				{
-					IList<Google.Apis.Drive.v3.Data.File> serverFiles =
-						await googleDrive.GetFilesAsync(driveParentId).
-							ConfigureAwait(false);
+					bool processFolder =
+						ShouldProcessFolder(driveMapping, path);
 
-					RemoveExcludedItemsFromServer(
-						driveMapping.Excludes, serverFiles);
-
-					string[] subDirectories =
-						System.IO.Directory.GetDirectories(path);
-
-					RemoveAbandonedFolders(path, subDirectories, serverFiles);
-
-					bool processSubFolders =
-						CheckProcessSubFolders(driveMapping, path);
-
-					if (processSubFolders == true)
+					if (processFolder == true)
 					{
-						await ProcessSubFolders(
-							driveMapping, driveParentId, path, serverFiles).
-							ConfigureAwait(false);
+						IList<Google.Apis.Drive.v3.Data.File> serverFiles =
+							await googleDrive.GetFilesAsync(driveParentId).
+								ConfigureAwait(false);
+
+						RemoveExcludedItemsFromServer(
+							driveMapping.Excludes, serverFiles);
+
+						string[] subDirectories =
+							System.IO.Directory.GetDirectories(path);
+
+						RemoveAbandonedFolders(
+							path, subDirectories, serverFiles);
+
+						DirectoryInfo directoryInfo = new (path);
+
+						Google.Apis.Drive.v3.Data.File serverFolder =
+							GoogleDrive.GetFileInList(
+								serverFiles, directoryInfo.Name);
+
+						foreach (string subDirectory in subDirectories)
+						{
+							await BackUp(
+								driveMapping,
+								serverFolder.Id,
+								subDirectory).ConfigureAwait(false);
+						}
+
+						bool processFiles =
+							CheckProcessRootFolder(driveMapping, path);
+
+						if (processFiles == true)
+						{
+							FileInfo[] files = directoryInfo.GetFiles();
+
+							ProcessFiles(
+								path,
+								driveMapping,
+								files,
+								serverFolder,
+								serverFiles);
+						}
 					}
 				}
 			}
@@ -546,52 +572,6 @@ namespace BackupManagerLibrary
 						success = true;
 					}
 				}
-			}
-		}
-
-		private async Task ProcessSubFolders(
-			DriveMapping driveMapping,
-			string driveParentId,
-			string path,
-			IList<Google.Apis.Drive.v3.Data.File> serverFiles)
-		{
-			DirectoryInfo directoryInfo = new (path);
-
-			FileInfo[] files = directoryInfo.GetFiles();
-
-			Google.Apis.Drive.v3.Data.File serverFolder =
-				GoogleDrive.GetFileInList(serverFiles, directoryInfo.Name);
-
-			if (serverFolder == null)
-			{
-				serverFolder = googleDrive.CreateFolder(
-					driveParentId, directoryInfo.Name);
-				Delay();
-			}
-
-			serverFiles = await googleDrive.GetFilesAsync(serverFolder.Id).
-				ConfigureAwait(false);
-
-			string[] subDirectories =
-				System.IO.Directory.GetDirectories(path);
-
-			RemoveAbandonedFolders(path, subDirectories, serverFiles);
-
-			foreach (string subDirectory in subDirectories)
-			{
-				await BackUp(
-					driveMapping,
-					serverFolder.Id,
-					subDirectory).ConfigureAwait(false);
-			}
-
-			bool processFiles =
-				CheckProcessRootFolder(driveMapping, path);
-
-			if (processFiles == true)
-			{
-				ProcessFiles(
-					path, driveMapping, files, serverFolder, serverFiles);
 			}
 		}
 
