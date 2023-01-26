@@ -479,7 +479,7 @@ namespace BackupManagerLibrary
 		{
 			try
 			{
-				string name = Path.GetDirectoryName(path);
+				string name = Path.GetFileName(path);
 
 				string linkName = name + ".lnk";
 
