@@ -338,12 +338,12 @@ namespace BackupManagerLibrary
 
 						DirectoryInfo directoryInfo = new (path);
 
-						GoogleDriveFile serverFolder =
-							GoogleDrive.GetFileInList(
-								serverFiles, directoryInfo.Name);
-
 						foreach (string subDirectory in subDirectories)
 						{
+							GoogleDriveFile serverFolder =
+								GoogleDrive.GetFileInList(
+									serverFiles, subDirectory);
+
 							await BackUp(
 								driveMapping,
 								serverFolder.Id,
@@ -356,6 +356,10 @@ namespace BackupManagerLibrary
 						if (processFiles == true)
 						{
 							FileInfo[] files = directoryInfo.GetFiles();
+
+							GoogleDriveFile serverFolder =
+								GoogleDrive.GetFileInList(
+									serverFiles, directoryInfo.Name);
 
 							ProcessFiles(
 								path,
