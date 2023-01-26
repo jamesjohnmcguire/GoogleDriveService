@@ -194,8 +194,6 @@ namespace BackupManagerLibrary
 						driveMapping.Path, driveParentFolderId).
 							ConfigureAwait(false);
 
-					Log.Info("Checking account default root shared folder");
-
 					IList<Google.Apis.Drive.v3.Data.File> serverFiles =
 						await googleDrive.GetFilesAsync(driveParentFolderId).
 						ConfigureAwait(false);
