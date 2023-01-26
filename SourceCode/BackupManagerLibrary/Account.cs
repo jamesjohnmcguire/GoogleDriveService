@@ -316,7 +316,8 @@ namespace BackupManagerLibrary
 						await googleDrive.GetFilesAsync(serverFolder.Id).
 							ConfigureAwait(false);
 
-					RemoveExcludedItemsFromServer(driveMapping, serverFiles);
+					RemoveExcludedItemsFromServer(
+						driveMapping.Excludes, serverFiles);
 
 					string[] subDirectories =
 						System.IO.Directory.GetDirectories(path);
@@ -689,12 +690,12 @@ namespace BackupManagerLibrary
 		}
 
 		private void RemoveExcludedItemsFromServer(
-			DriveMapping driveMapping,
+			IList<Exclude> excludes,
 			IList<Google.Apis.Drive.v3.Data.File> serverFiles)
 		{
 			foreach (Google.Apis.Drive.v3.Data.File serverFile in serverFiles)
 			{
-				foreach (Exclude exclude in driveMapping.Excludes)
+				foreach (Exclude exclude in excludes)
 				{
 					ExcludeType clause = exclude.ExcludeType;
 
@@ -733,7 +734,7 @@ namespace BackupManagerLibrary
 
 					foreach (string localEntry in localEntries)
 					{
-						FileInfo fileInfo = new FileInfo(localEntry);
+						FileInfo fileInfo = new (localEntry);
 
 						string name = fileInfo.Name;
 
