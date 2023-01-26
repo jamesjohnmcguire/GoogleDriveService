@@ -196,11 +196,20 @@ namespace BackupManagerLibrary
 
 					string parentPath = Path.GetDirectoryName(path);
 
+					IList<Google.Apis.Drive.v3.Data.File> serverFiles =
+						await googleDrive.GetFilesAsync(driveParentFolderId).
+							ConfigureAwait(false);
+
 					await RemoveTopLevelAbandonedFiles(
 						driveParentFolderId, parentPath).ConfigureAwait(false);
 
+					string directoryName = Path.GetFileName(path);
+					Google.Apis.Drive.v3.Data.File serverFolder =
+						GoogleDrive.GetFileInList(
+							serverFiles, directoryName);
+
 					await BackUp(
-						driveMapping, driveParentFolderId, path).
+						driveMapping, serverFolder.Id, path).
 							ConfigureAwait(false);
 				}
 			}
