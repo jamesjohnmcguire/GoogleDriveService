@@ -284,8 +284,7 @@ namespace BackupManagerLibrary
 		{
 			bool processSubFolders = true;
 
-			DirectoryInfo directoryInfo = new (path);
-			string directoryName = directoryInfo.Name;
+			string directoryName = Path.GetDirectoryName(path);
 
 			foreach (Exclude exclude in driveMapping.Excludes)
 			{
@@ -480,8 +479,7 @@ namespace BackupManagerLibrary
 		{
 			try
 			{
-				DirectoryInfo directoryInfo = new (path);
-				string name = directoryInfo.Name;
+				string name = Path.GetDirectoryName(path);
 
 				string linkName = name + ".lnk";
 
