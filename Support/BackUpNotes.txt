@@ -40,3 +40,113 @@ Resources
 		https://stackoverflow.com/questions/41587763/how-to-provide-credentials-programmatically-to-use-google-drive-api-in-c-sharp-o
 		https://github.com/LindaLawton/Google-Dotnet-Samples/blob/Genreated-samples1.0/Drive%20API/v3/FilesSample.cs
 		https://developers.google.com/gdata/articles/debugging_client_libs
+Refactor
+	Excludes
+		expand excludes
+		if any sub directory is in excludes
+			skip
+		if any file is in excludes
+			skip
+
+	Run
+		Account::BackUp
+			ExpandIncludes (Environment Variables)
+				string checkPath = System.IO.Path.GetFullPath(path);
+				expand wildcards as well
+
+			Account::BackUp (params)
+				RemoveExcludedFolders
+					driveMapping.ExcludesContains(path)
+						GetExclude
+							for each exclude
+								CheckExclude
+				ProcessSubFolders
+					CheckProcessRootFolder
+					ProcessFiles
+
+
+	"C:\\Users\\JamesMc\\Data\\ProgramData\\Outlook"
+	"C:\\Users\\JamesMc\\Data\\ProgramData\\_svn
+	"C:\\Users\\JamesMc\\Data\\ProgramData\\partition1.dat
+
+
+	Why is this not processing files in the current directory?
+			private async Task BackUp(
+				DriveMapping driveMapping,
+				string parent,
+				string path,
+				IList<Google.Apis.Drive.v3.Data.File> serverFiles)
+
+	RemoveExcludedFolders (From Server) path
+		Get Base File Name
+
+		if excludes contain baseFileName 
+		if server files contain
+
+	RemoveExcludedFoldersFromServer (excludes serverFiles)
+		for each server file
+			for each excludes.directories
+				if excludeDirectory equals server file
+					delete server file
+
+	CheckProcessSubFolders
+		for each excludes.directories
+			if excludeDirectory equals path
+				skip (return false)
+
+	CheckProcessFile
+		for each excludes.files
+			expand file to include current path (future)
+			if exclude.file equals file
+				skip
+	CheckProcessRootFolder
+		for each excludes.files
+			if (clause == ExcludeType.OnlyRoot)
+				if exclude.file equals file
+					skip
+	RemoveAbandonedFilesFromServer
+		for each server file
+			for each excludes.file
+				if excludes.file equals server file
+					delete server file
+
+	BackUp
+		ShouldProcessFolder
+		if true
+			RemoveExcludedFilesFromServer
+			GetDirectories
+			RemoveAbandonedFoldersFromServer
+
+			for each sub directory
+				BackUp
+
+			ProcessFiles
+
+	ProcessFiles
+		ShouldProcessFiles (CheckProcessRootFolder)
+		if true
+			GetFiles
+			RemoveAbandonedFilesFromServer
+			for each file
+				CheckProcessFile
+				if true
+					BackUpFile
+
+	ProcessFile
+		CheckProcessFile
+		if true
+			BackUpFile
+
+	Replace CheckProcessRootFolder with CheckProcessFiles
+
+	Eventually, add global property to determine if this item should be deleted anywhere or only in the specified directory
+	Google.Apis.Drive.v3.Data.File
+	Path.GetFileName
+	RemoveTopLevelAbandonedFiles use serverFiles as parameter
+
+	System.IO.DirectoryNotFoundException
+	  HResult=0x80070003
+	  Message=Could not find a part of the path 'C:\Users\JamesMc\Data\Clients\DigitalZenWorks\BackupManager\SourceCode\Bin\Debug\AnyCPU\%USERPROFILE%\Data\ProgramData\Outlook'.
+	  Source=System.Private.CoreLib
+
+1PlsJOTubd-XVMje2D5Tg30BDZcTEXI9C
