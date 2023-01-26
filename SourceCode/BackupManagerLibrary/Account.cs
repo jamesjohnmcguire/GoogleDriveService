@@ -191,7 +191,7 @@ namespace BackupManagerLibrary
 					Log.Info(message);
 
 					await CreateTopLevelLink(
-						driveMapping.Path, driveParentFolderId).
+						driveParentFolderId, driveMapping.Path).
 							ConfigureAwait(false);
 
 					await RemoveTopLevelAbandonedFiles(
@@ -439,11 +439,11 @@ namespace BackupManagerLibrary
 		/// <remarks>This helps in maintaining the service accounts, as
 		/// without it, files tend to fall into the 'black hole' of
 		/// the service account.</remarks>
-		/// <param name="path">The local path being mapped.</param>
 		/// <param name="targetId">The target id.</param>
+		/// <param name="path">The local path being mapped.</param>
 		/// <returns>A task indicating completion.</returns>
 		private async Task CreateTopLevelLink(
-			string path, string targetId)
+			string targetId, string path)
 		{
 			try
 			{
