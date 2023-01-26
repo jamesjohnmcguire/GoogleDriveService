@@ -690,7 +690,7 @@ namespace BackupManagerLibrary
 			string path)
 		{
 			string[] localEntries = Directory.GetFileSystemEntries(
-				path, "*", SearchOption.AllDirectories);
+				path, "*", SearchOption.TopDirectoryOnly);
 
 			IList<Google.Apis.Drive.v3.Data.File> serverFiles =
 				await googleDrive.GetFilesAsync(topLevelId).
