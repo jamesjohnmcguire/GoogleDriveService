@@ -180,6 +180,7 @@ namespace BackupManagerLibrary
 
 					string path = Environment.ExpandEnvironmentVariables(
 						driveMapping.Path);
+					path = Path.GetFullPath(path);
 
 					driveMapping.ExpandExcludes();
 
