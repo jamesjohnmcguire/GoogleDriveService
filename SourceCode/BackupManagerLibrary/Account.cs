@@ -178,21 +178,21 @@ namespace BackupManagerLibrary
 					string driveParentFolderId =
 						driveMapping.DriveParentFolderId;
 
+					string path = Environment.ExpandEnvironmentVariables(
+						driveMapping.Path);
+
+					driveMapping.ExpandExcludes();
+
 					string message = string.Format(
 						CultureInfo.InvariantCulture,
-						"Checking: {0} - {1}",
-						driveParentFolderId,
-						driveMapping.Path);
+						"Checking: \"{0}\" with Parent Id: {1}",
+						driveMapping.Path,
+						driveParentFolderId);
 					Log.Info(message);
 
 					await CreateTopLevelLink(
 						driveMapping, driveParentFolderId).
 							ConfigureAwait(false);
-
-					string path = Environment.ExpandEnvironmentVariables(
-						driveMapping.Path);
-
-					driveMapping.ExpandExcludes();
 
 					Log.Info("Checking account default root shared folder");
 
