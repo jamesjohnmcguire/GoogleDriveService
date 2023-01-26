@@ -191,7 +191,7 @@ namespace BackupManagerLibrary
 					Log.Info(message);
 
 					await CreateTopLevelLink(
-						driveMapping, driveParentFolderId).
+						driveMapping.Path, driveParentFolderId).
 							ConfigureAwait(false);
 
 					Log.Info("Checking account default root shared folder");
@@ -443,15 +443,15 @@ namespace BackupManagerLibrary
 		/// <remarks>This helps in maintaining the service accounts, as
 		/// without it, files tend to fall into the 'black hole' of
 		/// the service account.</remarks>
-		/// <param name="driveMapping">The drive mapping.</param>
+		/// <param name="path">The local path being mapped.</param>
 		/// <param name="targetId">The target id.</param>
 		/// <returns>A task indicating completion.</returns>
 		private async Task CreateTopLevelLink(
-			DriveMapping driveMapping, string targetId)
+			string path, string targetId)
 		{
 			try
 			{
-				DirectoryInfo directoryInfo = new (driveMapping.Path);
+				DirectoryInfo directoryInfo = new (path);
 				string name = directoryInfo.Name;
 
 				string linkName = name + ".lnk";
