@@ -198,11 +198,8 @@ namespace BackupManagerLibrary
 						driveParentFolderId, driveMapping.Path).
 							ConfigureAwait(false);
 
-					Google.Apis.Drive.v3.Data.File rootFile =
-						googleDrive.GetFileById(driveParentFolderId);
-
 					await BackUp(
-						driveMapping, driveParentFolderId, path, rootFile).
+						driveMapping, driveParentFolderId, path).
 						ConfigureAwait(false);
 				}
 			}
@@ -304,16 +301,15 @@ namespace BackupManagerLibrary
 
 		private async Task BackUp(
 			DriveMapping driveMapping,
-			string parent,
-			string path,
-			Google.Apis.Drive.v3.Data.File serverFolder)
+			string driveParentId,
+			string path)
 		{
 			try
 			{
 				if (System.IO.Directory.Exists(path))
 				{
 					IList<Google.Apis.Drive.v3.Data.File> serverFiles =
-						await googleDrive.GetFilesAsync(serverFolder.Id).
+						await googleDrive.GetFilesAsync(driveParentId).
 							ConfigureAwait(false);
 
 					RemoveExcludedItemsFromServer(
@@ -330,7 +326,7 @@ namespace BackupManagerLibrary
 					if (processSubFolders == true)
 					{
 						await ProcessSubFolders(
-							driveMapping, parent, path, serverFiles).
+							driveMapping, driveParentId, path, serverFiles).
 							ConfigureAwait(false);
 					}
 				}
@@ -555,7 +551,7 @@ namespace BackupManagerLibrary
 
 		private async Task ProcessSubFolders(
 			DriveMapping driveMapping,
-			string parent,
+			string driveParentId,
 			string path,
 			IList<Google.Apis.Drive.v3.Data.File> serverFiles)
 		{
@@ -568,8 +564,8 @@ namespace BackupManagerLibrary
 
 			if (serverFolder == null)
 			{
-				serverFolder =
-					googleDrive.CreateFolder(parent, directoryInfo.Name);
+				serverFolder = googleDrive.CreateFolder(
+					driveParentId, directoryInfo.Name);
 				Delay();
 			}
 
@@ -586,8 +582,7 @@ namespace BackupManagerLibrary
 				await BackUp(
 					driveMapping,
 					serverFolder.Id,
-					subDirectory,
-					serverFolder).ConfigureAwait(false);
+					subDirectory).ConfigureAwait(false);
 			}
 
 			bool processFiles =
