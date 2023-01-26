@@ -194,11 +194,9 @@ namespace BackupManagerLibrary
 						driveMapping.Path, driveParentFolderId).
 							ConfigureAwait(false);
 
-					IList<Google.Apis.Drive.v3.Data.File> serverFiles =
-						await googleDrive.GetFilesAsync(driveParentFolderId).
-						ConfigureAwait(false);
-
-					RemoveTopLevelAbandonedFiles(serverFiles);
+					await RemoveTopLevelAbandonedFiles(
+						driveParentFolderId, driveMapping.Path).
+							ConfigureAwait(false);
 
 					Google.Apis.Drive.v3.Data.File rootFile =
 						googleDrive.GetFileById(driveParentFolderId);
@@ -713,9 +711,17 @@ namespace BackupManagerLibrary
 			}
 		}
 
-		private void RemoveTopLevelAbandonedFiles(
-			IList<Google.Apis.Drive.v3.Data.File> serverFiles)
+		private async Task RemoveTopLevelAbandonedFiles(
+			string topLevelId,
+			string path)
 		{
+			string[] localEntries = Directory.GetFileSystemEntries(
+				path, "*", SearchOption.AllDirectories);
+
+			IList<Google.Apis.Drive.v3.Data.File> serverFiles =
+				await googleDrive.GetFilesAsync(topLevelId).
+				ConfigureAwait(false);
+
 			int count = serverFiles.Count;
 
 			for (int index = count - 1; index >= 0; index--)
@@ -725,9 +731,11 @@ namespace BackupManagerLibrary
 				{
 					bool found = false;
 
-					foreach (DriveMapping driveMapping in driveMappings)
+					foreach (string localEntry in localEntries)
 					{
-						string name = Path.GetFileName(driveMapping.Path);
+						FileInfo fileInfo = new FileInfo(localEntry);
+
+						string name = fileInfo.Name;
 
 						if (name.Equals(
 							file.Name, StringComparison.OrdinalIgnoreCase))
