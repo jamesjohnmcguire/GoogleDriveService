@@ -186,21 +186,19 @@ namespace BackupManagerLibrary
 					string message = string.Format(
 						CultureInfo.InvariantCulture,
 						"Checking: \"{0}\" with Parent Id: {1}",
-						driveMapping.Path,
+						path,
 						driveParentFolderId);
 					Log.Info(message);
 
 					await CreateTopLevelLink(
-						driveParentFolderId, driveMapping.Path).
-							ConfigureAwait(false);
+						driveParentFolderId, path).ConfigureAwait(false);
 
 					await RemoveTopLevelAbandonedFiles(
-						driveParentFolderId, driveMapping.Path).
-							ConfigureAwait(false);
+						driveParentFolderId, path).ConfigureAwait(false);
 
 					await BackUp(
 						driveMapping, driveParentFolderId, path).
-						ConfigureAwait(false);
+							ConfigureAwait(false);
 				}
 			}
 		}
