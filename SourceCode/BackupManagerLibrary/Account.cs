@@ -202,8 +202,8 @@ namespace BackupManagerLibrary
 						await googleDrive.GetFilesAsync(driveParentFolderId).
 							ConfigureAwait(false);
 
-					await RemoveTopLevelAbandonedFiles(
-						driveParentFolderId, parentPath).ConfigureAwait(false);
+					RemoveTopLevelAbandonedFiles(
+						serverFiles, parentPath);
 
 					string directoryName = Path.GetFileName(path);
 					GoogleDriveFile serverFolder =
@@ -693,16 +693,12 @@ namespace BackupManagerLibrary
 			}
 		}
 
-		private async Task RemoveTopLevelAbandonedFiles(
-			string topLevelId,
+		private void RemoveTopLevelAbandonedFiles(
+			IList<GoogleDriveFile> serverFiles,
 			string path)
 		{
 			string[] localEntries = Directory.GetFileSystemEntries(
 				path, "*", SearchOption.TopDirectoryOnly);
-
-			IList<GoogleDriveFile> serverFiles =
-				await googleDrive.GetFilesAsync(topLevelId).
-				ConfigureAwait(false);
 
 			int count = serverFiles.Count;
 
