@@ -311,13 +311,6 @@ namespace BackupManagerLibrary
 				{
 					try
 					{
-						string message = string.Format(
-							CultureInfo.InvariantCulture,
-							"Retrieved files from: {0} count: {1}",
-							parent,
-							files.Count);
-						Log.Info(message);
-
 						Google.Apis.Drive.v3.Data.FileList filesList =
 							await listRequest.ExecuteAsync()
 							.ConfigureAwait(false);
@@ -325,6 +318,13 @@ namespace BackupManagerLibrary
 						files.AddRange(filesList.Files);
 
 						listRequest.PageToken = filesList.NextPageToken;
+
+						string message = string.Format(
+							CultureInfo.InvariantCulture,
+							"Retrieved files from: {0} count: {1}",
+							parent,
+							files.Count);
+						Log.Info(message);
 					}
 					catch (Google.GoogleApiException exception)
 					{
