@@ -196,7 +196,7 @@ namespace BackupManagerLibrary
 
 			string message = string.Format(
 				CultureInfo.InvariantCulture,
-				"Created Folder ID: {0} Name {1}",
+				"Created Link Id: {0} of: Name {1}",
 				file.Id,
 				file.Name);
 			Log.Info(message);
