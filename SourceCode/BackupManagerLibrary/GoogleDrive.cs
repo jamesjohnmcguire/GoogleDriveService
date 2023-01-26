@@ -15,6 +15,8 @@ using System.Globalization;
 using System.IO;
 using System.Threading.Tasks;
 
+using GoogleDriveFile = Google.Apis.Drive.v3.Data.File;
+
 namespace BackupManagerLibrary
 {
 	/// <summary>
@@ -51,14 +53,14 @@ namespace BackupManagerLibrary
 		/// <param name="files">List of files.</param>
 		/// <param name="name">The file to retrieve.</param>
 		/// <returns>The retrieved file.</returns>
-		public static Google.Apis.Drive.v3.Data.File GetFileInList(
-			IList<Google.Apis.Drive.v3.Data.File> files, string name)
+		public static GoogleDriveFile GetFileInList(
+			IList<GoogleDriveFile> files, string name)
 		{
-			Google.Apis.Drive.v3.Data.File file = null;
+			GoogleDriveFile file = null;
 
 			if ((files != null) && (!string.IsNullOrWhiteSpace(name)))
 			{
-				foreach (Google.Apis.Drive.v3.Data.File driveFile in files)
+				foreach (GoogleDriveFile driveFile in files)
 				{
 					if (name.Equals(driveFile.Name, StringComparison.Ordinal))
 					{
@@ -128,10 +130,10 @@ namespace BackupManagerLibrary
 		/// <param name="parent">The parent of the folder.</param>
 		/// <param name="folderName">The folder name.</param>
 		/// <returns>A file object of the folder.</returns>
-		public Google.Apis.Drive.v3.Data.File CreateFolder(
+		public GoogleDriveFile CreateFolder(
 			string parent, string folderName)
 		{
-			Google.Apis.Drive.v3.Data.File file = null;
+			GoogleDriveFile file = null;
 
 			if (string.IsNullOrWhiteSpace(parent))
 			{
@@ -140,7 +142,7 @@ namespace BackupManagerLibrary
 			}
 			else
 			{
-				Google.Apis.Drive.v3.Data.File fileMetadata = new ();
+				GoogleDriveFile fileMetadata = new ();
 
 				fileMetadata.Name = folderName;
 				fileMetadata.MimeType = "application/vnd.google-apps.folder";
@@ -172,14 +174,14 @@ namespace BackupManagerLibrary
 		/// <param name="linkName">The link name.</param>
 		/// <param name="targetId">The target of the link.</param>
 		/// <returns>A file object of the folder.</returns>
-		public Google.Apis.Drive.v3.Data.File CreateLink(
+		public GoogleDriveFile CreateLink(
 			string parent, string linkName, string targetId)
 		{
-			Google.Apis.Drive.v3.Data.File fileMetadata = new ();
+			GoogleDriveFile fileMetadata = new ();
 
 			fileMetadata.Name = linkName;
 			fileMetadata.MimeType = "application/vnd.google-apps.shortcut";
-			Google.Apis.Drive.v3.Data.File.ShortcutDetailsData shortCut =
+			GoogleDriveFile.ShortcutDetailsData shortCut =
 				new ();
 
 			shortCut.TargetId = targetId;
@@ -192,7 +194,7 @@ namespace BackupManagerLibrary
 			FilesResource.CreateRequest request =
 				driveService.Files.Create(fileMetadata);
 			request.Fields = "id, name, parents";
-			Google.Apis.Drive.v3.Data.File file = request.Execute();
+			GoogleDriveFile file = request.Execute();
 
 			string message = string.Format(
 				CultureInfo.InvariantCulture,
@@ -237,10 +239,10 @@ namespace BackupManagerLibrary
 		{
 			bool found = false;
 
-			IList<Google.Apis.Drive.v3.Data.File> serverFiles =
+			IList<GoogleDriveFile> serverFiles =
 				await GetFilesAsync(parentId).ConfigureAwait(false);
 
-			foreach (Google.Apis.Drive.v3.Data.File file in serverFiles)
+			foreach (GoogleDriveFile file in serverFiles)
 			{
 				try
 				{
@@ -269,9 +271,9 @@ namespace BackupManagerLibrary
 		/// </summary>
 		/// <param name="driveId">The id of the google file.</param>
 		/// <returns>The file object.</returns>
-		public Google.Apis.Drive.v3.Data.File GetFileById(string driveId)
+		public GoogleDriveFile GetFileById(string driveId)
 		{
-			Google.Apis.Drive.v3.Data.File file =
+			GoogleDriveFile file =
 				driveService.Files.Get(driveId).Execute();
 
 			return file;
@@ -282,10 +284,10 @@ namespace BackupManagerLibrary
 		/// </summary>
 		/// <param name="parent">The parent folder.</param>
 		/// <returns>A list of files.</returns>
-		public async Task<IList<Google.Apis.Drive.v3.Data.File>> GetFilesAsync(
+		public async Task<IList<GoogleDriveFile>> GetFilesAsync(
 			string parent)
 		{
-			List<Google.Apis.Drive.v3.Data.File> files = null;
+			List<GoogleDriveFile> files = null;
 
 			if (string.IsNullOrWhiteSpace(parent))
 			{
@@ -344,11 +346,11 @@ namespace BackupManagerLibrary
 		/// <param name="file">The file.</param>
 		/// <param name="destinationId">The id of destination folder.</param>
 		public void MoveFile(
-			Google.Apis.Drive.v3.Data.File file, string destinationId)
+			GoogleDriveFile file, string destinationId)
 		{
 			if (file != null)
 			{
-				Google.Apis.Drive.v3.Data.File placeHolder = new ();
+				GoogleDriveFile placeHolder = new ();
 
 				FilesResource.UpdateRequest updateRequest =
 					driveService.Files.Update(placeHolder, file.Id);
@@ -382,7 +384,7 @@ namespace BackupManagerLibrary
 
 			FileInfo file = new (filePath);
 
-			Google.Apis.Drive.v3.Data.File fileMetadata = new ();
+			GoogleDriveFile fileMetadata = new ();
 			fileMetadata.Name = file.Name;
 
 			using FileStream stream = new (filePath, System.IO.FileMode.Open);
@@ -464,7 +466,7 @@ namespace BackupManagerLibrary
 		}
 
 		private static void UploadResponseReceived(
-			Google.Apis.Drive.v3.Data.File file)
+			GoogleDriveFile file)
 		{
 			string fileName = SanitizeFileName(file.Name);
 			string message = fileName + " was uploaded successfully";

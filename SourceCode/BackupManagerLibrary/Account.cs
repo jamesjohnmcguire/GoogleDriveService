@@ -13,6 +13,8 @@ using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
 
+using GoogleDriveFile = Google.Apis.Drive.v3.Data.File;
+
 namespace BackupManagerLibrary
 {
 	/// <summary>
@@ -64,7 +66,7 @@ namespace BackupManagerLibrary
 		/// </summary>
 		/// <param name="serverFolder">The server folder to report on.</param>
 		public static void ReportServerFolderInformation(
-			Google.Apis.Drive.v3.Data.File serverFolder)
+			GoogleDriveFile serverFolder)
 		{
 			if (serverFolder == null)
 			{
@@ -196,7 +198,7 @@ namespace BackupManagerLibrary
 
 					string parentPath = Path.GetDirectoryName(path);
 
-					IList<Google.Apis.Drive.v3.Data.File> serverFiles =
+					IList<GoogleDriveFile> serverFiles =
 						await googleDrive.GetFilesAsync(driveParentFolderId).
 							ConfigureAwait(false);
 
@@ -204,9 +206,8 @@ namespace BackupManagerLibrary
 						driveParentFolderId, parentPath).ConfigureAwait(false);
 
 					string directoryName = Path.GetFileName(path);
-					Google.Apis.Drive.v3.Data.File serverFolder =
-						GoogleDrive.GetFileInList(
-							serverFiles, directoryName);
+					GoogleDriveFile serverFolder =
+						GoogleDrive.GetFileInList(serverFiles, directoryName);
 
 					await BackUp(
 						driveMapping, serverFolder.Id, path).
@@ -322,7 +323,7 @@ namespace BackupManagerLibrary
 
 					if (processFolder == true)
 					{
-						IList<Google.Apis.Drive.v3.Data.File> serverFiles =
+						IList<GoogleDriveFile> serverFiles =
 							await googleDrive.GetFilesAsync(driveParentId).
 								ConfigureAwait(false);
 
@@ -337,7 +338,7 @@ namespace BackupManagerLibrary
 
 						DirectoryInfo directoryInfo = new (path);
 
-						Google.Apis.Drive.v3.Data.File serverFolder =
+						GoogleDriveFile serverFolder =
 							GoogleDrive.GetFileInList(
 								serverFiles, directoryInfo.Name);
 
@@ -389,8 +390,8 @@ namespace BackupManagerLibrary
 		}
 
 		private bool BackUpFile(
-			Google.Apis.Drive.v3.Data.File serverFolder,
-			IList<Google.Apis.Drive.v3.Data.File> serverFiles,
+			GoogleDriveFile serverFolder,
+			IList<GoogleDriveFile> serverFiles,
 			FileInfo file,
 			bool retry)
 		{
@@ -406,9 +407,8 @@ namespace BackupManagerLibrary
 					fileName);
 				Log.Info(message);
 
-				Google.Apis.Drive.v3.Data.File serverFile =
-						GoogleDrive.GetFileInList(
-							serverFiles, file.Name);
+				GoogleDriveFile serverFile =
+						GoogleDrive.GetFileInList(serverFiles, file.Name);
 
 				Upload(serverFolder, file, serverFile, retry);
 
@@ -501,8 +501,7 @@ namespace BackupManagerLibrary
 			}
 		}
 
-		private void DeleteFromDrive(
-			Google.Apis.Drive.v3.Data.File file)
+		private void DeleteFromDrive(GoogleDriveFile file)
 		{
 			if (file.OwnedByMe == true)
 			{
@@ -523,8 +522,8 @@ namespace BackupManagerLibrary
 			string path,
 			DriveMapping driveMapping,
 			FileInfo[] files,
-			Google.Apis.Drive.v3.Data.File serverFolder,
-			IList<Google.Apis.Drive.v3.Data.File> serverFiles)
+			GoogleDriveFile serverFolder,
+			IList<GoogleDriveFile> serverFiles)
 		{
 			bool skipThisDirectory = false;
 
@@ -584,10 +583,9 @@ namespace BackupManagerLibrary
 		}
 
 		private void RemoveAbandonedFile(
-			FileInfo file,
-			IList<Google.Apis.Drive.v3.Data.File> serverFiles)
+			FileInfo file, IList<GoogleDriveFile> serverFiles)
 		{
-			foreach (Google.Apis.Drive.v3.Data.File serverFile in serverFiles)
+			foreach (GoogleDriveFile serverFile in serverFiles)
 			{
 				try
 				{
@@ -614,9 +612,9 @@ namespace BackupManagerLibrary
 
 		private void RemoveAbandonedFiles(
 			FileInfo[] files,
-			IList<Google.Apis.Drive.v3.Data.File> serverFiles)
+			IList<GoogleDriveFile> serverFiles)
 		{
-			foreach (Google.Apis.Drive.v3.Data.File file in serverFiles)
+			foreach (GoogleDriveFile file in serverFiles)
 			{
 				try
 				{
@@ -644,9 +642,9 @@ namespace BackupManagerLibrary
 		private void RemoveAbandonedFolders(
 			string path,
 			string[] subDirectories,
-			IList<Google.Apis.Drive.v3.Data.File> serverFiles)
+			IList<GoogleDriveFile> serverFiles)
 		{
-			foreach (Google.Apis.Drive.v3.Data.File file in serverFiles)
+			foreach (GoogleDriveFile file in serverFiles)
 			{
 				try
 				{
@@ -674,9 +672,9 @@ namespace BackupManagerLibrary
 
 		private void RemoveExcludedItemsFromServer(
 			IList<Exclude> excludes,
-			IList<Google.Apis.Drive.v3.Data.File> serverFiles)
+			IList<GoogleDriveFile> serverFiles)
 		{
-			foreach (Google.Apis.Drive.v3.Data.File serverFile in serverFiles)
+			foreach (GoogleDriveFile serverFile in serverFiles)
 			{
 				foreach (Exclude exclude in excludes)
 				{
@@ -702,7 +700,7 @@ namespace BackupManagerLibrary
 			string[] localEntries = Directory.GetFileSystemEntries(
 				path, "*", SearchOption.TopDirectoryOnly);
 
-			IList<Google.Apis.Drive.v3.Data.File> serverFiles =
+			IList<GoogleDriveFile> serverFiles =
 				await googleDrive.GetFilesAsync(topLevelId).
 				ConfigureAwait(false);
 
@@ -710,7 +708,7 @@ namespace BackupManagerLibrary
 
 			for (int index = count - 1; index >= 0; index--)
 			{
-				Google.Apis.Drive.v3.Data.File file = serverFiles[index];
+				GoogleDriveFile file = serverFiles[index];
 				if (file.OwnedByMe == true)
 				{
 					bool found = false;
@@ -738,9 +736,9 @@ namespace BackupManagerLibrary
 		}
 
 		private void Upload(
-			Google.Apis.Drive.v3.Data.File serverFolder,
+			GoogleDriveFile serverFolder,
 			FileInfo file,
-			Google.Apis.Drive.v3.Data.File serverFile,
+			GoogleDriveFile serverFile,
 			bool retry)
 		{
 			if (serverFile == null)
