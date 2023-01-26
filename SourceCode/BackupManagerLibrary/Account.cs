@@ -344,10 +344,18 @@ namespace BackupManagerLibrary
 								GoogleDrive.GetFileInList(
 									serverFiles, subDirectory);
 
-							await BackUp(
-								driveMapping,
-								serverFolder.Id,
-								subDirectory).ConfigureAwait(false);
+							if (serverFolder == null)
+							{
+								Log.Error("Server Folder is null for:" +
+									subDirectory);
+							}
+							else
+							{
+								await BackUp(
+									driveMapping,
+									serverFolder.Id,
+									subDirectory).ConfigureAwait(false);
+							}
 						}
 
 						bool processFiles =
