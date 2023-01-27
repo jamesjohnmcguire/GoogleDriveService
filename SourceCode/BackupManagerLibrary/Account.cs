@@ -357,7 +357,7 @@ namespace BackupManagerLibrary
 							}
 						}
 
-						ProcessFiles(
+						BackUpFiles(
 							driveParentId, driveMapping, path, serverFiles);
 					}
 				}
@@ -436,6 +436,34 @@ namespace BackupManagerLibrary
 			}
 		}
 
+		private void BackUpFiles(
+			string driveParentId,
+			DriveMapping driveMapping,
+			string path,
+			IList<GoogleDriveFile> serverFiles)
+		{
+			bool processFiles =
+				ShouldProcessFiles(driveMapping, path);
+
+			if (processFiles == true)
+			{
+				DirectoryInfo directoryInfo = new (path);
+
+				FileInfo[] files = directoryInfo.GetFiles();
+
+				RemoveAbandonedFiles(files, serverFiles);
+
+				foreach (FileInfo file in files)
+				{
+					BackUpFile(
+						driveParentId,
+						file,
+						serverFiles,
+						driveMapping.Excludes);
+				}
+			}
+		}
+
 		/// <summary>
 		/// Create top level link.
 		/// </summary>
@@ -486,38 +514,6 @@ namespace BackupManagerLibrary
 
 				googleDrive.Delete(file.Id);
 				Delay();
-			}
-		}
-
-		private void ProcessFiles(
-			string driveParentId,
-			DriveMapping driveMapping,
-			string path,
-			IList<GoogleDriveFile> serverFiles)
-		{
-			bool processFiles =
-				ShouldProcessFiles(driveMapping, path);
-
-			if (processFiles == true)
-			{
-				DirectoryInfo directoryInfo = new (path);
-
-				FileInfo[] files = directoryInfo.GetFiles();
-
-				RemoveAbandonedFiles(files, serverFiles);
-
-				GoogleDriveFile serverFolder =
-					GoogleDrive.GetFileInList(
-						serverFiles, directoryInfo.Name);
-
-				foreach (FileInfo file in files)
-				{
-					BackUpFile(
-						driveParentId,
-						file,
-						serverFiles,
-						driveMapping.Excludes);
-				}
 			}
 		}
 
