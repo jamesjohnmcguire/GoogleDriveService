@@ -279,13 +279,13 @@ namespace BackupManagerLibrary
 		}
 
 		private static bool ShouldProcessFolder(
-			DriveMapping driveMapping, string path)
+			IList<Exclude> excludes, string path)
 		{
 			bool processSubFolders = true;
 
 			string directoryName = Path.GetDirectoryName(path);
 
-			foreach (Exclude exclude in driveMapping.Excludes)
+			foreach (Exclude exclude in excludes)
 			{
 				ExcludeType clause = exclude.ExcludeType;
 
@@ -317,7 +317,7 @@ namespace BackupManagerLibrary
 				if (System.IO.Directory.Exists(path))
 				{
 					bool processFolder =
-						ShouldProcessFolder(driveMapping, path);
+						ShouldProcessFolder(driveMapping.Excludes, path);
 
 					if (processFolder == true)
 					{
