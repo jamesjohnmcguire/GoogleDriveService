@@ -239,20 +239,22 @@ namespace BackupManagerLibrary
 			// free native resources
 		}
 
-		private static bool CheckProcessFile(
-			DriveMapping driveMapping, string path)
+		private static bool ShouldProcessFile(
+			IList<Exclude> excludes, string path)
 		{
 			bool processFile = true;
 
-			foreach (Exclude exclude in driveMapping.Excludes)
+			foreach (Exclude exclude in excludes)
 			{
 				ExcludeType clause = exclude.ExcludeType;
 
-				if (clause == ExcludeType.File &&
-					exclude.Path.Equals(
-						path, StringComparison.OrdinalIgnoreCase))
+				if (clause == ExcludeType.File)
 				{
-					processFile = false;
+					if (exclude.Path.Equals(
+						path, StringComparison.OrdinalIgnoreCase))
+					{
+						processFile = false;
+					}
 				}
 			}
 
@@ -496,8 +498,8 @@ namespace BackupManagerLibrary
 
 				foreach (FileInfo file in files)
 				{
-					bool checkFile =
-						CheckProcessFile(driveMapping, file.FullName);
+					bool checkFile = ShouldProcessFile(
+							driveMapping.Excludes, file.FullName);
 
 					if (checkFile == true)
 					{

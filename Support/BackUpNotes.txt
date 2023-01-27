@@ -155,6 +155,9 @@ Use Name instead of Retrieved files from: 1hCiGoMTSFhiuIfESFuuVnFAejmn-Vonr coun
 If DriveMapping driveMapping is being passed only for DriveMapping.Excludes, pass Excludes instead
 RemoveAbandonedFiles(files, serverFiles); should include check for 'keep'
 Retries should be inside BackUpFile
+Refactor CheckProcessFile
+Refactor ShouldProcessFiles(
+Make parameter order consistent
 
 System.NullReferenceException
   HResult=0x80004003
