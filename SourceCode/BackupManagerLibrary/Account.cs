@@ -406,8 +406,7 @@ namespace BackupManagerLibrary
 		private bool BackUpFile(
 			string driveParentId,
 			IList<GoogleDriveFile> serverFiles,
-			FileInfo file,
-			bool retry)
+			FileInfo file)
 		{
 			bool success = false;
 
@@ -424,7 +423,7 @@ namespace BackupManagerLibrary
 				GoogleDriveFile serverFile =
 						GoogleDrive.GetFileInList(serverFiles, file.Name);
 
-				Upload(driveParentId, file, serverFile, retry);
+				Upload(driveParentId, file, serverFile);
 
 				success = true;
 			}
@@ -571,8 +570,7 @@ namespace BackupManagerLibrary
 
 					if (checkFile == true)
 					{
-						success = BackUpFile(
-							driveParentId, serverFiles, file, retry);
+						success = BackUpFile(driveParentId, serverFiles, file);
 
 						if ((success == false) && (retries > 0))
 						{
@@ -748,19 +746,18 @@ namespace BackupManagerLibrary
 		private void Upload(
 			string driveParentId,
 			FileInfo file,
-			GoogleDriveFile serverFile,
-			bool retry)
+			GoogleDriveFile serverFile)
 		{
 			if (serverFile == null)
 			{
 				googleDrive.Upload(
-					driveParentId, file.FullName, null, retry);
+					driveParentId, file.FullName, null);
 			}
 			else if (serverFile.ModifiedTime < file.LastWriteTime)
 			{
 				// local file is newer
 				googleDrive.Upload(
-					driveParentId, file.FullName, serverFile.Id, retry);
+					driveParentId, file.FullName, serverFile.Id);
 			}
 		}
 	}

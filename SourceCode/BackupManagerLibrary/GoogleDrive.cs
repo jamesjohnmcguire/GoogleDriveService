@@ -367,21 +367,8 @@ namespace BackupManagerLibrary
 		/// <param name="folder">The folder to upload to.</param>
 		/// <param name="filePath">The file path to upload.</param>
 		/// <param name="fileId">The file id.</param>
-		/// <param name="retry">Indicates whether to retry
-		/// upon failure.</param>
-		public void Upload(
-			string folder, string filePath, string fileId, bool retry)
+		public void Upload(string folder, string filePath, string fileId)
 		{
-			if (retry == true)
-			{
-				TimeSpan timeOut = driveService.HttpClient.Timeout +
-					TimeSpan.FromSeconds(100);
-
-				// apparentely, we need to reset the drive service
-				driveService = new DriveService(initializer);
-				driveService.HttpClient.Timeout = timeOut;
-			}
-
 			FileInfo file = new (filePath);
 
 			GoogleDriveFile fileMetadata = new ();
@@ -468,6 +455,16 @@ namespace BackupManagerLibrary
 			{
 				try
 				{
+					if (retries < 2)
+					{
+						TimeSpan timeOut = driveService.HttpClient.Timeout +
+							TimeSpan.FromSeconds(100);
+
+						// apparentely, we need to reset the drive service
+						driveService = new DriveService(initializer);
+						driveService.HttpClient.Timeout = timeOut;
+					}
+
 					UploadCore(folder, fileId, fileMetadata, stream, mimeType);
 
 					success = true;
