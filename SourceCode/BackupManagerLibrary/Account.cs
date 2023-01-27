@@ -261,7 +261,7 @@ namespace BackupManagerLibrary
 			return processFile;
 		}
 
-		private static bool CheckProcessRootFolder(
+		private static bool ShouldProcessFiles(
 			DriveMapping driveMapping, string path)
 		{
 			bool processFiles = true;
@@ -361,7 +361,7 @@ namespace BackupManagerLibrary
 						}
 
 						bool processFiles =
-							CheckProcessRootFolder(driveMapping, path);
+							ShouldProcessFiles(driveMapping, path);
 
 						if (processFiles == true)
 						{
