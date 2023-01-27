@@ -461,6 +461,61 @@ namespace BackupManagerLibrary
 			FileStream stream,
 			string mimeType)
 		{
+			bool success = false;
+			int retries = 2;
+
+			do
+			{
+				try
+				{
+					UploadCore(folder, fileId, fileMetadata, stream, mimeType);
+
+					success = true;
+				}
+				catch (AggregateException exception)
+				{
+					Log.Error("AggregateException caught");
+					Log.Error(exception.ToString());
+
+					foreach (Exception innerExecption in
+						exception.InnerExceptions)
+					{
+						if (innerExecption is TaskCanceledException)
+						{
+							Log.Warn(exception.ToString());
+
+							retries--;
+						}
+						else if (innerExecption is ArgumentNullException ||
+							innerExecption is DirectoryNotFoundException ||
+							innerExecption is FileNotFoundException ||
+							innerExecption is FormatException ||
+							innerExecption is IOException ||
+							innerExecption is NullReferenceException ||
+							innerExecption is IndexOutOfRangeException ||
+							innerExecption is InvalidOperationException ||
+							innerExecption is UnauthorizedAccessException)
+						{
+							retries = 0;
+						}
+						else
+						{
+							// Rethrow any other exception.
+							throw;
+						}
+					}
+				}
+			}
+			while (success == false && retries > 0);
+		}
+
+		private void UploadCore(
+			string folder,
+			string fileId,
+			GoogleDriveFile fileMetadata,
+			FileStream stream,
+			string mimeType)
+		{
 			if (string.IsNullOrWhiteSpace(fileId))
 			{
 				IList<string> parents = new List<string>();
