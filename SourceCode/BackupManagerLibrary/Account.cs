@@ -30,8 +30,6 @@ namespace BackupManagerLibrary
 
 		private GoogleDrive googleDrive;
 
-		private int retries;
-
 		/// <summary>
 		/// Initializes a new instance of the <see cref="Account"/> class.
 		/// </summary>
@@ -360,24 +358,8 @@ namespace BackupManagerLibrary
 							}
 						}
 
-						bool processFiles =
-							ShouldProcessFiles(driveMapping, path);
-
-						if (processFiles == true)
-						{
-							FileInfo[] files = directoryInfo.GetFiles();
-
-							GoogleDriveFile serverFolder =
-								GoogleDrive.GetFileInList(
-									serverFiles, directoryInfo.Name);
-
-							ProcessFiles(
-								path,
-								driveMapping,
-								files,
-								driveParentId,
-								serverFiles);
-						}
+						ProcessFiles(
+							driveParentId, driveMapping, path, serverFiles);
 					}
 				}
 			}
@@ -403,13 +385,11 @@ namespace BackupManagerLibrary
 			}
 		}
 
-		private bool BackUpFile(
+		private void BackUpFile(
 			string driveParentId,
-			IList<GoogleDriveFile> serverFiles,
-			FileInfo file)
+			FileInfo file,
+			IList<GoogleDriveFile> serverFiles)
 		{
-			bool success = false;
-
 			try
 			{
 				string fileName = GoogleDrive.SanitizeFileName(file.FullName);
@@ -424,40 +404,6 @@ namespace BackupManagerLibrary
 						GoogleDrive.GetFileInList(serverFiles, file.Name);
 
 				Upload(driveParentId, file, serverFile);
-
-				success = true;
-			}
-			catch (AggregateException exception)
-			{
-				Log.Error("AggregateException caught");
-				Log.Error(exception.ToString());
-
-				foreach (Exception innerExecption in exception.InnerExceptions)
-				{
-					if (innerExecption is TaskCanceledException)
-					{
-						Log.Warn(exception.ToString());
-
-						retries--;
-					}
-					else if (innerExecption is ArgumentNullException ||
-						innerExecption is DirectoryNotFoundException ||
-						innerExecption is FileNotFoundException ||
-						innerExecption is FormatException ||
-						innerExecption is IOException ||
-						innerExecption is NullReferenceException ||
-						innerExecption is IndexOutOfRangeException ||
-						innerExecption is InvalidOperationException ||
-						innerExecption is UnauthorizedAccessException)
-					{
-						retries = 0;
-					}
-					else
-					{
-						// Rethrow any other exception.
-						throw;
-					}
-				}
 			}
 			catch (Exception exception) when
 				(exception is ArgumentNullException ||
@@ -471,11 +417,7 @@ namespace BackupManagerLibrary
 				exception is UnauthorizedAccessException)
 			{
 				Log.Error(exception.ToString());
-
-				retries = 0;
 			}
-
-			return success;
 		}
 
 		/// <summary>
@@ -532,49 +474,45 @@ namespace BackupManagerLibrary
 		}
 
 		private void ProcessFiles(
-			string path,
-			DriveMapping driveMapping,
-			FileInfo[] files,
 			string driveParentId,
+			DriveMapping driveMapping,
+			string path,
 			IList<GoogleDriveFile> serverFiles)
 		{
-			bool skipThisDirectory = false;
+			bool processFiles =
+				ShouldProcessFiles(driveMapping, path);
 
-			if (driveMapping.ExcludesContains(path))
+			if (processFiles == true)
 			{
-				Exclude exclude = driveMapping.GetExclude(path);
-				ExcludeType clause = exclude.ExcludeType;
+				DirectoryInfo directoryInfo = new (path);
 
-				if (clause == ExcludeType.Keep)
-				{
-					// Files have been marked as keep.
-					skipThisDirectory = true;
-				}
-			}
+				FileInfo[] files = directoryInfo.GetFiles();
 
-			if (skipThisDirectory == false)
-			{
 				RemoveAbandonedFiles(files, serverFiles);
-			}
 
-			foreach (FileInfo file in files)
-			{
-				bool checkFile =
-					CheckProcessFile(driveMapping, file.FullName);
+				GoogleDriveFile serverFolder =
+					GoogleDrive.GetFileInList(
+						serverFiles, directoryInfo.Name);
 
-				if (checkFile == true)
+				foreach (FileInfo file in files)
 				{
-					BackUpFile(driveParentId, serverFiles, file);
-				}
-				else
-				{
-					string message = string.Format(
-						CultureInfo.InvariantCulture,
-						"Excluding file from Server: {0}",
-						file.FullName);
-					Log.Info(message);
+					bool checkFile =
+						CheckProcessFile(driveMapping, file.FullName);
 
-					RemoveAbandonedFile(file, serverFiles);
+					if (checkFile == true)
+					{
+						BackUpFile(driveParentId, file, serverFiles);
+					}
+					else
+					{
+						string message = string.Format(
+							CultureInfo.InvariantCulture,
+							"Excluding file from Server: {0}",
+							file.FullName);
+						Log.Info(message);
+
+						RemoveAbandonedFile(file, serverFiles);
+					}
 				}
 			}
 		}
