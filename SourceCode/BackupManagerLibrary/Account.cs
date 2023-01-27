@@ -390,22 +390,39 @@ namespace BackupManagerLibrary
 		private void BackUpFile(
 			string driveParentId,
 			FileInfo file,
-			IList<GoogleDriveFile> serverFiles)
+			IList<GoogleDriveFile> serverFiles,
+			IList<Exclude> excludes)
 		{
 			try
 			{
-				string fileName = GoogleDrive.SanitizeFileName(file.FullName);
+				bool checkFile = ShouldProcessFile(excludes, file.FullName);
 
-				string message = string.Format(
-					CultureInfo.InvariantCulture,
-					"Checking: {0}",
-					fileName);
-				Log.Info(message);
+				if (checkFile == true)
+				{
+					string fileName =
+						GoogleDrive.SanitizeFileName(file.FullName);
 
-				GoogleDriveFile serverFile =
-						GoogleDrive.GetFileInList(serverFiles, file.Name);
+					string message = string.Format(
+						CultureInfo.InvariantCulture,
+						"Checking: {0}",
+						fileName);
+					Log.Info(message);
 
-				Upload(driveParentId, file, serverFile);
+					GoogleDriveFile serverFile =
+							GoogleDrive.GetFileInList(serverFiles, file.Name);
+
+					Upload(driveParentId, file, serverFile);
+				}
+				else
+				{
+					string message = string.Format(
+						CultureInfo.InvariantCulture,
+						"Excluding file from Server: {0}",
+						file.FullName);
+					Log.Info(message);
+
+					RemoveAbandonedFile(file, serverFiles);
+				}
 			}
 			catch (Exception exception) when
 				(exception is ArgumentNullException ||
@@ -498,23 +515,11 @@ namespace BackupManagerLibrary
 
 				foreach (FileInfo file in files)
 				{
-					bool checkFile = ShouldProcessFile(
-							driveMapping.Excludes, file.FullName);
-
-					if (checkFile == true)
-					{
-						BackUpFile(driveParentId, file, serverFiles);
-					}
-					else
-					{
-						string message = string.Format(
-							CultureInfo.InvariantCulture,
-							"Excluding file from Server: {0}",
-							file.FullName);
-						Log.Info(message);
-
-						RemoveAbandonedFile(file, serverFiles);
-					}
+					BackUpFile(
+						driveParentId,
+						file,
+						serverFiles,
+						driveMapping.Excludes);
 				}
 			}
 		}
