@@ -150,8 +150,11 @@ Refactor
 	  Source=System.Private.CoreLib
 
 1PlsJOTubd-XVMje2D5Tg30BDZcTEXI9C
+
 Use Name instead of Retrieved files from: 1hCiGoMTSFhiuIfESFuuVnFAejmn-Vonr count: 3
 If DriveMapping driveMapping is being passed only for DriveMapping.Excludes, pass Excludes instead
+RemoveAbandonedFiles(files, serverFiles); should include check for 'keep'
+Retries should be inside BackUpFile
 
 System.NullReferenceException
   HResult=0x80004003

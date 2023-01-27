@@ -575,7 +575,6 @@ namespace BackupManagerLibrary
 						if ((success == false) && (retries > 0))
 						{
 							retry = true;
-							Delay();
 						}
 					}
 					else

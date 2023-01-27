@@ -463,6 +463,8 @@ namespace BackupManagerLibrary
 						// apparentely, we need to reset the drive service
 						driveService = new DriveService(initializer);
 						driveService.HttpClient.Timeout = timeOut;
+
+						System.Threading.Thread.Sleep(190);
 					}
 
 					UploadCore(folder, fileId, fileMetadata, stream, mimeType);
