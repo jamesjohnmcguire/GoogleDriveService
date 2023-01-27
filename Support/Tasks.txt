@@ -1,3 +1,7 @@
+Eventually, add global property to determine if this item should be deleted anywhere or only in the specified directory
+Use Name instead of Retrieved files from: 1hCiGoMTSFhiuIfESFuuVnFAejmn-Vonr count: 3
+RemoveAbandonedFiles(files, serverFiles); should include check for 'keep'
+Make parameter order consistent
 Update Json config to new configuration
 https://github.com/jamesjohnmcguire/GoogleDriveService	Fix README formatting
 Improve Message:	Created Folder ID: 1k_XOMirfTlDlB-sx19qyPT4TKnpZoxTO Name Becky!
@@ -20,6 +24,13 @@ ignore git files
 free native resources	needed?
 
 Finished
+	Google.Apis.Drive.v3.Data.File
+	Path.GetFileName
+	RemoveTopLevelAbandonedFiles use serverFiles as parameter
+	If DriveMapping driveMapping is being passed only for DriveMapping.Excludes, pass Excludes instead
+	Retries should be inside BackUpFile
+	Refactor CheckProcessFile
+	Refactor ShouldProcessFiles(
 	Pipeline Fix	Run dotnet restore	MSBUILD : error MSB1003: Specify a project or solution file. The current working directory does not contain a project or solution file.
 	Review, catch HttpRequestException
 	Improve README - specifically the use of the json file
