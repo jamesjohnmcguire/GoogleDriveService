@@ -108,108 +108,6 @@ namespace BackupManagerLibrary
 			return excludes;
 		}
 
-		/// <summary>
-		/// Excludes contains method.
-		/// </summary>
-		/// <param name="path">The path to check.</param>
-		/// <returns>Indicates whether the path is in the
-		/// exludes list.</returns>
-		public bool ExcludesContains(string path)
-		{
-			bool contains = false;
-
-			Exclude exclude = GetExclude(path);
-
-			if (exclude != null)
-			{
-				contains = true;
-			}
-
-			return contains;
-		}
-
-		/// <summary>
-		/// Get exclude method.
-		/// </summary>
-		/// <param name="path">The path to check.</param>
-		/// <returns>The exclude of the path.</returns>
-		public Exclude GetExclude(string path)
-		{
-			Exclude foundExclude = null;
-
-			foreach (Exclude exclude in excludes)
-			{
-				bool matched = CheckExclude(exclude, path);
-
-				if (matched == true)
-				{
-					foundExclude = exclude;
-					break;
-				}
-			}
-
-			return foundExclude;
-		}
-
-		private static bool CheckExclude(Exclude exclude, string path)
-		{
-			bool matched = false;
-
-			string checkPath = System.IO.Path.GetFullPath(path);
-
-			DirectoryInfo directoryInfo =
-				System.IO.Directory.GetParent(path);
-
-			string excludeCheckPath = System.IO.Path.GetFullPath(
-				exclude.Path, directoryInfo.FullName);
-
-			if (checkPath.Equals(
-				excludeCheckPath, StringComparison.OrdinalIgnoreCase))
-			{
-				matched = true;
-			}
-			else
-			{
-				bool isWildCardExclude =
-					CheckWildCards(exclude, path, checkPath);
-
-				if (isWildCardExclude == true)
-				{
-					matched = true;
-				}
-			}
-
-			return matched;
-		}
-
-		private static bool CheckWildCards(
-			Exclude exclude, string path, string checkPath)
-		{
-			bool matched = false;
-
-			if (exclude.Path.Contains(
-				'*', StringComparison.OrdinalIgnoreCase))
-			{
-				int index = exclude.Path.IndexOf(
-					'*', StringComparison.OrdinalIgnoreCase);
-				string pattern = exclude.Path.Substring(index);
-
-				Matcher matcher = new ();
-				matcher.AddInclude(pattern);
-
-				string directory = System.IO.Path.GetDirectoryName(path);
-				IEnumerable<string> matchingFiles =
-					matcher.GetResultsInFullPath(directory);
-
-				if (matchingFiles.Contains(checkPath))
-				{
-					matched = true;
-				}
-			}
-
-			return matched;
-		}
-
 		private static IList<Exclude> ExpandWildCard(string path)
 		{
 			IList<Exclude> newExcludes = new List<Exclude>();
@@ -219,7 +117,7 @@ namespace BackupManagerLibrary
 			{
 				int index = path.IndexOf(
 					'*', StringComparison.OrdinalIgnoreCase);
-				string pattern = path.Substring(index);
+				string pattern = path[index..];
 
 				Matcher matcher = new ();
 				matcher.AddInclude(pattern);
@@ -230,7 +128,7 @@ namespace BackupManagerLibrary
 
 				foreach (string match in matchingFiles)
 				{
-					Exclude exclude = new Exclude(match, ExcludeType.File);
+					Exclude exclude = new (match, ExcludeType.File);
 					newExcludes.Add(exclude);
 				}
 			}
