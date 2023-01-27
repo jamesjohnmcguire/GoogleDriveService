@@ -389,18 +389,7 @@ namespace BackupManagerLibrary
 
 			using FileStream stream = new (filePath, System.IO.FileMode.Open);
 
-			string mimeType = MimeTypes.GetMimeType(file.Name);
-
-			// overrides for wrongly marked files
-			string extension = file.Extension;
-			if (extension.Equals(
-				".gdoc", StringComparison.OrdinalIgnoreCase) ||
-				extension.Equals(
-					".gsheet", StringComparison.OrdinalIgnoreCase))
-			{
-				Log.Info("Changing mime type to application/json");
-				mimeType = "application/json";
-			}
+			string mimeType = GetMimeType(file);
 
 			if (string.IsNullOrWhiteSpace(fileId))
 			{
@@ -446,6 +435,24 @@ namespace BackupManagerLibrary
 			}
 
 			// free native resources
+		}
+
+		private static string GetMimeType(FileInfo file)
+		{
+			string mimeType = MimeTypes.GetMimeType(file.Name);
+
+			// overrides for wrongly marked files
+			string extension = file.Extension;
+			if (extension.Equals(
+				".gdoc", StringComparison.OrdinalIgnoreCase) ||
+				extension.Equals(
+					".gsheet", StringComparison.OrdinalIgnoreCase))
+			{
+				Log.Info("Changing mime type to application/json");
+				mimeType = "application/json";
+			}
+
+			return mimeType;
 		}
 
 		private static void UploadProgressChanged(IUploadProgress progress)
