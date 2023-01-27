@@ -559,36 +559,22 @@ namespace BackupManagerLibrary
 
 			foreach (FileInfo file in files)
 			{
-				bool retry = false;
-				bool success = false;
-				retries = 2;
+				bool checkFile =
+					CheckProcessFile(driveMapping, file.FullName);
 
-				while ((success == false) && (retries > 0))
+				if (checkFile == true)
 				{
-					bool checkFile =
-						CheckProcessFile(driveMapping, file.FullName);
+					BackUpFile(driveParentId, serverFiles, file);
+				}
+				else
+				{
+					string message = string.Format(
+						CultureInfo.InvariantCulture,
+						"Excluding file from Server: {0}",
+						file.FullName);
+					Log.Info(message);
 
-					if (checkFile == true)
-					{
-						success = BackUpFile(driveParentId, serverFiles, file);
-
-						if ((success == false) && (retries > 0))
-						{
-							retry = true;
-						}
-					}
-					else
-					{
-						string message = string.Format(
-							CultureInfo.InvariantCulture,
-							"Excluding file from Server: {0}",
-							file.FullName);
-						Log.Info(message);
-
-						RemoveAbandonedFile(file, serverFiles);
-
-						success = true;
-					}
+					RemoveAbandonedFile(file, serverFiles);
 				}
 			}
 		}
