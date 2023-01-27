@@ -340,9 +340,11 @@ namespace BackupManagerLibrary
 
 						foreach (string subDirectory in subDirectories)
 						{
+							string directoryName =
+								Path.GetFileName(subDirectory);
 							GoogleDriveFile serverFolder =
 								GoogleDrive.GetFileInList(
-									serverFiles, subDirectory);
+									serverFiles, directoryName);
 
 							if (serverFolder == null)
 							{
