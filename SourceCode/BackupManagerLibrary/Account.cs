@@ -375,7 +375,7 @@ namespace BackupManagerLibrary
 								path,
 								driveMapping,
 								files,
-								serverFolder,
+								driveParentId,
 								serverFiles);
 						}
 					}
@@ -404,7 +404,7 @@ namespace BackupManagerLibrary
 		}
 
 		private bool BackUpFile(
-			GoogleDriveFile serverFolder,
+			string driveParentId,
 			IList<GoogleDriveFile> serverFiles,
 			FileInfo file,
 			bool retry)
@@ -424,7 +424,7 @@ namespace BackupManagerLibrary
 				GoogleDriveFile serverFile =
 						GoogleDrive.GetFileInList(serverFiles, file.Name);
 
-				Upload(serverFolder, file, serverFile, retry);
+				Upload(driveParentId, file, serverFile, retry);
 
 				success = true;
 			}
@@ -536,7 +536,7 @@ namespace BackupManagerLibrary
 			string path,
 			DriveMapping driveMapping,
 			FileInfo[] files,
-			GoogleDriveFile serverFolder,
+			string driveParentId,
 			IList<GoogleDriveFile> serverFiles)
 		{
 			bool skipThisDirectory = false;
@@ -572,7 +572,7 @@ namespace BackupManagerLibrary
 					if (checkFile == true)
 					{
 						success = BackUpFile(
-							serverFolder, serverFiles, file, retry);
+							driveParentId, serverFiles, file, retry);
 
 						if ((success == false) && (retries > 0))
 						{
@@ -746,7 +746,7 @@ namespace BackupManagerLibrary
 		}
 
 		private void Upload(
-			GoogleDriveFile serverFolder,
+			string driveParentId,
 			FileInfo file,
 			GoogleDriveFile serverFile,
 			bool retry)
@@ -754,13 +754,13 @@ namespace BackupManagerLibrary
 			if (serverFile == null)
 			{
 				googleDrive.Upload(
-					serverFolder.Id, file.FullName, null, retry);
+					driveParentId, file.FullName, null, retry);
 			}
 			else if (serverFile.ModifiedTime < file.LastWriteTime)
 			{
 				// local file is newer
 				googleDrive.Upload(
-					serverFolder.Id, file.FullName, serverFile.Id, retry);
+					driveParentId, file.FullName, serverFile.Id, retry);
 			}
 		}
 	}
