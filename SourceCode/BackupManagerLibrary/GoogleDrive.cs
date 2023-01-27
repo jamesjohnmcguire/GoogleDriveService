@@ -391,34 +391,7 @@ namespace BackupManagerLibrary
 
 			string mimeType = GetMimeType(file);
 
-			if (string.IsNullOrWhiteSpace(fileId))
-			{
-				IList<string> parents = new List<string>();
-				parents.Add(folder);
-				fileMetadata.Parents = parents;
-
-				FilesResource.CreateMediaUpload request =
-					driveService.Files.Create(fileMetadata, stream, mimeType);
-
-				request.Fields = "id, name, parents";
-
-				request.ProgressChanged += UploadProgressChanged;
-				request.ResponseReceived += UploadResponseReceived;
-
-				request.Upload();
-			}
-			else
-			{
-				FilesResource.UpdateMediaUpload request =
-					driveService.Files.Update(
-						fileMetadata, fileId, stream, mimeType);
-
-				request.Fields = "id, name, parents";
-
-				request.ProgressChanged += UploadProgressChanged;
-				request.ResponseReceived += UploadResponseReceived;
-				request.Upload();
-			}
+			Upload(folder, fileId, fileMetadata, stream, mimeType);
 		}
 
 		/// <summary>
@@ -479,6 +452,43 @@ namespace BackupManagerLibrary
 			string message = fileName + " was uploaded successfully";
 
 			Log.Info(message);
+		}
+
+		private void Upload(
+			string folder,
+			string fileId,
+			GoogleDriveFile fileMetadata,
+			FileStream stream,
+			string mimeType)
+		{
+			if (string.IsNullOrWhiteSpace(fileId))
+			{
+				IList<string> parents = new List<string>();
+				parents.Add(folder);
+				fileMetadata.Parents = parents;
+
+				FilesResource.CreateMediaUpload request =
+					driveService.Files.Create(fileMetadata, stream, mimeType);
+
+				request.Fields = "id, name, parents";
+
+				request.ProgressChanged += UploadProgressChanged;
+				request.ResponseReceived += UploadResponseReceived;
+
+				request.Upload();
+			}
+			else
+			{
+				FilesResource.UpdateMediaUpload request =
+					driveService.Files.Update(
+						fileMetadata, fileId, stream, mimeType);
+
+				request.Fields = "id, name, parents";
+
+				request.ProgressChanged += UploadProgressChanged;
+				request.ResponseReceived += UploadResponseReceived;
+				request.Upload();
+			}
 		}
 	}
 }
