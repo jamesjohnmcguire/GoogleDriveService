@@ -150,3 +150,13 @@ Refactor
 	  Source=System.Private.CoreLib
 
 1PlsJOTubd-XVMje2D5Tg30BDZcTEXI9C
+Use Name instead of Retrieved files from: 1hCiGoMTSFhiuIfESFuuVnFAejmn-Vonr count: 3
+If DriveMapping driveMapping is being passed only for DriveMapping.Excludes, pass Excludes instead
+
+System.NullReferenceException
+  HResult=0x80004003
+  Message=Object reference not set to an instance of an object.
+  Source=DigitalZenWorks.BackUp.Library
+  StackTrace:
+   at BackupManagerLibrary.Account.<BackUp>d__24.MoveNext() in C:\Users\JamesMc\Data\Clients\DigitalZenWorks\BackupManager\SourceCode\BackupManagerLibrary\Account.cs:line 347
+
