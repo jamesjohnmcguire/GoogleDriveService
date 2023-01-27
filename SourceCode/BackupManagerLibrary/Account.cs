@@ -207,8 +207,7 @@ namespace BackupManagerLibrary
 					GoogleDriveFile serverFolder =
 						GoogleDrive.GetFileInList(serverFiles, directoryName);
 
-					await BackUp(
-						driveMapping, serverFolder.Id, path).
+					await BackUp(serverFolder.Id, path, driveMapping.Excludes).
 							ConfigureAwait(false);
 				}
 			}
