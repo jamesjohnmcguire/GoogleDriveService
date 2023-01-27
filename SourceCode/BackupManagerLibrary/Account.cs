@@ -231,12 +231,14 @@ namespace BackupManagerLibrary
 		{
 			if (disposing)
 			{
-				// dispose managed resources
 				googleDrive.Dispose();
 				googleDrive = null;
 			}
+		}
 
-			// free native resources
+		private static void Delay()
+		{
+			System.Threading.Thread.Sleep(190);
 		}
 
 		private static bool ShouldProcessFile(
@@ -302,11 +304,6 @@ namespace BackupManagerLibrary
 			}
 
 			return processSubFolders;
-		}
-
-		private static void Delay()
-		{
-			System.Threading.Thread.Sleep(190);
 		}
 
 		private async Task BackUp(
@@ -421,7 +418,7 @@ namespace BackupManagerLibrary
 						file.FullName);
 					Log.Info(message);
 
-					RemoveAbandonedFile(file, serverFiles);
+					RemoveExcludedFile(file, serverFiles);
 				}
 			}
 			catch (Exception exception) when
@@ -524,8 +521,9 @@ namespace BackupManagerLibrary
 			}
 		}
 
-		private void RemoveAbandonedFile(
-			FileInfo file, IList<GoogleDriveFile> serverFiles)
+		private void RemoveAbandonedFiles(
+			FileInfo[] files,
+			IList<GoogleDriveFile> serverFiles)
 		{
 			foreach (GoogleDriveFile serverFile in serverFiles)
 			{
@@ -536,41 +534,12 @@ namespace BackupManagerLibrary
 						StringComparison.Ordinal))
 					{
 						string serverFileName = serverFile.Name;
-
-						if (serverFileName.Equals(
-							file.Name, StringComparison.Ordinal))
-						{
-							DeleteFromDrive(serverFile);
-							break;
-						}
-					}
-				}
-				catch (Google.GoogleApiException exception)
-				{
-					Log.Error(exception.ToString());
-				}
-			}
-		}
-
-		private void RemoveAbandonedFiles(
-			FileInfo[] files,
-			IList<GoogleDriveFile> serverFiles)
-		{
-			foreach (GoogleDriveFile file in serverFiles)
-			{
-				try
-				{
-					if (!file.MimeType.Equals(
-						"application/vnd.google-apps.folder",
-						StringComparison.Ordinal))
-					{
-						string fileName = file.Name;
 						bool exists = files.Any(element => element.Name.Equals(
-							fileName, StringComparison.Ordinal));
+							serverFileName, StringComparison.Ordinal));
 
 						if (exists == false)
 						{
-							DeleteFromDrive(file);
+							DeleteFromDrive(serverFile);
 						}
 					}
 				}
@@ -602,6 +571,34 @@ namespace BackupManagerLibrary
 						if (exists == false)
 						{
 							DeleteFromDrive(file);
+						}
+					}
+				}
+				catch (Google.GoogleApiException exception)
+				{
+					Log.Error(exception.ToString());
+				}
+			}
+		}
+
+		private void RemoveExcludedFile(
+			FileInfo file, IList<GoogleDriveFile> serverFiles)
+		{
+			foreach (GoogleDriveFile serverFile in serverFiles)
+			{
+				try
+				{
+					if (!serverFile.MimeType.Equals(
+						"application/vnd.google-apps.folder",
+						StringComparison.Ordinal))
+					{
+						string serverFileName = serverFile.Name;
+
+						if (serverFileName.Equals(
+							file.Name, StringComparison.Ordinal))
+						{
+							DeleteFromDrive(serverFile);
+							break;
 						}
 					}
 				}
