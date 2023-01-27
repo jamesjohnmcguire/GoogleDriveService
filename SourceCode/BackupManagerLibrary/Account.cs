@@ -264,18 +264,21 @@ namespace BackupManagerLibrary
 		}
 
 		private static bool ShouldProcessFiles(
-			DriveMapping driveMapping, string path)
+			IList<Exclude> excludes, string path)
 		{
 			bool processFiles = true;
 
-			if (driveMapping.ExcludesContains(path))
+			foreach (Exclude exclude in excludes)
 			{
-				Exclude exclude = driveMapping.GetExclude(path);
 				ExcludeType clause = exclude.ExcludeType;
 
 				if (clause == ExcludeType.OnlyRoot)
 				{
-					processFiles = false;
+					if (exclude.Path.Equals(
+						path, StringComparison.OrdinalIgnoreCase))
+					{
+						processFiles = false;
+					}
 				}
 			}
 
@@ -307,16 +310,15 @@ namespace BackupManagerLibrary
 		}
 
 		private async Task BackUp(
-			DriveMapping driveMapping,
 			string driveParentId,
-			string path)
+			string path,
+			IList<Exclude> excludes)
 		{
 			try
 			{
 				if (System.IO.Directory.Exists(path))
 				{
-					bool processFolder =
-						ShouldProcessFolder(driveMapping.Excludes, path);
+					bool processFolder = ShouldProcessFolder(excludes, path);
 
 					if (processFolder == true)
 					{
@@ -324,8 +326,7 @@ namespace BackupManagerLibrary
 							await googleDrive.GetFilesAsync(driveParentId).
 								ConfigureAwait(false);
 
-						RemoveExcludedItemsFromServer(
-							driveMapping.Excludes, serverFiles);
+						RemoveExcludedItemsFromServer(excludes, serverFiles);
 
 						string[] subDirectories =
 							System.IO.Directory.GetDirectories(path);
@@ -351,14 +352,13 @@ namespace BackupManagerLibrary
 							else
 							{
 								await BackUp(
-									driveMapping,
-									serverFolder.Id,
-									subDirectory).ConfigureAwait(false);
+									serverFolder.Id, subDirectory, excludes).
+										ConfigureAwait(false);
 							}
 						}
 
 						BackUpFiles(
-							driveParentId, driveMapping, path, serverFiles);
+							driveParentId, path, serverFiles, excludes);
 					}
 				}
 			}
@@ -438,12 +438,11 @@ namespace BackupManagerLibrary
 
 		private void BackUpFiles(
 			string driveParentId,
-			DriveMapping driveMapping,
 			string path,
-			IList<GoogleDriveFile> serverFiles)
+			IList<GoogleDriveFile> serverFiles,
+			IList<Exclude> excludes)
 		{
-			bool processFiles =
-				ShouldProcessFiles(driveMapping, path);
+			bool processFiles = ShouldProcessFiles(excludes, path);
 
 			if (processFiles == true)
 			{
@@ -455,11 +454,7 @@ namespace BackupManagerLibrary
 
 				foreach (FileInfo file in files)
 				{
-					BackUpFile(
-						driveParentId,
-						file,
-						serverFiles,
-						driveMapping.Excludes);
+					BackUpFile(driveParentId, file, serverFiles, excludes);
 				}
 			}
 		}
