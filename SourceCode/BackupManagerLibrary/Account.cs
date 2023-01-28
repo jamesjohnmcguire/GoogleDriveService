@@ -207,7 +207,7 @@ namespace BackupManagerLibrary
 					GoogleDriveFile serverFolder =
 						GoogleDrive.GetFileInList(serverFiles, directoryName);
 
-					await BackUp(serverFolder.Id, path, driveMapping.Excludes).
+					await BackUp(driveParentFolderId, path, driveMapping.Excludes).
 							ConfigureAwait(false);
 				}
 			}
@@ -325,10 +325,27 @@ namespace BackupManagerLibrary
 							await googleDrive.GetFilesAsync(driveParentId).
 								ConfigureAwait(false);
 
-						RemoveExcludedItemsFromServer(excludes, serverFiles);
+						string directoryName =
+							Path.GetFileName(path);
+						GoogleDriveFile serverFolder =
+							GoogleDrive.GetFileInList(
+								serverFiles, directoryName);
+
+						if (serverFolder == null)
+						{
+							serverFolder = googleDrive.CreateFolder(
+								driveParentId, directoryName);
+							Delay();
+						}
+
+						serverFiles =
+							await googleDrive.GetFilesAsync(serverFolder.Id).
+								ConfigureAwait(false);
 
 						string[] subDirectories =
 							System.IO.Directory.GetDirectories(path);
+
+						RemoveExcludedItemsFromServer(excludes, serverFiles);
 
 						RemoveAbandonedFolders(
 							path, subDirectories, serverFiles);
@@ -337,27 +354,13 @@ namespace BackupManagerLibrary
 
 						foreach (string subDirectory in subDirectories)
 						{
-							string directoryName =
-								Path.GetFileName(subDirectory);
-							GoogleDriveFile serverFolder =
-								GoogleDrive.GetFileInList(
-									serverFiles, directoryName);
-
-							if (serverFolder == null)
-							{
-								Log.Error("Server Folder is null for:" +
-									subDirectory);
-							}
-							else
-							{
-								await BackUp(
-									serverFolder.Id, subDirectory, excludes).
-										ConfigureAwait(false);
-							}
+							await BackUp(
+								serverFolder.Id, subDirectory, excludes).
+									ConfigureAwait(false);
 						}
 
 						BackUpFiles(
-							driveParentId, path, serverFiles, excludes);
+							serverFolder.Id, path, serverFiles, excludes);
 					}
 				}
 			}
