@@ -235,11 +235,6 @@ namespace BackupManagerLibrary
 			}
 		}
 
-		private static void Delay()
-		{
-			System.Threading.Thread.Sleep(190);
-		}
-
 		private static bool ShouldProcessFile(
 			IList<Exclude> excludes, string path)
 		{

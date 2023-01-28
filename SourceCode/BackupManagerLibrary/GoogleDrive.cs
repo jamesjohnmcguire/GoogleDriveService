@@ -48,6 +48,14 @@ namespace BackupManagerLibrary
 		private BaseClientService.Initializer initializer;
 
 		/// <summary>
+		/// Create a very slight delay.
+		/// </summary>
+		public static void Delay()
+		{
+			System.Threading.Thread.Sleep(190);
+		}
+
+		/// <summary>
 		/// Get file in list method.
 		/// </summary>
 		/// <param name="files">List of files.</param>
@@ -341,6 +349,34 @@ namespace BackupManagerLibrary
 		}
 
 		/// <summary>
+		/// Get server folder.
+		/// </summary>
+		/// <param name="driveParentId">The drive parent id.</param>
+		/// <param name="path">The local path.</param>
+		/// <param name="serverFiles">A list of parents files.</param>
+		/// <returns>A GoogleDriveFile mapping path.</returns>
+		public GoogleDriveFile GetServerFolder(
+			string driveParentId,
+			string path,
+			IList<GoogleDriveFile> serverFiles)
+		{
+			string directoryName =
+				Path.GetFileName(path);
+			GoogleDriveFile serverFolder =
+				GetFileInList(
+					serverFiles, directoryName);
+
+			if (serverFolder == null)
+			{
+				serverFolder = CreateFolder(
+					driveParentId, directoryName);
+				Delay();
+			}
+
+			return serverFolder;
+		}
+
+		/// <summary>
 		/// Move a drive file.
 		/// </summary>
 		/// <param name="file">The file.</param>
@@ -464,7 +500,7 @@ namespace BackupManagerLibrary
 						driveService = new DriveService(initializer);
 						driveService.HttpClient.Timeout = timeOut;
 
-						System.Threading.Thread.Sleep(190);
+						Delay();
 					}
 
 					UploadCore(folder, fileId, fileMetadata, stream, mimeType);
