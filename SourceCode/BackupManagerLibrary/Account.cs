@@ -207,8 +207,11 @@ namespace BackupManagerLibrary
 					GoogleDriveFile serverFolder =
 						GoogleDrive.GetFileInList(serverFiles, directoryName);
 
-					await BackUp(driveParentFolderId, path, driveMapping.Excludes).
-							ConfigureAwait(false);
+					await BackUp(
+						driveParentFolderId,
+						path,
+						serverFiles,
+						driveMapping.Excludes).ConfigureAwait(false);
 				}
 			}
 		}
@@ -306,6 +309,7 @@ namespace BackupManagerLibrary
 		private async Task BackUp(
 			string driveParentId,
 			string path,
+			IList<GoogleDriveFile> serverFiles,
 			IList<Exclude> excludes)
 		{
 			try
@@ -316,15 +320,11 @@ namespace BackupManagerLibrary
 
 					if (processFolder == true)
 					{
-						IList<GoogleDriveFile> serverFiles =
-							await googleDrive.GetFilesAsync(driveParentId).
-								ConfigureAwait(false);
-
 						GoogleDriveFile serverFolder =
 							googleDrive.GetServerFolder(
 								driveParentId, path, serverFiles);
 
-						serverFiles =
+						IList<GoogleDriveFile> thisServerFiles =
 							await googleDrive.GetFilesAsync(serverFolder.Id).
 								ConfigureAwait(false);
 
@@ -341,8 +341,10 @@ namespace BackupManagerLibrary
 						foreach (string subDirectory in subDirectories)
 						{
 							await BackUp(
-								serverFolder.Id, subDirectory, excludes).
-									ConfigureAwait(false);
+								serverFolder.Id,
+								subDirectory,
+								thisServerFiles,
+								excludes).ConfigureAwait(false);
 						}
 
 						BackUpFiles(
@@ -496,7 +498,7 @@ namespace BackupManagerLibrary
 				Log.Info(message);
 
 				googleDrive.Delete(file.Id);
-				Delay();
+				GoogleDrive.Delay();
 			}
 		}
 
