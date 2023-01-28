@@ -320,18 +320,9 @@ namespace BackupManagerLibrary
 							await googleDrive.GetFilesAsync(driveParentId).
 								ConfigureAwait(false);
 
-						string directoryName =
-							Path.GetFileName(path);
 						GoogleDriveFile serverFolder =
-							GoogleDrive.GetFileInList(
-								serverFiles, directoryName);
-
-						if (serverFolder == null)
-						{
-							serverFolder = googleDrive.CreateFolder(
-								driveParentId, directoryName);
-							Delay();
-						}
+							googleDrive.GetServerFolder(
+								driveParentId, path, serverFiles);
 
 						serverFiles =
 							await googleDrive.GetFilesAsync(serverFolder.Id).
