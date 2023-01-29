@@ -295,12 +295,30 @@ namespace BackupManagerLibrary
 
 				if (clause == ExcludeType.AllSubDirectories)
 				{
-					if (exclude.Path.Equals(
-						path, StringComparison.OrdinalIgnoreCase))
+					bool isQualified =
+						System.IO.Path.IsPathFullyQualified(exclude.Path);
+
+					if (isQualified == true)
 					{
-						processSubFolders = false;
-						break;
+						if (exclude.Path.Equals(
+							path, StringComparison.OrdinalIgnoreCase))
+						{
+							processSubFolders = false;
+							break;
+						}
 					}
+					else
+					{
+						string name = Path.GetFileName(path);
+
+						if (exclude.Path.Equals(
+							name, StringComparison.OrdinalIgnoreCase))
+						{
+							processSubFolders = false;
+							break;
+						}
+					}
+
 				}
 			}
 
