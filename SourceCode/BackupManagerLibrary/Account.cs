@@ -331,10 +331,11 @@ namespace BackupManagerLibrary
 						string[] subDirectories =
 							System.IO.Directory.GetDirectories(path);
 
-						RemoveExcludedItemsFromServer(excludes, serverFiles);
+						RemoveExcludedItemsFromServer(
+							excludes, thisServerFiles);
 
 						RemoveAbandonedFolders(
-							path, subDirectories, serverFiles);
+							path, subDirectories, thisServerFiles);
 
 						DirectoryInfo directoryInfo = new (path);
 
@@ -348,7 +349,7 @@ namespace BackupManagerLibrary
 						}
 
 						BackUpFiles(
-							serverFolder.Id, path, serverFiles, excludes);
+							serverFolder.Id, path, thisServerFiles, excludes);
 					}
 				}
 			}
