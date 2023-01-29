@@ -253,6 +253,7 @@ namespace BackupManagerLibrary
 						path, StringComparison.OrdinalIgnoreCase))
 					{
 						processFile = false;
+						break;
 					}
 				}
 			}
@@ -275,6 +276,7 @@ namespace BackupManagerLibrary
 						path, StringComparison.OrdinalIgnoreCase))
 					{
 						processFiles = false;
+						break;
 					}
 				}
 			}
@@ -297,6 +299,7 @@ namespace BackupManagerLibrary
 						path, StringComparison.OrdinalIgnoreCase))
 					{
 						processSubFolders = false;
+						break;
 					}
 				}
 			}
