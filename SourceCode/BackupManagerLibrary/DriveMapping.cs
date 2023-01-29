@@ -85,7 +85,10 @@ namespace BackupManagerLibrary
 				exclude.Path = Environment.ExpandEnvironmentVariables(
 					exclude.Path);
 
-				if (exclude.ExcludeType != ExcludeType.AllSubDirectories)
+				bool isQualified =
+					System.IO.Path.IsPathFullyQualified(exclude.Path);
+
+				if (isQualified == true)
 				{
 					exclude.Path = System.IO.Path.GetFullPath(exclude.Path);
 				}
