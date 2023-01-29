@@ -318,7 +318,6 @@ namespace BackupManagerLibrary
 							break;
 						}
 					}
-
 				}
 			}
 
