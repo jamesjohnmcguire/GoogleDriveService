@@ -287,8 +287,6 @@ namespace BackupManagerLibrary
 		{
 			bool processSubFolders = true;
 
-			string directoryName = Path.GetDirectoryName(path);
-
 			foreach (Exclude exclude in excludes)
 			{
 				ExcludeType clause = exclude.ExcludeType;
@@ -296,7 +294,7 @@ namespace BackupManagerLibrary
 				if (clause == ExcludeType.AllSubDirectories)
 				{
 					if (exclude.Path.Equals(
-						directoryName, StringComparison.OrdinalIgnoreCase))
+						path, StringComparison.OrdinalIgnoreCase))
 					{
 						processSubFolders = false;
 					}
