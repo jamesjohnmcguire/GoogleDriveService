@@ -622,8 +622,17 @@ namespace BackupManagerLibrary
 					if (clause == ExcludeType.AllSubDirectories ||
 						clause == ExcludeType.File)
 					{
+						string name = exclude.Path;
+						bool isQualified =
+							System.IO.Path.IsPathFullyQualified(exclude.Path);
+
+						if (isQualified == true)
+						{
+							name = Path.GetFileName(exclude.Path);
+						}
+
 						if (serverFile.Name.Equals(
-							exclude.Path, StringComparison.OrdinalIgnoreCase))
+							name, StringComparison.OrdinalIgnoreCase))
 						{
 							DeleteFromDrive(serverFile);
 						}
