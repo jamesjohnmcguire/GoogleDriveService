@@ -238,6 +238,27 @@ namespace BackupManagerLibrary
 			}
 		}
 
+		private static bool ShouldSkipThisDirectory(
+			string parentPath, IList<Exclude> excludes)
+		{
+			bool skipThisDirectory = false;
+
+			foreach (Exclude exclude in excludes)
+			{
+				if (exclude.ExcludeType == ExcludeType.Keep)
+				{
+					if (parentPath.Equals(
+						exclude.Path, StringComparison.OrdinalIgnoreCase))
+					{
+						skipThisDirectory = true;
+						break;
+					}
+				}
+			}
+
+			return skipThisDirectory;
+		}
+
 		private static bool ShouldProcessFile(
 			IList<Exclude> excludes, string path)
 		{
@@ -350,7 +371,7 @@ namespace BackupManagerLibrary
 							System.IO.Directory.GetDirectories(path);
 
 						RemoveExcludedItemsFromServer(
-							excludes, thisServerFiles);
+							path, excludes, thisServerFiles);
 
 						RemoveAbandonedFolders(
 							path, subDirectories, thisServerFiles, excludes);
@@ -459,7 +480,7 @@ namespace BackupManagerLibrary
 
 				FileInfo[] files = directoryInfo.GetFiles();
 
-				RemoveAbandonedFiles(files, serverFiles);
+				RemoveAbandonedFiles(path, files, serverFiles, excludes);
 
 				foreach (FileInfo file in files)
 				{
@@ -522,30 +543,39 @@ namespace BackupManagerLibrary
 		}
 
 		private void RemoveAbandonedFiles(
+			string parentPath,
 			FileInfo[] files,
-			IList<GoogleDriveFile> serverFiles)
+			IList<GoogleDriveFile> serverFiles,
+			IList<Exclude> excludes)
 		{
-			foreach (GoogleDriveFile serverFile in serverFiles)
-			{
-				try
-				{
-					if (!serverFile.MimeType.Equals(
-						"application/vnd.google-apps.folder",
-						StringComparison.Ordinal))
-					{
-						string serverFileName = serverFile.Name;
-						bool exists = files.Any(element => element.Name.Equals(
-							serverFileName, StringComparison.Ordinal));
+			bool skipThisDirectory = ShouldSkipThisDirectory(
+				parentPath, excludes);
 
-						if (exists == false)
+			if (skipThisDirectory == false)
+			{
+				foreach (GoogleDriveFile serverFile in serverFiles)
+				{
+					try
+					{
+						if (!serverFile.MimeType.Equals(
+							"application/vnd.google-apps.folder",
+							StringComparison.Ordinal))
 						{
-							DeleteFromDrive(serverFile);
+							string serverFileName = serverFile.Name;
+							bool exists = files.Any(
+								element => element.Name.Equals(
+									serverFileName, StringComparison.Ordinal));
+
+							if (exists == false)
+							{
+								DeleteFromDrive(serverFile);
+							}
 						}
 					}
-				}
-				catch (Google.GoogleApiException exception)
-				{
-					Log.Error(exception.ToString());
+					catch (Google.GoogleApiException exception)
+					{
+						Log.Error(exception.ToString());
+					}
 				}
 			}
 		}
@@ -622,6 +652,7 @@ namespace BackupManagerLibrary
 		}
 
 		private void RemoveExcludedItemsFromServer(
+			string parentPath,
 			IList<Exclude> excludes,
 			IList<GoogleDriveFile> serverFiles)
 		{
@@ -635,16 +666,20 @@ namespace BackupManagerLibrary
 						clause == ExcludeType.File)
 					{
 						string name = exclude.Path;
+						string path = parentPath;
 						bool isQualified =
 							System.IO.Path.IsPathFullyQualified(exclude.Path);
 
 						if (isQualified == true)
 						{
 							name = Path.GetFileName(exclude.Path);
+							path = Path.GetDirectoryName(exclude.Path);
 						}
 
 						if (serverFile.Name.Equals(
-							name, StringComparison.OrdinalIgnoreCase))
+							name, StringComparison.OrdinalIgnoreCase) &&
+							parentPath.Equals(
+								path, StringComparison.OrdinalIgnoreCase))
 						{
 							DeleteFromDrive(serverFile);
 						}
