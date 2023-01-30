@@ -304,6 +304,8 @@ namespace BackupManagerLibrary
 			}
 			else
 			{
+				GoogleDriveFile serverFile = GetFileById(parent);
+
 				files = new ();
 				FilesResource.ListRequest listRequest =
 					driveService.Files.List();
@@ -331,8 +333,9 @@ namespace BackupManagerLibrary
 
 						string message = string.Format(
 							CultureInfo.InvariantCulture,
-							"Retrieved files from: {0} count: {1}",
+							"Retrieved files from: {0} ({1}) count: {2}",
 							parent,
+							serverFile.Name,
 							files.Count);
 						Log.Info(message);
 					}
