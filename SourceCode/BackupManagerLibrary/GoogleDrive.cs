@@ -360,16 +360,13 @@ namespace BackupManagerLibrary
 			string path,
 			IList<GoogleDriveFile> serverFiles)
 		{
-			string directoryName =
-				Path.GetFileName(path);
+			string directoryName = Path.GetFileName(path);
 			GoogleDriveFile serverFolder =
-				GetFileInList(
-					serverFiles, directoryName);
+				GetFileInList(serverFiles, directoryName);
 
 			if (serverFolder == null)
 			{
-				serverFolder = CreateFolder(
-					driveParentId, directoryName);
+				serverFolder = CreateFolder(driveParentId, directoryName);
 				Delay();
 			}
 
