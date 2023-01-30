@@ -307,17 +307,7 @@ namespace BackupManagerLibrary
 				GoogleDriveFile serverFile = GetFileById(parent);
 
 				files = new ();
-				FilesResource.ListRequest listRequest =
-					driveService.Files.List();
-
-				string fileFields = "id, name, mimeType, modifiedTime, " +
-					"ownedByMe, owners, parents, webContentLink";
-				listRequest.Fields = string.Format(
-					CultureInfo.InvariantCulture,
-					"files({0}), nextPageToken",
-					fileFields);
-				listRequest.PageSize = 1000;
-				listRequest.Q = $"'{parent}' in parents";
+				FilesResource.ListRequest listRequest = GetListRequest(parent);
 
 				do
 				{
@@ -349,6 +339,22 @@ namespace BackupManagerLibrary
 			}
 
 			return files;
+		}
+
+		private FilesResource.ListRequest GetListRequest(string driveParentId)
+		{
+			FilesResource.ListRequest listRequest = driveService.Files.List();
+
+			string fileFields = "id, name, mimeType, modifiedTime, " +
+				"ownedByMe, owners, parents, webContentLink";
+			listRequest.Fields = string.Format(
+				CultureInfo.InvariantCulture,
+				"files({0}), nextPageToken",
+				fileFields);
+			listRequest.PageSize = 1000;
+			listRequest.Q = $"'{driveParentId}' in parents";
+
+			return listRequest;
 		}
 
 		/// <summary>
