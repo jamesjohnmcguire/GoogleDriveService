@@ -353,7 +353,7 @@ namespace BackupManagerLibrary
 							excludes, thisServerFiles);
 
 						RemoveAbandonedFolders(
-							path, subDirectories, thisServerFiles);
+							path, subDirectories, thisServerFiles, excludes);
 
 						DirectoryInfo directoryInfo = new (path);
 
@@ -553,7 +553,8 @@ namespace BackupManagerLibrary
 		private void RemoveAbandonedFolders(
 			string path,
 			string[] subDirectories,
-			IList<GoogleDriveFile> serverFiles)
+			IList<GoogleDriveFile> serverFiles,
+			IList<Exclude> excludes)
 		{
 			foreach (GoogleDriveFile file in serverFiles)
 			{
@@ -570,7 +571,18 @@ namespace BackupManagerLibrary
 
 						if (exists == false)
 						{
-							DeleteFromDrive(file);
+							foreach (Exclude exclude in excludes)
+							{
+								string name = Path.GetFileName(exclude.Path);
+
+								if (exclude.ExcludeType != ExcludeType.Keep ||
+									!file.Name.Equals(
+										name,
+										StringComparison.OrdinalIgnoreCase))
+								{
+									DeleteFromDrive(file);
+								}
+							}
 						}
 					}
 				}
