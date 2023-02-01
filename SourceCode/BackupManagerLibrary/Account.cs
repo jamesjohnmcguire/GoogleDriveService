@@ -606,7 +606,7 @@ namespace BackupManagerLibrary
 									string name =
 										Path.GetFileName(exclude.Path);
 
-									if (!file.Name.Equals(
+									if (file.Name.Equals(
 										name,
 										StringComparison.OrdinalIgnoreCase))
 									{
