@@ -194,14 +194,9 @@ namespace BackupManagerLibrary
 					await CreateTopLevelLink(
 						driveParentFolderId, path).ConfigureAwait(false);
 
-					string parentPath = Path.GetDirectoryName(path);
-
 					IList<GoogleDriveFile> serverFiles =
 						await googleDrive.GetFilesAsync(driveParentFolderId).
 							ConfigureAwait(false);
-
-					RemoveTopLevelAbandonedFiles(
-						serverFiles, parentPath);
 
 					string directoryName = Path.GetFileName(path);
 					GoogleDriveFile serverFolder =
