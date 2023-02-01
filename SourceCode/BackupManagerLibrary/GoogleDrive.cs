@@ -220,10 +220,10 @@ namespace BackupManagerLibrary
 		/// <param name="file">The google drive file to delete.</param>
 		public void Delete(GoogleDriveFile file)
 		{
+			string fileName = SanitizeFileName(file.Name);
+
 			if (file != null && file.OwnedByMe == true)
 			{
-				string fileName = SanitizeFileName(file.Name);
-
 				string message = string.Format(
 					CultureInfo.InvariantCulture,
 					"Deleting file from Server: {0}",
@@ -235,6 +235,11 @@ namespace BackupManagerLibrary
 				request.Execute();
 
 				Delay();
+			}
+			else if (file.OwnedByMe == false)
+			{
+				Log.Warn(
+					"Attemping to delete a file not owned by me: " + fileName);
 			}
 		}
 
