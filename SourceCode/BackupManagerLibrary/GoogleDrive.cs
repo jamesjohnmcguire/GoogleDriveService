@@ -217,13 +217,25 @@ namespace BackupManagerLibrary
 		/// <summary>
 		/// Delete method.
 		/// </summary>
-		/// <param name="id">The id of the item to delete.</param>
-		public void Delete(string id)
+		/// <param name="file">The google drive file to delete.</param>
+		public void Delete(GoogleDriveFile file)
 		{
-			FilesResource.DeleteRequest request =
-				driveService.Files.Delete(id);
+			if (file != null && file.OwnedByMe == true)
+			{
+				string fileName = SanitizeFileName(file.Name);
 
-			request.Execute();
+				string message = string.Format(
+					CultureInfo.InvariantCulture,
+					"Deleting file from Server: {0}",
+					fileName);
+				Log.Info(message);
+
+				FilesResource.DeleteRequest request =
+					driveService.Files.Delete(file.Id);
+				request.Execute();
+
+				Delay();
+			}
 		}
 
 		/// <summary>

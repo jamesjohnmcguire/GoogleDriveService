@@ -520,23 +520,6 @@ namespace BackupManagerLibrary
 			}
 		}
 
-		private void DeleteFromDrive(GoogleDriveFile file)
-		{
-			if (file.OwnedByMe == true)
-			{
-				string fileName = GoogleDrive.SanitizeFileName(file.Name);
-
-				string message = string.Format(
-					CultureInfo.InvariantCulture,
-					"Deleting file from Server: {0}",
-					fileName);
-				Log.Info(message);
-
-				googleDrive.Delete(file.Id);
-				GoogleDrive.Delay();
-			}
-		}
-
 		private void RemoveAbandonedFiles(
 			string parentPath,
 			FileInfo[] files,
@@ -563,7 +546,7 @@ namespace BackupManagerLibrary
 
 							if (exists == false)
 							{
-								DeleteFromDrive(serverFile);
+								googleDrive.Delete(serverFile);
 							}
 						}
 					}
@@ -610,7 +593,7 @@ namespace BackupManagerLibrary
 										name,
 										StringComparison.OrdinalIgnoreCase))
 									{
-										DeleteFromDrive(file);
+										googleDrive.Delete(file);
 									}
 								}
 							}
@@ -640,7 +623,7 @@ namespace BackupManagerLibrary
 						if (serverFileName.Equals(
 							file.Name, StringComparison.Ordinal))
 						{
-							DeleteFromDrive(serverFile);
+							googleDrive.Delete(serverFile);
 							break;
 						}
 					}
@@ -682,7 +665,7 @@ namespace BackupManagerLibrary
 							parentPath.Equals(
 								path, StringComparison.OrdinalIgnoreCase))
 						{
-							DeleteFromDrive(serverFile);
+							googleDrive.Delete(serverFile);
 						}
 					}
 				}
@@ -721,7 +704,7 @@ namespace BackupManagerLibrary
 
 					if (found == false)
 					{
-						DeleteFromDrive(file);
+						googleDrive.Delete(file);
 					}
 				}
 			}
