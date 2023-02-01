@@ -220,26 +220,29 @@ namespace BackupManagerLibrary
 		/// <param name="file">The google drive file to delete.</param>
 		public void Delete(GoogleDriveFile file)
 		{
-			string fileName = SanitizeFileName(file.Name);
-
-			if (file != null && file.OwnedByMe == true)
+			if (file != null)
 			{
-				string message = string.Format(
-					CultureInfo.InvariantCulture,
-					"Deleting file from Server: {0}",
-					fileName);
-				Log.Info(message);
+				string fileName = SanitizeFileName(file.Name);
 
-				FilesResource.DeleteRequest request =
-					driveService.Files.Delete(file.Id);
-				request.Execute();
+				if (file.OwnedByMe == true)
+				{
+					string message = string.Format(
+						CultureInfo.InvariantCulture,
+						"Deleting file from Server: {0}",
+						fileName);
+					Log.Info(message);
 
-				Delay();
-			}
-			else if (file.OwnedByMe == false)
-			{
-				Log.Warn(
-					"Attemping to delete a file not owned by me: " + fileName);
+					FilesResource.DeleteRequest request =
+						driveService.Files.Delete(file.Id);
+					request.Execute();
+
+					Delay();
+				}
+				else
+				{
+					Log.Warn("Attemping to delete a file not owned by me: " +
+						fileName);
+				}
 			}
 		}
 
@@ -356,22 +359,6 @@ namespace BackupManagerLibrary
 			}
 
 			return files;
-		}
-
-		private FilesResource.ListRequest GetListRequest(string driveParentId)
-		{
-			FilesResource.ListRequest listRequest = driveService.Files.List();
-
-			string fileFields = "id, name, mimeType, modifiedTime, " +
-				"ownedByMe, owners, parents, webContentLink";
-			listRequest.Fields = string.Format(
-				CultureInfo.InvariantCulture,
-				"files({0}), nextPageToken",
-				fileFields);
-			listRequest.PageSize = 1000;
-			listRequest.Q = $"'{driveParentId}' in parents";
-
-			return listRequest;
 		}
 
 		/// <summary>
@@ -498,6 +485,22 @@ namespace BackupManagerLibrary
 			string message = fileName + " was uploaded successfully";
 
 			Log.Info(message);
+		}
+
+		private FilesResource.ListRequest GetListRequest(string driveParentId)
+		{
+			FilesResource.ListRequest listRequest = driveService.Files.List();
+
+			string fileFields = "id, name, mimeType, modifiedTime, " +
+				"ownedByMe, owners, parents, webContentLink";
+			listRequest.Fields = string.Format(
+				CultureInfo.InvariantCulture,
+				"files({0}), nextPageToken",
+				fileFields);
+			listRequest.PageSize = 1000;
+			listRequest.Q = $"'{driveParentId}' in parents";
+
+			return listRequest;
 		}
 
 		private void Upload(
