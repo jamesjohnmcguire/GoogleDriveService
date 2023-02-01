@@ -601,16 +601,22 @@ namespace BackupManagerLibrary
 
 						if (exists == false)
 						{
-							foreach (Exclude exclude in excludes)
-							{
-								string name = Path.GetFileName(exclude.Path);
+							bool skipThisDirectory = ShouldSkipThisDirectory(
+								folderPath, excludes);
 
-								if (exclude.ExcludeType != ExcludeType.Keep ||
-									!file.Name.Equals(
+							if (skipThisDirectory == false)
+							{
+								foreach (Exclude exclude in excludes)
+								{
+									string name =
+										Path.GetFileName(exclude.Path);
+
+									if (!file.Name.Equals(
 										name,
 										StringComparison.OrdinalIgnoreCase))
-								{
-									DeleteFromDrive(file);
+									{
+										DeleteFromDrive(file);
+									}
 								}
 							}
 						}
