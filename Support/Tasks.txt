@@ -1,5 +1,5 @@
 Eventually, add global property to determine if this item should be deleted anywhere or only in the specified directory
-Use Name instead of Retrieved files from: 1hCiGoMTSFhiuIfESFuuVnFAejmn-Vonr count: 3
+Revisit RemoveTopLevelAbandonedFiles
 RemoveAbandonedFiles(files, serverFiles); should include check for 'keep'
 Make parameter order consistent
 Update Json config to new configuration
@@ -24,6 +24,7 @@ ignore git files
 free native resources	needed?
 
 Finished
+	Use Name instead of Retrieved files from: 1hCiGoMTSFhiuIfESFuuVnFAejmn-Vonr count: 3
 	Google.Apis.Drive.v3.Data.File
 	Path.GetFileName
 	RemoveTopLevelAbandonedFiles use serverFiles as parameter
