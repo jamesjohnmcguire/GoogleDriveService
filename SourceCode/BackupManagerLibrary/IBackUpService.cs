@@ -14,8 +14,9 @@ namespace BackupManagerLibrary
 		/// <summary>
 		/// Back up method.
 		/// </summary>
-		/// <param name="serviceData">The service data.</param>
 		/// <param name="path">The path to back up.</param>
-		public void BackUp(IBackUpServiceData serviceData, string path);
+		/// <param name="serviceDestinationId">A service specific
+		/// identifier for the destination.</param>
+		public void BackUp(string path, string serviceDestinationId)
 	}
 }

@@ -44,6 +44,15 @@ namespace BackupManagerLibrary
 						string message = "Backing up to account: " + name;
 						Log.Info(message);
 
+						using GoogleDriveBackUpService tester =
+							new GoogleDriveBackUpService(
+								account.ServiceAccount);
+
+						IBackUpService backUpService = tester;
+
+						var some = account.DriveMappings[0];
+						backUpService.BackUp(some.Path, "test");
+
 						await account.BackUp().ConfigureAwait(false);
 					}
 				}
