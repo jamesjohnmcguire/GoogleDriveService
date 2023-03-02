@@ -451,6 +451,7 @@ namespace BackupManagerLibrary
 				exception is DirectoryNotFoundException ||
 				exception is FileNotFoundException ||
 				exception is FormatException ||
+				exception is Google.GoogleApiException ||
 				exception is IOException ||
 				exception is NullReferenceException ||
 				exception is IndexOutOfRangeException ||
