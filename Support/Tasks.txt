@@ -24,6 +24,9 @@ ignore git files
 free native resources	needed?
 
 Finished
+	add catch in BackUpFiles( in for loop
+	Why so many duplicated catch logs?
+	Add Line numbers to exception catch logs
 	Use Name instead of Retrieved files from: 1hCiGoMTSFhiuIfESFuuVnFAejmn-Vonr count: 3
 	Google.Apis.Drive.v3.Data.File
 	Path.GetFileName
