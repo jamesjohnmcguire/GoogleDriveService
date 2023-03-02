@@ -13,6 +13,7 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
+using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 
 using GoogleDriveFile = Google.Apis.Drive.v3.Data.File;
@@ -53,6 +54,26 @@ namespace BackupManagerLibrary
 		public static void Delay()
 		{
 			System.Threading.Thread.Sleep(190);
+		}
+
+		/// <summary>
+		/// Log Exception.
+		/// </summary>
+		/// <param name="exception">The exception.</param>
+		/// <param name="caller">The caller.</param>
+		/// <param name="lineNumber">The line number.</param>
+		public static void LogException(
+			Exception exception,
+			[CallerMemberName] string caller = null,
+			[CallerLineNumber] int lineNumber = 0)
+		{
+			string message = $"Exception at: {caller}: Line: {lineNumber}";
+			Log.Error(message);
+
+			if (exception != null)
+			{
+				Log.Error(exception.ToString());
+			}
 		}
 
 		/// <summary>
@@ -287,7 +308,7 @@ namespace BackupManagerLibrary
 				}
 				catch (Google.GoogleApiException exception)
 				{
-					Log.Error(exception.ToString());
+					LogException(exception);
 				}
 			}
 
@@ -351,7 +372,7 @@ namespace BackupManagerLibrary
 					}
 					catch (Google.GoogleApiException exception)
 					{
-						Log.Error(exception.ToString());
+						LogException(exception);
 						listRequest.PageToken = null;
 					}
 				}
@@ -536,7 +557,7 @@ namespace BackupManagerLibrary
 				catch (AggregateException exception)
 				{
 					Log.Error("AggregateException caught");
-					Log.Error(exception.ToString());
+					LogException(exception);
 
 					foreach (Exception innerExecption in
 						exception.InnerExceptions)

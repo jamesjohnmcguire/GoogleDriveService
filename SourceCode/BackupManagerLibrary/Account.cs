@@ -157,7 +157,7 @@ namespace BackupManagerLibrary
 				(exception is ArgumentException ||
 				exception is FileNotFoundException)
 			{
-				Log.Error(exception.ToString());
+				GoogleDrive.LogException(exception);
 			}
 
 			return authenticated;
@@ -405,7 +405,7 @@ namespace BackupManagerLibrary
 				exception is TaskCanceledException ||
 				exception is UnauthorizedAccessException)
 			{
-				Log.Error(exception.ToString());
+				GoogleDrive.LogException(exception);
 			}
 		}
 
@@ -457,7 +457,7 @@ namespace BackupManagerLibrary
 				exception is InvalidOperationException ||
 				exception is UnauthorizedAccessException)
 			{
-				Log.Error(exception.ToString());
+				GoogleDrive.LogException(exception);
 			}
 		}
 
@@ -516,7 +516,7 @@ namespace BackupManagerLibrary
 				exception is System.Net.Http.HttpRequestException ||
 				exception is System.Net.Sockets.SocketException)
 			{
-				Log.Error(exception.ToString());
+				GoogleDrive.LogException(exception);
 			}
 		}
 
@@ -552,7 +552,7 @@ namespace BackupManagerLibrary
 					}
 					catch (Google.GoogleApiException exception)
 					{
-						Log.Error(exception.ToString());
+						GoogleDrive.LogException(exception);
 					}
 				}
 			}
@@ -602,7 +602,7 @@ namespace BackupManagerLibrary
 				}
 				catch (Google.GoogleApiException exception)
 				{
-					Log.Error(exception.ToString());
+					GoogleDrive.LogException(exception);
 				}
 			}
 		}
@@ -630,7 +630,7 @@ namespace BackupManagerLibrary
 				}
 				catch (Google.GoogleApiException exception)
 				{
-					Log.Error(exception.ToString());
+					GoogleDrive.LogException(exception);
 				}
 			}
 		}
