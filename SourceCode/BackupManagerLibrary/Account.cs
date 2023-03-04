@@ -202,6 +202,14 @@ namespace BackupManagerLibrary
 					GoogleDriveFile serverFolder =
 						GoogleDrive.GetFileInList(serverFiles, directoryName);
 
+					using GoogleDriveBackUpService tester =
+						new GoogleDriveBackUpService(ServiceAccount);
+
+					IBackUpService backUpService = tester;
+
+					backUpService.BackUp(
+						driveMapping.Path, driveParentFolderId);
+
 					await BackUp(
 						driveParentFolderId,
 						path,
