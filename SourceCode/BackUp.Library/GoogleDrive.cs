@@ -4,8 +4,6 @@
 // </copyright>
 /////////////////////////////////////////////////////////////////////////////
 
-using BackupManagerLibrary;
-
 using Common.Logging;
 using Google.Apis.Auth.OAuth2;
 using Google.Apis.Drive.v3;

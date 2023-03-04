@@ -5,7 +5,7 @@ VisualStudioVersion = 17.0.32014.148
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BackupManager", "BackupManager\BackupManager.csproj", "{4A4E033D-13A3-4B42-B467-B4FBA511369E}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BackupManagerLibrary", "BackupManagerLibrary\BackupManagerLibrary.csproj", "{2A418CC9-2AC9-4BEF-9605-BC1BF5C8549E}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Backup.Library", "Backup.Library\DigitalZenWorks.Backup.Library.csproj", "{2A418CC9-2AC9-4BEF-9605-BC1BF5C8549E}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{47B1B9EA-F429-4B6B-88F5-2C62A4123BD4}"
 	ProjectSection(SolutionItems) = preProject
