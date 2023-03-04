@@ -1,3 +1,5 @@
+When moving from Entertainment/Music/Music to Entertainment/Music, abandoned files not removed
+ABBA.lnk as top level
 Eventually, add global property to determine if this item should be deleted anywhere or only in the specified directory
 Revisit RemoveTopLevelAbandonedFiles
 RemoveAbandonedFiles(files, serverFiles); should include check for 'keep'

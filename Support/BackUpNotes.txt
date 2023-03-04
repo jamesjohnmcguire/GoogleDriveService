@@ -43,3 +43,13 @@ Resources
 Class Hierarchy
 	public class UpdateMediaUpload : Google.Apis.Upload.ResumableUpload<Google.Apis.Drive.v3.Data.File, Google.Apis.Drive.v3.Data.File>
 	public class CreateMediaUpload : Google.Apis.Upload.ResumableUpload<Google.Apis.Drive.v3.Data.File, Google.Apis.Drive.v3.Data.File>
+	Provide configuration for back up service from client (program.cs)
+Notes
+	Program
+		BackUp.Run
+			LoadAccounts
+			for each account
+				account backup
+					Authorize
+					for each drive mapping
+						BackUp	driveParentFolderId	path	serverFiles	Excludes
