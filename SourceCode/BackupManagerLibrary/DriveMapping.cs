@@ -12,7 +12,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 
-namespace BackupManagerLibrary
+namespace DigitalZenWorks.BackUp.Library
 {
 	/// <summary>
 	/// DriveMapping custom class.

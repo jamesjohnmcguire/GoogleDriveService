@@ -1,5 +1,5 @@
 ﻿/////////////////////////////////////////////////////////////////////////////
-// <copyright file="Backup.cs" company="James John McGuire">
+// <copyright file="BackupService.cs" company="James John McGuire">
 // Copyright © 2017 - 2023 James John McGuire. All Rights Reserved.
 // </copyright>
 /////////////////////////////////////////////////////////////////////////////
@@ -12,12 +12,12 @@ using System.Threading.Tasks;
 
 [assembly: CLSCompliant(false)]
 
-namespace BackupManagerLibrary
+namespace DigitalZenWorks.BackUp.Library
 {
 	/// <summary>
 	/// Back up class.
 	/// </summary>
-	public static class Backup
+	public static class BackupService
 	{
 		private static readonly ILog Log = LogManager.GetLogger(
 			System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);

@@ -11,7 +11,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 
-namespace BackupManagerLibrary
+namespace DigitalZenWorks.BackUp.Library
 {
 	/// <summary>
 	/// Google Service Accounts Manager.

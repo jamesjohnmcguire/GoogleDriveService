@@ -4,8 +4,8 @@
 // </copyright>
 /////////////////////////////////////////////////////////////////////////////
 
-using BackupManagerLibrary;
 using Common.Logging;
+using DigitalZenWorks.BackUp.Library;
 using Serilog;
 using Serilog.Configuration;
 using Serilog.Events;
@@ -40,7 +40,7 @@ namespace BackupManager
 
 				Log.Info("Starting Backup Manager Version: " + version);
 
-				await Backup.Run().ConfigureAwait(false);
+				await BackupService.Run().ConfigureAwait(false);
 			}
 			catch (Exception exception)
 			{

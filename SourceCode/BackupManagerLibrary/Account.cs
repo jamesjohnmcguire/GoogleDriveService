@@ -15,7 +15,7 @@ using System.Threading.Tasks;
 
 using GoogleDriveFile = Google.Apis.Drive.v3.Data.File;
 
-namespace BackupManagerLibrary
+namespace DigitalZenWorks.BackUp.Library
 {
 	/// <summary>
 	/// Google Service Account class.
