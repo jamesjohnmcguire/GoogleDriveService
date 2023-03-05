@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.0.32014.148
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BackupManager", "BackupManager\BackupManager.csproj", "{4A4E033D-13A3-4B42-B467-B4FBA511369E}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BackUpManager", "BackUpManager\BackUpManager.csproj", "{4A4E033D-13A3-4B42-B467-B4FBA511369E}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Backup.Library", "Backup.Library\DigitalZenWorks.Backup.Library.csproj", "{2A418CC9-2AC9-4BEF-9605-BC1BF5C8549E}"
 EndProject

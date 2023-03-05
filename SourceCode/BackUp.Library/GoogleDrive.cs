@@ -142,7 +142,7 @@ namespace DigitalZenWorks.BackUp.Library
 				credentialedAccount = credentialedAccount.CreateScoped(Scopes);
 
 				initializer = new BaseClientService.Initializer();
-				initializer.ApplicationName = "BackupService Manager";
+				initializer.ApplicationName = "Back Up Service Manager";
 				initializer.HttpClientInitializer = credentialedAccount;
 
 				driveService = new DriveService(initializer);

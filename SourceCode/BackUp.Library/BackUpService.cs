@@ -1,5 +1,5 @@
 ﻿/////////////////////////////////////////////////////////////////////////////
-// <copyright file="BackupService.cs" company="James John McGuire">
+// <copyright file="BackUpService.cs" company="James John McGuire">
 // Copyright © 2017 - 2023 James John McGuire. All Rights Reserved.
 // </copyright>
 /////////////////////////////////////////////////////////////////////////////
@@ -17,7 +17,7 @@ namespace DigitalZenWorks.BackUp.Library
 	/// <summary>
 	/// Back up class.
 	/// </summary>
-	public static class BackupService
+	public static class BackUpService
 	{
 		private static readonly ILog Log = LogManager.GetLogger(
 			System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);

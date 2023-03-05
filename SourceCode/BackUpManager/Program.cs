@@ -17,7 +17,7 @@ using System.Threading.Tasks;
 
 [assembly: CLSCompliant(true)]
 
-namespace BackupManager
+namespace BackUpManager
 {
 	/// <summary>
 	/// Back up manager program class.
@@ -38,10 +38,10 @@ namespace BackupManager
 				LogInitialization();
 				string version = GetVersion();
 
-				Log.Info("Starting Backup Manager Version: " + version);
+				Log.Info("Starting Back Up Manager Version: " + version);
 
 				string configurationFile = GetConfigurationFile();
-				await BackupService.Run(configurationFile).
+				await BackUpService.Run(configurationFile).
 					ConfigureAwait(false);
 			}
 			catch (Exception exception)
@@ -114,7 +114,7 @@ namespace BackupManager
 				Environment.SpecialFolderOption.Create) + @"\" +
 				applicationDataDirectory;
 
-			string logFilePath = baseDataDirectory + "\\Backup.log";
+			string logFilePath = baseDataDirectory + "\\BackUp.log";
 			string outputTemplate =
 				"[{Timestamp:yyyy-MM-dd HH:mm:ss} {Level:u3}] " +
 				"{Message:lj}{NewLine}{Exception}";
