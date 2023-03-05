@@ -25,12 +25,14 @@ namespace DigitalZenWorks.BackUp.Library
 		/// <summary>
 		/// Run method.
 		/// </summary>
+		/// <param name="configurationFile">The configuration file.</param>
 		/// <returns>A task indicating completion.</returns>
-		public static async Task Run()
+		public static async Task Run(string configurationFile)
 		{
 			try
 			{
-				IList<Account> accounts = AccountsManager.LoadAccounts();
+				IList<Account> accounts =
+					AccountsManager.LoadAccounts(configurationFile);
 
 				if ((accounts == null) || (accounts.Count == 0))
 				{

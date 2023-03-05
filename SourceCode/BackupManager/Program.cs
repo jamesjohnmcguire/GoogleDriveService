@@ -41,7 +41,8 @@ namespace BackupManager
 				Log.Info("Starting Backup Manager Version: " + version);
 
 				string configurationFile = GetConfigurationFile();
-				await BackupService.Run().ConfigureAwait(false);
+				await BackupService.Run(configurationFile).
+					ConfigureAwait(false);
 			}
 			catch (Exception exception)
 			{
