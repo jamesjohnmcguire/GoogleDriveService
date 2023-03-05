@@ -40,6 +40,7 @@ namespace BackupManager
 
 				Log.Info("Starting Backup Manager Version: " + version);
 
+				string configurationFile = GetConfigurationFile();
 				await BackupService.Run().ConfigureAwait(false);
 			}
 			catch (Exception exception)
@@ -66,6 +67,28 @@ namespace BackupManager
 			}
 
 			return fileVersionInfo;
+		}
+
+		private static string GetConfigurationFile()
+		{
+			string configurationFile = null;
+			string baseDataDirectory = Environment.GetFolderPath(
+				Environment.SpecialFolder.ApplicationData,
+				Environment.SpecialFolderOption.Create);
+			string accountsPath =
+				baseDataDirectory + @"\DigitalZenWorks\BackUpManager";
+
+			if (System.IO.Directory.Exists(accountsPath))
+			{
+				string accountsFile = accountsPath + @"\BackUp.json";
+
+				if (System.IO.File.Exists(accountsFile))
+				{
+					configurationFile = accountsFile;
+				}
+			}
+
+			return configurationFile;
 		}
 
 		private static string GetVersion()
