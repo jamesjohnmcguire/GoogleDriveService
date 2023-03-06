@@ -6,14 +6,19 @@
 
 using Common.Logging;
 using DigitalZenWorks.BackUp.Library;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Console;
+using Microsoft.Extensions.Logging.Debug;
 using Serilog;
 using Serilog.Configuration;
 using Serilog.Events;
 using System;
 using System.Diagnostics;
 using System.Globalization;
-using System.Reflection;
 using System.Threading.Tasks;
+
+using Logging = Microsoft.Extensions.Logging;
 
 [assembly: CLSCompliant(true)]
 
@@ -22,7 +27,8 @@ namespace BackUpManager
 	/// <summary>
 	/// Back up manager program class.
 	/// </summary>
-	public static class Program
+#pragma warning disable CA1052
+	public class Program
 	{
 		private static readonly ILog Log = LogManager.GetLogger(
 			System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
@@ -35,13 +41,22 @@ namespace BackUpManager
 		{
 			try
 			{
+				ServiceCollection serviceCollection = new ServiceCollection();
+				ConfigureServices(serviceCollection);
+				ServiceProvider serviceProvider =
+					serviceCollection.BuildServiceProvider();
+
 				LogInitialization();
 				string version = GetVersion();
 
 				Log.Info("Starting Back Up Manager Version: " + version);
 
 				string configurationFile = GetConfigurationFile();
-				await BackUpService.Run(configurationFile).
+
+				BackUpService backUpService = serviceProvider.GetService<
+					DigitalZenWorks.BackUp.Library.BackUpService>();
+
+				await backUpService.Run(configurationFile).
 					ConfigureAwait(false);
 			}
 			catch (Exception exception)
@@ -50,6 +65,25 @@ namespace BackUpManager
 
 				throw;
 			}
+		}
+
+		private static void ConfigureServices(ServiceCollection services)
+		{
+			services.AddLogging(config =>
+			{
+				config.AddDebug();
+				config.AddConsole();
+				config.AddSerilog();
+			})
+				.Configure<LoggerFilterOptions>(options =>
+				{
+					options.AddFilter<DebugLoggerProvider>(
+						null, Logging.LogLevel.Information);
+					options.AddFilter<ConsoleLoggerProvider>(
+						null, Logging.LogLevel.Information);
+				 })
+				.AddTransient<
+					DigitalZenWorks.BackUp.Library.BackUpService>();
 		}
 
 		private static FileVersionInfo GetAssemblyInformation()
@@ -134,6 +168,14 @@ namespace BackUpManager
 
 			LogManager.Adapter =
 				new Common.Logging.Serilog.SerilogFactoryAdapter();
+
+			using var loggerFactory = LoggerFactory.Create(
+				  builder => builder
+					.AddConsole()
+					.AddDebug()
+					.SetMinimumLevel(Logging.LogLevel.Debug));
+
+			var logger = loggerFactory.CreateLogger<Program>();
 		}
 
 		private static void ShowHelp(string additionalMessage)
@@ -163,4 +205,5 @@ namespace BackUpManager
 			}
 		}
 	}
+#pragma warning restore CA1052
 }

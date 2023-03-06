@@ -5,6 +5,7 @@
 /////////////////////////////////////////////////////////////////////////////
 
 using Common.Logging;
+using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
@@ -17,17 +18,29 @@ namespace DigitalZenWorks.BackUp.Library
 	/// <summary>
 	/// Back up class.
 	/// </summary>
-	public static class BackUpService
+	public class BackUpService
 	{
 		private static readonly ILog Log = LogManager.GetLogger(
 			System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
+
+		private readonly ILogger<BackUpService> logger;
+
+		/// <summary>
+		/// Initializes a new instance of the <see cref="BackUpService"/>
+		/// class.
+		/// </summary>
+		/// <param name="logger">The logger interface.</param>
+		public BackUpService(ILogger<BackUpService> logger = null)
+		{
+			this.logger = logger;
+		}
 
 		/// <summary>
 		/// Run method.
 		/// </summary>
 		/// <param name="configurationFile">The configuration file.</param>
 		/// <returns>A task indicating completion.</returns>
-		public static async Task Run(string configurationFile)
+		public async Task Run(string configurationFile)
 		{
 			try
 			{
@@ -36,6 +49,7 @@ namespace DigitalZenWorks.BackUp.Library
 
 				if ((accounts == null) || (accounts.Count == 0))
 				{
+					logger.LogError("No accounts information");
 					Log.Error("No accounts information");
 				}
 				else
@@ -45,6 +59,7 @@ namespace DigitalZenWorks.BackUp.Library
 						string name = account.ServiceAccount;
 						string message = "Backing up to account: " + name;
 						Log.Info(message);
+						logger.LogInformation(message);
 
 						await account.BackUp().ConfigureAwait(false);
 					}
