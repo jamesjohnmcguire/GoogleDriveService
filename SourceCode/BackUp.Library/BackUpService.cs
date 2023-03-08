@@ -4,7 +4,6 @@
 // </copyright>
 /////////////////////////////////////////////////////////////////////////////
 
-using Common.Logging;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using System;
@@ -20,9 +19,6 @@ namespace DigitalZenWorks.BackUp.Library
 	/// </summary>
 	public class BackUpService
 	{
-		private static readonly ILog Log = LogManager.GetLogger(
-			System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
-
 		private readonly ILogger<BackUpService> logger;
 
 		/// <summary>
@@ -49,8 +45,7 @@ namespace DigitalZenWorks.BackUp.Library
 
 				if ((accounts == null) || (accounts.Count == 0))
 				{
-					logger.LogError("No accounts information");
-					Log.Error("No accounts information");
+					LogAction.Error(logger, "No accounts information", null);
 				}
 				else
 				{
@@ -58,17 +53,15 @@ namespace DigitalZenWorks.BackUp.Library
 					{
 						string name = account.ServiceAccount;
 						string message = "Backing up to account: " + name;
-						Log.Info(message);
-						logger.LogInformation(message);
+						LogAction.Information(logger, message);
 
 						await account.BackUp().ConfigureAwait(false);
 					}
 				}
 			}
-			catch (Exception exception) when
-				(exception is JsonException)
+			catch (JsonException exception)
 			{
-				Log.Error(exception.ToString());
+				LogAction.Error(logger, "No accounts information", exception);
 			}
 		}
 	}
