@@ -7,9 +7,6 @@
 using Common.Logging;
 using DigitalZenWorks.BackUp.Library;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Logging.Console;
-using Microsoft.Extensions.Logging.Debug;
 using Serilog;
 using Serilog.Configuration;
 using Serilog.Events;
@@ -18,8 +15,6 @@ using System.Diagnostics;
 using System.Globalization;
 using System.Threading.Tasks;
 
-using Logging = Microsoft.Extensions.Logging;
-
 [assembly: CLSCompliant(true)]
 
 namespace BackUpManager
@@ -27,8 +22,7 @@ namespace BackUpManager
 	/// <summary>
 	/// Back up manager program class.
 	/// </summary>
-#pragma warning disable CA1052
-	public class Program
+	public static class Program
 	{
 		private static readonly ILog Log = LogManager.GetLogger(
 			System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
@@ -189,5 +183,4 @@ namespace BackUpManager
 			}
 		}
 	}
-#pragma warning restore CA1052
 }
