@@ -41,20 +41,16 @@ namespace BackUpManager
 		{
 			try
 			{
-				ServiceCollection serviceCollection = new ServiceCollection();
-				ConfigureServices(serviceCollection);
-				ServiceProvider serviceProvider =
-					serviceCollection.BuildServiceProvider();
+				ServiceProvider serviceProvider = ConfigureServices();
 
-				LogInitialization();
 				string version = GetVersion();
 
 				Log.Info("Starting Back Up Manager Version: " + version);
 
-				string configurationFile = GetConfigurationFile();
-
 				BackUpService backUpService = serviceProvider.GetService<
 					DigitalZenWorks.BackUp.Library.BackUpService>();
+
+				string configurationFile = GetConfigurationFile();
 
 				await backUpService.Run(configurationFile).
 					ConfigureAwait(false);
@@ -67,31 +63,27 @@ namespace BackUpManager
 			}
 		}
 
-		private static void ConfigureServices(ServiceCollection services)
+		private static ServiceProvider ConfigureServices()
 		{
-			services.AddLogging(config =>
-			{
-				config.AddDebug();
-				config.AddConsole();
-				config.AddSerilog();
-			})
-				.Configure<LoggerFilterOptions>(options =>
-				{
-					options.AddFilter<DebugLoggerProvider>(
-						null, Logging.LogLevel.Information);
-					options.AddFilter<ConsoleLoggerProvider>(
-						null, Logging.LogLevel.Information);
-				 })
-				.AddTransient<
-					DigitalZenWorks.BackUp.Library.BackUpService>();
+			ServiceCollection serviceCollection = new ServiceCollection();
+
+			serviceCollection.AddLogging(config => config.AddSerilog())
+				.AddTransient<BackUpService>();
+
+			ServiceProvider serviceProvider =
+				serviceCollection.BuildServiceProvider();
+
+			LogInitialization();
+
+			return serviceProvider;
 		}
 
 		private static FileVersionInfo GetAssemblyInformation()
 		{
 			FileVersionInfo fileVersionInfo = null;
 
-			// Bacause single file apps have no assemblies, get the information
-			// from the process.
+			// Bacause single file apps have no assemblies,
+			// get the information from the process.
 			Process process = Process.GetCurrentProcess();
 
 			string location = process.MainModule.FileName;
@@ -168,14 +160,6 @@ namespace BackUpManager
 
 			LogManager.Adapter =
 				new Common.Logging.Serilog.SerilogFactoryAdapter();
-
-			using var loggerFactory = LoggerFactory.Create(
-				  builder => builder
-					.AddConsole()
-					.AddDebug()
-					.SetMinimumLevel(Logging.LogLevel.Debug));
-
-			var logger = loggerFactory.CreateLogger<Program>();
 		}
 
 		private static void ShowHelp(string additionalMessage)
