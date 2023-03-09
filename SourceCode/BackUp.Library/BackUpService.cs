@@ -49,12 +49,13 @@ namespace DigitalZenWorks.BackUp.Library
 				}
 				else
 				{
-					foreach (Account account in accounts)
+					foreach (Account accountData in accounts)
 					{
-						string name = account.ServiceAccount;
+						string name = accountData.ServiceAccount;
 						string message = "Backing up to account: " + name;
 						LogAction.Information(logger, message);
 
+						AccountService account = new (accountData, logger);
 						await account.BackUp().ConfigureAwait(false);
 					}
 				}
