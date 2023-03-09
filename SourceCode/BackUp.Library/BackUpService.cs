@@ -41,7 +41,7 @@ namespace DigitalZenWorks.BackUp.Library
 			try
 			{
 				IList<Account> accounts =
-					AccountsManager.LoadAccounts(configurationFile);
+					AccountsManager.LoadAccounts(configurationFile, logger);
 
 				if ((accounts == null) || (accounts.Count == 0))
 				{
