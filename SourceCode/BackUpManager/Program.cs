@@ -56,7 +56,7 @@ namespace BackUpManager
 
 		private static ServiceProvider ConfigureServices()
 		{
-			ServiceCollection serviceCollection = new ServiceCollection();
+			ServiceCollection serviceCollection = new ();
 
 			serviceCollection.AddLogging(config => config.AddSerilog())
 				.AddTransient<BackUpService>();
