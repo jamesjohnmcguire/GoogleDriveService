@@ -4,15 +4,14 @@
 // </copyright>
 /////////////////////////////////////////////////////////////////////////////
 
-using Common.Logging;
 using DigitalZenWorks.BackUp.Library;
+using Microsoft.Extensions.DependencyInjection;
 using Serilog;
 using Serilog.Configuration;
 using Serilog.Events;
 using System;
 using System.Diagnostics;
 using System.Globalization;
-using System.Reflection;
 using System.Threading.Tasks;
 
 [assembly: CLSCompliant(true)]
@@ -24,9 +23,6 @@ namespace BackUpManager
 	/// </summary>
 	public static class Program
 	{
-		private static readonly ILog Log = LogManager.GetLogger(
-			System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
-
 		/// <summary>
 		/// The program's main entry point.
 		/// </summary>
@@ -35,13 +31,19 @@ namespace BackUpManager
 		{
 			try
 			{
-				LogInitialization();
+				ServiceProvider serviceProvider = ConfigureServices();
+
 				string version = GetVersion();
 
-				Log.Info("Starting Back Up Manager Version: " + version);
+				Log.Logger.Information(
+					"Starting Back Up Manager Version: " + version);
+
+				BackUpService backUpService = serviceProvider.GetService<
+					DigitalZenWorks.BackUp.Library.BackUpService>();
 
 				string configurationFile = GetConfigurationFile();
-				await BackUpService.Run(configurationFile).
+
+				await backUpService.Run(configurationFile).
 					ConfigureAwait(false);
 			}
 			catch (Exception exception)
@@ -52,12 +54,27 @@ namespace BackUpManager
 			}
 		}
 
+		private static ServiceProvider ConfigureServices()
+		{
+			ServiceCollection serviceCollection = new ServiceCollection();
+
+			serviceCollection.AddLogging(config => config.AddSerilog())
+				.AddTransient<BackUpService>();
+
+			ServiceProvider serviceProvider =
+				serviceCollection.BuildServiceProvider();
+
+			LogInitialization();
+
+			return serviceProvider;
+		}
+
 		private static FileVersionInfo GetAssemblyInformation()
 		{
 			FileVersionInfo fileVersionInfo = null;
 
-			// Bacause single file apps have no assemblies, get the information
-			// from the process.
+			// Bacause single file apps have no assemblies,
+			// get the information from the process.
 			Process process = Process.GetCurrentProcess();
 
 			string location = process.MainModule.FileName;
@@ -130,10 +147,7 @@ namespace BackUpManager
 				LogEventLevel.Verbose,
 				outputTemplate,
 				CultureInfo.CurrentCulture);
-			Serilog.Log.Logger = configuration.CreateLogger();
-
-			LogManager.Adapter =
-				new Common.Logging.Serilog.SerilogFactoryAdapter();
+			Log.Logger = configuration.CreateLogger();
 		}
 
 		private static void ShowHelp(string additionalMessage)
@@ -154,12 +168,12 @@ namespace BackUpManager
 					assemblyVersion,
 					copyright,
 					companyName);
-				Log.Info(header);
+				Log.Logger.Information(header);
 			}
 
 			if (!string.IsNullOrWhiteSpace(additionalMessage))
 			{
-				Log.Info(additionalMessage);
+				Log.Logger.Information(additionalMessage);
 			}
 		}
 	}

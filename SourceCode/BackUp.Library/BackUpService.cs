@@ -4,7 +4,7 @@
 // </copyright>
 /////////////////////////////////////////////////////////////////////////////
 
-using Common.Logging;
+using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
@@ -17,43 +17,53 @@ namespace DigitalZenWorks.BackUp.Library
 	/// <summary>
 	/// Back up class.
 	/// </summary>
-	public static class BackUpService
+	public class BackUpService
 	{
-		private static readonly ILog Log = LogManager.GetLogger(
-			System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
+		private readonly ILogger<BackUpService> logger;
+
+		/// <summary>
+		/// Initializes a new instance of the <see cref="BackUpService"/>
+		/// class.
+		/// </summary>
+		/// <param name="logger">The logger interface.</param>
+		public BackUpService(ILogger<BackUpService> logger = null)
+		{
+			this.logger = logger;
+		}
 
 		/// <summary>
 		/// Run method.
 		/// </summary>
 		/// <param name="configurationFile">The configuration file.</param>
 		/// <returns>A task indicating completion.</returns>
-		public static async Task Run(string configurationFile)
+		public async Task Run(string configurationFile)
 		{
 			try
 			{
 				IList<Account> accounts =
-					AccountsManager.LoadAccounts(configurationFile);
+					AccountsManager.LoadAccounts(configurationFile, logger);
 
 				if ((accounts == null) || (accounts.Count == 0))
 				{
-					Log.Error("No accounts information");
+					LogAction.Error(logger, "No accounts information", null);
 				}
 				else
 				{
-					foreach (Account account in accounts)
+					foreach (Account accountData in accounts)
 					{
-						string name = account.ServiceAccount;
+						string name = accountData.ServiceAccount;
 						string message = "Backing up to account: " + name;
-						Log.Info(message);
+						LogAction.Information(logger, message);
 
+						using AccountService account =
+							new (accountData, logger);
 						await account.BackUp().ConfigureAwait(false);
 					}
 				}
 			}
-			catch (Exception exception) when
-				(exception is JsonException)
+			catch (JsonException exception)
 			{
-				Log.Error(exception.ToString());
+				LogAction.Error(logger, "No accounts information", exception);
 			}
 		}
 	}
