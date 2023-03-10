@@ -4,7 +4,6 @@
 // </copyright>
 /////////////////////////////////////////////////////////////////////////////
 
-using Common.Logging;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using System;

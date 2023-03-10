@@ -4,7 +4,6 @@
 // </copyright>
 /////////////////////////////////////////////////////////////////////////////
 
-using Common.Logging;
 using DigitalZenWorks.BackUp.Library;
 using Microsoft.Extensions.DependencyInjection;
 using Serilog;
@@ -24,9 +23,6 @@ namespace BackUpManager
 	/// </summary>
 	public static class Program
 	{
-		private static readonly ILog Log = LogManager.GetLogger(
-			System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
-
 		/// <summary>
 		/// The program's main entry point.
 		/// </summary>
@@ -39,7 +35,8 @@ namespace BackUpManager
 
 				string version = GetVersion();
 
-				Log.Info("Starting Back Up Manager Version: " + version);
+				Log.Logger.Information(
+					"Starting Back Up Manager Version: " + version);
 
 				BackUpService backUpService = serviceProvider.GetService<
 					DigitalZenWorks.BackUp.Library.BackUpService>();
@@ -150,10 +147,7 @@ namespace BackUpManager
 				LogEventLevel.Verbose,
 				outputTemplate,
 				CultureInfo.CurrentCulture);
-			Serilog.Log.Logger = configuration.CreateLogger();
-
-			LogManager.Adapter =
-				new Common.Logging.Serilog.SerilogFactoryAdapter();
+			Log.Logger = configuration.CreateLogger();
 		}
 
 		private static void ShowHelp(string additionalMessage)
@@ -174,12 +168,12 @@ namespace BackUpManager
 					assemblyVersion,
 					copyright,
 					companyName);
-				Log.Info(header);
+				Log.Logger.Information(header);
 			}
 
 			if (!string.IsNullOrWhiteSpace(additionalMessage))
 			{
-				Log.Info(additionalMessage);
+				Log.Logger.Information(additionalMessage);
 			}
 		}
 	}
