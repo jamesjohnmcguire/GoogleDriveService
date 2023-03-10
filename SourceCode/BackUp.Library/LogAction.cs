@@ -9,22 +9,22 @@ using System;
 
 namespace DigitalZenWorks.BackUp.Library
 {
-	internal class LogAction
+	internal sealed class LogAction
 	{
-		private static Action<ILogger, string, Exception>
-			logError = LoggerMessage.Define<string>(
+		private static readonly Action<ILogger, string, Exception>
+			LogError = LoggerMessage.Define<string>(
 				LogLevel.Error,
 				1,
 				"{Message}");
 
-		private static Action<ILogger, string, Exception>
-			logInformation = LoggerMessage.Define<string>(
+		private static readonly Action<ILogger, string, Exception>
+			LogInformation = LoggerMessage.Define<string>(
 				LogLevel.Information,
 				1,
 				"{Message}");
 
-		private static Action<ILogger, string, Exception>
-			logWarning = LoggerMessage.Define<string>(
+		private static readonly Action<ILogger, string, Exception>
+			LogWarning = LoggerMessage.Define<string>(
 				LogLevel.Warning,
 				1,
 				"{Message}");
@@ -38,7 +38,7 @@ namespace DigitalZenWorks.BackUp.Library
 		public static void Error(
 			ILogger logger, string message, Exception exception)
 		{
-			logError(logger, message, exception);
+			LogError(logger, message, exception);
 		}
 
 		/// <summary>
@@ -48,7 +48,7 @@ namespace DigitalZenWorks.BackUp.Library
 		/// <param name="message">The message.</param>
 		public static void Information(ILogger logger, string message)
 		{
-			logInformation(logger, message, null);
+			LogInformation(logger, message, null);
 		}
 
 		/// <summary>
@@ -60,7 +60,7 @@ namespace DigitalZenWorks.BackUp.Library
 		public static void Warning(
 			ILogger logger, string message, Exception exception)
 		{
-			logWarning(logger, message, exception);
+			LogWarning(logger, message, exception);
 		}
 	}
 }

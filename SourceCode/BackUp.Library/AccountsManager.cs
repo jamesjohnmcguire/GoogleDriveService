@@ -22,9 +22,6 @@ namespace DigitalZenWorks.BackUp.Library
 		private const string InternalDataPath =
 			@"\DigitalZenWorks\BackUpManager";
 
-		private static readonly ILog Log = LogManager.GetLogger(
-			System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
-
 		/// <summary>
 		/// Gets data path property.
 		/// </summary>

@@ -55,7 +55,8 @@ namespace DigitalZenWorks.BackUp.Library
 						string message = "Backing up to account: " + name;
 						LogAction.Information(logger, message);
 
-						AccountService account = new (accountData, logger);
+						using AccountService account =
+							new (accountData, logger);
 						await account.BackUp().ConfigureAwait(false);
 					}
 				}
