@@ -1,3 +1,4 @@
+BackUpManager\SourceCode\BackUp.Library\LogAction.cs(12,24): warning CA1812: 'LogAction' is an internal class that is apparently never instantiated. If so, remove the code from the assembly. If this class is intended to contain only static members, make it 'static' (Module in Visual Basic). [BackUpManager\SourceCode\BackUp.Library\DigitalZenWorks.BackUp.Library.csproj]
 When moving from Entertainment/Music/Music to Entertainment/Music, abandoned files not removed
 ABBA.lnk as top level
 Eventually, add global property to determine if this item should be deleted anywhere or only in the specified directory
