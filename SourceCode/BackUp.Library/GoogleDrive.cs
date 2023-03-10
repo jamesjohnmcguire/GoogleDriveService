@@ -18,7 +18,7 @@ using System.Threading.Tasks;
 
 using GoogleDriveFile = Google.Apis.Drive.v3.Data.File;
 
-namespace BackupManagerLibrary
+namespace DigitalZenWorks.BackUp.Library
 {
 	/// <summary>
 	/// Google drive class.
@@ -142,7 +142,7 @@ namespace BackupManagerLibrary
 				credentialedAccount = credentialedAccount.CreateScoped(Scopes);
 
 				initializer = new BaseClientService.Initializer();
-				initializer.ApplicationName = "Backup Manager";
+				initializer.ApplicationName = "Back Up Service Manager";
 				initializer.HttpClientInitializer = credentialedAccount;
 
 				driveService = new DriveService(initializer);

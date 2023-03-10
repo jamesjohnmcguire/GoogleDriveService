@@ -4,8 +4,8 @@
 // </copyright>
 /////////////////////////////////////////////////////////////////////////////
 
-using BackupManagerLibrary;
 using Common.Logging;
+using DigitalZenWorks.BackUp.Library;
 using Serilog;
 using Serilog.Configuration;
 using Serilog.Events;
@@ -17,7 +17,7 @@ using System.Threading.Tasks;
 
 [assembly: CLSCompliant(true)]
 
-namespace BackupManager
+namespace BackUpManager
 {
 	/// <summary>
 	/// Back up manager program class.
@@ -38,9 +38,11 @@ namespace BackupManager
 				LogInitialization();
 				string version = GetVersion();
 
-				Log.Info("Starting Backup Manager Version: " + version);
+				Log.Info("Starting Back Up Manager Version: " + version);
 
-				await Backup.Run().ConfigureAwait(false);
+				string configurationFile = GetConfigurationFile();
+				await BackUpService.Run(configurationFile).
+					ConfigureAwait(false);
 			}
 			catch (Exception exception)
 			{
@@ -68,6 +70,28 @@ namespace BackupManager
 			return fileVersionInfo;
 		}
 
+		private static string GetConfigurationFile()
+		{
+			string configurationFile = null;
+			string baseDataDirectory = Environment.GetFolderPath(
+				Environment.SpecialFolder.ApplicationData,
+				Environment.SpecialFolderOption.Create);
+			string accountsPath =
+				baseDataDirectory + @"\DigitalZenWorks\BackUpManager";
+
+			if (System.IO.Directory.Exists(accountsPath))
+			{
+				string accountsFile = accountsPath + @"\BackUp.json";
+
+				if (System.IO.File.Exists(accountsFile))
+				{
+					configurationFile = accountsFile;
+				}
+			}
+
+			return configurationFile;
+		}
+
 		private static string GetVersion()
 		{
 			string assemblyVersion = string.Empty;
@@ -90,7 +114,7 @@ namespace BackupManager
 				Environment.SpecialFolderOption.Create) + @"\" +
 				applicationDataDirectory;
 
-			string logFilePath = baseDataDirectory + "\\Backup.log";
+			string logFilePath = baseDataDirectory + "\\BackUp.log";
 			string outputTemplate =
 				"[{Timestamp:yyyy-MM-dd HH:mm:ss} {Level:u3}] " +
 				"{Message:lj}{NewLine}{Exception}";

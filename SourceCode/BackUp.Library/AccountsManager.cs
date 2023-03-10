@@ -11,7 +11,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 
-namespace BackupManagerLibrary
+namespace DigitalZenWorks.BackUp.Library
 {
 	/// <summary>
 	/// Google Service Accounts Manager.
@@ -20,8 +20,6 @@ namespace BackupManagerLibrary
 	{
 		private const string InternalDataPath =
 			@"\DigitalZenWorks\BackUpManager";
-
-		private const string MainDataFile = @"\BackUp.json";
 
 		private static readonly ILog Log = LogManager.GetLogger(
 			System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
@@ -45,35 +43,23 @@ namespace BackupManagerLibrary
 		/// <summary>
 		/// Load accounts method.
 		/// </summary>
+		/// <param name="configurationFile">The configuration file.</param>
 		/// <returns>A list of accounts.</returns>
-		public static IList<Account> LoadAccounts()
+		public static IList<Account> LoadAccounts(string configurationFile)
 		{
 			IList<Account> accounts = null;
 
-			string baseDataDirectory = Environment.GetFolderPath(
-				Environment.SpecialFolder.ApplicationData,
-				Environment.SpecialFolderOption.Create);
-			string accountsPath = baseDataDirectory + InternalDataPath;
-
-			if (System.IO.Directory.Exists(accountsPath))
+			if (!string.IsNullOrWhiteSpace(configurationFile) &&
+				System.IO.File.Exists(configurationFile))
 			{
-				string accountsFile = accountsPath + MainDataFile;
+				string accountsText = File.ReadAllText(configurationFile);
 
-				if (System.IO.File.Exists(accountsFile))
-				{
-					string accountsText = File.ReadAllText(accountsFile);
-
-					accounts = JsonConvert.DeserializeObject<IList<Account>>(
-						accountsText);
-				}
-				else
-				{
-					Log.Error("Accounts file doesn't exist");
-				}
+				accounts = JsonConvert.DeserializeObject<IList<Account>>(
+					accountsText);
 			}
 			else
 			{
-				Log.Error("Accounts path doesn't exist");
+				Log.Error("Accounts file doesn't exist");
 			}
 
 			return accounts;

@@ -1,5 +1,5 @@
 ﻿/////////////////////////////////////////////////////////////////////////////
-// <copyright file="Backup.cs" company="James John McGuire">
+// <copyright file="BackUpService.cs" company="James John McGuire">
 // Copyright © 2017 - 2023 James John McGuire. All Rights Reserved.
 // </copyright>
 /////////////////////////////////////////////////////////////////////////////
@@ -12,12 +12,12 @@ using System.Threading.Tasks;
 
 [assembly: CLSCompliant(false)]
 
-namespace BackupManagerLibrary
+namespace DigitalZenWorks.BackUp.Library
 {
 	/// <summary>
 	/// Back up class.
 	/// </summary>
-	public static class Backup
+	public static class BackUpService
 	{
 		private static readonly ILog Log = LogManager.GetLogger(
 			System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
@@ -25,12 +25,14 @@ namespace BackupManagerLibrary
 		/// <summary>
 		/// Run method.
 		/// </summary>
+		/// <param name="configurationFile">The configuration file.</param>
 		/// <returns>A task indicating completion.</returns>
-		public static async Task Run()
+		public static async Task Run(string configurationFile)
 		{
 			try
 			{
-				IList<Account> accounts = AccountsManager.LoadAccounts();
+				IList<Account> accounts =
+					AccountsManager.LoadAccounts(configurationFile);
 
 				if ((accounts == null) || (accounts.Count == 0))
 				{

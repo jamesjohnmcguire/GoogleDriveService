@@ -34,7 +34,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<ProjectReference Include="..\BackupManagerLibrary\BackupManagerLibrary.csproj" />
+		<ProjectReference Include="..\BackUp.Library\DigitalZenWorks.BackUp.Library.csproj" />
 	</ItemGroup>
 
 	<ItemGroup>
