@@ -4,8 +4,6 @@
 // </copyright>
 /////////////////////////////////////////////////////////////////////////////
 
-using Common.Logging;
-using DigitalZenWorks.BackUp.Library;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
@@ -24,9 +22,6 @@ namespace DigitalZenWorks.BackUp.Library
 	/// </summary>
 	public class AccountService : IDisposable
 	{
-		private static readonly ILog Log = LogManager.GetLogger(
-			System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
-
 		private readonly Account account;
 		private readonly ILogger<BackUpService> logger;
 
@@ -51,12 +46,13 @@ namespace DigitalZenWorks.BackUp.Library
 		/// Report server folder information.
 		/// </summary>
 		/// <param name="serverFolder">The server folder to report on.</param>
-		public static void ReportServerFolderInformation(
+		public void ReportServerFolderInformation(
 			GoogleDriveFile serverFolder)
 		{
 			if (serverFolder == null)
 			{
-				Log.Warn("server folder is null");
+				LogAction.Warning(
+					logger, "server folder is null", null);
 			}
 			else
 			{
@@ -65,11 +61,12 @@ namespace DigitalZenWorks.BackUp.Library
 					"Checking server file {0} {1}",
 					serverFolder.Id,
 					serverFolder.Name);
-				Log.Info(message);
+				LogAction.Information(logger, message);
 
 				if (serverFolder.Owners == null)
 				{
-					Log.Warn("server folder owners null");
+					LogAction.Warning(
+						logger, "server folder owners null", null);
 				}
 				else
 				{
@@ -83,12 +80,13 @@ namespace DigitalZenWorks.BackUp.Library
 						ownersInfo += " " + item;
 					}
 
-					Log.Info(ownersInfo);
+					LogAction.Information(logger, ownersInfo);
 				}
 
 				if (serverFolder.Parents == null)
 				{
-					Log.Warn("server folder parents is null");
+					LogAction.Warning(
+						logger, "server folder parents is null", null);
 				}
 				else
 				{
@@ -100,20 +98,20 @@ namespace DigitalZenWorks.BackUp.Library
 						parentsInfo += " " + item;
 					}
 
-					Log.Info(parentsInfo);
+					LogAction.Information(logger, parentsInfo);
 				}
 
 				if (serverFolder.OwnedByMe == true)
 				{
-					Log.Info("File owned by me");
+					LogAction.Information(logger, "File owned by me");
 				}
 				else if (serverFolder.Shared == true)
 				{
-					Log.Info("File shared with me");
+					LogAction.Information(logger, "File shared with me");
 				}
 				else
 				{
-					Log.Info("File is neither owned by or shared with me");
+					LogAction.Information(logger, "File is neither owned by or shared with me");
 				}
 			}
 		}
@@ -146,7 +144,7 @@ namespace DigitalZenWorks.BackUp.Library
 				(exception is ArgumentException ||
 				exception is FileNotFoundException)
 			{
-				GoogleDrive.LogException(exception);
+				googleDrive.LogException(exception);
 			}
 
 			return authenticated;
@@ -179,7 +177,7 @@ namespace DigitalZenWorks.BackUp.Library
 						"Checking: \"{0}\" with Parent Id: {1}",
 						path,
 						driveParentFolderId);
-					Log.Info(message);
+					LogAction.Information(logger, message);
 
 					await CreateTopLevelLink(
 						driveParentFolderId, path).ConfigureAwait(false);
@@ -187,10 +185,6 @@ namespace DigitalZenWorks.BackUp.Library
 					IList<GoogleDriveFile> serverFiles =
 						await googleDrive.GetFilesAsync(driveParentFolderId).
 							ConfigureAwait(false);
-
-					string directoryName = Path.GetFileName(path);
-					GoogleDriveFile serverFolder =
-						GoogleDrive.GetFileInList(serverFiles, directoryName);
 
 					await BackUp(
 						driveParentFolderId,
@@ -395,7 +389,7 @@ namespace DigitalZenWorks.BackUp.Library
 				exception is TaskCanceledException ||
 				exception is UnauthorizedAccessException)
 			{
-				GoogleDrive.LogException(exception);
+				googleDrive.LogException(exception);
 			}
 		}
 
@@ -418,7 +412,7 @@ namespace DigitalZenWorks.BackUp.Library
 						CultureInfo.InvariantCulture,
 						"Checking: {0}",
 						fileName);
-					Log.Info(message);
+					LogAction.Information(logger, message);
 
 					GoogleDriveFile serverFile =
 							GoogleDrive.GetFileInList(serverFiles, file.Name);
@@ -431,7 +425,7 @@ namespace DigitalZenWorks.BackUp.Library
 						CultureInfo.InvariantCulture,
 						"Excluding file from Server: {0}",
 						file.FullName);
-					Log.Info(message);
+					LogAction.Information(logger, message);
 
 					RemoveExcludedFile(file, serverFiles);
 				}
@@ -448,7 +442,7 @@ namespace DigitalZenWorks.BackUp.Library
 				exception is InvalidOperationException ||
 				exception is UnauthorizedAccessException)
 			{
-				GoogleDrive.LogException(exception);
+				googleDrive.LogException(exception);
 			}
 		}
 
@@ -507,7 +501,7 @@ namespace DigitalZenWorks.BackUp.Library
 				exception is System.Net.Http.HttpRequestException ||
 				exception is System.Net.Sockets.SocketException)
 			{
-				GoogleDrive.LogException(exception);
+				googleDrive.LogException(exception);
 			}
 		}
 
@@ -543,7 +537,7 @@ namespace DigitalZenWorks.BackUp.Library
 					}
 					catch (Google.GoogleApiException exception)
 					{
-						GoogleDrive.LogException(exception);
+						googleDrive.LogException(exception);
 					}
 				}
 			}
@@ -593,7 +587,7 @@ namespace DigitalZenWorks.BackUp.Library
 				}
 				catch (Google.GoogleApiException exception)
 				{
-					GoogleDrive.LogException(exception);
+					googleDrive.LogException(exception);
 				}
 			}
 		}
@@ -621,7 +615,7 @@ namespace DigitalZenWorks.BackUp.Library
 				}
 				catch (Google.GoogleApiException exception)
 				{
-					GoogleDrive.LogException(exception);
+					googleDrive.LogException(exception);
 				}
 			}
 		}
