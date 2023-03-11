@@ -9,7 +9,7 @@ using System;
 
 namespace DigitalZenWorks.BackUp.Library
 {
-	internal sealed class LogAction
+	internal static class LogAction
 	{
 		private static readonly Action<ILogger, string, Exception>
 			LogError = LoggerMessage.Define<string>(
