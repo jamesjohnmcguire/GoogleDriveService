@@ -4,7 +4,7 @@
 // </copyright>
 /////////////////////////////////////////////////////////////////////////////
 
-using Common.Logging;
+using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
@@ -20,9 +20,6 @@ namespace DigitalZenWorks.BackUp.Library
 	{
 		private const string InternalDataPath =
 			@"\DigitalZenWorks\BackUpManager";
-
-		private static readonly ILog Log = LogManager.GetLogger(
-			System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
 
 		/// <summary>
 		/// Gets data path property.
@@ -44,8 +41,10 @@ namespace DigitalZenWorks.BackUp.Library
 		/// Load accounts method.
 		/// </summary>
 		/// <param name="configurationFile">The configuration file.</param>
+		/// <param name="logger">The logger interface.</param>
 		/// <returns>A list of accounts.</returns>
-		public static IList<Account> LoadAccounts(string configurationFile)
+		public static IList<Account> LoadAccounts(
+			string configurationFile, ILogger<BackUpService> logger)
 		{
 			IList<Account> accounts = null;
 
@@ -59,7 +58,7 @@ namespace DigitalZenWorks.BackUp.Library
 			}
 			else
 			{
-				Log.Error("Accounts file doesn't exist");
+				LogAction.Error(logger, "Accounts file doesn't exist", null);
 			}
 
 			return accounts;
