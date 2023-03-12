@@ -39,7 +39,7 @@ namespace DigitalZenWorks.BackUp.Library
 			this.logger = logger;
 			this.account = account;
 
-			googleDrive = new GoogleDrive();
+			googleDrive = new GoogleDrive(logger);
 		}
 
 		/// <summary>
