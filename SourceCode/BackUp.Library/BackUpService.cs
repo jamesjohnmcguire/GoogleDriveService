@@ -17,9 +17,15 @@ namespace DigitalZenWorks.BackUp.Library
 	/// <summary>
 	/// Back up class.
 	/// </summary>
-	public class BackUpService
+	public class BackUpService : IBackUpService
 	{
 		private readonly ILogger<BackUpService> logger;
+		private readonly string serviceAccountJsonFile;
+
+		private GoogleDrive googleDrive;
+		private string parentId;
+		private string path;
+		private GoogleDriveBackUpServiceData serviceData;
 
 		/// <summary>
 		/// Initializes a new instance of the <see cref="BackUpService"/>
@@ -29,6 +35,24 @@ namespace DigitalZenWorks.BackUp.Library
 		public BackUpService(ILogger<BackUpService> logger = null)
 		{
 			this.logger = logger;
+		}
+
+		/// <summary>
+		/// Back up method.
+		/// </summary>
+		/// <param name="path">The path to back up.</param>
+		/// <param name="serviceDestinationId">A service specific
+		/// identifier for the destination.</param>
+		public void BackUp(string path, string serviceDestinationId)
+		{
+			this.path = path;
+			parentId = serviceDestinationId;
+
+			bool authenticated = Authorize();
+
+			if (authenticated == true)
+			{
+			}
 		}
 
 		/// <summary>

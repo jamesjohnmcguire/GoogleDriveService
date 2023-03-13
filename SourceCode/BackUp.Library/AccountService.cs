@@ -20,12 +20,10 @@ namespace DigitalZenWorks.BackUp.Library
 	/// <summary>
 	/// Account Service class.
 	/// </summary>
-	public class AccountService : IDisposable
+	public class AccountService
 	{
 		private readonly Account account;
 		private readonly ILogger<BackUpService> logger;
-
-		private GoogleDrive googleDrive;
 
 		/// <summary>
 		/// Initializes a new instance of the
@@ -38,125 +36,34 @@ namespace DigitalZenWorks.BackUp.Library
 		{
 			this.logger = logger;
 			this.account = account;
-
-			googleDrive = new GoogleDrive(logger);
 		}
 
 		public ILogger<BackUpService> Logger { get => logger; }
 
 		/// <summary>
-		/// Report server folder information.
+		/// Gets the account data.
 		/// </summary>
-		/// <param name="serverFolder">The server folder to report on.</param>
-		public void ReportServerFolderInformation(
-			GoogleDriveFile serverFolder)
-		{
-			if (serverFolder == null)
-			{
-				LogAction.Warning(
-					logger, "server folder is null", null);
-			}
-			else
-			{
-				string message = string.Format(
-					CultureInfo.InvariantCulture,
-					"Checking server file {0} {1}",
-					serverFolder.Id,
-					serverFolder.Name);
-				LogAction.Information(logger, message);
-
-				if (serverFolder.Owners == null)
-				{
-					LogAction.Warning(
-						logger, "server folder owners null", null);
-				}
-				else
-				{
-					IList<Google.Apis.Drive.v3.Data.User> owners =
-						serverFolder.Owners;
-
-					string ownersInfo = "owners:";
-					foreach (var user in owners)
-					{
-						var item = user.EmailAddress;
-						ownersInfo += " " + item;
-					}
-
-					LogAction.Information(logger, ownersInfo);
-				}
-
-				if (serverFolder.Parents == null)
-				{
-					LogAction.Warning(
-						logger, "server folder parents is null", null);
-				}
-				else
-				{
-					IList<string> parents = serverFolder.Parents;
-
-					string parentsInfo = "parents:";
-					foreach (string item in parents)
-					{
-						parentsInfo += " " + item;
-					}
-
-					LogAction.Information(logger, parentsInfo);
-				}
-
-				if (serverFolder.OwnedByMe == true)
-				{
-					LogAction.Information(logger, "File owned by me");
-				}
-				else if (serverFolder.Shared == true)
-				{
-					LogAction.Information(logger, "File shared with me");
-				}
-				else
-				{
-					LogAction.Information(logger, "File is neither owned by or shared with me");
-				}
-			}
-		}
+		public Account Account { get => account; }
 
 		/// <summary>
-		/// Authenticating to Google using a Service account
-		/// Documentation:
-		/// https://developers.google.com/accounts/docs/OAuth2#serviceaccount.
+		/// Gets the logger service.
+		/// </summary>
+		public ILogger<BackUpService> Logger { get => logger; }
+
+		/// <summary>
+		/// Authorize method.
 		/// </summary>
 		/// <returns>True upon success,false otherwise.</returns>
-		public bool Authorize()
+		public virtual bool Authorize()
 		{
-			bool authenticated = false;
-
-			try
-			{
-				string userProfilePath = Environment.GetFolderPath(
-					Environment.SpecialFolder.UserProfile);
-				string accountsPath = AccountsManager.DataPath;
-
-				if (System.IO.Directory.Exists(accountsPath))
-				{
-					string accountsFile =
-						accountsPath + @"\" + account.ServiceAccount;
-
-					authenticated = googleDrive.Authorize(accountsFile);
-				}
-			}
-			catch (Exception exception) when
-				(exception is ArgumentException ||
-				exception is FileNotFoundException)
-			{
-				googleDrive.LogException(exception);
-			}
-
-			return authenticated;
+			return true;
 		}
 
 		/// <summary>
 		/// Main back up method.
 		/// </summary>
 		/// <returns>A task indicating completion.</returns>
-		public async Task BackUp()
+		public virtual async Task BackUp()
 		{
 			bool authenticated = Authorize();
 
@@ -224,7 +131,7 @@ namespace DigitalZenWorks.BackUp.Library
 			}
 		}
 
-		private static bool ShouldSkipThisDirectory(
+		protected static bool ShouldSkipThisDirectory(
 			string parentPath, IList<Exclude> excludes)
 		{
 			bool skipThisDirectory = false;
@@ -245,7 +152,7 @@ namespace DigitalZenWorks.BackUp.Library
 			return skipThisDirectory;
 		}
 
-		private static bool ShouldProcessFile(
+		protected static bool ShouldProcessFile(
 			IList<Exclude> excludes, string path)
 		{
 			bool processFile = true;
@@ -291,7 +198,7 @@ namespace DigitalZenWorks.BackUp.Library
 			return processFiles;
 		}
 
-		private static bool ShouldProcessFolder(
+		protected static bool ShouldProcessFolder(
 			IList<Exclude> excludes, string path)
 		{
 			bool processSubFolders = true;
@@ -331,7 +238,7 @@ namespace DigitalZenWorks.BackUp.Library
 			return processSubFolders;
 		}
 
-		private async Task BackUp(
+		protected override async Task BackUp(
 			string driveParentId,
 			string path,
 			IList<GoogleDriveFile> serverFiles,
@@ -356,8 +263,7 @@ namespace DigitalZenWorks.BackUp.Library
 						string[] subDirectories =
 							System.IO.Directory.GetDirectories(path);
 
-						RemoveExcludedItemsFromServer(
-							path, excludes, thisServerFiles);
+						RemoveExcludedItems(path, excludes, thisServerFiles);
 
 						RemoveAbandonedFolders(
 							path, subDirectories, thisServerFiles, excludes);
@@ -396,7 +302,7 @@ namespace DigitalZenWorks.BackUp.Library
 				exception is TaskCanceledException ||
 				exception is UnauthorizedAccessException)
 			{
-				googleDrive.LogException(exception);
+				googleDrive.LogAction.Exception(exception);
 			}
 		}
 
@@ -449,11 +355,11 @@ namespace DigitalZenWorks.BackUp.Library
 				exception is InvalidOperationException ||
 				exception is UnauthorizedAccessException)
 			{
-				googleDrive.LogException(exception);
+				googleDrive.LogAction.Exception(exception);
 			}
 		}
 
-		private void BackUpFiles(
+		protected void BackUpFiles(
 			string driveParentId,
 			string path,
 			IList<GoogleDriveFile> serverFiles,
@@ -473,42 +379,6 @@ namespace DigitalZenWorks.BackUp.Library
 				{
 					BackUpFile(driveParentId, file, serverFiles, excludes);
 				}
-			}
-		}
-
-		/// <summary>
-		/// Create top level link.
-		/// </summary>
-		/// <remarks>This helps in maintaining the service accounts, as
-		/// without it, files tend to fall into the 'black hole' of
-		/// the service account.</remarks>
-		/// <param name="targetId">The target id.</param>
-		/// <param name="path">The local path being mapped.</param>
-		/// <returns>A task indicating completion.</returns>
-		private async Task CreateTopLevelLink(
-			string targetId, string path)
-		{
-			try
-			{
-				string name = Path.GetFileName(path);
-
-				string linkName = name + ".lnk";
-
-				bool found = await googleDrive.DoesDriveItemExist(
-					"root", linkName, "application/vnd.google-apps.shortcut").
-					ConfigureAwait(false);
-
-				if (found == false)
-				{
-					googleDrive.CreateLink("root", linkName, targetId);
-				}
-			}
-			catch (Exception exception) when
-				(exception is Google.GoogleApiException ||
-				exception is System.Net.Http.HttpRequestException ||
-				exception is System.Net.Sockets.SocketException)
-			{
-				googleDrive.LogException(exception);
 			}
 		}
 
@@ -544,90 +414,55 @@ namespace DigitalZenWorks.BackUp.Library
 					}
 					catch (Google.GoogleApiException exception)
 					{
-						googleDrive.LogException(exception);
+						googleDrive.LogAction.Exception(exception);
 					}
 				}
 			}
 		}
 
-		private void RemoveAbandonedFolders(
-			string path,
-			string[] subDirectories,
-			IList<GoogleDriveFile> serverFiles,
-			IList<Exclude> excludes)
+		private void RemoveAbandonedFolders(string path, IList<Exclude> excludes)
 		{
-			foreach (GoogleDriveFile file in serverFiles)
-			{
-				try
-				{
-					if (file.MimeType.Equals(
-						"application/vnd.google-apps.folder",
-						StringComparison.Ordinal))
-					{
-						string folderPath = path + @"\" + file.Name;
-						bool exists =
-							subDirectories.Any(element => element.Equals(
-								folderPath, StringComparison.Ordinal));
-
-						if (exists == false)
-						{
-							bool skipThisDirectory = ShouldSkipThisDirectory(
-								folderPath, excludes);
-
-							if (skipThisDirectory == false)
-							{
-								foreach (Exclude exclude in excludes)
-								{
-									string name =
-										Path.GetFileName(exclude.Path);
-
-									if (file.Name.Equals(
-										name,
-										StringComparison.OrdinalIgnoreCase))
-									{
-										googleDrive.Delete(file);
-									}
-								}
-							}
-						}
-					}
-				}
-				catch (Google.GoogleApiException exception)
-				{
-					googleDrive.LogException(exception);
-				}
-			}
 		}
 
-		private void RemoveExcludedFile(
-			FileInfo file, IList<GoogleDriveFile> serverFiles)
+		protected virtual void Remove(string hostFile)
 		{
-			foreach (GoogleDriveFile serverFile in serverFiles)
-			{
-				try
-				{
-					if (!serverFile.MimeType.Equals(
-						"application/vnd.google-apps.folder",
-						StringComparison.Ordinal))
-					{
-						string serverFileName = serverFile.Name;
+		}
 
-						if (serverFileName.Equals(
-							file.Name, StringComparison.Ordinal))
-						{
-							googleDrive.Delete(serverFile);
-							break;
-						}
-					}
-				}
-				catch (Google.GoogleApiException exception)
+		protected virtual void RemoveExcludedItem(
+			string parentPath,
+			IList<Exclude> excludes,
+			string hostFile)
+		{
+			foreach (Exclude exclude in excludes)
+			{
+				ExcludeType clause = exclude.ExcludeType;
+
+				if (clause == ExcludeType.AllSubDirectories ||
+					clause == ExcludeType.File)
 				{
-					googleDrive.LogException(exception);
+					string name = exclude.Path;
+					string path = parentPath;
+					bool isQualified =
+						System.IO.Path.IsPathFullyQualified(exclude.Path);
+
+					if (isQualified == true)
+					{
+						name = Path.GetFileName(exclude.Path);
+						path = Path.GetDirectoryName(exclude.Path);
+					}
+
+					if (hostFile.Equals(
+						name, StringComparison.OrdinalIgnoreCase) &&
+						parentPath.Equals(
+							path, StringComparison.OrdinalIgnoreCase))
+					{
+						Remove(hostFile);
+					}
 				}
 			}
 		}
 
-		private void RemoveExcludedItemsFromServer(
+		protected void RemoveExcludedItems(
 			string parentPath,
 			IList<Exclude> excludes,
 			IList<GoogleDriveFile> serverFiles)

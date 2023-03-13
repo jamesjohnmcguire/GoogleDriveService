@@ -301,7 +301,7 @@ namespace DigitalZenWorks.BackUp.Library
 				}
 				catch (Google.GoogleApiException exception)
 				{
-					LogException(exception);
+					LogAction.Exception(logger, exception);
 				}
 			}
 
@@ -367,7 +367,7 @@ namespace DigitalZenWorks.BackUp.Library
 					}
 					catch (Google.GoogleApiException exception)
 					{
-						LogException(exception);
+						LogAction.Exception(logger, exception);
 						listRequest.PageToken = null;
 					}
 				}
