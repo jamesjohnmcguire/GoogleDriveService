@@ -42,6 +42,8 @@ namespace DigitalZenWorks.BackUp.Library
 			googleDrive = new GoogleDrive(logger);
 		}
 
+		public ILogger<BackUpService> Logger { get => logger; }
+
 		/// <summary>
 		/// Report server folder information.
 		/// </summary>
@@ -163,36 +165,41 @@ namespace DigitalZenWorks.BackUp.Library
 				foreach (DriveMapping driveMapping in
 					account.DriveMappings)
 				{
-					string driveParentFolderId =
-						driveMapping.DriveParentFolderId;
-
-					string path = Environment.ExpandEnvironmentVariables(
-						driveMapping.Path);
-					path = Path.GetFullPath(path);
-
-					driveMapping.ExpandExcludes();
-
-					string message = string.Format(
-						CultureInfo.InvariantCulture,
-						"Checking: \"{0}\" with Parent Id: {1}",
-						path,
-						driveParentFolderId);
-					LogAction.Information(logger, message);
-
-					await CreateTopLevelLink(
-						driveParentFolderId, path).ConfigureAwait(false);
-
-					IList<GoogleDriveFile> serverFiles =
-						await googleDrive.GetFilesAsync(driveParentFolderId).
-							ConfigureAwait(false);
-
-					await BackUp(
-						driveParentFolderId,
-						path,
-						serverFiles,
-						driveMapping.Excludes).ConfigureAwait(false);
+					await BackUp(driveMapping).ConfigureAwait(false);
 				}
 			}
+		}
+
+		public virtual async Task BackUp(DriveMapping driveMapping)
+		{
+			string driveParentFolderId =
+				driveMapping.DriveParentFolderId;
+
+			string path = Environment.ExpandEnvironmentVariables(
+				driveMapping.Path);
+			path = Path.GetFullPath(path);
+
+			driveMapping.ExpandExcludes();
+
+			string message = string.Format(
+				CultureInfo.InvariantCulture,
+				"Checking: \"{0}\" with Parent Id: {1}",
+				path,
+				driveParentFolderId);
+			LogAction.Information(logger, message);
+
+			await CreateTopLevelLink(
+				driveParentFolderId, path).ConfigureAwait(false);
+
+			IList<GoogleDriveFile> serverFiles =
+				await googleDrive.GetFilesAsync(driveParentFolderId).
+					ConfigureAwait(false);
+
+			await BackUp(
+				driveParentFolderId,
+				path,
+				serverFiles,
+				driveMapping.Excludes).ConfigureAwait(false);
 		}
 
 		/// <summary>
