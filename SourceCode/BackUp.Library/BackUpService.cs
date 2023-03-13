@@ -60,14 +60,25 @@ namespace DigitalZenWorks.BackUp.Library
 						string message = "Backing up to account: " + name;
 						LogAction.Information(logger, message);
 
-						AccountService account = new (accountData, logger);
-						await account.BackUp().ConfigureAwait(false);
+						switch (accountData.AccountType)
+						{
+							case AccountType.GoogleServiceAccount:
+							{
+								using GoogleServiceAccount account =
+									new (accountData, logger);
+								await account.BackUp().ConfigureAwait(false);
+								break;
+							}
+
+							default:
+								break;
+						}
 					}
 				}
 			}
 			catch (JsonException exception)
 			{
-				LogAction.Error(logger, "No accounts information", exception);
+				LogAction.Error(logger, "Accounts File Malformed", exception);
 			}
 		}
 
