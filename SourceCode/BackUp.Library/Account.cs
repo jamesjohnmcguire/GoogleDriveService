@@ -26,6 +26,11 @@ namespace DigitalZenWorks.BackUp.Library
 			new List<DriveMapping>();
 
 		/// <summary>
+		/// Gets or sets the account type.
+		/// </summary>
+		public AccountType AccountType { get; set; }
+
+		/// <summary>
 		/// Gets or sets account email property.
 		/// </summary>
 		/// <value>Account email property.</value>
