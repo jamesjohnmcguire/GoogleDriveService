@@ -27,6 +27,11 @@ namespace DigitalZenWorks.BackUp.Library
 		GoogleDrive,
 
 		/// <summary>
+		/// Google service account.
+		/// </summary>
+		GoogleServiceAccount,
+
+		/// <summary>
 		/// One drive account.
 		/// </summary>
 		OneDrive,
