@@ -38,8 +38,6 @@ namespace DigitalZenWorks.BackUp.Library
 			this.account = account;
 		}
 
-		public ILogger<BackUpService> Logger { get => logger; }
-
 		/// <summary>
 		/// Gets the account data.
 		/// </summary>
@@ -77,74 +75,23 @@ namespace DigitalZenWorks.BackUp.Library
 			}
 		}
 
-		public virtual async Task BackUp(DriveMapping driveMapping)
-		{
-			string driveParentFolderId =
-				driveMapping.DriveParentFolderId;
-
-			string path = Environment.ExpandEnvironmentVariables(
-				driveMapping.Path);
-			path = Path.GetFullPath(path);
-
-			driveMapping.ExpandExcludes();
-
-			string message = string.Format(
-				CultureInfo.InvariantCulture,
-				"Checking: \"{0}\" with Parent Id: {1}",
-				path,
-				driveParentFolderId);
-			LogAction.Information(logger, message);
-
-			await CreateTopLevelLink(
-				driveParentFolderId, path).ConfigureAwait(false);
-
-			IList<GoogleDriveFile> serverFiles =
-				await googleDrive.GetFilesAsync(driveParentFolderId).
-					ConfigureAwait(false);
-
-			await BackUp(
-				driveParentFolderId,
-				path,
-				serverFiles,
-				driveMapping.Excludes).ConfigureAwait(false);
-		}
-
-		/// <summary>
-		/// Dispose method.
-		/// </summary>
-		public void Dispose()
-		{
-			Dispose(true);
-			GC.SuppressFinalize(this);
-		}
-
-		/// <summary>
-		/// Dispose method.
-		/// </summary>
-		/// <param name="disposing">Indicates currently disposing.</param>
-		protected virtual void Dispose(bool disposing)
-		{
-			if (disposing)
-			{
-				googleDrive.Dispose();
-				googleDrive = null;
-			}
-		}
-
 		protected static bool ShouldSkipThisDirectory(
 			string parentPath, IList<Exclude> excludes)
 		{
 			bool skipThisDirectory = false;
 
-			foreach (Exclude exclude in excludes)
+			if (!string.IsNullOrWhiteSpace(parentPath) && excludes != null)
 			{
-				if (exclude.ExcludeType == ExcludeType.Keep)
+				foreach (Exclude exclude in excludes)
 				{
-					if (parentPath.Equals(
-						exclude.Path, StringComparison.OrdinalIgnoreCase))
+					if (exclude.ExcludeType == ExcludeType.Keep)
 					{
-						skipThisDirectory = true;
-						break;
+						if (parentPath.Equals(
+							exclude.Path, StringComparison.OrdinalIgnoreCase))
+						{
+							skipThisDirectory = true;
+							break;
+						}
 					}
 				}
 			}
@@ -157,17 +104,20 @@ namespace DigitalZenWorks.BackUp.Library
 		{
 			bool processFile = true;
 
-			foreach (Exclude exclude in excludes)
+			if (excludes != null)
 			{
-				ExcludeType clause = exclude.ExcludeType;
-
-				if (clause == ExcludeType.File)
+				foreach (Exclude exclude in excludes)
 				{
-					if (exclude.Path.Equals(
-						path, StringComparison.OrdinalIgnoreCase))
+					ExcludeType clause = exclude.ExcludeType;
+
+					if (clause == ExcludeType.File)
 					{
-						processFile = false;
-						break;
+						if (exclude.Path.Equals(
+							path, StringComparison.OrdinalIgnoreCase))
+						{
+							processFile = false;
+							break;
+						}
 					}
 				}
 			}
@@ -175,22 +125,25 @@ namespace DigitalZenWorks.BackUp.Library
 			return processFile;
 		}
 
-		private static bool ShouldProcessFiles(
+		protected static bool ShouldProcessFiles(
 			IList<Exclude> excludes, string path)
 		{
 			bool processFiles = true;
 
-			foreach (Exclude exclude in excludes)
+			if (excludes != null)
 			{
-				ExcludeType clause = exclude.ExcludeType;
-
-				if (clause == ExcludeType.OnlyRoot)
+				foreach (Exclude exclude in excludes)
 				{
-					if (exclude.Path.Equals(
-						path, StringComparison.OrdinalIgnoreCase))
+					ExcludeType clause = exclude.ExcludeType;
+
+					if (clause == ExcludeType.OnlyRoot)
 					{
-						processFiles = false;
-						break;
+						if (exclude.Path.Equals(
+							path, StringComparison.OrdinalIgnoreCase))
+						{
+							processFiles = false;
+							break;
+						}
 					}
 				}
 			}
@@ -198,38 +151,86 @@ namespace DigitalZenWorks.BackUp.Library
 			return processFiles;
 		}
 
+		protected static void RemoveAbandonedFiles(
+			string parentPath,
+			FileInfo[] files,
+			IList<Exclude> excludes)
+		{
+			bool skipThisDirectory = ShouldSkipThisDirectory(
+				parentPath, excludes);
+
+			if (skipThisDirectory == false)
+			{
+			}
+		}
+
+		protected static void RemoveAbandonedFolders(string path, IList<Exclude> excludes)
+		{
+		}
+
+		protected static void RemoveExcludedItems(
+			string parentPath,
+			IList<Exclude> excludes)
+		{
+			if (excludes != null)
+			{
+				foreach (Exclude exclude in excludes)
+				{
+					ExcludeType clause = exclude.ExcludeType;
+
+					if (clause == ExcludeType.AllSubDirectories ||
+						clause == ExcludeType.File)
+					{
+						string name = exclude.Path;
+						string path = parentPath;
+						bool isQualified =
+							System.IO.Path.IsPathFullyQualified(exclude.Path);
+
+						if (isQualified == true)
+						{
+							name = Path.GetFileName(exclude.Path);
+							path = Path.GetDirectoryName(exclude.Path);
+						}
+					}
+				}
+			}
+		}
+
 		protected static bool ShouldProcessFolder(
 			IList<Exclude> excludes, string path)
 		{
 			bool processSubFolders = true;
 
-			foreach (Exclude exclude in excludes)
+			if (excludes != null)
 			{
-				ExcludeType clause = exclude.ExcludeType;
-
-				if (clause == ExcludeType.AllSubDirectories)
+				foreach (Exclude exclude in excludes)
 				{
-					bool isQualified =
-						System.IO.Path.IsPathFullyQualified(exclude.Path);
+					ExcludeType clause = exclude.ExcludeType;
 
-					if (isQualified == true)
+					if (clause == ExcludeType.AllSubDirectories)
 					{
-						if (exclude.Path.Equals(
-							path, StringComparison.OrdinalIgnoreCase))
+						bool isQualified =
+							System.IO.Path.IsPathFullyQualified(exclude.Path);
+
+						if (isQualified == true)
 						{
-							processSubFolders = false;
-							break;
+							if (exclude.Path.Equals(
+								path, StringComparison.OrdinalIgnoreCase))
+							{
+								processSubFolders = false;
+								break;
+							}
 						}
-					}
-					else
-					{
-						string name = Path.GetFileName(path);
-
-						if (exclude.Path.Equals(
-							name, StringComparison.OrdinalIgnoreCase))
+						else
 						{
-							processSubFolders = false;
-							break;
+							string name = Path.GetFileName(path);
+
+							if (exclude.Path.Equals(
+								name, StringComparison.OrdinalIgnoreCase))
+							{
+								processSubFolders = false;
+								break;
+							}
 						}
 					}
 				}
@@ -238,10 +239,114 @@ namespace DigitalZenWorks.BackUp.Library
 			return processSubFolders;
 		}
 
-		protected override async Task BackUp(
+		/// <summary>
+		/// Back up with drive mapping.
+		/// </summary>
+		/// <param name="driveMapping">The drive mapping.</param>
+		/// <returns></returns>
+		protected virtual async Task BackUp(DriveMapping driveMapping)
+		{
+			if (driveMapping != null)
+			{
+				string driveParentFolderId = driveMapping.DriveParentFolderId;
+
+				string path = Environment.ExpandEnvironmentVariables(
+					driveMapping.Path);
+				path = Path.GetFullPath(path);
+
+				driveMapping.ExpandExcludes();
+
+				string message = string.Format(
+					CultureInfo.InvariantCulture,
+					"Checking: \"{0}\" with Parent Id: {1}",
+					path,
+					driveParentFolderId);
+				LogAction.Information(logger, message);
+
+				await BackUp(driveParentFolderId, path, driveMapping.Excludes).
+					ConfigureAwait(false);
+			}
+		}
+
+		protected void BackUpFiles(
 			string driveParentId,
 			string path,
-			IList<GoogleDriveFile> serverFiles,
+			IList<Exclude> excludes)
+		{
+			bool processFiles = ShouldProcessFiles(excludes, path);
+
+			if (processFiles == true)
+			{
+				DirectoryInfo directoryInfo = new (path);
+
+				FileInfo[] files = directoryInfo.GetFiles();
+
+				foreach (FileInfo file in files)
+				{
+					BackUpFile(driveParentId, file, excludes);
+				}
+			}
+		}
+
+		protected virtual void Remove(string hostFile)
+		{
+		}
+
+		protected virtual void RemoveExcludedItem(
+			string parentPath,
+			string hostFile,
+			IList<Exclude> excludes)
+		{
+			if (!string.IsNullOrWhiteSpace(parentPath) &&
+				!string.IsNullOrWhiteSpace(hostFile) &&
+				excludes != null)
+			{
+				foreach (Exclude exclude in excludes)
+				{
+					ExcludeType clause = exclude.ExcludeType;
+
+					if (clause == ExcludeType.AllSubDirectories ||
+						clause == ExcludeType.File)
+					{
+						string name = exclude.Path;
+						string path = parentPath;
+						bool isQualified =
+							System.IO.Path.IsPathFullyQualified(exclude.Path);
+
+						if (isQualified == true)
+						{
+							name = Path.GetFileName(exclude.Path);
+							path = Path.GetDirectoryName(exclude.Path);
+						}
+
+						if (hostFile.Equals(
+							name, StringComparison.OrdinalIgnoreCase) &&
+							parentPath.Equals(
+								path, StringComparison.OrdinalIgnoreCase))
+						{
+							Remove(hostFile);
+						}
+					}
+				}
+			}
+		}
+
+		private static void RemoveTopLevelAbandonedFiles(string path)
+		{
+			string[] localEntries = Directory.GetFileSystemEntries(
+				path, "*", SearchOption.TopDirectoryOnly);
+
+			foreach (string localEntry in localEntries)
+			{
+				FileInfo fileInfo = new (localEntry);
+
+				string name = fileInfo.Name;
+			}
+		}
+
+		private async Task BackUp(
+			string driveParentId,
+			string path,
 			IList<Exclude> excludes)
 		{
 			try
@@ -252,35 +357,20 @@ namespace DigitalZenWorks.BackUp.Library
 
 					if (processFolder == true)
 					{
-						GoogleDriveFile serverFolder =
-							googleDrive.GetServerFolder(
-								driveParentId, path, serverFiles);
-
-						IList<GoogleDriveFile> thisServerFiles =
-							await googleDrive.GetFilesAsync(serverFolder.Id).
-								ConfigureAwait(false);
-
 						string[] subDirectories =
 							System.IO.Directory.GetDirectories(path);
-
-						RemoveExcludedItems(path, excludes, thisServerFiles);
-
-						RemoveAbandonedFolders(
-							path, subDirectories, thisServerFiles, excludes);
 
 						DirectoryInfo directoryInfo = new (path);
 
 						foreach (string subDirectory in subDirectories)
 						{
 							await BackUp(
-								serverFolder.Id,
+								"1",
 								subDirectory,
-								thisServerFiles,
 								excludes).ConfigureAwait(false);
 						}
 
-						BackUpFiles(
-							serverFolder.Id, path, thisServerFiles, excludes);
+						BackUpFiles("1", path, excludes);
 					}
 				}
 			}
@@ -302,14 +392,13 @@ namespace DigitalZenWorks.BackUp.Library
 				exception is TaskCanceledException ||
 				exception is UnauthorizedAccessException)
 			{
-				googleDrive.LogAction.Exception(exception);
+				LogAction.Exception(logger, exception);
 			}
 		}
 
 		private void BackUpFile(
 			string driveParentId,
 			FileInfo file,
-			IList<GoogleDriveFile> serverFiles,
 			IList<Exclude> excludes)
 		{
 			try
@@ -326,11 +415,6 @@ namespace DigitalZenWorks.BackUp.Library
 						"Checking: {0}",
 						fileName);
 					LogAction.Information(logger, message);
-
-					GoogleDriveFile serverFile =
-							GoogleDrive.GetFileInList(serverFiles, file.Name);
-
-					Upload(driveParentId, file, serverFile);
 				}
 				else
 				{
@@ -339,8 +423,6 @@ namespace DigitalZenWorks.BackUp.Library
 						"Excluding file from Server: {0}",
 						file.FullName);
 					LogAction.Information(logger, message);
-
-					RemoveExcludedFile(file, serverFiles);
 				}
 			}
 			catch (Exception exception) when
@@ -355,203 +437,7 @@ namespace DigitalZenWorks.BackUp.Library
 				exception is InvalidOperationException ||
 				exception is UnauthorizedAccessException)
 			{
-				googleDrive.LogAction.Exception(exception);
-			}
-		}
-
-		protected void BackUpFiles(
-			string driveParentId,
-			string path,
-			IList<GoogleDriveFile> serverFiles,
-			IList<Exclude> excludes)
-		{
-			bool processFiles = ShouldProcessFiles(excludes, path);
-
-			if (processFiles == true)
-			{
-				DirectoryInfo directoryInfo = new (path);
-
-				FileInfo[] files = directoryInfo.GetFiles();
-
-				RemoveAbandonedFiles(path, files, serverFiles, excludes);
-
-				foreach (FileInfo file in files)
-				{
-					BackUpFile(driveParentId, file, serverFiles, excludes);
-				}
-			}
-		}
-
-		private void RemoveAbandonedFiles(
-			string parentPath,
-			FileInfo[] files,
-			IList<GoogleDriveFile> serverFiles,
-			IList<Exclude> excludes)
-		{
-			bool skipThisDirectory = ShouldSkipThisDirectory(
-				parentPath, excludes);
-
-			if (skipThisDirectory == false)
-			{
-				foreach (GoogleDriveFile serverFile in serverFiles)
-				{
-					try
-					{
-						if (!serverFile.MimeType.Equals(
-							"application/vnd.google-apps.folder",
-							StringComparison.Ordinal))
-						{
-							string serverFileName = serverFile.Name;
-							bool exists = files.Any(
-								element => element.Name.Equals(
-									serverFileName, StringComparison.Ordinal));
-
-							if (exists == false)
-							{
-								googleDrive.Delete(serverFile);
-							}
-						}
-					}
-					catch (Google.GoogleApiException exception)
-					{
-						googleDrive.LogAction.Exception(exception);
-					}
-				}
-			}
-		}
-
-		private void RemoveAbandonedFolders(string path, IList<Exclude> excludes)
-		{
-		}
-
-		protected virtual void Remove(string hostFile)
-		{
-		}
-
-		protected virtual void RemoveExcludedItem(
-			string parentPath,
-			IList<Exclude> excludes,
-			string hostFile)
-		{
-			foreach (Exclude exclude in excludes)
-			{
-				ExcludeType clause = exclude.ExcludeType;
-
-				if (clause == ExcludeType.AllSubDirectories ||
-					clause == ExcludeType.File)
-				{
-					string name = exclude.Path;
-					string path = parentPath;
-					bool isQualified =
-						System.IO.Path.IsPathFullyQualified(exclude.Path);
-
-					if (isQualified == true)
-					{
-						name = Path.GetFileName(exclude.Path);
-						path = Path.GetDirectoryName(exclude.Path);
-					}
-
-					if (hostFile.Equals(
-						name, StringComparison.OrdinalIgnoreCase) &&
-						parentPath.Equals(
-							path, StringComparison.OrdinalIgnoreCase))
-					{
-						Remove(hostFile);
-					}
-				}
-			}
-		}
-
-		protected void RemoveExcludedItems(
-			string parentPath,
-			IList<Exclude> excludes,
-			IList<GoogleDriveFile> serverFiles)
-		{
-			foreach (GoogleDriveFile serverFile in serverFiles)
-			{
-				foreach (Exclude exclude in excludes)
-				{
-					ExcludeType clause = exclude.ExcludeType;
-
-					if (clause == ExcludeType.AllSubDirectories ||
-						clause == ExcludeType.File)
-					{
-						string name = exclude.Path;
-						string path = parentPath;
-						bool isQualified =
-							System.IO.Path.IsPathFullyQualified(exclude.Path);
-
-						if (isQualified == true)
-						{
-							name = Path.GetFileName(exclude.Path);
-							path = Path.GetDirectoryName(exclude.Path);
-						}
-
-						if (serverFile.Name.Equals(
-							name, StringComparison.OrdinalIgnoreCase) &&
-							parentPath.Equals(
-								path, StringComparison.OrdinalIgnoreCase))
-						{
-							googleDrive.Delete(serverFile);
-						}
-					}
-				}
-			}
-		}
-
-		private void RemoveTopLevelAbandonedFiles(
-			IList<GoogleDriveFile> serverFiles,
-			string path)
-		{
-			string[] localEntries = Directory.GetFileSystemEntries(
-				path, "*", SearchOption.TopDirectoryOnly);
-
-			int count = serverFiles.Count;
-
-			for (int index = count - 1; index >= 0; index--)
-			{
-				GoogleDriveFile file = serverFiles[index];
-				if (file.OwnedByMe == true)
-				{
-					bool found = false;
-
-					foreach (string localEntry in localEntries)
-					{
-						FileInfo fileInfo = new (localEntry);
-
-						string name = fileInfo.Name;
-
-						if (name.Equals(
-							file.Name, StringComparison.OrdinalIgnoreCase))
-						{
-							found = true;
-							break;
-						}
-					}
-
-					if (found == false)
-					{
-						googleDrive.Delete(file);
-					}
-				}
-			}
-		}
-
-		private void Upload(
-			string driveParentId,
-			FileInfo file,
-			GoogleDriveFile serverFile)
-		{
-			if (serverFile == null)
-			{
-				googleDrive.Upload(
-					driveParentId, file.FullName, null);
-			}
-			else if (serverFile.ModifiedTime < file.LastWriteTime)
-			{
-				// local file is newer
-				googleDrive.Upload(
-					driveParentId, file.FullName, serverFile.Id);
+				LogAction.Exception(logger, exception);
 			}
 		}
 	}
