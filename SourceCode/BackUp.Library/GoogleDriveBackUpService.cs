@@ -4,10 +4,11 @@
 // </copyright>
 /////////////////////////////////////////////////////////////////////////////
 
+using Microsoft.Extensions.Logging;
 using System;
 using System.IO;
 
-namespace BackupManagerLibrary
+namespace DigitalZenWorks.BackUp.Library
 {
 	/// <summary>
 	/// Google Drive back up service.
@@ -87,7 +88,7 @@ namespace BackupManagerLibrary
 				(exception is ArgumentException ||
 				exception is FileNotFoundException)
 			{
-				GoogleDrive.LogException(exception);
+				LogAction.Exception(logger, exception);
 			}
 
 			return authenticated;
@@ -118,7 +119,7 @@ namespace BackupManagerLibrary
 				(exception is ArgumentException ||
 				exception is FileNotFoundException)
 			{
-				GoogleDrive.LogException(exception);
+				LogAction.Exception(logger, exception);
 			}
 
 			return serviceAccountJsonFile;

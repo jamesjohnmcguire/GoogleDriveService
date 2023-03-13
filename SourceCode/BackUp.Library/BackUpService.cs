@@ -17,9 +17,15 @@ namespace DigitalZenWorks.BackUp.Library
 	/// <summary>
 	/// Back up class.
 	/// </summary>
-	public class BackUpService
+	public class BackUpService : IBackUpService
 	{
 		private readonly ILogger<BackUpService> logger;
+		private readonly string serviceAccountJsonFile;
+
+		private GoogleDrive googleDrive;
+		private string parentId;
+		private string path;
+		private GoogleDriveBackUpServiceData serviceData;
 
 		/// <summary>
 		/// Initializes a new instance of the <see cref="BackUpService"/>

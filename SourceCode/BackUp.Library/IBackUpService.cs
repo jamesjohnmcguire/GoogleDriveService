@@ -4,7 +4,7 @@
 // </copyright>
 /////////////////////////////////////////////////////////////////////////////
 
-namespace BackupManagerLibrary
+namespace DigitalZenWorks.BackUp.Library
 {
 	/// <summary>
 	/// The back up service interface.
@@ -17,6 +17,6 @@ namespace BackupManagerLibrary
 		/// <param name="path">The path to back up.</param>
 		/// <param name="serviceDestinationId">A service specific
 		/// identifier for the destination.</param>
-		public void BackUp(string path, string serviceDestinationId)
+		public void BackUp(string path, string serviceDestinationId);
 	}
 }

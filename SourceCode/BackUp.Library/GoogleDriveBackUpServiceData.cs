@@ -4,7 +4,7 @@
 // </copyright>
 /////////////////////////////////////////////////////////////////////////////
 
-namespace BackupManagerLibrary
+namespace DigitalZenWorks.BackUp.Library
 {
 	/// <summary>
 	/// Google Drive back up service data.

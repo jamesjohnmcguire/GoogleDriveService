@@ -4,7 +4,7 @@
 // </copyright>
 /////////////////////////////////////////////////////////////////////////////
 
-namespace BackupManagerLibrary
+namespace DigitalZenWorks.BackUp.Library
 {
 	/// <summary>
 	/// The back up service data interface.
