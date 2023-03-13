@@ -35,7 +35,7 @@ namespace DigitalZenWorks.BackUp.Library
 			Account account, ILogger<BackUpService> logger = null)
 			: base(account, logger)
 		{
-			googleDrive = new GoogleDrive();
+			googleDrive = new GoogleDrive(logger);
 		}
 
 		/// <summary>
