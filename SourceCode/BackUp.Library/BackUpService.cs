@@ -32,6 +32,24 @@ namespace DigitalZenWorks.BackUp.Library
 		}
 
 		/// <summary>
+		/// Back up method.
+		/// </summary>
+		/// <param name="path">The path to back up.</param>
+		/// <param name="serviceDestinationId">A service specific
+		/// identifier for the destination.</param>
+		public void BackUp(string path, string serviceDestinationId)
+		{
+			this.path = path;
+			parentId = serviceDestinationId;
+
+			//bool authenticated = Authorize();
+
+			//if (authenticated == true)
+			//{
+			//}
+		}
+
+		/// <summary>
 		/// Run method.
 		/// </summary>
 		/// <param name="configurationFile">The configuration file.</param>
@@ -55,8 +73,7 @@ namespace DigitalZenWorks.BackUp.Library
 						string message = "Backing up to account: " + name;
 						LogAction.Information(logger, message);
 
-						using AccountService account =
-							new (accountData, logger);
+						AccountService account = new (accountData, logger);
 						await account.BackUp().ConfigureAwait(false);
 					}
 				}
