@@ -614,8 +614,8 @@ namespace DigitalZenWorks.BackUp.Library
 
 				if (System.IO.Directory.Exists(accountsPath))
 				{
-					string accountsFile = accountsPath + @"\" +
-						Account.ServiceAccount;
+					string accountsFile =
+						accountsPath + @"\" + Account.AccountIdentifier;
 
 					if (System.IO.File.Exists(accountsFile))
 					{

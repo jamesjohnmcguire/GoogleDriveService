@@ -56,7 +56,7 @@ namespace DigitalZenWorks.BackUp.Library
 				{
 					foreach (Account accountData in accounts)
 					{
-						string name = accountData.ServiceAccount;
+						string name = accountData.AccountIdentifier;
 						string message = "Backing up to account: " + name;
 						LogAction.Information(logger, message);
 
