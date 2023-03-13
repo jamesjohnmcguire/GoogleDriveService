@@ -4,6 +4,8 @@
 // </copyright>
 /////////////////////////////////////////////////////////////////////////////
 
+using System.Threading.Tasks;
+
 namespace DigitalZenWorks.BackUp.Library
 {
 	/// <summary>
@@ -11,6 +13,13 @@ namespace DigitalZenWorks.BackUp.Library
 	/// </summary>
 	public interface IBackUpService
 	{
+		/// <summary>
+		/// Run method.
+		/// </summary>
+		/// <param name="configurationFile">The configuration file.</param>
+		/// <returns>A task indicating completion.</returns>
+		public Task BackUp(string configurationFile);
+
 		/// <summary>
 		/// Back up method.
 		/// </summary>

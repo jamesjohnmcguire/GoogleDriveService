@@ -43,7 +43,7 @@ namespace BackUpManager
 
 				string configurationFile = GetConfigurationFile();
 
-				await backUpService.Run(configurationFile).
+				await backUpService.BackUp(configurationFile).
 					ConfigureAwait(false);
 			}
 			catch (Exception exception)

@@ -22,7 +22,6 @@ namespace DigitalZenWorks.BackUp.Library
 		private readonly ILogger<BackUpService> logger;
 		private readonly string serviceAccountJsonFile;
 
-		private GoogleDrive googleDrive;
 		private string parentId;
 		private string path;
 		private GoogleDriveBackUpServiceData serviceData;
@@ -38,29 +37,11 @@ namespace DigitalZenWorks.BackUp.Library
 		}
 
 		/// <summary>
-		/// Back up method.
-		/// </summary>
-		/// <param name="path">The path to back up.</param>
-		/// <param name="serviceDestinationId">A service specific
-		/// identifier for the destination.</param>
-		public void BackUp(string path, string serviceDestinationId)
-		{
-			this.path = path;
-			parentId = serviceDestinationId;
-
-			//bool authenticated = Authorize();
-
-			//if (authenticated == true)
-			//{
-			//}
-		}
-
-		/// <summary>
 		/// Run method.
 		/// </summary>
 		/// <param name="configurationFile">The configuration file.</param>
 		/// <returns>A task indicating completion.</returns>
-		public async Task Run(string configurationFile)
+		public async Task BackUp(string configurationFile)
 		{
 			try
 			{
@@ -88,6 +69,18 @@ namespace DigitalZenWorks.BackUp.Library
 			{
 				LogAction.Error(logger, "No accounts information", exception);
 			}
+		}
+
+		/// <summary>
+		/// Back up method.
+		/// </summary>
+		/// <param name="path">The path to back up.</param>
+		/// <param name="serviceDestinationId">A service specific
+		/// identifier for the destination.</param>
+		public void BackUp(string path, string serviceDestinationId)
+		{
+			this.path = path;
+			parentId = serviceDestinationId;
 		}
 	}
 }
