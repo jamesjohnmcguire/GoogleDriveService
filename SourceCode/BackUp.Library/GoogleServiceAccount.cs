@@ -197,7 +197,7 @@ namespace DigitalZenWorks.BackUp.Library
 		/// Back up with drive mapping.
 		/// </summary>
 		/// <param name="driveMapping">The drive mapping.</param>
-		/// <returns></returns>
+		/// <returns>A task object.</returns>
 		protected override async Task BackUp(DriveMapping driveMapping)
 		{
 			if (driveMapping != null)
@@ -233,6 +233,13 @@ namespace DigitalZenWorks.BackUp.Library
 			}
 		}
 
+		/// <summary>
+		/// Back up files method.
+		/// </summary>
+		/// <param name="driveParentId">The drive parent id.</param>
+		/// <param name="path">The path to back up.</param>
+		/// <param name="serverFiles">The list of server files.</param>
+		/// <param name="excludes">The list of excludes.</param>
 		protected void BackUpFiles(
 			string driveParentId,
 			string path,
@@ -269,6 +276,13 @@ namespace DigitalZenWorks.BackUp.Library
 			}
 		}
 
+		/// <summary>
+		/// Remove abandoned files method.
+		/// </summary>
+		/// <param name="parentPath">The parent path.</param>
+		/// <param name="files">The files to back up.</param>
+		/// <param name="serverFiles">The list of server files.</param>
+		/// <param name="excludes">The list of excludes.</param>
 		protected void RemoveAbandonedFiles(
 			string parentPath,
 			FileInfo[] files,
@@ -311,6 +325,12 @@ namespace DigitalZenWorks.BackUp.Library
 			}
 		}
 
+		/// <summary>
+		/// Remove excluded items method.
+		/// </summary>
+		/// <param name="parentPath">The parent path.</param>
+		/// <param name="serverFiles">The list of server files.</param>
+		/// <param name="excludes">The list of excludes.</param>
 		protected void RemoveExcludedItems(
 			string parentPath,
 			IList<GoogleDriveFile> serverFiles,

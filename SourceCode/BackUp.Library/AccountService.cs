@@ -75,6 +75,13 @@ namespace DigitalZenWorks.BackUp.Library
 			}
 		}
 
+		/// <summary>
+		/// Should skip this directory method.
+		/// </summary>
+		/// <param name="parentPath">The parent path.</param>
+		/// <param name="excludes">The list of excludes.</param>
+		/// <returns>A value indicating whether to process the file
+		/// or not.</returns>
 		protected static bool ShouldSkipThisDirectory(
 			string parentPath, IList<Exclude> excludes)
 		{
@@ -99,6 +106,13 @@ namespace DigitalZenWorks.BackUp.Library
 			return skipThisDirectory;
 		}
 
+		/// <summary>
+		/// Should process file method.
+		/// </summary>
+		/// <param name="excludes">The list of excludes.</param>
+		/// <param name="path">The path to process.</param>
+		/// <returns>A value indicating whether to process the file
+		/// or not.</returns>
 		protected static bool ShouldProcessFile(
 			IList<Exclude> excludes, string path)
 		{
@@ -125,6 +139,13 @@ namespace DigitalZenWorks.BackUp.Library
 			return processFile;
 		}
 
+		/// <summary>
+		/// Should process files method.
+		/// </summary>
+		/// <param name="excludes">The list of excludes.</param>
+		/// <param name="path">The path to process.</param>
+		/// <returns>A value indicating whether to process the file
+		/// or not.</returns>
 		protected static bool ShouldProcessFiles(
 			IList<Exclude> excludes, string path)
 		{
@@ -151,51 +172,13 @@ namespace DigitalZenWorks.BackUp.Library
 			return processFiles;
 		}
 
-		protected static void RemoveAbandonedFiles(
-			string parentPath,
-			FileInfo[] files,
-			IList<Exclude> excludes)
-		{
-			bool skipThisDirectory = ShouldSkipThisDirectory(
-				parentPath, excludes);
-
-			if (skipThisDirectory == false)
-			{
-			}
-		}
-
-		protected static void RemoveAbandonedFolders(string path, IList<Exclude> excludes)
-		{
-		}
-
-		protected static void RemoveExcludedItems(
-			string parentPath,
-			IList<Exclude> excludes)
-		{
-			if (excludes != null)
-			{
-				foreach (Exclude exclude in excludes)
-				{
-					ExcludeType clause = exclude.ExcludeType;
-
-					if (clause == ExcludeType.AllSubDirectories ||
-						clause == ExcludeType.File)
-					{
-						string name = exclude.Path;
-						string path = parentPath;
-						bool isQualified =
-							System.IO.Path.IsPathFullyQualified(exclude.Path);
-
-						if (isQualified == true)
-						{
-							name = Path.GetFileName(exclude.Path);
-							path = Path.GetDirectoryName(exclude.Path);
-						}
-					}
-				}
-			}
-		}
-
+		/// <summary>
+		/// Should process folder method.
+		/// </summary>
+		/// <param name="excludes">The list of excludes.</param>
+		/// <param name="path">The path to process.</param>
+		/// <returns>A value indicating whether to process the file
+		/// or not.</returns>
 		protected static bool ShouldProcessFolder(
 			IList<Exclude> excludes, string path)
 		{
@@ -243,7 +226,7 @@ namespace DigitalZenWorks.BackUp.Library
 		/// Back up with drive mapping.
 		/// </summary>
 		/// <param name="driveMapping">The drive mapping.</param>
-		/// <returns></returns>
+		/// <returns>A task object.</returns>
 		protected virtual async Task BackUp(DriveMapping driveMapping)
 		{
 			if (driveMapping != null)
@@ -268,6 +251,12 @@ namespace DigitalZenWorks.BackUp.Library
 			}
 		}
 
+		/// <summary>
+		/// Back up files method.
+		/// </summary>
+		/// <param name="driveParentId">The drive parent id.</param>
+		/// <param name="path">The path to back up.</param>
+		/// <param name="excludes">The list of excludes.</param>
 		protected void BackUpFiles(
 			string driveParentId,
 			string path,
@@ -288,10 +277,20 @@ namespace DigitalZenWorks.BackUp.Library
 			}
 		}
 
+		/// <summary>
+		/// The remove method.
+		/// </summary>
+		/// <param name="hostFile">The host file to remove.</param>
 		protected virtual void Remove(string hostFile)
 		{
 		}
 
+		/// <summary>
+		/// Remove excluded item method.
+		/// </summary>
+		/// <param name="parentPath">The parent path.</param>
+		/// <param name="hostFile">The host file.</param>
+		/// <param name="excludes">The list of excludes.</param>
 		protected virtual void RemoveExcludedItem(
 			string parentPath,
 			string hostFile,
