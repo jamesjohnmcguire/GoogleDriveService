@@ -119,7 +119,7 @@ namespace DigitalZenWorks.BackUp.Library
 		/// https://developers.google.com/accounts/docs/OAuth2#serviceaccount.
 		/// </summary>
 		/// <returns>True upon success,false otherwise.</returns>
-		public override bool Authorize()
+		public bool Authorize()
 		{
 			bool authenticated = false;
 
@@ -143,7 +143,7 @@ namespace DigitalZenWorks.BackUp.Library
 		/// Main back up method.
 		/// </summary>
 		/// <returns>A task indicating completion.</returns>
-		public override async Task BackUp()
+		public async Task BackUp()
 		{
 			bool authenticated = Authorize();
 
@@ -198,7 +198,7 @@ namespace DigitalZenWorks.BackUp.Library
 		/// </summary>
 		/// <param name="driveMapping">The drive mapping.</param>
 		/// <returns>A task object.</returns>
-		protected override async Task BackUp(DriveMapping driveMapping)
+		protected async Task BackUp(DriveMapping driveMapping)
 		{
 			if (driveMapping != null)
 			{
