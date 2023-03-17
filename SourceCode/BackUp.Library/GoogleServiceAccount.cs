@@ -440,11 +440,6 @@ namespace DigitalZenWorks.BackUp.Library
 			}
 		}
 
-		private void Remove(GoogleDriveFile file)
-		{
-			googleDrive.Delete(file);
-		}
-
 		private void RemoveAbandonedFolders(
 			string path,
 			string[] subDirectories,
