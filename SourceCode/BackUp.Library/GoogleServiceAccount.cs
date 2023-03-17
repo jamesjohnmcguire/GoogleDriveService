@@ -11,7 +11,6 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using System.Security.Principal;
 using System.Threading.Tasks;
 
 using GoogleDriveFile = Google.Apis.Drive.v3.Data.File;
@@ -21,7 +20,7 @@ namespace DigitalZenWorks.BackUp.Library
 	/// <summary>
 	/// Google service account class.
 	/// </summary>
-	public class GoogleServiceAccount : AccountService, IDisposable
+	public class GoogleServiceAccount : BaseService, IDisposable
 	{
 		private GoogleDrive googleDrive;
 

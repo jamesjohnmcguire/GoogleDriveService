@@ -1,5 +1,5 @@
 ﻿/////////////////////////////////////////////////////////////////////////////
-// <copyright file="AccountService.cs" company="James John McGuire">
+// <copyright file="BaseService.cs" company="James John McGuire">
 // Copyright © 2017 - 2023 James John McGuire. All Rights Reserved.
 // </copyright>
 /////////////////////////////////////////////////////////////////////////////
@@ -17,18 +17,18 @@ namespace DigitalZenWorks.BackUp.Library
 	/// <summary>
 	/// Account Service class.
 	/// </summary>
-	public class AccountService
+	public class BaseService
 	{
 		private readonly Account account;
 		private readonly ILogger<BackUpService> logger;
 
 		/// <summary>
 		/// Initializes a new instance of the
-		/// <see cref="AccountService"/> class.
+		/// <see cref="BaseService"/> class.
 		/// </summary>
 		/// <param name="account">The accound data.</param>
 		/// <param name="logger">The logger interface.</param>
-		public AccountService(
+		public BaseService(
 			Account account, ILogger<BackUpService> logger = null)
 		{
 			this.logger = logger;
