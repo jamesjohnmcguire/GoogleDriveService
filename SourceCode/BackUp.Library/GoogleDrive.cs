@@ -467,8 +467,11 @@ namespace DigitalZenWorks.BackUp.Library
 			if (disposing)
 			{
 				// dispose managed resources
-				driveService.Dispose();
-				driveService = null;
+				if (driveService != null)
+				{
+					driveService.Dispose();
+					driveService = null;
+				}
 			}
 
 			// free native resources
