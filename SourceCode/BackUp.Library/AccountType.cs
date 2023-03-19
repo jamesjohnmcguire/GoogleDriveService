@@ -1,8 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿/////////////////////////////////////////////////////////////////////////////
+// <copyright file="AccountType.cs" company="James John McGuire">
+// Copyright © 2017 - 2023 James John McGuire. All Rights Reserved.
+// </copyright>
+/////////////////////////////////////////////////////////////////////////////
 
 namespace DigitalZenWorks.BackUp.Library
 {
