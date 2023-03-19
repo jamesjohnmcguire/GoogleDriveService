@@ -1,16 +1,16 @@
 # GoogleDriveService
 
-This is basically a program to back up your files to google drive, with out the need of a 'Google Drive' folder.  Furthermore, you can customize the back up process.
+This is basically a program to back up your files.
 
-Currently, it uses Google Service Accounts, so that it doesn't need to be prompted for authorization each time it is run.
+Currently, it uses Google Drive, with out the need of a 'Google Drive' folder.   It uses Google Service Accounts, so that it doesn't need to be prompted for authorization each time it is run.  Furthermore, you can customize the back up process.
 
-It depends on a file called BackUp.json located in %AppData%\DigitalZenWorks\BackUpManager or home/.config/BackUpManager.  Currently, you need to put this file there, as well as the service account, yourself.  It will look something like the following:
+It depends on a main configuration file called BackUp.json located in %AppData%\DigitalZenWorks\BackUpManager or home/.config/BackUpManager.  Currently, you need to put this file there, as well as the service account files, yourself.  It will the format like the following:
 
 ```json
 [
 	{
-		"Email": "somebody@example.com",
-		"ServiceAccount": "SomebodyServiceAccount.json",
+		"AccountType": "GoogleServiceAccount",
+		"AccountIdentifier": "SomebodyServiceAccount.json",
 		"DriveMappings":
 		[
 			{
@@ -41,10 +41,14 @@ The json fields contain the following information:
 
 | Field:              |                                                       |
 | ------------------- | ----------------------------------------------------- |
-| Email               | An optional email account to associate.               |
-| ServiceAccount      | Another json file containing the email address and    |
-|                     | key of the service account.  This can be obtained     |
-|                     | from the Google Developer Console Credentials page.   |
+| AccountType         | The account type.  Currently, only                    |
+|                     | GoogleServiceAccount is supported.                    |
+| AccountIdentifier   | A service specific identifier.  For Google service    |
+|                     | accounts, this will be the name of the json           |
+|                     | authorization file.  This file needs to be in the     |
+|                     | same location as the main configuration file.  This   |
+|                     | can be obtained from the Google Developer Console     |
+|                     |  Credentials page.                                    |
 | DriveMappings       | A list (array) of directories to back up.  Each one   |
 |                     | will contain the following:                           |
 | DriveParentFolderId | The Google Drive Id to back up to. This can be        |
@@ -61,4 +65,4 @@ The json fields contain the following information:
 
 There can multiple service accounts specified.
 
-There is an example at Documentation/Sample.BackUp.json
+There is an example at Support/Sample.BackUp.json

@@ -1,7 +1,7 @@
 [
 	{
-		"Email": "somebody@example.com",
-		"ServiceAccount": "SomebodyServiceAccount.json",
+		"AccountType": "GoogleServiceAccount",
+		"AccountIdentifier": "SomebodyServiceAccount.json",
 		"DriveMappings":
 		[
 			{
