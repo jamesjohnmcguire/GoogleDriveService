@@ -6,6 +6,7 @@
 
 using Microsoft.Extensions.Logging;
 using System;
+using System.Runtime.CompilerServices;
 
 namespace DigitalZenWorks.BackUp.Library
 {
@@ -39,6 +40,23 @@ namespace DigitalZenWorks.BackUp.Library
 			ILogger logger, string message, Exception exception)
 		{
 			LogError(logger, message, exception);
+		}
+
+		/// <summary>
+		/// Log Exception.
+		/// </summary>
+		/// <param name="logger">The ILogger interface.</param>
+		/// <param name="exception">The exception.</param>
+		/// <param name="caller">The caller.</param>
+		/// <param name="lineNumber">The line number.</param>
+		public static void Exception(
+			ILogger logger,
+			Exception exception,
+			[CallerMemberName] string caller = null,
+			[CallerLineNumber] int lineNumber = 0)
+		{
+			string message = $"Exception at: {caller}: Line: {lineNumber}";
+			LogAction.Error(logger, message, exception);
 		}
 
 		/// <summary>

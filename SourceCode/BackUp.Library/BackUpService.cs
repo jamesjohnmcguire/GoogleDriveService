@@ -17,9 +17,12 @@ namespace DigitalZenWorks.BackUp.Library
 	/// <summary>
 	/// Back up class.
 	/// </summary>
-	public class BackUpService
+	public class BackUpService : IBackUpService
 	{
 		private readonly ILogger<BackUpService> logger;
+
+		private string parentId;
+		private string path;
 
 		/// <summary>
 		/// Initializes a new instance of the <see cref="BackUpService"/>
@@ -36,7 +39,7 @@ namespace DigitalZenWorks.BackUp.Library
 		/// </summary>
 		/// <param name="configurationFile">The configuration file.</param>
 		/// <returns>A task indicating completion.</returns>
-		public async Task Run(string configurationFile)
+		public async Task BackUp(string configurationFile)
 		{
 			try
 			{
@@ -51,20 +54,42 @@ namespace DigitalZenWorks.BackUp.Library
 				{
 					foreach (Account accountData in accounts)
 					{
-						string name = accountData.ServiceAccount;
+						string name = accountData.AccountIdentifier;
 						string message = "Backing up to account: " + name;
 						LogAction.Information(logger, message);
 
-						using AccountService account =
-							new (accountData, logger);
-						await account.BackUp().ConfigureAwait(false);
+						switch (accountData.AccountType)
+						{
+							case AccountType.GoogleServiceAccount:
+							{
+								using GoogleServiceAccount account =
+									new (accountData, logger);
+								await account.BackUp().ConfigureAwait(false);
+								break;
+							}
+
+							default:
+								break;
+						}
 					}
 				}
 			}
 			catch (JsonException exception)
 			{
-				LogAction.Error(logger, "No accounts information", exception);
+				LogAction.Error(logger, "Accounts File Malformed", exception);
 			}
+		}
+
+		/// <summary>
+		/// Back up method.
+		/// </summary>
+		/// <param name="path">The path to back up.</param>
+		/// <param name="serviceDestinationId">A service specific
+		/// identifier for the destination.</param>
+		public void BackUp(string path, string serviceDestinationId)
+		{
+			this.path = path;
+			parentId = serviceDestinationId;
 		}
 	}
 }
