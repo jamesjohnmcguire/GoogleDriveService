@@ -54,22 +54,30 @@ namespace DigitalZenWorks.BackUp.Library
 				{
 					foreach (Account accountData in accounts)
 					{
-						string name = accountData.AccountIdentifier;
-						string message = "Backing up to account: " + name;
-						LogAction.Information(logger, message);
-
-						switch (accountData.AccountType)
+						try
 						{
-							case AccountType.GoogleServiceAccount:
-							{
-								using GoogleServiceAccount account =
-									new (accountData, logger);
-								await account.BackUp().ConfigureAwait(false);
-								break;
-							}
+							string name = accountData.AccountIdentifier;
+							string message = "Backing up to account: " + name;
+							LogAction.Information(logger, message);
 
-							default:
-								break;
+							switch (accountData.AccountType)
+							{
+								case AccountType.GoogleServiceAccount:
+								{
+									using GoogleServiceAccount account =
+										new (accountData, logger);
+									await account.BackUp().
+											ConfigureAwait(false);
+									break;
+								}
+
+								default:
+									break;
+							}
+						}
+						catch (System.Net.Http.HttpRequestException exception)
+						{
+							LogAction.Error(logger, "HTTP Error", exception);
 						}
 					}
 				}
