@@ -555,13 +555,18 @@ namespace DigitalZenWorks.BackUp.Library
 				}
 				else
 				{
-					string message = string.Format(
-						CultureInfo.InvariantCulture,
-						"Excluding file from Server: {0}",
-						file.FullName);
-					LogAction.Information(Logger, message);
+					bool remove = ShouldRemoveFile(excludes, file.FullName);
 
-					RemoveExcludedFile(file, serverFiles);
+					if (remove == true)
+					{
+						string message = string.Format(
+							CultureInfo.InvariantCulture,
+							"Excluding file from Server: {0}",
+							file.FullName);
+						LogAction.Information(Logger, message);
+
+						RemoveExcludedFile(file, serverFiles);
+					}
 				}
 			}
 			catch (Exception exception) when

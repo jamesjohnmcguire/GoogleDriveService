@@ -94,7 +94,8 @@ namespace DigitalZenWorks.BackUp.Library
 				{
 					ExcludeType clause = exclude.ExcludeType;
 
-					if (clause == ExcludeType.File)
+					if (clause == ExcludeType.File ||
+						clause == ExcludeType.FileIgnore)
 					{
 						if (exclude.Path.Equals(
 							path, StringComparison.OrdinalIgnoreCase))
@@ -190,6 +191,41 @@ namespace DigitalZenWorks.BackUp.Library
 			}
 
 			return processSubFolders;
+		}
+
+		/// <summary>
+		/// Should remove file method.
+		/// </summary>
+		/// <remarks>This method assumes the file has already been excluded
+		/// from uploading.</remarks>
+		/// <param name="excludes">The list of excludes.</param>
+		/// <param name="path">The path to remove.</param>
+		/// <returns>A value indicating whether to remove the file
+		/// or not.</returns>
+		protected static bool ShouldRemoveFile(
+			IList<Exclude> excludes, string path)
+		{
+			bool removeFile = true;
+
+			if (excludes != null)
+			{
+				foreach (Exclude exclude in excludes)
+				{
+					ExcludeType clause = exclude.ExcludeType;
+
+					if (clause == ExcludeType.FileIgnore)
+					{
+						if (exclude.Path.Equals(
+							path, StringComparison.OrdinalIgnoreCase))
+						{
+							removeFile = false;
+							break;
+						}
+					}
+				}
+			}
+
+			return removeFile;
 		}
 	}
 }
