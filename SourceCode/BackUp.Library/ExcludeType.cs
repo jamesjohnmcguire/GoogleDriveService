@@ -28,11 +28,20 @@ namespace DigitalZenWorks.BackUp.Library
 		/// <summary>
 		/// Exclude the specified file.
 		/// </summary>
+		/// <remarks>If the remote file is present, it will be
+		/// removed.</remarks>
 		File = 2,
 
 		/// <summary>
 		/// Keep the files in Google Drive, even if they don't exist locally.
 		/// </summary>
-		Keep = 3
+		Keep = 3,
+
+		/// <summary>
+		/// Exclude the specified file, ignore remote file.
+		/// </summary>
+		/// <remarks>Even if the remote file is present, it will not be
+		/// removed.</remarks>
+		FileIgnore = 4
 	}
 }
