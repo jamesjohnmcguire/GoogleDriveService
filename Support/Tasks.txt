@@ -1,7 +1,5 @@
+Attemping to delete a file not owned by me: Tech.tws
 When "Julie Driscoll, Brian Auger & The Trinit" Changed to "Julie Driscoll, Brian Auger & The Trinity", the former was not deleted, because it was not specified nor considered a top level directory to check.
-Log file not being written to?
-BackUpManager\SourceCode\BackUp.Library\LogAction.cs(12,24): warning CA1812: 'LogAction' is an internal class that is apparently never instantiated. If so, remove the code from the assembly. If this class is intended to contain only static members, make it 'static' (Module in Visual Basic). [BackUpManager\SourceCode\BackUp.Library\DigitalZenWorks.BackUp.Library.csproj]
-Separate out GoogleServiceAccount from Account	GoogleServiceAccount : Account
 When moving from Entertainment/Music/Music to Entertainment/Music, abandoned files not removed
 ABBA.lnk as top level
 Eventually, add global property to determine if this item should be deleted anywhere or only in the specified directory
@@ -30,6 +28,9 @@ ignore git files
 free native resources	needed?
 
 Finished
+	Log file not being written to?
+	BackUpManager\SourceCode\BackUp.Library\LogAction.cs(12,24): warning CA1812: 'LogAction' is an internal class that is apparently never instantiated. If so, remove the code from the assembly. If this class is intended to contain only static members, make it 'static' (Module in Visual Basic). [BackUpManager\SourceCode\BackUp.Library\DigitalZenWorks.BackUp.Library.csproj]
+	Separate out GoogleServiceAccount from Account	GoogleServiceAccount : Account
 	Error	CS0103	The name 'MimeTypes' does not exist in the current context	BackupManagerLibrary	BackupManagerLibrary\GoogleDrive.cs	469	Active
 	add catch in BackUpFiles( in for loop
 	Why so many duplicated catch logs?
