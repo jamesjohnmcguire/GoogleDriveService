@@ -459,25 +459,33 @@ namespace DigitalZenWorks.BackUp.Library
 							subDirectories.Any(element => element.Equals(
 								folderPath, StringComparison.Ordinal));
 
-						if (exists == false)
+						bool skipThisDirectory = ShouldSkipThisDirectory(
+							folderPath, excludes);
+
+						if (exists == false && skipThisDirectory == false)
 						{
-							bool skipThisDirectory = ShouldSkipThisDirectory(
-								folderPath, excludes);
+							bool keep = false;
 
-							if (skipThisDirectory == false)
+							foreach (Exclude exclude in excludes)
 							{
-								foreach (Exclude exclude in excludes)
-								{
-									string name =
-										Path.GetFileName(exclude.Path);
+								string name =
+									Path.GetFileName(exclude.Path);
 
-									if (file.Name.Equals(
-										name,
-										StringComparison.OrdinalIgnoreCase))
+								if (file.Name.Equals(
+									name,
+									StringComparison.OrdinalIgnoreCase))
+								{
+									if (exclude.ExcludeType != ExcludeType.Keep &&
+										exclude.ExcludeType != ExcludeType.FileIgnore)
 									{
-										googleDrive.Delete(file);
+										keep = true;
 									}
 								}
+							}
+
+							if (keep == false)
+							{
+								googleDrive.Delete(file);
 							}
 						}
 					}
