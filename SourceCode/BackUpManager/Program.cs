@@ -5,11 +5,13 @@
 /////////////////////////////////////////////////////////////////////////////
 
 using DigitalZenWorks.BackUp.Library;
+using DigitalZenWorks.CommandLine.Commands;
 using Microsoft.Extensions.DependencyInjection;
 using Serilog;
 using Serilog.Configuration;
 using Serilog.Events;
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Globalization;
 using System.Threading.Tasks;
@@ -26,8 +28,10 @@ namespace BackUpManager
 		/// <summary>
 		/// The program's main entry point.
 		/// </summary>
+		/// <param name="arguments">An array of arguments passed to
+		/// the program.</param>
 		/// <returns>A task indicating completion.</returns>
-		public static async Task Main()
+		public static async Task Main(string[] arguments)
 		{
 			try
 			{
@@ -38,13 +42,38 @@ namespace BackUpManager
 				Log.Logger.Information(
 					"Starting Back Up Manager Version: " + version);
 
-				BackUpService backUpService = serviceProvider.GetService<
-					DigitalZenWorks.BackUp.Library.BackUpService>();
+				IList<Command> commands = GetCommands();
 
-				string configurationFile = GetConfigurationFile();
+				arguments = UpdateArguments(arguments);
 
-				await backUpService.BackUp(configurationFile).
-					ConfigureAwait(false);
+				CommandLineArguments commandLine = new (commands, arguments);
+
+				if (commandLine.ValidArguments == false)
+				{
+					Log.Error(commandLine.ErrorMessage);
+				}
+				else
+				{
+					Command command = commandLine.Command;
+
+					switch (command.Name)
+					{
+						case "backup":
+							BackUpService backUpService =
+								serviceProvider.GetService<
+									DigitalZenWorks.BackUp.Library.BackUpService>();
+
+							string configurationFile = GetConfigurationFile();
+
+							bool ignoreAbandoned = command.DoesOptionExist(
+								"i", "ignore-abandoned");
+							backUpService.IgnoreAbandoned = ignoreAbandoned;
+
+							await backUpService.BackUp(configurationFile).
+								ConfigureAwait(false);
+							break;
+					}
+				}
 			}
 			catch (Exception exception)
 			{
@@ -85,6 +114,25 @@ namespace BackUpManager
 			}
 
 			return fileVersionInfo;
+		}
+
+		private static IList<Command> GetCommands()
+		{
+			IList<Command> commands = new List<Command>();
+
+			Command help = new ("help");
+			help.Description = "Show this information";
+			commands.Add(help);
+
+			IList<CommandOption> options = new List<CommandOption>();
+
+			CommandOption ignoreAbandoned = new ("i", "ignore-abandoned", false);
+			options.Add(ignoreAbandoned);
+
+			Command backup = new ("backup", options, 0, "Back up files");
+			commands.Add(backup);
+
+			return commands;
 		}
 
 		private static string GetConfigurationFile()
@@ -175,6 +223,31 @@ namespace BackUpManager
 			{
 				Log.Logger.Information(additionalMessage);
 			}
+		}
+
+		private static string[] UpdateArguments(string[] arguments)
+		{
+			if (arguments == null || arguments.Length == 0)
+			{
+				arguments = new string[1];
+				arguments[0] = "backup";
+			}
+			else if (!arguments[0].Equals(
+				"backup", StringComparison.Ordinal))
+			{
+				int length = arguments.Length + 1;
+				string[] newArguments = new string[length];
+				newArguments[0] = "backup";
+
+				for (int index = 0; index < arguments.Length; index++)
+				{
+					newArguments[index + 1] = arguments[index];
+				}
+
+				arguments = newArguments;
+			}
+
+			return arguments;
 		}
 	}
 }

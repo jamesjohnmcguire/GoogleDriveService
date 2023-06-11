@@ -399,8 +399,11 @@ namespace DigitalZenWorks.BackUp.Library
 
 						RemoveExcludedItems(path, thisServerFiles, excludes);
 
-						RemoveAbandonedFolders(
-							path, subDirectories, thisServerFiles, excludes);
+						if (IgnoreAbandoned == false)
+						{
+							RemoveAbandonedFolders(
+								path, subDirectories, thisServerFiles, excludes);
+						}
 
 						DirectoryInfo directoryInfo = new (path);
 

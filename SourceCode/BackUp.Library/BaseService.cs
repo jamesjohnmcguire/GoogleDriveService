@@ -38,11 +38,19 @@ namespace DigitalZenWorks.BackUp.Library
 		/// <summary>
 		/// Gets the account data.
 		/// </summary>
+		/// <value>The account data.</value>
 		public Account Account { get => account; }
+
+		/// <summary>
+		/// Gets or Sets a value indicating whether to ignore abandoned files.
+		/// </summary>
+		/// <value>A value indicating whether to ignore abandoned files.</value>
+		public bool IgnoreAbandoned { get; set; }
 
 		/// <summary>
 		/// Gets the logger service.
 		/// </summary>
+		/// <value>The logger service.</value>
 		public ILogger<BackUpService> Logger { get => logger; }
 
 		/// <summary>

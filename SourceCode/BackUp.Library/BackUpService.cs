@@ -35,6 +35,12 @@ namespace DigitalZenWorks.BackUp.Library
 		}
 
 		/// <summary>
+		/// Gets or Sets a value indicating whether to ignore abandoned files.
+		/// </summary>
+		/// <value>A value indicating whether to ignore abandoned files.</value>
+		public bool IgnoreAbandoned { get; set; }
+
+		/// <summary>
 		/// Run method.
 		/// </summary>
 		/// <param name="configurationFile">The configuration file.</param>
@@ -66,6 +72,9 @@ namespace DigitalZenWorks.BackUp.Library
 								{
 									using GoogleServiceAccount account =
 										new (accountData, logger);
+
+									account.IgnoreAbandoned = IgnoreAbandoned;
+
 									await account.BackUp().
 											ConfigureAwait(false);
 									break;
