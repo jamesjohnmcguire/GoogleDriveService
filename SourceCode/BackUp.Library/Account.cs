@@ -34,6 +34,7 @@ namespace DigitalZenWorks.BackUp.Library
 		/// <summary>
 		/// Gets or sets the account type.
 		/// </summary>
+		/// <value>The account type.</value>
 		public AccountType AccountType { get; set; }
 
 		/// <summary>
