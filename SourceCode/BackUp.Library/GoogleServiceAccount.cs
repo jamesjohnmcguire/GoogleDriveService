@@ -167,9 +167,6 @@ namespace DigitalZenWorks.BackUp.Library
 						driveParentFolderId);
 					LogAction.Information(Logger, message);
 
-					await CreateTopLevelLink(
-						driveParentFolderId, path).ConfigureAwait(false);
-
 					IList<GoogleDriveFile> serverFiles =
 						await googleDrive.GetFilesAsync(driveParentFolderId).
 							ConfigureAwait(false);
@@ -216,9 +213,6 @@ namespace DigitalZenWorks.BackUp.Library
 					path,
 					driveParentFolderId);
 				LogAction.Information(Logger, message);
-
-				await CreateTopLevelLink(
-					driveParentFolderId, path).ConfigureAwait(false);
 
 				IList<GoogleDriveFile> serverFiles =
 					await googleDrive.GetFilesAsync(driveParentFolderId).
@@ -591,42 +585,6 @@ namespace DigitalZenWorks.BackUp.Library
 				exception is IndexOutOfRangeException ||
 				exception is InvalidOperationException ||
 				exception is UnauthorizedAccessException)
-			{
-				LogAction.Exception(Logger, exception);
-			}
-		}
-
-		/// <summary>
-		/// Create top level link.
-		/// </summary>
-		/// <remarks>This helps in maintaining the service accounts, as
-		/// without it, files tend to fall into the 'black hole' of
-		/// the service account.</remarks>
-		/// <param name="targetId">The target id.</param>
-		/// <param name="path">The local path being mapped.</param>
-		/// <returns>A task indicating completion.</returns>
-		private async Task CreateTopLevelLink(
-			string targetId, string path)
-		{
-			try
-			{
-				string name = Path.GetFileName(path);
-
-				string linkName = name + ".lnk";
-
-				bool found = await googleDrive.DoesDriveItemExist(
-					"root", linkName, "application/vnd.google-apps.shortcut").
-					ConfigureAwait(false);
-
-				if (found == false)
-				{
-					googleDrive.CreateLink("root", linkName, targetId);
-				}
-			}
-			catch (Exception exception) when
-				(exception is Google.GoogleApiException ||
-				exception is System.Net.Http.HttpRequestException ||
-				exception is System.Net.Sockets.SocketException)
 			{
 				LogAction.Exception(Logger, exception);
 			}
