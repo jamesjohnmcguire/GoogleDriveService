@@ -247,7 +247,10 @@ namespace DigitalZenWorks.BackUp.Library
 
 				FileInfo[] files = directoryInfo.GetFiles();
 
-				RemoveAbandonedFiles(path, files, serverFiles, excludes);
+				if (IgnoreAbandoned == false)
+				{
+					RemoveAbandonedFiles(path, files, serverFiles, excludes);
+				}
 
 				foreach (FileInfo file in files)
 				{
