@@ -88,10 +88,12 @@ namespace DigitalZenWorks.BackUp.Library
 				bool isQualified =
 					System.IO.Path.IsPathFullyQualified(exclude.Path);
 
-				if (isQualified == true)
+				if (isQualified == false)
 				{
-					exclude.Path = System.IO.Path.GetFullPath(exclude.Path);
+					exclude.Path = System.IO.Path.Combine(Path, exclude.Path);
 				}
+
+				exclude.Path = System.IO.Path.GetFullPath(exclude.Path);
 
 				if (exclude.ExcludeType == ExcludeType.File &&
 					exclude.Path.Contains(
