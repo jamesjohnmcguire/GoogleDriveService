@@ -10,13 +10,13 @@
 		<Company>Digital Zen Works</Company>
 		<Copyright>Copyright © 2021 - 2023 James John McGuire</Copyright>
 		<EnableNETAnalyzers>true</EnableNETAnalyzers>
-		<FileVersion>1.4.225.0</FileVersion>
+		<FileVersion>1.5.226.0</FileVersion>
 		<GenerateDocumentationFile>true</GenerateDocumentationFile>
 		<LangVersion>Latest</LangVersion>
 		<NeutralLanguage>en-US</NeutralLanguage>
 		<OutputPath>$(SolutionDir)\Bin\$(Configuration)\$(Platform)</OutputPath>
 		<TargetFramework>net7.0</TargetFramework>
-		<Version>1.4.225</Version>
+		<Version>1.5.226</Version>
 	</PropertyGroup>
 
 	<ItemGroup>
