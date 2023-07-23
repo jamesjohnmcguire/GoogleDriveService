@@ -22,9 +22,9 @@
 	<ItemGroup>
 		<PackageReference Include="Common.Logging" Version="3.4.1" />
 		<PackageReference Include="Common.Logging.Core" Version="3.4.1" />
-		<PackageReference Include="Google.Apis.Drive.v3" Version="1.60.0.3061" />
+		<PackageReference Include="Google.Apis.Drive.v3" Version="1.61.0.3110" />
 		<PackageReference Include="Microsoft.Extensions.FileSystemGlobbing" Version="7.0.0" />
-		<PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="7.0.0" />
+		<PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="7.0.1" />
 		<PackageReference Include="MimeTypes" Version="2.4.1">
 			<PrivateAssets>all</PrivateAssets>
 			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
