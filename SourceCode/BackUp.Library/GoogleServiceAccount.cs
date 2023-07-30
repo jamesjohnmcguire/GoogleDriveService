@@ -342,7 +342,7 @@ namespace DigitalZenWorks.BackUp.Library
 					{
 						ExcludeType clause = exclude.ExcludeType;
 
-						if (clause == ExcludeType.AllSubDirectories ||
+						if (clause == ExcludeType.SubDirectory ||
 							clause == ExcludeType.File)
 						{
 							string name = exclude.Path;

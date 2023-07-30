@@ -16,32 +16,38 @@ namespace DigitalZenWorks.BackUp.Library
 	public enum ExcludeType
 	{
 		/// <summary>
-		/// Only exclude the root directory.
+		/// Only exclude files in the root directory.
 		/// </summary>
 		OnlyRoot = 0,
 
 		/// <summary>
-		/// Exclude the root directory and all sub driveMappings.
+		/// Exclude the specified directory relative to the root directory.
 		/// </summary>
-		AllSubDirectories = 1,
+		SubDirectory = 1,
+
+		/// <summary>
+		/// Exclude the directory and all sub-directories, whenever the
+		/// directory is present.
+		/// </summary>
+		Global = 2,
 
 		/// <summary>
 		/// Exclude the specified file.
 		/// </summary>
 		/// <remarks>If the remote file is present, it will be
 		/// removed.</remarks>
-		File = 2,
+		File = 3,
 
 		/// <summary>
 		/// Keep the files in Google Drive, even if they don't exist locally.
 		/// </summary>
-		Keep = 3,
+		Keep = 4,
 
 		/// <summary>
 		/// Exclude the specified file, ignore remote file.
 		/// </summary>
 		/// <remarks>Even if the remote file is present, it will not be
 		/// removed.</remarks>
-		FileIgnore = 4
+		FileIgnore = 5
 	}
 }
