@@ -75,42 +75,46 @@ namespace DigitalZenWorks.BackUp.Library
 		/// <summary>
 		/// Expand excludes method.
 		/// </summary>
+		/// <param name="rootPath">The root path.</param>
+		/// <param name="excludes">The current set of includes.</param>
 		/// <returns>A list of expanded excludes.</returns>
-		public IList<Exclude> ExpandExcludes()
+		public static IList<Exclude> ExpandExcludes(
+			string rootPath, IList<Exclude> excludes)
 		{
-			for (int index = excludes.Count - 1; index >= 0; index--)
+			List<Exclude> expandedExcludes = null;
+
+			if (excludes != null)
 			{
-				Exclude exclude = excludes[index];
+				expandedExcludes = new List<Exclude>();
 
-				exclude.Path = Environment.ExpandEnvironmentVariables(
-					exclude.Path);
-
-				bool isQualified =
-					System.IO.Path.IsPathFullyQualified(exclude.Path);
-
-				if (isQualified == false)
+				for (int index = excludes.Count - 1; index >= 0; index--)
 				{
-					exclude.Path = System.IO.Path.Combine(Path, exclude.Path);
-				}
+					Exclude temporaryExclude = excludes[index];
+					Exclude exclude = new (
+						temporaryExclude.Path, temporaryExclude.ExcludeType);
 
-				exclude.Path = System.IO.Path.GetFullPath(exclude.Path);
+					exclude = ExpandExclude(rootPath, exclude);
 
-				if (exclude.ExcludeType == ExcludeType.File &&
-					exclude.Path.Contains(
-						'*', StringComparison.OrdinalIgnoreCase))
-				{
-					IList<Exclude> newExcludes =
-						ExpandWildCard(exclude.Path);
+					expandedExcludes.Add(exclude);
 
-					if (newExcludes.Count > 0)
+					if (exclude.ExcludeType == ExcludeType.File &&
+						exclude.Path.Contains(
+							'*', StringComparison.OrdinalIgnoreCase))
 					{
-						excludes.Remove(exclude);
-						excludes = excludes.Concat(newExcludes).ToList();
+						IList<Exclude> newExcludes =
+							ExpandWildCard(exclude.Path);
+
+						if (newExcludes.Count > 0)
+						{
+							expandedExcludes.Remove(exclude);
+							expandedExcludes =
+								expandedExcludes.Concat(newExcludes).ToList();
+						}
 					}
 				}
 			}
 
-			return excludes;
+			return expandedExcludes;
 		}
 
 		private static IList<Exclude> ExpandWildCard(string path)
@@ -139,6 +143,24 @@ namespace DigitalZenWorks.BackUp.Library
 			}
 
 			return newExcludes;
+		}
+
+		private static Exclude ExpandExclude(string rootPath, Exclude exclude)
+		{
+			exclude.Path = Environment.ExpandEnvironmentVariables(
+				exclude.Path);
+
+			bool isQualified =
+				System.IO.Path.IsPathFullyQualified(exclude.Path);
+
+			if (isQualified == false)
+			{
+				exclude.Path = System.IO.Path.Combine(rootPath, exclude.Path);
+			}
+
+			exclude.Path = System.IO.Path.GetFullPath(exclude.Path);
+
+			return exclude;
 		}
 	}
 }

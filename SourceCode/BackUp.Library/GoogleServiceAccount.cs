@@ -158,8 +158,6 @@ namespace DigitalZenWorks.BackUp.Library
 						driveMapping.Path);
 					path = Path.GetFullPath(path);
 
-					driveMapping.ExpandExcludes();
-
 					string message = string.Format(
 						CultureInfo.InvariantCulture,
 						"Checking: \"{0}\" with Parent Id: {1}",
@@ -204,8 +202,6 @@ namespace DigitalZenWorks.BackUp.Library
 				string path = Environment.ExpandEnvironmentVariables(
 					driveMapping.Path);
 				path = Path.GetFullPath(path);
-
-				driveMapping.ExpandExcludes();
 
 				string message = string.Format(
 					CultureInfo.InvariantCulture,
@@ -343,6 +339,7 @@ namespace DigitalZenWorks.BackUp.Library
 						ExcludeType clause = exclude.ExcludeType;
 
 						if (clause == ExcludeType.SubDirectory ||
+							clause == ExcludeType.Global ||
 							clause == ExcludeType.File)
 						{
 							string name = exclude.Path;
@@ -394,7 +391,10 @@ namespace DigitalZenWorks.BackUp.Library
 						string[] subDirectories =
 							System.IO.Directory.GetDirectories(path);
 
-						RemoveExcludedItems(path, thisServerFiles, excludes);
+						IList<Exclude> expandExcludes =
+							DriveMapping.ExpandExcludes(path, excludes);
+
+						RemoveExcludedItems(path, thisServerFiles, expandExcludes);
 
 						if (IgnoreAbandoned == false)
 						{
@@ -475,8 +475,8 @@ namespace DigitalZenWorks.BackUp.Library
 									name,
 									StringComparison.OrdinalIgnoreCase))
 								{
-									if (exclude.ExcludeType != ExcludeType.Keep &&
-										exclude.ExcludeType != ExcludeType.FileIgnore)
+									if (exclude.ExcludeType == ExcludeType.Keep ||
+										exclude.ExcludeType == ExcludeType.FileIgnore)
 									{
 										keep = true;
 									}
