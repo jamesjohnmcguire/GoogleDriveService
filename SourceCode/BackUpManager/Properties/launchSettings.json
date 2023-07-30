@@ -1,8 +1,7 @@
 {
   "profiles": {
     "BackUpManager": {
-      "commandName": "Project",
-      "commandLineArgs": "--ignore-abandoned"
+      "commandName": "Project"
     }
   }
 }
