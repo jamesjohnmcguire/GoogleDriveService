@@ -497,44 +497,6 @@ namespace DigitalZenWorks.BackUp.Library
 			}
 		}
 
-		private void RemoveTopLevelAbandonedFiles(
-			IList<GoogleDriveFile> serverFiles,
-			string path)
-		{
-			string[] localEntries = Directory.GetFileSystemEntries(
-				path, "*", SearchOption.TopDirectoryOnly);
-
-			int count = serverFiles.Count;
-
-			for (int index = count - 1; index >= 0; index--)
-			{
-				GoogleDriveFile file = serverFiles[index];
-				if (file.OwnedByMe == true)
-				{
-					bool found = false;
-
-					foreach (string localEntry in localEntries)
-					{
-						FileInfo fileInfo = new (localEntry);
-
-						string name = fileInfo.Name;
-
-						if (name.Equals(
-							file.Name, StringComparison.OrdinalIgnoreCase))
-						{
-							found = true;
-							break;
-						}
-					}
-
-					if (found == false)
-					{
-						googleDrive.Delete(file);
-					}
-				}
-			}
-		}
-
 		private void BackUpFile(
 			string driveParentId,
 			FileInfo file,
@@ -662,7 +624,7 @@ namespace DigitalZenWorks.BackUp.Library
 				googleDrive.Upload(
 					driveParentId, file.FullName, null);
 			}
-			else if (serverFile.ModifiedTime < file.LastWriteTime)
+			else if (serverFile.ModifiedTimeDateTimeOffset < file.LastWriteTime)
 			{
 				// local file is newer
 				googleDrive.Upload(

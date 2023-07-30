@@ -19,7 +19,7 @@ namespace DigitalZenWorks.BackUp.Library
 	/// </summary>
 	public class DriveMapping
 	{
-		private IList<Exclude> excludes = new List<Exclude>();
+		private readonly IList<Exclude> excludes = new List<Exclude>();
 
 		/// <summary>
 		/// Initializes a new instance of the <see cref="DriveMapping"/> class.
