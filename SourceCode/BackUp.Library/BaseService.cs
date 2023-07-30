@@ -169,7 +169,7 @@ namespace DigitalZenWorks.BackUp.Library
 				{
 					ExcludeType clause = exclude.ExcludeType;
 
-					if (clause == ExcludeType.AllSubDirectories)
+					if (clause == ExcludeType.SubDirectory)
 					{
 						bool isQualified =
 							System.IO.Path.IsPathFullyQualified(exclude.Path);

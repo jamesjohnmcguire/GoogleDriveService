@@ -44,7 +44,7 @@ namespace DigitalZenWorks.BackUp.Library
 					foreach (string excludeName in settings.GlobalExcludes)
 					{
 						Exclude exclude =
-							new (excludeName, ExcludeType.AllSubDirectories);
+							new (excludeName, ExcludeType.Global);
 						excludes.Add(exclude);
 					}
 				}
