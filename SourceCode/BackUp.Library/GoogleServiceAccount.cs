@@ -158,6 +158,8 @@ namespace DigitalZenWorks.BackUp.Library
 						driveMapping.Path);
 					path = Path.GetFullPath(path);
 
+					driveMapping.ExpandExcludes();
+
 					string message = string.Format(
 						CultureInfo.InvariantCulture,
 						"Checking: \"{0}\" with Parent Id: {1}",
@@ -202,6 +204,8 @@ namespace DigitalZenWorks.BackUp.Library
 				string path = Environment.ExpandEnvironmentVariables(
 					driveMapping.Path);
 				path = Path.GetFullPath(path);
+
+				driveMapping.ExpandExcludes();
 
 				string message = string.Format(
 					CultureInfo.InvariantCulture,
@@ -392,7 +396,7 @@ namespace DigitalZenWorks.BackUp.Library
 							System.IO.Directory.GetDirectories(path);
 
 						IList<Exclude> expandExcludes =
-							DriveMapping.ExpandExcludes(path, excludes);
+							DriveMapping.ExpandGlobalExcludes(path, excludes);
 
 						RemoveExcludedItems(path, thisServerFiles, expandExcludes);
 

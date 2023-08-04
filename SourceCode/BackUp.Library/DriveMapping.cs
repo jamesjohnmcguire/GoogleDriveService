@@ -19,7 +19,7 @@ namespace DigitalZenWorks.BackUp.Library
 	/// </summary>
 	public class DriveMapping
 	{
-		private readonly IList<Exclude> excludes = new List<Exclude>();
+		private IList<Exclude> excludes = new List<Exclude>();
 
 		/// <summary>
 		/// Initializes a new instance of the <see cref="DriveMapping"/> class.
@@ -73,12 +73,12 @@ namespace DigitalZenWorks.BackUp.Library
 		}
 
 		/// <summary>
-		/// Expand excludes method.
+		/// Expand global excludes method.
 		/// </summary>
 		/// <param name="rootPath">The root path.</param>
 		/// <param name="excludes">The current set of includes.</param>
 		/// <returns>A list of expanded excludes.</returns>
-		public static IList<Exclude> ExpandExcludes(
+		public static IList<Exclude> ExpandGlobalExcludes(
 			string rootPath, IList<Exclude> excludes)
 		{
 			List<Exclude> expandedExcludes = null;
@@ -93,7 +93,10 @@ namespace DigitalZenWorks.BackUp.Library
 					Exclude exclude = new (
 						temporaryExclude.Path, temporaryExclude.ExcludeType);
 
-					exclude = ExpandExclude(rootPath, exclude);
+					if (exclude.ExcludeType == ExcludeType.Global)
+					{
+						exclude = ExpandExclude(rootPath, exclude);
+					}
 
 					expandedExcludes.Add(exclude);
 
@@ -115,6 +118,43 @@ namespace DigitalZenWorks.BackUp.Library
 			}
 
 			return expandedExcludes;
+		}
+
+		/// <summary>
+		/// Expand excludes method.
+		/// </summary>
+		/// <returns>A list of expanded excludes.</returns>
+		public IList<Exclude> ExpandExcludes()
+		{
+			if (excludes != null)
+			{
+				for (int index = excludes.Count - 1; index >= 0; index--)
+				{
+					Exclude exclude = excludes[index];
+
+					if (exclude.ExcludeType != ExcludeType.Global)
+					{
+						exclude = ExpandExclude(Path, exclude);
+					}
+
+					if (exclude.ExcludeType == ExcludeType.File &&
+						exclude.Path.Contains(
+							'*', StringComparison.OrdinalIgnoreCase))
+					{
+						IList<Exclude> newExcludes =
+							ExpandWildCard(exclude.Path);
+
+						if (newExcludes.Count > 0)
+						{
+							excludes.Remove(exclude);
+							excludes =
+								excludes.Concat(newExcludes).ToList();
+						}
+					}
+				}
+			}
+
+			return excludes;
 		}
 
 		private static IList<Exclude> ExpandWildCard(string path)
