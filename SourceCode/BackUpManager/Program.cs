@@ -6,6 +6,7 @@
 
 using DigitalZenWorks.BackUp.Library;
 using DigitalZenWorks.CommandLine.Commands;
+using DigitalZenWorks.Common.VersionUtilities;
 using Microsoft.Extensions.DependencyInjection;
 using Serilog;
 using Serilog.Configuration;
@@ -37,7 +38,7 @@ namespace BackUpManager
 			{
 				ServiceProvider serviceProvider = ConfigureServices();
 
-				string version = GetVersion();
+				string version = VersionSupport.GetVersion();
 
 				Log.Logger.Information(
 					"Starting Back Up Manager Version: " + version);
@@ -98,24 +99,6 @@ namespace BackUpManager
 			return serviceProvider;
 		}
 
-		private static FileVersionInfo GetAssemblyInformation()
-		{
-			FileVersionInfo fileVersionInfo = null;
-
-			// Bacause single file apps have no assemblies,
-			// get the information from the process.
-			Process process = Process.GetCurrentProcess();
-
-			string location = process.MainModule.FileName;
-
-			if (!string.IsNullOrWhiteSpace(location))
-			{
-				fileVersionInfo = FileVersionInfo.GetVersionInfo(location);
-			}
-
-			return fileVersionInfo;
-		}
-
 		private static IList<Command> GetCommands()
 		{
 			IList<Command> commands = new List<Command>();
@@ -157,20 +140,6 @@ namespace BackUpManager
 			return configurationFile;
 		}
 
-		private static string GetVersion()
-		{
-			string assemblyVersion = string.Empty;
-
-			FileVersionInfo fileVersionInfo = GetAssemblyInformation();
-
-			if (fileVersionInfo != null)
-			{
-				assemblyVersion = fileVersionInfo.FileVersion;
-			}
-
-			return assemblyVersion;
-		}
-
 		private static void LogInitialization()
 		{
 			string applicationDataDirectory = @"DigitalZenWorks\BackUpManager";
@@ -200,7 +169,8 @@ namespace BackUpManager
 
 		private static void ShowHelp(string additionalMessage)
 		{
-			FileVersionInfo fileVersionInfo = GetAssemblyInformation();
+			FileVersionInfo fileVersionInfo =
+				VersionSupport.GetAssemblyInformation();
 
 			if (fileVersionInfo != null)
 			{
