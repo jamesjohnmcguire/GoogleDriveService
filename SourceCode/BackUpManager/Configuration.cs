@@ -15,6 +15,28 @@ namespace BackUpManager
 {
 	internal class Configuration
 	{
+		public static string GetConfigurationFile()
+		{
+			string configurationFile = null;
+			string baseDataDirectory = Environment.GetFolderPath(
+				Environment.SpecialFolder.ApplicationData,
+				Environment.SpecialFolderOption.Create);
+			string accountsPath =
+				baseDataDirectory + @"\DigitalZenWorks\BackUpManager";
+
+			if (System.IO.Directory.Exists(accountsPath))
+			{
+				string accountsFile = accountsPath + @"\BackUp.json";
+
+				if (System.IO.File.Exists(accountsFile))
+				{
+					configurationFile = accountsFile;
+				}
+			}
+
+			return configurationFile;
+		}
+
 		public static string GetDefaultDataLocation()
 		{
 			string defaultDataLocation = null;

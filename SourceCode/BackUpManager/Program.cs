@@ -64,7 +64,8 @@ namespace BackUpManager
 								serviceProvider.GetService<
 									DigitalZenWorks.BackUp.Library.BackUpService>();
 
-							string configurationFile = GetConfigurationFile();
+							string configurationFile =
+								Configuration.GetConfigurationFile();
 
 							bool ignoreAbandoned = command.DoesOptionExist(
 								"i", "ignore-abandoned");
@@ -97,28 +98,6 @@ namespace BackUpManager
 			LogInitialization();
 
 			return serviceProvider;
-		}
-
-		private static string GetConfigurationFile()
-		{
-			string configurationFile = null;
-			string baseDataDirectory = Environment.GetFolderPath(
-				Environment.SpecialFolder.ApplicationData,
-				Environment.SpecialFolderOption.Create);
-			string accountsPath =
-				baseDataDirectory + @"\DigitalZenWorks\BackUpManager";
-
-			if (System.IO.Directory.Exists(accountsPath))
-			{
-				string accountsFile = accountsPath + @"\BackUp.json";
-
-				if (System.IO.File.Exists(accountsFile))
-				{
-					configurationFile = accountsFile;
-				}
-			}
-
-			return configurationFile;
 		}
 
 		private static void LogInitialization()
