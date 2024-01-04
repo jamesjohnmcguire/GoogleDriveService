@@ -14,7 +14,7 @@ namespace BackUpManager
 	{
 		public static string GetConfigurationFile(Command command)
 		{
-			string location = null;
+			string location;
 
 			CommandOption optionFound = command.GetOption("c", "config");
 
