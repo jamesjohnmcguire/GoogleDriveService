@@ -43,7 +43,7 @@ namespace BackUpManager
 				Log.Logger.Information(
 					"Starting Back Up Manager Version: " + version);
 
-				IList<Command> commands = GetCommands();
+				IList<Command> commands = Commands.GetCommands();
 
 				arguments = UpdateArguments(arguments);
 
@@ -97,25 +97,6 @@ namespace BackUpManager
 			LogInitialization();
 
 			return serviceProvider;
-		}
-
-		private static IList<Command> GetCommands()
-		{
-			IList<Command> commands = new List<Command>();
-
-			Command help = new ("help");
-			help.Description = "Show this information";
-			commands.Add(help);
-
-			IList<CommandOption> options = new List<CommandOption>();
-
-			CommandOption ignoreAbandoned = new ("i", "ignore-abandoned", false);
-			options.Add(ignoreAbandoned);
-
-			Command backup = new ("backup", options, 0, "Back up files");
-			commands.Add(backup);
-
-			return commands;
 		}
 
 		private static string GetConfigurationFile()
