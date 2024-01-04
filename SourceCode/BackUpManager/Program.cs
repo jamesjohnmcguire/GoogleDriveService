@@ -15,6 +15,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Globalization;
+using System.IO;
 using System.Threading.Tasks;
 
 [assembly: CLSCompliant(true)]
@@ -102,13 +103,11 @@ namespace BackUpManager
 
 		private static void LogInitialization()
 		{
-			string applicationDataDirectory = @"DigitalZenWorks\BackUpManager";
-			string baseDataDirectory = Environment.GetFolderPath(
-				Environment.SpecialFolder.ApplicationData,
-				Environment.SpecialFolderOption.Create) + @"\" +
-				applicationDataDirectory;
+			string applicationDataDirectory =
+				Configuration.GetDefaultDataLocation();
+			string logFilePath =
+				Path.Combine(applicationDataDirectory, "BackUp.log");
 
-			string logFilePath = baseDataDirectory + "\\BackUp.log";
 			string outputTemplate =
 				"[{Timestamp:yyyy-MM-dd HH:mm:ss} {Level:u3}] " +
 				"{Message:lj}{NewLine}{Exception}";
