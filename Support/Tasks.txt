@@ -1,3 +1,5 @@
+BackUpManager\Commands.cs(27,25): warning CA1859: Change type of variable 'options' from 'System.Collections.Generic.IList<DigitalZenWorks.CommandLine.Commands.CommandOption>' to 'System.Collections.Generic.List<DigitalZenWorks.CommandLine.Commands.CommandOption>' for improved performance
+BackUpManager\Commands.cs(21,19): warning CA1859: Change type of variable 'commands' from 'System.Collections.Generic.IList<DigitalZenWorks.CommandLine.Commands.Command>' to 'System.Collections.Generic.List<DigitalZenWorks.CommandLine.Commands.Command>' for improved performance
 Attemping to delete a file not owned by me: Tech.tws
 When "Julie Driscoll, Brian Auger & The Trinit" Changed to "Julie Driscoll, Brian Auger & The Trinity", the former was not deleted, because it was not specified nor considered a top level directory to check.
 When moving from Entertainment/Music/Music to Entertainment/Music, abandoned files not removed
