@@ -18,11 +18,7 @@ namespace BackUpManager
 		public static string GetConfigurationFile()
 		{
 			string configurationFile = null;
-			string baseDataDirectory = Environment.GetFolderPath(
-				Environment.SpecialFolder.ApplicationData,
-				Environment.SpecialFolderOption.Create);
-			string accountsPath =
-				baseDataDirectory + @"\DigitalZenWorks\BackUpManager";
+			string accountsPath = GetDefaultDataLocation();
 
 			if (System.IO.Directory.Exists(accountsPath))
 			{
