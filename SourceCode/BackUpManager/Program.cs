@@ -45,7 +45,7 @@ namespace BackUpManager
 
 				IList<Command> commands = Commands.GetCommands();
 
-				arguments = UpdateArguments(arguments);
+				arguments = Commands.UpdateArguments(arguments);
 
 				CommandLineArguments commandLine = new (commands, arguments);
 
@@ -146,59 +146,6 @@ namespace BackUpManager
 				outputTemplate,
 				CultureInfo.CurrentCulture);
 			Log.Logger = configuration.CreateLogger();
-		}
-
-		private static void ShowHelp(string additionalMessage)
-		{
-			FileVersionInfo fileVersionInfo =
-				VersionSupport.GetAssemblyInformation();
-
-			if (fileVersionInfo != null)
-			{
-				string assemblyVersion = fileVersionInfo.FileVersion;
-				string companyName = fileVersionInfo.CompanyName;
-				string copyright = fileVersionInfo.LegalCopyright;
-				string name = fileVersionInfo.FileName;
-
-				string header = string.Format(
-					CultureInfo.CurrentCulture,
-					"{0} {1} {2} {3}",
-					name,
-					assemblyVersion,
-					copyright,
-					companyName);
-				Log.Logger.Information(header);
-			}
-
-			if (!string.IsNullOrWhiteSpace(additionalMessage))
-			{
-				Log.Logger.Information(additionalMessage);
-			}
-		}
-
-		private static string[] UpdateArguments(string[] arguments)
-		{
-			if (arguments == null || arguments.Length == 0)
-			{
-				arguments = new string[1];
-				arguments[0] = "backup";
-			}
-			else if (!arguments[0].Equals(
-				"backup", StringComparison.Ordinal))
-			{
-				int length = arguments.Length + 1;
-				string[] newArguments = new string[length];
-				newArguments[0] = "backup";
-
-				for (int index = 0; index < arguments.Length; index++)
-				{
-					newArguments[index + 1] = arguments[index];
-				}
-
-				arguments = newArguments;
-			}
-
-			return arguments;
 		}
 	}
 }
