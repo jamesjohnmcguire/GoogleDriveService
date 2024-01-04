@@ -18,16 +18,17 @@ namespace BackUpManager
 		public static string GetConfigurationFile()
 		{
 			string configurationFile = null;
+
 			string accountsPath = GetDefaultDataLocation();
 
-			if (System.IO.Directory.Exists(accountsPath))
-			{
-				string accountsFile = accountsPath + @"\BackUp.json";
+			// Will use existing directory or create it.
+			Directory.CreateDirectory(accountsPath);
 
-				if (System.IO.File.Exists(accountsFile))
-				{
-					configurationFile = accountsFile;
-				}
+			string accountsFile = accountsPath + @"\BackUp.json";
+
+			if (File.Exists(accountsFile))
+			{
+				configurationFile = accountsFile;
 			}
 
 			return configurationFile;
