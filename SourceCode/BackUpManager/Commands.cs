@@ -26,6 +26,9 @@ namespace BackUpManager
 
 			IList<CommandOption> options = new List<CommandOption>();
 
+			CommandOption configFile = new ("c", "config", true);
+			options.Add(configFile);
+
 			CommandOption ignoreAbandoned = new ("i", "ignore-abandoned", false);
 			options.Add(ignoreAbandoned);
 
