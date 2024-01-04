@@ -64,7 +64,7 @@ namespace BackUpManager
 								serviceProvider.GetService<BackUpService>();
 
 							string configurationFile =
-								Configuration.GetDefaultConfigurationFile();
+								Configuration.GetConfigurationFile(command);
 
 							bool ignoreAbandoned = command.DoesOptionExist(
 								"i", "ignore-abandoned");

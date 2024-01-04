@@ -4,6 +4,7 @@
 // </copyright>
 /////////////////////////////////////////////////////////////////////////////
 
+using DigitalZenWorks.CommandLine.Commands;
 using System;
 using System.IO;
 
@@ -11,6 +12,24 @@ namespace BackUpManager
 {
 	internal static class Configuration
 	{
+		public static string GetConfigurationFile(Command command)
+		{
+			string location = null;
+
+			CommandOption optionFound = command.GetOption("c", "config");
+
+			if (optionFound != null)
+			{
+				location = optionFound.Parameter;
+			}
+			else
+			{
+				location = GetDefaultConfigurationFile();
+			}
+
+			return location;
+		}
+
 		public static string GetDefaultConfigurationFile()
 		{
 			string configurationFile = null;
