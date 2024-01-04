@@ -36,7 +36,7 @@ namespace BackUpManager
 
 		public static string GetDefaultDataLocation()
 		{
-			string defaultDataLocation = null;
+			string defaultDataLocation;
 
 			string baseDataDirectory = Environment.GetFolderPath(
 				Environment.SpecialFolder.ApplicationData,

@@ -13,7 +13,6 @@ using Serilog.Configuration;
 using Serilog.Events;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Globalization;
 using System.IO;
 using System.Threading.Tasks;
@@ -62,8 +61,7 @@ namespace BackUpManager
 					{
 						case "backup":
 							BackUpService backUpService =
-								serviceProvider.GetService<
-									DigitalZenWorks.BackUp.Library.BackUpService>();
+								serviceProvider.GetService<BackUpService>();
 
 							string configurationFile =
 								Configuration.GetDefaultConfigurationFile();
