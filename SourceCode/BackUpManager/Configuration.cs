@@ -15,7 +15,7 @@ namespace BackUpManager
 {
 	internal class Configuration
 	{
-		public static string GetConfigurationFile()
+		public static string GetDefaultConfigurationFile()
 		{
 			string configurationFile = null;
 

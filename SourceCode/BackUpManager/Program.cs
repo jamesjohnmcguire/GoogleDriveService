@@ -65,7 +65,7 @@ namespace BackUpManager
 									DigitalZenWorks.BackUp.Library.BackUpService>();
 
 							string configurationFile =
-								Configuration.GetConfigurationFile();
+								Configuration.GetDefaultConfigurationFile();
 
 							bool ignoreAbandoned = command.DoesOptionExist(
 								"i", "ignore-abandoned");
