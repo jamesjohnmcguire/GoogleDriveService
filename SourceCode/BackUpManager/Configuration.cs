@@ -5,15 +5,11 @@
 /////////////////////////////////////////////////////////////////////////////
 
 using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace BackUpManager
 {
-	internal class Configuration
+	internal static class Configuration
 	{
 		public static string GetDefaultConfigurationFile()
 		{

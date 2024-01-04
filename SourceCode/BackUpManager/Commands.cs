@@ -14,7 +14,7 @@ using System.Globalization;
 
 namespace BackUpManager
 {
-	internal class Commands
+	internal static class Commands
 	{
 		public static IList<Command> GetCommands()
 		{
