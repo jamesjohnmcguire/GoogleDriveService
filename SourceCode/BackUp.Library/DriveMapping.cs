@@ -19,7 +19,7 @@ namespace DigitalZenWorks.BackUp.Library
 	/// </summary>
 	public class DriveMapping
 	{
-		private IList<Exclude> excludes = new List<Exclude>();
+		private List<Exclude> excludes = [];
 
 		/// <summary>
 		/// Initializes a new instance of the <see cref="DriveMapping"/> class.
@@ -85,7 +85,7 @@ namespace DigitalZenWorks.BackUp.Library
 
 			if (excludes != null)
 			{
-				expandedExcludes = new List<Exclude>();
+				expandedExcludes = [];
 
 				for (int index = excludes.Count - 1; index >= 0; index--)
 				{
@@ -110,8 +110,10 @@ namespace DigitalZenWorks.BackUp.Library
 						if (newExcludes.Count > 0)
 						{
 							expandedExcludes.Remove(exclude);
-							expandedExcludes =
-								expandedExcludes.Concat(newExcludes).ToList();
+							IEnumerable<Exclude> interim =
+								expandedExcludes.Concat(newExcludes);
+
+							expandedExcludes = interim.ToList();
 						}
 					}
 				}
@@ -147,8 +149,9 @@ namespace DigitalZenWorks.BackUp.Library
 						if (newExcludes.Count > 0)
 						{
 							excludes.Remove(exclude);
-							excludes =
-								excludes.Concat(newExcludes).ToList();
+							IEnumerable<Exclude> interim =
+								excludes.Concat(newExcludes);
+							excludes = interim.ToList();
 						}
 					}
 				}
@@ -157,9 +160,9 @@ namespace DigitalZenWorks.BackUp.Library
 			return excludes;
 		}
 
-		private static IList<Exclude> ExpandWildCard(string path)
+		private static List<Exclude> ExpandWildCard(string path)
 		{
-			IList<Exclude> newExcludes = new List<Exclude>();
+			List<Exclude> newExcludes = [];
 
 			if (path.Contains(
 				'*', StringComparison.OrdinalIgnoreCase))

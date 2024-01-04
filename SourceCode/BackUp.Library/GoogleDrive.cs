@@ -26,7 +26,7 @@ namespace DigitalZenWorks.BackUp.Library
 	public class GoogleDrive : IDisposable
 	{
 		private static readonly string[] Scopes =
-		{
+		[
 			DriveService.Scope.Drive,
 			DriveService.Scope.DriveAppdata,
 			DriveService.Scope.DriveFile,
@@ -34,7 +34,7 @@ namespace DigitalZenWorks.BackUp.Library
 			DriveService.Scope.DriveMetadataReadonly,
 			DriveService.Scope.DriveReadonly,
 			DriveService.Scope.DriveScripts
-		};
+		];
 
 		private readonly ILogger<BackUpService> logger;
 
@@ -167,8 +167,7 @@ namespace DigitalZenWorks.BackUp.Library
 				fileMetadata.Name = folderName;
 				fileMetadata.MimeType = "application/vnd.google-apps.folder";
 
-				IList<string> parents = new List<string>();
-				parents.Add(parent);
+				List<string> parents = [parent];
 				fileMetadata.Parents = parents;
 
 				FilesResource.CreateRequest request =
@@ -207,8 +206,7 @@ namespace DigitalZenWorks.BackUp.Library
 			shortCut.TargetId = targetId;
 			fileMetadata.ShortcutDetails = shortCut;
 
-			IList<string> parents = new List<string>();
-			parents.Add(parent);
+			List<string> parents = [parent];
 			fileMetadata.Parents = parents;
 
 			FilesResource.CreateRequest request =
@@ -342,7 +340,7 @@ namespace DigitalZenWorks.BackUp.Library
 			{
 				GoogleDriveFile serverFile = GetFileById(parent);
 
-				files = new ();
+				files = [];
 				FilesResource.ListRequest listRequest = GetListRequest(parent);
 
 				do
@@ -616,8 +614,7 @@ namespace DigitalZenWorks.BackUp.Library
 		{
 			if (string.IsNullOrWhiteSpace(fileId))
 			{
-				IList<string> parents = new List<string>();
-				parents.Add(folder);
+				List<string> parents = [folder];
 				fileMetadata.Parents = parents;
 
 				FilesResource.CreateMediaUpload request =
