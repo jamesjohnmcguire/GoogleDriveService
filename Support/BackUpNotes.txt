@@ -1,0 +1,57 @@
+Json
+	New Configuration
+		Top	Service Account
+			Sub Top Key	The immediate directory to be backed up
+				"DriveParentFolderId": "1iGwePlkxdI-phn_2cIIImhnnEaciqBgO",
+				"Path": "%USERPROFILE%/Data/External",
+				Excludes
+Google Drive
+	Finding RootSharedFolderId (aka Parent)
+		You need to manually open up your google drive account in a browser, then navigate to the folder where you want to be root shard folder and click share.  Add your service account email address there.  Also, copy the core part of the shared link, that is the RootSharedFolderId.
+	Working test
+		curl -i -v -H "Authorization: Bearer ya29.c.Ko4B4AdGrCaL70mj63gWploZ3Y06CYZvAupwKVFWXEPlV12KmRPGzra8Obs6mOASLjQO8XMhcF0-fT2NiHZdCbBSfHJ6zzYKLzhNqp_U7VrpRTr5ZLrIO9rCFqjnQ9nYodgdhVvOO3y_PhNc0Z1F2gdl7o0eqM9QZ64OtqB7dqHpMkJJ-5PKt4DDTiu_yM5Wvw" -H "Accept: application/json" -H "x-goog-api-client: gl-php/7.4.3 gdcl/2.4.0" -H "host: www.googleapis.com" -H "content-type: application/json" -H "user-agent: Google Drive API Video Uploader google-api-php-client/2.4.0" https://www.googleapis.com/drive/v3/files
+	Async Version
+		System.Threading.Tasks.TaskCanceledException
+		ObjectDisposedException
+
+		for each file
+			while processing list at max
+				wait
+			start processing
+			add file to processing list
+
+		when any
+			processing list --
+	Google\Service\Drive\FileList Object
+		[collection_key:protected] => files
+		[filesType:protected] => Google\Service\Drive\DriveFile
+		[filesDataType:protected] => array
+		[incompleteSearch] =>
+		[kind] =>
+		[nextPageToken] => ~!!~AI9FV7SpiNbY0FpFQqt2I_75FFV2Qv2oFo3hUq8oejmqNeE_609DWXL9_YoT6QwnpaTDxlH0Vw39qyQ-k06cewQ4qfv4-Qu60Psdqg33bfJbq42EbIvZRMse46-0fM5zXyIEI1LwH-kIlp8nMWeufRHynQLbQjw6k6fnsINeoowx8b2c5XIVHH9_emU-KhyPvSnNs1Ob2P57UMibJkrLBEXp8xqwkSpvbD2OPC5F-yW88ifdolTdLlTXKOJffI2APkE1tUzXZ_JEFadm2F9Jtd1_WdVOCvqdqg==
+		[internal_gapi_mappings:protected] => Array
+		[modelData:protected] => Array
+		[processed:protected] => Array
+		[files] => Array
+Resources
+	Google Drive
+		https://developers.google.com/api-client-library/dotnet/guide/media_upload#:~:text=The%20default%20chunk%20size%20is,to%20any%20multiple%20of%20256KB.
+		https://developers.google.com/drive/api/v3/about-auth
+		https://stackoverflow.com/questions/41587763/how-to-provide-credentials-programmatically-to-use-google-drive-api-in-c-sharp-o
+		https://github.com/LindaLawton/Google-Dotnet-Samples/blob/Genreated-samples1.0/Drive%20API/v3/FilesSample.cs
+		https://developers.google.com/gdata/articles/debugging_client_libs
+Class Hierarchy
+	public class UpdateMediaUpload : Google.Apis.Upload.ResumableUpload<Google.Apis.Drive.v3.Data.File, Google.Apis.Drive.v3.Data.File>
+	public class CreateMediaUpload : Google.Apis.Upload.ResumableUpload<Google.Apis.Drive.v3.Data.File, Google.Apis.Drive.v3.Data.File>
+	Provide configuration for back up service from client (program.cs)
+Program Flow
+	Program
+		BackUp.Run
+			LoadAccounts
+			for each account
+				account backup
+					Authorize
+					for each drive mapping
+						BackUp	driveParentFolderId	path	serverFiles	Excludes
+	Program::Main
+		BackUpService::BackUp(configurationFile)
