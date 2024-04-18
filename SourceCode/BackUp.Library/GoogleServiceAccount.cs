@@ -178,7 +178,11 @@ namespace DigitalZenWorks.BackUp.Library
 						GetNormalizedPath(parentDirectory.FullName);
 
 					RemoveAbandonedFolders(
-						parentPath, paths, serverFiles, driveMapping.Excludes);
+						parentPath,
+						paths,
+						serverFiles,
+						driveMapping.Excludes,
+						true);
 
 					await BackUp(
 						driveParentFolderId,
