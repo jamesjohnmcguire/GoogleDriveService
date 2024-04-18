@@ -402,6 +402,13 @@ namespace DigitalZenWorks.BackUp.Library
 			return keep;
 		}
 
+		private static string GetNormalizedPath(string path)
+		{
+			path = path.Replace("\\", "/", StringComparison.OrdinalIgnoreCase);
+
+			return path;
+		}
+
 		private async Task BackUp(
 			string driveParentId,
 			string path,
@@ -425,13 +432,14 @@ namespace DigitalZenWorks.BackUp.Library
 								serverFolder.Id, false).ConfigureAwait(false);
 
 						string[] subDirectories =
-							System.IO.Directory.GetDirectories(path);
-						List<string> paths = subDirectories.ToList();
+							Directory.GetDirectories(path);
+						List<string> paths = [.. subDirectories];
 
 						IList<Exclude> expandExcludes =
 							DriveMapping.ExpandGlobalExcludes(path, excludes);
 
-						RemoveExcludedItems(path, thisServerFiles, expandExcludes);
+						RemoveExcludedItems(
+							path, thisServerFiles, expandExcludes);
 
 						if (IgnoreAbandoned == false)
 						{
@@ -581,13 +589,6 @@ namespace DigitalZenWorks.BackUp.Library
 			{
 				LogAction.Exception(Logger, exception);
 			}
-		}
-
-		private static string GetNormalizedPath(string path)
-		{
-			path = path.Replace("\\", "/");
-
-			return path;
 		}
 
 		private string GetServiceAccountJsonFile()
