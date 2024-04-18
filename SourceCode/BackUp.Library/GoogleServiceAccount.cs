@@ -6,6 +6,7 @@
 
 using Microsoft.Extensions.Logging;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
@@ -168,8 +169,16 @@ namespace DigitalZenWorks.BackUp.Library
 					LogAction.Information(Logger, message);
 
 					IList<GoogleDriveFile> serverFiles =
-						await googleDrive.GetFilesAsync(driveParentFolderId).
-							ConfigureAwait(false);
+						await googleDrive.GetFilesAsync(
+							driveParentFolderId, true).ConfigureAwait(false);
+
+					IList<string> paths = Account.DriveMappingPaths;
+					DirectoryInfo parentDirectory = Directory.GetParent(path);
+					string parentPath =
+						GetNormalizedPath(parentDirectory.FullName);
+
+					RemoveAbandonedFolders(
+						parentPath, paths, serverFiles, driveMapping.Excludes);
 
 					await BackUp(
 						driveParentFolderId,
@@ -215,8 +224,8 @@ namespace DigitalZenWorks.BackUp.Library
 				LogAction.Information(Logger, message);
 
 				IList<GoogleDriveFile> serverFiles =
-					await googleDrive.GetFilesAsync(driveParentFolderId).
-						ConfigureAwait(false);
+					await googleDrive.GetFilesAsync(
+						driveParentFolderId, false).ConfigureAwait(false);
 
 				await BackUp(
 					driveParentFolderId,
@@ -370,6 +379,29 @@ namespace DigitalZenWorks.BackUp.Library
 			}
 		}
 
+		private static bool CheckForKeepExclude(
+			string fileName, IList<Exclude> excludes)
+		{
+			bool keep = false;
+
+			foreach (Exclude exclude in excludes)
+			{
+				string name = Path.GetFileName(exclude.Path);
+
+				if (fileName.Equals(name, StringComparison.OrdinalIgnoreCase))
+				{
+					if (exclude.ExcludeType == ExcludeType.Keep ||
+						exclude.ExcludeType == ExcludeType.FileIgnore)
+					{
+						keep = true;
+						break;
+					}
+				}
+			}
+
+			return keep;
+		}
+
 		private async Task BackUp(
 			string driveParentId,
 			string path,
@@ -389,11 +421,12 @@ namespace DigitalZenWorks.BackUp.Library
 								driveParentId, path, serverFiles);
 
 						IList<GoogleDriveFile> thisServerFiles =
-							await googleDrive.GetFilesAsync(serverFolder.Id).
-								ConfigureAwait(false);
+							await googleDrive.GetFilesAsync(
+								serverFolder.Id, false).ConfigureAwait(false);
 
 						string[] subDirectories =
 							System.IO.Directory.GetDirectories(path);
+						List<string> paths = subDirectories.ToList();
 
 						IList<Exclude> expandExcludes =
 							DriveMapping.ExpandGlobalExcludes(path, excludes);
@@ -403,7 +436,7 @@ namespace DigitalZenWorks.BackUp.Library
 						if (IgnoreAbandoned == false)
 						{
 							RemoveAbandonedFolders(
-								path, subDirectories, thisServerFiles, excludes);
+								path, paths, thisServerFiles, excludes);
 						}
 
 						DirectoryInfo directoryInfo = new (path);
@@ -446,9 +479,10 @@ namespace DigitalZenWorks.BackUp.Library
 
 		private void RemoveAbandonedFolders(
 			string path,
-			string[] subDirectories,
+			IList<string> subDirectories,
 			IList<GoogleDriveFile> serverFiles,
-			IList<Exclude> excludes)
+			IList<Exclude> excludes,
+			bool useNormalizedPath = false)
 		{
 			foreach (GoogleDriveFile file in serverFiles)
 			{
@@ -459,6 +493,12 @@ namespace DigitalZenWorks.BackUp.Library
 						StringComparison.Ordinal))
 					{
 						string folderPath = path + @"\" + file.Name;
+
+						if (useNormalizedPath == true)
+						{
+							folderPath = path + "/" + file.Name;
+						}
+
 						bool exists =
 							subDirectories.Any(element => element.Equals(
 								folderPath, StringComparison.Ordinal));
@@ -468,24 +508,8 @@ namespace DigitalZenWorks.BackUp.Library
 
 						if (exists == false && skipThisDirectory == false)
 						{
-							bool keep = false;
-
-							foreach (Exclude exclude in excludes)
-							{
-								string name =
-									Path.GetFileName(exclude.Path);
-
-								if (file.Name.Equals(
-									name,
-									StringComparison.OrdinalIgnoreCase))
-								{
-									if (exclude.ExcludeType == ExcludeType.Keep ||
-										exclude.ExcludeType == ExcludeType.FileIgnore)
-									{
-										keep = true;
-									}
-								}
-							}
+							bool keep =
+								CheckForKeepExclude(file.Name, excludes);
 
 							if (keep == false)
 							{
@@ -557,6 +581,13 @@ namespace DigitalZenWorks.BackUp.Library
 			{
 				LogAction.Exception(Logger, exception);
 			}
+		}
+
+		private static string GetNormalizedPath(string path)
+		{
+			path = path.Replace("\\", "/");
+
+			return path;
 		}
 
 		private string GetServiceAccountJsonFile()

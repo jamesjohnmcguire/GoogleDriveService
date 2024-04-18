@@ -280,7 +280,7 @@ namespace DigitalZenWorks.BackUp.Library
 			bool found = false;
 
 			IList<GoogleDriveFile> serverFiles =
-				await GetFilesAsync(parentId).ConfigureAwait(false);
+				await GetFilesAsync(parentId, false).ConfigureAwait(false);
 
 			foreach (GoogleDriveFile file in serverFiles)
 			{
@@ -323,9 +323,11 @@ namespace DigitalZenWorks.BackUp.Library
 		/// Get files async method.
 		/// </summary>
 		/// <param name="parent">The parent folder.</param>
+		/// <param name="ownedByMe">Indicates whether to return only files
+		/// owned by this account.</param>
 		/// <returns>A list of files.</returns>
 		public async Task<IList<GoogleDriveFile>> GetFilesAsync(
-			string parent)
+			string parent, bool ownedByMe)
 		{
 			List<GoogleDriveFile> files = null;
 
@@ -341,7 +343,8 @@ namespace DigitalZenWorks.BackUp.Library
 				GoogleDriveFile serverFile = GetFileById(parent);
 
 				files = [];
-				FilesResource.ListRequest listRequest = GetListRequest(parent);
+				FilesResource.ListRequest listRequest =
+					GetListRequest(parent, ownedByMe);
 
 				do
 				{
@@ -519,7 +522,8 @@ namespace DigitalZenWorks.BackUp.Library
 			LogAction.Information(logger, message);
 		}
 
-		private FilesResource.ListRequest GetListRequest(string driveParentId)
+		private FilesResource.ListRequest GetListRequest(
+			string driveParentId, bool ownedByMe)
 		{
 			FilesResource.ListRequest listRequest = driveService.Files.List();
 
@@ -530,7 +534,16 @@ namespace DigitalZenWorks.BackUp.Library
 				"files({0}), nextPageToken",
 				fileFields);
 			listRequest.PageSize = 1000;
-			listRequest.Q = $"'{driveParentId}' in parents";
+
+			if (ownedByMe == true)
+			{
+				listRequest.Q =
+					$"'{driveParentId}' in parents and 'me' in owners";
+			}
+			else
+			{
+				listRequest.Q = $"'{driveParentId}' in parents";
+			}
 
 			return listRequest;
 		}
