@@ -25,6 +25,8 @@ namespace DigitalZenWorks.BackUp.Library
 		private readonly IList<DriveMapping> driveMappings =
 			new List<DriveMapping>();
 
+		private List<string> driveMappingPaths;
+
 		/// <summary>
 		/// Gets or sets service account property.
 		/// </summary>
@@ -36,6 +38,28 @@ namespace DigitalZenWorks.BackUp.Library
 		/// </summary>
 		/// <value>The account type.</value>
 		public AccountType AccountType { get; set; }
+
+		/// <summary>
+		/// Gets driveMappings property.
+		/// </summary>
+		/// <value>DriveMappings property.</value>
+		public IList<string> DriveMappingPaths
+		{
+			get
+			{
+				if (driveMappingPaths == null)
+				{
+					driveMappingPaths = new List<string>();
+
+					foreach (DriveMapping mapping in driveMappings)
+					{
+						driveMappingPaths.Add(mapping.Path);
+					}
+				}
+
+				return driveMappingPaths;
+			}
+		}
 
 		/// <summary>
 		/// Gets driveMappings property.
