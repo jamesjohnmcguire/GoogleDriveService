@@ -172,17 +172,23 @@ namespace DigitalZenWorks.BackUp.Library
 						await googleDrive.GetFilesAsync(
 							driveParentFolderId, true).ConfigureAwait(false);
 
-					IList<string> paths = Account.DriveMappingPaths;
 					DirectoryInfo parentDirectory = Directory.GetParent(path);
-					string parentPath =
-						GetNormalizedPath(parentDirectory.FullName);
+
+					string[] subDirectories =
+						Directory.GetDirectories(parentDirectory.FullName);
+					List<string> paths = [.. subDirectories];
+					IList<string> driveMappingPaths = Account.DriveMappingPaths;
 
 					RemoveAbandonedFolders(
-						parentPath,
+						parentDirectory.FullName,
 						paths,
+						driveMappingPaths,
 						serverFiles,
 						driveMapping.Excludes,
-						true);
+						Account.CheckDriveMappings);
+
+					serverFiles = await googleDrive.GetFilesAsync(
+							driveParentFolderId, false).ConfigureAwait(false);
 
 					await BackUp(
 						driveParentFolderId,
@@ -448,7 +454,7 @@ namespace DigitalZenWorks.BackUp.Library
 						if (IgnoreAbandoned == false)
 						{
 							RemoveAbandonedFolders(
-								path, paths, thisServerFiles, excludes);
+								path, paths, null, thisServerFiles, excludes);
 						}
 
 						DirectoryInfo directoryInfo = new (path);
@@ -492,6 +498,7 @@ namespace DigitalZenWorks.BackUp.Library
 		private void RemoveAbandonedFolders(
 			string path,
 			IList<string> subDirectories,
+			IList<string> driveMappings,
 			IList<GoogleDriveFile> serverFiles,
 			IList<Exclude> excludes,
 			bool useNormalizedPath = false)
@@ -505,15 +512,18 @@ namespace DigitalZenWorks.BackUp.Library
 						StringComparison.Ordinal))
 					{
 						string folderPath = path + @"\" + file.Name;
-
-						if (useNormalizedPath == true)
-						{
-							folderPath = path + "/" + file.Name;
-						}
-
 						bool exists =
 							subDirectories.Any(element => element.Equals(
 								folderPath, StringComparison.Ordinal));
+
+						if (useNormalizedPath == true)
+						{
+							path = GetNormalizedPath(path);
+							folderPath = path + "/" + file.Name;
+
+							exists = driveMappings.Any(element => element.Equals(
+								folderPath, StringComparison.Ordinal));
+						}
 
 						bool skipThisDirectory = ShouldSkipThisDirectory(
 							folderPath, excludes);
