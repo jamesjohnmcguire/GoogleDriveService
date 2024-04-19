@@ -40,6 +40,14 @@ namespace DigitalZenWorks.BackUp.Library
 		public AccountType AccountType { get; set; }
 
 		/// <summary>
+		/// Gets or sets a value indicating whether [check drive mappings].
+		/// </summary>
+		/// <value>
+		///   <c>true</c> if [check drive mappings]; otherwise, <c>false</c>.
+		/// </value>
+		public bool CheckDriveMappings { get; set; }
+
+		/// <summary>
 		/// Gets driveMappings property.
 		/// </summary>
 		/// <value>DriveMappings property.</value>
