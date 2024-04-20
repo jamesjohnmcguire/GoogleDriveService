@@ -209,6 +209,77 @@ namespace DigitalZenWorks.BackUp.Library
 		}
 
 		/// <summary>
+		/// Removes the abandoned folders.
+		/// </summary>
+		/// <param name="path">The path.</param>
+		/// <param name="subDirectories">The sub directories.</param>
+		/// <param name="driveMappings">The drive mappings.</param>
+		/// <param name="serverFiles">The server files.</param>
+		/// <param name="excludes">The excludes.</param>
+		/// <param name="useNormalizedPath">if set to <c>true</c>
+		/// [use normalized path].</param>
+		public void RemoveAbandonedFolders(
+			string path,
+			IList<string> subDirectories,
+			IList<string> driveMappings,
+			IList<GoogleDriveFile> serverFiles,
+			IList<Exclude> excludes,
+			bool useNormalizedPath = false)
+		{
+			if (serverFiles != null)
+			{
+				foreach (GoogleDriveFile file in serverFiles)
+				{
+					try
+					{
+						if (file.MimeType.Equals(
+							"application/vnd.google-apps.folder",
+							StringComparison.Ordinal))
+						{
+							string folderPath = path + @"\" + file.Name;
+							bool exists =
+								subDirectories.Any(element => element.Equals(
+									folderPath, StringComparison.Ordinal));
+
+							if (useNormalizedPath == true)
+							{
+								path = GetNormalizedPath(path);
+								folderPath = path + "/" + file.Name;
+
+								exists = driveMappings.Any(
+									element => element.Equals(
+									folderPath, StringComparison.Ordinal));
+							}
+
+							bool skipThisDirectory = ShouldSkipThisDirectory(
+								folderPath, excludes);
+
+							if (exists == false && skipThisDirectory == false)
+							{
+								bool keep = true;
+
+								if (excludes != null)
+								{
+									keep = CheckForKeepExclude(
+										file.Name, excludes);
+								}
+
+								if (keep == false)
+								{
+									googleDrive.Delete(file);
+								}
+							}
+						}
+					}
+					catch (Google.GoogleApiException exception)
+					{
+						LogAction.Exception(Logger, exception);
+					}
+				}
+			}
+		}
+
+		/// <summary>
 		/// Back up with drive mapping.
 		/// </summary>
 		/// <param name="driveMapping">The drive mapping.</param>
@@ -492,58 +563,6 @@ namespace DigitalZenWorks.BackUp.Library
 				exception is UnauthorizedAccessException)
 			{
 				LogAction.Exception(Logger, exception);
-			}
-		}
-
-		private void RemoveAbandonedFolders(
-			string path,
-			IList<string> subDirectories,
-			IList<string> driveMappings,
-			IList<GoogleDriveFile> serverFiles,
-			IList<Exclude> excludes,
-			bool useNormalizedPath = false)
-		{
-			foreach (GoogleDriveFile file in serverFiles)
-			{
-				try
-				{
-					if (file.MimeType.Equals(
-						"application/vnd.google-apps.folder",
-						StringComparison.Ordinal))
-					{
-						string folderPath = path + @"\" + file.Name;
-						bool exists =
-							subDirectories.Any(element => element.Equals(
-								folderPath, StringComparison.Ordinal));
-
-						if (useNormalizedPath == true)
-						{
-							path = GetNormalizedPath(path);
-							folderPath = path + "/" + file.Name;
-
-							exists = driveMappings.Any(element => element.Equals(
-								folderPath, StringComparison.Ordinal));
-						}
-
-						bool skipThisDirectory = ShouldSkipThisDirectory(
-							folderPath, excludes);
-
-						if (exists == false && skipThisDirectory == false)
-						{
-							bool keep =
-								CheckForKeepExclude(file.Name, excludes);
-
-							if (keep == false)
-							{
-								googleDrive.Delete(file);
-							}
-						}
-					}
-				}
-				catch (Google.GoogleApiException exception)
-				{
-					LogAction.Exception(Logger, exception);
-				}
 			}
 		}
 
