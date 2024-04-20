@@ -218,7 +218,8 @@ namespace DigitalZenWorks.BackUp.Library
 		/// <param name="excludes">The excludes.</param>
 		/// <param name="useNormalizedPath">if set to <c>true</c>
 		/// [use normalized path].</param>
-		public void RemoveAbandonedFolders(
+		/// <returns>The amount of files removed.</returns>
+		public int RemoveAbandonedFolders(
 			string path,
 			IList<string> subDirectories,
 			IList<string> driveMappings,
@@ -226,6 +227,8 @@ namespace DigitalZenWorks.BackUp.Library
 			IList<Exclude> excludes,
 			bool useNormalizedPath = false)
 		{
+			int removedFilesCount = 0;
+
 			if (serverFiles != null)
 			{
 				foreach (GoogleDriveFile file in serverFiles)
@@ -277,6 +280,8 @@ namespace DigitalZenWorks.BackUp.Library
 					}
 				}
 			}
+
+			return removedFilesCount;
 		}
 
 		/// <summary>
