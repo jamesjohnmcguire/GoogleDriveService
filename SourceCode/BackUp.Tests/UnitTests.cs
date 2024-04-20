@@ -17,7 +17,7 @@ namespace BackUp.Tests
 		}
 
 		[Test]
-		public void RemoveAbandanedFoltersTest()
+		public void RemoveAbandanedFoltersNone()
 		{
 			Account accountData = new ();
 
@@ -29,14 +29,14 @@ namespace BackUp.Tests
 			string[] subDirectoriesRaw = Directory.GetDirectories(path);
 			IList<string> subDirectories = [.. subDirectoriesRaw];
 
-			account.RemoveAbandonedFolders(
+			int filesRemoved = account.RemoveAbandonedFolders(
 				path,
 				subDirectories,
 				null,
 				null,
 				null);
 
-			Assert.Pass();
+			Assert.That(filesRemoved, Is.EqualTo(0));
 		}
 	}
 }
