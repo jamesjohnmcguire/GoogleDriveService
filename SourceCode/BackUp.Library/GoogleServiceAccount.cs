@@ -216,8 +216,8 @@ namespace DigitalZenWorks.BackUp.Library
 		/// <param name="driveMappings">The drive mappings.</param>
 		/// <param name="serverFiles">The server files.</param>
 		/// <param name="excludes">The excludes.</param>
-		/// <param name="useNormalizedPath">if set to <c>true</c>
-		/// [use normalized path].</param>
+		/// <param name="checkDriveMappings">Indicates whether or not to check
+		/// the drive mappings.</param>
 		/// <returns>The amount of files removed.</returns>
 		public int RemoveAbandonedFolders(
 			string path,
@@ -225,7 +225,7 @@ namespace DigitalZenWorks.BackUp.Library
 			IList<string> driveMappings,
 			IList<GoogleDriveFile> serverFiles,
 			IList<Exclude> excludes,
-			bool useNormalizedPath = false)
+			bool checkDriveMappings = false)
 		{
 			int removedFilesCount = 0;
 
@@ -233,50 +233,17 @@ namespace DigitalZenWorks.BackUp.Library
 			{
 				foreach (GoogleDriveFile file in serverFiles)
 				{
-					try
+					bool removed = RemoveAbandonedFolder(
+						file,
+						path,
+						subDirectories,
+						driveMappings,
+						excludes,
+						checkDriveMappings);
+
+					if (removed == true)
 					{
-						if (file.MimeType.Equals(
-							"application/vnd.google-apps.folder",
-							StringComparison.Ordinal))
-						{
-							string folderPath = path + @"\" + file.Name;
-							bool exists =
-								subDirectories.Any(element => element.Equals(
-									folderPath, StringComparison.Ordinal));
-
-							if (useNormalizedPath == true)
-							{
-								path = GetNormalizedPath(path);
-								folderPath = path + "/" + file.Name;
-
-								exists = driveMappings.Any(
-									element => element.Equals(
-									folderPath, StringComparison.Ordinal));
-							}
-
-							bool skipThisDirectory = ShouldSkipThisDirectory(
-								folderPath, excludes);
-
-							if (exists == false && skipThisDirectory == false)
-							{
-								bool keep = true;
-
-								if (excludes != null)
-								{
-									keep = CheckForKeepExclude(
-										file.Name, excludes);
-								}
-
-								if (keep == false)
-								{
-									googleDrive.Delete(file);
-								}
-							}
-						}
-					}
-					catch (Google.GoogleApiException exception)
-					{
-						LogAction.Exception(Logger, exception);
+						removedFilesCount++;
 					}
 				}
 			}
@@ -629,6 +596,27 @@ namespace DigitalZenWorks.BackUp.Library
 			}
 		}
 
+		private bool ExcludeKeepOrDeleteFile(
+			GoogleDriveFile file, IList<Exclude> excludes)
+		{
+			bool removed = false;
+
+			bool keep = true;
+
+			if (excludes != null)
+			{
+				keep = CheckForKeepExclude(file.Name, excludes);
+			}
+
+			if (keep == false)
+			{
+				googleDrive.Delete(file);
+				removed = true;
+			}
+
+			return removed;
+		}
+
 		private string GetServiceAccountJsonFile()
 		{
 			string serviceAccountJsonFile = null;
@@ -658,6 +646,60 @@ namespace DigitalZenWorks.BackUp.Library
 			}
 
 			return serviceAccountJsonFile;
+		}
+
+		private bool RemoveAbandonedFolder(
+			GoogleDriveFile file,
+			string path,
+			IList<string> subDirectories,
+			IList<string> driveMappings,
+			IList<Exclude> excludes,
+			bool checkDriveMappings = false)
+		{
+			bool removed = false;
+
+			try
+			{
+				if (file.MimeType.Equals(
+					"application/vnd.google-apps.folder",
+					StringComparison.Ordinal))
+				{
+					string folderPath = path + @"\" + file.Name;
+
+					bool exists =
+						subDirectories.Any(element => element.Equals(
+							folderPath, StringComparison.Ordinal));
+
+					bool skipThisDirectory = ShouldSkipThisDirectory(
+						folderPath, excludes);
+
+					if (exists == false && skipThisDirectory == false)
+					{
+						removed = ExcludeKeepOrDeleteFile(file, excludes);
+					}
+
+					if (removed == false && checkDriveMappings == true)
+					{
+						path = GetNormalizedPath(path);
+						folderPath = path + "/" + file.Name;
+
+						exists = driveMappings.Any(
+							element => element.Equals(
+								folderPath, StringComparison.Ordinal));
+
+						if (exists == false && skipThisDirectory == false)
+						{
+							removed = ExcludeKeepOrDeleteFile(file, excludes);
+						}
+					}
+				}
+			}
+			catch (Google.GoogleApiException exception)
+			{
+				LogAction.Exception(Logger, exception);
+			}
+
+			return removed;
 		}
 
 		private void RemoveExcludedFile(
