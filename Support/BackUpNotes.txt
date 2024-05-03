@@ -55,3 +55,5 @@ Program Flow
 						BackUp	driveParentFolderId	path	serverFiles	Excludes
 	Program::Main
 		BackUpService::BackUp(configurationFile)
+Starting Back Up Manager Version
+mklink /D D:\Users\JamesMc\Data\Clients\PropertyImages "D:\Users\JamesMc\Data\Clients\AxisPoint\OfJapan\SourceCode\Web\data\PropertyImages" 

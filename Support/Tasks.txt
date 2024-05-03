@@ -1,5 +1,8 @@
-BackUpManager\Commands.cs(27,25): warning CA1859: Change type of variable 'options' from 'System.Collections.Generic.IList<DigitalZenWorks.CommandLine.Commands.CommandOption>' to 'System.Collections.Generic.List<DigitalZenWorks.CommandLine.Commands.CommandOption>' for improved performance
-BackUpManager\Commands.cs(21,19): warning CA1859: Change type of variable 'commands' from 'System.Collections.Generic.IList<DigitalZenWorks.CommandLine.Commands.Command>' to 'System.Collections.Generic.List<DigitalZenWorks.CommandLine.Commands.Command>' for improved performance
+Attemping to delete a file not owned by me
+Add "trashed=true"
+When deleting a file, also show it's id
+Test if top level is missing
+Remove C:\Users\User\AppData\Local\Backup\lastCompatBackupTime.txt
 Attemping to delete a file not owned by me: Tech.tws
 When "Julie Driscoll, Brian Auger & The Trinit" Changed to "Julie Driscoll, Brian Auger & The Trinity", the former was not deleted, because it was not specified nor considered a top level directory to check.
 When moving from Entertainment/Music/Music to Entertainment/Music, abandoned files not removed
@@ -30,6 +33,8 @@ ignore git files
 free native resources	needed?
 
 Finished
+	BackUpManager\Commands.cs(27,25): warning CA1859: Change type of variable 'options' from 'System.Collections.Generic.IList<DigitalZenWorks.CommandLine.Commands.CommandOption>' to 'System.Collections.Generic.List<DigitalZenWorks.CommandLine.Commands.CommandOption>' for improved performance
+	BackUpManager\Commands.cs(21,19): warning CA1859: Change type of variable 'commands' from 'System.Collections.Generic.IList<DigitalZenWorks.CommandLine.Commands.Command>' to 'System.Collections.Generic.List<DigitalZenWorks.CommandLine.Commands.Command>' for improved performance
 	Warning	CS0618	'File.ModifiedTime' is obsolete: 'This property is obsolete and may behave unexpectedly; please use ModifiedTimeDateTimeOffset instead.'	DigitalZenWorks.BackUp.Library	BackUp.Library\GoogleServiceAccount.cs	665	Active
 	Remove CreateTopLevelLink
 	remove ; ;
