@@ -3,9 +3,6 @@
 # IDE0017: Simplify object initialization
 dotnet_style_object_initializer = false
 
-# IDE0028: Use collection initializers
-dotnet_style_collection_initializer = false
-
 # IDE0290: Use primary constructor
 dotnet_diagnostic.IDE0290.severity = none
 
