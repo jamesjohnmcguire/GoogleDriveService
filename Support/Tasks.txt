@@ -1,3 +1,4 @@
+HttpStatusCode is Gone.	Google.Apis.Requests.RequestError	Google.GoogleApiException: The service drive has thrown an exception. HttpStatusCode is Gone. Internal Error	HttpStatusCode is InternalServerError.	Google.Apis.Requests.RequestError	Google.GoogleApiException: The service drive has thrown an exception. HttpStatusCode is InternalServerError. 
 Attemping to delete a file not owned by me
 Add "trashed=true"
 When deleting a file, also show it's id
