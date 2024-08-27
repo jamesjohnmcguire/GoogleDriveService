@@ -340,39 +340,46 @@ namespace DigitalZenWorks.BackUp.Library
 			}
 			else
 			{
-				GoogleDriveFile serverFile = GetFileById(parent);
-
-				files = [];
-				FilesResource.ListRequest listRequest =
-					GetListRequest(parent, ownedByMe);
-
-				do
+				try
 				{
-					try
+					GoogleDriveFile serverFile = GetFileById(parent);
+
+					files = [];
+					FilesResource.ListRequest listRequest =
+						GetListRequest(parent, ownedByMe);
+
+					do
 					{
-						Google.Apis.Drive.v3.Data.FileList filesList =
-							await listRequest.ExecuteAsync()
-							.ConfigureAwait(false);
+						try
+						{
+							Google.Apis.Drive.v3.Data.FileList filesList =
+								await listRequest.ExecuteAsync()
+								.ConfigureAwait(false);
 
-						files.AddRange(filesList.Files);
+							files.AddRange(filesList.Files);
 
-						listRequest.PageToken = filesList.NextPageToken;
+							listRequest.PageToken = filesList.NextPageToken;
 
-						string message = string.Format(
-							CultureInfo.InvariantCulture,
-							"Retrieved files from: {0} ({1}) count: {2}",
-							parent,
-							serverFile.Name,
-							files.Count);
-						LogAction.Information(logger, message);
+							string message = string.Format(
+								CultureInfo.InvariantCulture,
+								"Retrieved files from: {0} ({1}) count: {2}",
+								parent,
+								serverFile.Name,
+								files.Count);
+							LogAction.Information(logger, message);
+						}
+						catch (Google.GoogleApiException exception)
+						{
+							LogAction.Exception(logger, exception);
+							listRequest.PageToken = null;
+						}
 					}
-					catch (Google.GoogleApiException exception)
-					{
-						LogAction.Exception(logger, exception);
-						listRequest.PageToken = null;
-					}
+					while (!string.IsNullOrEmpty(listRequest.PageToken));
 				}
-				while (!string.IsNullOrEmpty(listRequest.PageToken));
+				catch (Google.GoogleApiException exception)
+				{
+					LogAction.Exception(logger, exception);
+				}
 			}
 
 			return files;
