@@ -251,7 +251,7 @@ namespace DigitalZenWorks.BackUp.Library
 				else
 				{
 					string message =
-						"Attemping to delete a file not owned by me: " +
+						"Attempting to delete a file not owned by me: " +
 						fileName;
 					LogAction.Warning(logger, message, null);
 				}
