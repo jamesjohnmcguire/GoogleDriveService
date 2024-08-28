@@ -13,6 +13,7 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
+using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 
@@ -376,7 +377,23 @@ namespace DigitalZenWorks.BackUp.Library
 					}
 					while (!string.IsNullOrEmpty(listRequest.PageToken));
 				}
-				catch (Google.GoogleApiException exception)
+				catch (Exception exception) when
+					(exception is ArgumentException ||
+					exception is ArgumentNullException ||
+					exception is DirectoryNotFoundException ||
+					exception is FileNotFoundException ||
+					exception is Google.GoogleApiException ||
+					exception is IndexOutOfRangeException ||
+					exception is InvalidOperationException ||
+					exception is NullReferenceException ||
+					exception is IOException ||
+					exception is PathTooLongException ||
+					exception is System.Net.Http.HttpRequestException ||
+					exception is System.Net.Sockets.SocketException ||
+					exception is System.Security.SecurityException ||
+					exception is TargetException ||
+					exception is TaskCanceledException ||
+					exception is UnauthorizedAccessException)
 				{
 					LogAction.Exception(logger, exception);
 				}
