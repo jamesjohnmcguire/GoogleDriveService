@@ -152,49 +152,72 @@ namespace DigitalZenWorks.BackUp.Library
 				foreach (DriveMapping driveMapping in
 					Account.DriveMappings)
 				{
-					string driveParentFolderId =
-						driveMapping.DriveParentFolderId;
+					try
+					{
+						string driveParentFolderId =
+							driveMapping.DriveParentFolderId;
 
-					string path = Environment.ExpandEnvironmentVariables(
-						driveMapping.Path);
-					path = Path.GetFullPath(path);
+						string path = Environment.ExpandEnvironmentVariables(
+							driveMapping.Path);
+						path = Path.GetFullPath(path);
 
-					driveMapping.ExpandExcludes();
+						driveMapping.ExpandExcludes();
 
-					string message = string.Format(
-						CultureInfo.InvariantCulture,
-						"Checking: \"{0}\" with Parent Id: {1}",
-						path,
-						driveParentFolderId);
-					LogAction.Information(Logger, message);
+						string message = string.Format(
+							CultureInfo.InvariantCulture,
+							"Checking: \"{0}\" with Parent Id: {1}",
+							path,
+							driveParentFolderId);
+						LogAction.Information(Logger, message);
 
-					IList<GoogleDriveFile> serverFiles =
-						await googleDrive.GetFilesAsync(
-							driveParentFolderId, true).ConfigureAwait(false);
+						IList<GoogleDriveFile> serverFiles =
+							await googleDrive.GetFilesAsync(
+								driveParentFolderId, true).ConfigureAwait(false);
 
-					DirectoryInfo parentDirectory = Directory.GetParent(path);
+						DirectoryInfo parentDirectory = Directory.GetParent(path);
 
-					string[] subDirectories =
-						Directory.GetDirectories(parentDirectory.FullName);
-					List<string> paths = [.. subDirectories];
-					IList<string> driveMappingPaths = Account.DriveMappingPaths;
+						string[] subDirectories =
+							Directory.GetDirectories(parentDirectory.FullName);
+						List<string> paths = [.. subDirectories];
+						IList<string> driveMappingPaths = Account.DriveMappingPaths;
 
-					RemoveAbandonedFolders(
-						parentDirectory.FullName,
-						paths,
-						driveMappingPaths,
-						serverFiles,
-						driveMapping.Excludes,
-						Account.CheckDriveMappings);
+						RemoveAbandonedFolders(
+							parentDirectory.FullName,
+							paths,
+							driveMappingPaths,
+							serverFiles,
+							driveMapping.Excludes,
+							Account.CheckDriveMappings);
 
-					serverFiles = await googleDrive.GetFilesAsync(
-							driveParentFolderId, false).ConfigureAwait(false);
+						serverFiles = await googleDrive.GetFilesAsync(
+								driveParentFolderId, false).ConfigureAwait(false);
 
-					await BackUp(
-						driveParentFolderId,
-						path,
-						serverFiles,
-						driveMapping.Excludes).ConfigureAwait(false);
+						await BackUp(
+							driveParentFolderId,
+							path,
+							serverFiles,
+							driveMapping.Excludes).ConfigureAwait(false);
+					}
+					catch (Exception exception) when
+						(exception is ArgumentException ||
+						exception is ArgumentNullException ||
+						exception is DirectoryNotFoundException ||
+						exception is FileNotFoundException ||
+						exception is Google.GoogleApiException ||
+						exception is IndexOutOfRangeException ||
+						exception is InvalidOperationException ||
+						exception is NullReferenceException ||
+						exception is IOException ||
+						exception is PathTooLongException ||
+						exception is System.Net.Http.HttpRequestException ||
+						exception is System.Net.Sockets.SocketException ||
+						exception is System.Security.SecurityException ||
+						exception is TargetException ||
+						exception is TaskCanceledException ||
+						exception is UnauthorizedAccessException)
+					{
+						LogAction.Exception(Logger, exception);
+					}
 				}
 			}
 		}
