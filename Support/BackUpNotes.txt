@@ -57,3 +57,25 @@ Program Flow
 		BackUpService::BackUp(configurationFile)
 Starting Back Up Manager Version
 mklink /D D:\Users\JamesMc\Data\Clients\PropertyImages "D:\Users\JamesMc\Data\Clients\AxisPoint\OfJapan\SourceCode\Web\data\PropertyImages" 
+Back Up Manager
+	[2024-08-27 15:06:30 WRN] Attemping to delete a file not owned by me: Zenlok.pst
+	Attempting to delete a file not owned by me: Entertainment
+	Attempting to delete a file not owned by me: .iTunes Preferences.plist
+	Directory Double Check
+		Why the double hit?
+			first is check the amount owned by 'me'
+			second is all files on server
+		Why 0 the first time?
+			0 is the amount owned by 'me'
+		Can it be optimized?
+			??
+				The first is there to remove abandoned files
+				Probably need to investigate / test more
+
+		1iGwePlkxdI-phn_2cIIImhnnEaciqBgO (Data) count: 0
+		1iGwePlkxdI-phn_2cIIImhnnEaciqBgO (Data) count: 5
+	Process Flow
+	Main
+		backUpService.BackUp
+			account.BackUp.
+				foreach (DriveMapping driveMapping in Account.DriveMappings)
