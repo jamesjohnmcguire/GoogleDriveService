@@ -4,16 +4,7 @@
 // </copyright>
 /////////////////////////////////////////////////////////////////////////////
 
-using Microsoft.Extensions.Logging;
-using System;
 using System.Collections.Generic;
-using System.Globalization;
-using System.IO;
-using System.Linq;
-using System.Reflection;
-using System.Threading.Tasks;
-
-using GoogleDriveFile = Google.Apis.Drive.v3.Data.File;
 
 namespace DigitalZenWorks.BackUp.Library
 {
