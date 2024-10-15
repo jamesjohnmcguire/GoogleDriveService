@@ -13,8 +13,7 @@ namespace DigitalZenWorks.BackUp.Library
 	/// </summary>
 	public class Account
 	{
-		private readonly IList<DriveMapping> driveMappings =
-			new List<DriveMapping>();
+		private readonly IList<DriveMapping> driveMappings = [];
 
 		private List<string> driveMappingPaths;
 
@@ -48,7 +47,7 @@ namespace DigitalZenWorks.BackUp.Library
 			{
 				if (driveMappingPaths == null)
 				{
-					driveMappingPaths = new List<string>();
+					driveMappingPaths = [];
 
 					foreach (DriveMapping mapping in driveMappings)
 					{
