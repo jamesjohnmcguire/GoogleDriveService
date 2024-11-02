@@ -1,3 +1,6 @@
+WTF?	[2024-10-26 03:12:10 INF] Checking: C:\Users\JamesMc\Data\ProgramData\Outlook\~Projects.pst.tmp
+What to do?		Attempting to delete a file not owned by me: sentinel
+Add Sync for other PCs
 Exclude tilde files, such as ~$MAKER INFO.xlsx
 Set Retry at: [ERR] Exception at: GetFilesAsync: Line: 398	System.Threading.Tasks.TaskCanceledException: The request was canceled due to the configured HttpClient.Timeout of 100 seconds elapsing.	System.TimeoutException: The operation was canceled.	System.Threading.Tasks.TaskCanceledException: The operation was canceled.	System.IO.IOException: Unable to read data from the transport connection: The I/O operation has been aborted because of either a thread exit or an application request..	System.Net.Sockets.SocketException (995): The I/O operation has been aborted because of either a thread exit or an application request.
 HttpStatusCode is Gone.	Google.Apis.Requests.RequestError	Google.GoogleApiException: The service drive has thrown an exception. HttpStatusCode is Gone. Internal Error	HttpStatusCode is InternalServerError.	Google.Apis.Requests.RequestError	Google.GoogleApiException: The service drive has thrown an exception. HttpStatusCode is InternalServerError. 
