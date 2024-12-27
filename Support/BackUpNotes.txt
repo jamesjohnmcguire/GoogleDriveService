@@ -79,3 +79,17 @@ Back Up Manager
 		backUpService.BackUp
 			account.BackUp.
 				foreach (DriveMapping driveMapping in Account.DriveMappings)
+Root Folder Not Being Checked for Deletion
+Example
+	"DriveParentFolderId": "1-9jnAmtWFxDeQ5HcH5B5ChyA43QzWGnh",
+	"Path": "C:/Users/JamesMc/Data/ProgramData/Email/EmailStores/PstExports",
+	"Excludes":
+	[
+		{
+			"Path": "*.tmp",
+			"ExcludeType": 3
+		}
+	]
+Back Ups
+	Log whether it is a new upload or updating an existing one
+	Back Up Development	Remove key	This key was found at the following URL: https://github.com/jamesjohnmcguire/GoogleDriveService/blob/27ee2770e111a9acc19555d95bd07c3c21cef75e/SourceCode/DevelopmentTools/GoogleDriveCli/GoogleDriveServiceAccount.json
