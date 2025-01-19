@@ -93,3 +93,21 @@ Example
 Back Ups
 	Log whether it is a new upload or updating an existing one
 	Back Up Development	Remove key	This key was found at the following URL: https://github.com/jamesjohnmcguire/GoogleDriveService/blob/27ee2770e111a9acc19555d95bd07c3c21cef75e/SourceCode/DevelopmentTools/GoogleDriveCli/GoogleDriveServiceAccount.json
+Back Ups
+	User rate limit exceeded. [403]
+
+	[2025-01-16 20:19:52 ERR] Exception at: BackUp: Line: 559
+	The service drive has thrown an exception.
+	HttpStatusCode is Forbidden.
+	Google.Apis.Requests.RequestError
+	User rate limit exceeded. [403]
+	Errors [
+		Message[User rate limit exceeded.] Location[ - ] Reason[userRateLimitExceeded] Domain[usageLimits]
+	]
+
+	Google.GoogleApiException: The service drive has thrown an exception. HttpStatusCode is Forbidden. User rate limit exceeded.
+	   at Google.Apis.Requests.ClientServiceRequest`1.ParseResponse(HttpResponseMessage response)
+	   at Google.Apis.Requests.ClientServiceRequest`1.Execute()
+	   at DigitalZenWorks.BackUp.Library.GoogleDrive.CreateFolder(String parent, String folderName) in C:\Users\JamesMc\Data\Clients\DigitalZenWorks\BackUpManager\SourceCode\BackUp.Library\GoogleDrive.cs:line 177
+	   at DigitalZenWorks.BackUp.Library.GoogleDrive.GetServerFolder(String driveParentId, String path, IList`1 serverFiles) in C:\Users\JamesMc\Data\Clients\DigitalZenWorks\BackUpManager\SourceCode\BackUp.Library\GoogleDrive.cs:line 423
+	   at DigitalZenWorks.BackUp.Library.GoogleServiceAccount.BackUp(String driveParentId, String path, IList`1 serverFiles, IList`1 excludes) in C:\Users\JamesMc\Data\Clients\DigitalZenWorks\BackUpManager\SourceCode\BackUp.Library\GoogleServiceAccount.cs:line 501
