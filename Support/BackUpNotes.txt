@@ -1,38 +1,72 @@
-Json
-	New Configuration
-		Top	Service Account
-			Sub Top Key	The immediate directory to be backed up
-				"DriveParentFolderId": "1iGwePlkxdI-phn_2cIIImhnnEaciqBgO",
-				"Path": "%USERPROFILE%/Data/External",
-				Excludes
+Testing
+	Working test
+		curl -i -v -H "Authorization: Bearer ya29.c.Ko4B4AdGrCaL70mj63gWploZ3Y06CYZvAupwKVFWXEPlV12KmRPGzra8Obs6mOASLjQO8XMhcF0-fT2NiHZdCbBSfHJ6zzYKLzhNqp_U7VrpRTr5ZLrIO9rCFqjnQ9nYodgdhVvOO3y_PhNc0Z1F2gdl7o0eqM9QZ64OtqB7dqHpMkJJ-5PKt4DDTiu_yM5Wvw" -H "Accept: application/json" -H "x-goog-api-client: gl-php/7.4.3 gdcl/2.4.0" -H "host: www.googleapis.com" -H "content-type: application/json" -H "user-agent: Google Drive API Video Uploader google-api-php-client/2.4.0" https://www.googleapis.com/drive/v3/files
+Issues
+	Directory Double Check
+		OK, as is, would be nice to get rid the double check, though
+		Why the double hit?
+			first is check the amount owned by 'me'
+			second is all files on server
+		Why 0 the first time?
+			0 is the amount owned by 'me'
+		Can it be optimized?
+			??
+				The first is there to remove abandoned files
+				Probably need to investigate / test more
+
+			1iGwePlkxdI-phn_2cIIImhnnEaciqBgO (Data) count: 0
+			1iGwePlkxdI-phn_2cIIImhnnEaciqBgO (Data) count: 5
+	Attempting to delete a file not owned by me
+		[2024-08-27 15:06:30 WRN] Attempting to delete a file not owned by me: Zenlok.pst
+		Attempting to delete a file not owned by me: Entertainment
+		Attempting to delete a file not owned by me: .iTunes Preferences.plist
+	Root Folder Not Being Checked for Deletion
+		Example
+			"DriveParentFolderId": "1-9jnAmtWFxDeQ5HcH5B5ChyA43QzWGnh",
+			"Path": "%USERPROFILE%/Data/ProgramData/Email/EmailStores/PstExports",
+			"Excludes":
+			[
+				{
+					"Path": "*.tmp",
+					"ExcludeType": 3
+				}
+			]
+	User rate limit exceeded. [403]
+		[2025-01-16 20:19:52 ERR] Exception at: BackUp: Line: 559
+		The service drive has thrown an exception.
+		HttpStatusCode is Forbidden.
+		Google.Apis.Requests.RequestError
+		User rate limit exceeded. [403]
+		Errors [
+			Message[User rate limit exceeded.] Location[ - ] Reason[userRateLimitExceeded] Domain[usageLimits]
+		]
+		Google.GoogleApiException: The service drive has thrown an exception. HttpStatusCode is Forbidden. User rate limit exceeded.
+		   at Google.Apis.Requests.ClientServiceRequest`1.ParseResponse(HttpResponseMessage response)
+		   at Google.Apis.Requests.ClientServiceRequest`1.Execute()
+		   at DigitalZenWorks.BackUp.Library.GoogleDrive.CreateFolder(String parent, String folderName) in C:\Users\JamesMc\Data\Clients\DigitalZenWorks\BackUpManager\SourceCode\BackUp.Library\GoogleDrive.cs:line 177
+		   at DigitalZenWorks.BackUp.Library.GoogleDrive.GetServerFolder(String driveParentId, String path, IList`1 serverFiles) in C:\Users\JamesMc\Data\Clients\DigitalZenWorks\BackUpManager\SourceCode\BackUp.Library\GoogleDrive.cs:line 423
+		   at DigitalZenWorks.BackUp.Library.GoogleServiceAccount.BackUp(String driveParentId, String path, IList`1 serverFiles, IList`1 excludes) in SourceCode\BackUp.Library\GoogleServiceAccount.cs:line 501
+Json Configuration File
+	Top	Service Account
+		Sub Top Key	The immediate directory to be backed up
+			"DriveParentFolderId": "1iGwePlkxdI-phn_2cIIImhnnEaciqBgO",
+			"Path": "%USERPROFILE%/Data/External",
+			Excludes
+Async Version
+	System.Threading.Tasks.TaskCanceledException
+	ObjectDisposedException
+
+	for each file
+		while processing list at max
+			wait
+		start processing
+		add file to processing list
+
+	when any
+		processing list --
 Google Drive
 	Finding RootSharedFolderId (aka Parent)
 		You need to manually open up your google drive account in a browser, then navigate to the folder where you want to be root shard folder and click share.  Add your service account email address there.  Also, copy the core part of the shared link, that is the RootSharedFolderId.
-	Working test
-		curl -i -v -H "Authorization: Bearer ya29.c.Ko4B4AdGrCaL70mj63gWploZ3Y06CYZvAupwKVFWXEPlV12KmRPGzra8Obs6mOASLjQO8XMhcF0-fT2NiHZdCbBSfHJ6zzYKLzhNqp_U7VrpRTr5ZLrIO9rCFqjnQ9nYodgdhVvOO3y_PhNc0Z1F2gdl7o0eqM9QZ64OtqB7dqHpMkJJ-5PKt4DDTiu_yM5Wvw" -H "Accept: application/json" -H "x-goog-api-client: gl-php/7.4.3 gdcl/2.4.0" -H "host: www.googleapis.com" -H "content-type: application/json" -H "user-agent: Google Drive API Video Uploader google-api-php-client/2.4.0" https://www.googleapis.com/drive/v3/files
-	Async Version
-		System.Threading.Tasks.TaskCanceledException
-		ObjectDisposedException
-
-		for each file
-			while processing list at max
-				wait
-			start processing
-			add file to processing list
-
-		when any
-			processing list --
-	Google\Service\Drive\FileList Object
-		[collection_key:protected] => files
-		[filesType:protected] => Google\Service\Drive\DriveFile
-		[filesDataType:protected] => array
-		[incompleteSearch] =>
-		[kind] =>
-		[nextPageToken] => ~!!~AI9FV7SpiNbY0FpFQqt2I_75FFV2Qv2oFo3hUq8oejmqNeE_609DWXL9_YoT6QwnpaTDxlH0Vw39qyQ-k06cewQ4qfv4-Qu60Psdqg33bfJbq42EbIvZRMse46-0fM5zXyIEI1LwH-kIlp8nMWeufRHynQLbQjw6k6fnsINeoowx8b2c5XIVHH9_emU-KhyPvSnNs1Ob2P57UMibJkrLBEXp8xqwkSpvbD2OPC5F-yW88ifdolTdLlTXKOJffI2APkE1tUzXZ_JEFadm2F9Jtd1_WdVOCvqdqg==
-		[internal_gapi_mappings:protected] => Array
-		[modelData:protected] => Array
-		[processed:protected] => Array
-		[files] => Array
 Resources
 	Google Drive
 		https://developers.google.com/api-client-library/dotnet/guide/media_upload#:~:text=The%20default%20chunk%20size%20is,to%20any%20multiple%20of%20256KB.
@@ -55,59 +89,26 @@ Program Flow
 						BackUp	driveParentFolderId	path	serverFiles	Excludes
 	Program::Main
 		BackUpService::BackUp(configurationFile)
-Starting Back Up Manager Version
-mklink /D D:\Users\JamesMc\Data\Clients\PropertyImages "D:\Users\JamesMc\Data\Clients\AxisPoint\OfJapan\SourceCode\Web\data\PropertyImages" 
-Back Up Manager
-	[2024-08-27 15:06:30 WRN] Attemping to delete a file not owned by me: Zenlok.pst
-	Attempting to delete a file not owned by me: Entertainment
-	Attempting to delete a file not owned by me: .iTunes Preferences.plist
-	Directory Double Check
-		Why the double hit?
-			first is check the amount owned by 'me'
-			second is all files on server
-		Why 0 the first time?
-			0 is the amount owned by 'me'
-		Can it be optimized?
-			??
-				The first is there to remove abandoned files
-				Probably need to investigate / test more
-
-		1iGwePlkxdI-phn_2cIIImhnnEaciqBgO (Data) count: 0
-		1iGwePlkxdI-phn_2cIIImhnnEaciqBgO (Data) count: 5
-	Process Flow
+Process Flow
 	Main
 		backUpService.BackUp
 			account.BackUp.
 				foreach (DriveMapping driveMapping in Account.DriveMappings)
-Root Folder Not Being Checked for Deletion
-Example
-	"DriveParentFolderId": "1-9jnAmtWFxDeQ5HcH5B5ChyA43QzWGnh",
-	"Path": "C:/Users/JamesMc/Data/ProgramData/Email/EmailStores/PstExports",
-	"Excludes":
-	[
-		{
-			"Path": "*.tmp",
-			"ExcludeType": 3
-		}
-	]
-Back Ups
-	Log whether it is a new upload or updating an existing one
-	Back Up Development	Remove key	This key was found at the following URL: https://github.com/jamesjohnmcguire/GoogleDriveService/blob/27ee2770e111a9acc19555d95bd07c3c21cef75e/SourceCode/DevelopmentTools/GoogleDriveCli/GoogleDriveServiceAccount.json
-Back Ups
-	User rate limit exceeded. [403]
+API
+	BackUp(
+		IService Service	An instanciation of the IService Interface
+		string PathName	Directory Path to Back Up
+		Location BackUpLocation	An indicator Id of the Destination of Back Up
+	BackUp(
+		BackUpDirectory A Directory Path to Back Up along with a List of Sub-Directory Excludes
 
-	[2025-01-16 20:19:52 ERR] Exception at: BackUp: Line: 559
-	The service drive has thrown an exception.
-	HttpStatusCode is Forbidden.
-	Google.Apis.Requests.RequestError
-	User rate limit exceeded. [403]
-	Errors [
-		Message[User rate limit exceeded.] Location[ - ] Reason[userRateLimitExceeded] Domain[usageLimits]
-	]
 
-	Google.GoogleApiException: The service drive has thrown an exception. HttpStatusCode is Forbidden. User rate limit exceeded.
-	   at Google.Apis.Requests.ClientServiceRequest`1.ParseResponse(HttpResponseMessage response)
-	   at Google.Apis.Requests.ClientServiceRequest`1.Execute()
-	   at DigitalZenWorks.BackUp.Library.GoogleDrive.CreateFolder(String parent, String folderName) in C:\Users\JamesMc\Data\Clients\DigitalZenWorks\BackUpManager\SourceCode\BackUp.Library\GoogleDrive.cs:line 177
-	   at DigitalZenWorks.BackUp.Library.GoogleDrive.GetServerFolder(String driveParentId, String path, IList`1 serverFiles) in C:\Users\JamesMc\Data\Clients\DigitalZenWorks\BackUpManager\SourceCode\BackUp.Library\GoogleDrive.cs:line 423
-	   at DigitalZenWorks.BackUp.Library.GoogleServiceAccount.BackUp(String driveParentId, String path, IList`1 serverFiles, IList`1 excludes) in C:\Users\JamesMc\Data\Clients\DigitalZenWorks\BackUpManager\SourceCode\BackUp.Library\GoogleServiceAccount.cs:line 501
+	IService
+		Properties
+			Name	/	Type
+		Methods
+			Authorize
+			BackUp
+	BackUpDirectory
+		string PathName	Directory Path to Back Up
+		IList<Excludes> Excludes	A List of Sub-Directory Excludes

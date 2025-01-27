@@ -1,41 +1,37 @@
-WTF?	[2024-10-26 03:12:10 INF] Checking: C:\Users\JamesMc\Data\ProgramData\Outlook\~Projects.pst.tmp
-What to do?		Attempting to delete a file not owned by me: sentinel
-Add Sync for other PCs
-Exclude tilde files, such as ~$MAKER INFO.xlsx
-Set Retry at: [ERR] Exception at: GetFilesAsync: Line: 398	System.Threading.Tasks.TaskCanceledException: The request was canceled due to the configured HttpClient.Timeout of 100 seconds elapsing.	System.TimeoutException: The operation was canceled.	System.Threading.Tasks.TaskCanceledException: The operation was canceled.	System.IO.IOException: Unable to read data from the transport connection: The I/O operation has been aborted because of either a thread exit or an application request..	System.Net.Sockets.SocketException (995): The I/O operation has been aborted because of either a thread exit or an application request.
-HttpStatusCode is Gone.	Google.Apis.Requests.RequestError	Google.GoogleApiException: The service drive has thrown an exception. HttpStatusCode is Gone. Internal Error	HttpStatusCode is InternalServerError.	Google.Apis.Requests.RequestError	Google.GoogleApiException: The service drive has thrown an exception. HttpStatusCode is InternalServerError. 
-Attemping to delete a file not owned by me
-Add "trashed=true"
-When deleting a file, also show it's id
-Test if top level is missing
-Remove C:\Users\User\AppData\Local\Backup\lastCompatBackupTime.txt
-Attemping to delete a file not owned by me: Tech.tws
-When "Julie Driscoll, Brian Auger & The Trinit" Changed to "Julie Driscoll, Brian Auger & The Trinity", the former was not deleted, because it was not specified nor considered a top level directory to check.
-When moving from Entertainment/Music/Music to Entertainment/Music, abandoned files not removed
-ABBA.lnk as top level
+Restore	Implement	Restore, Sync
+Back Up	Add Command Line Parameter -- config point to the config file
+API	Make Cleaner API	Improve APIs
+Logging	Log whether it is a new upload or updating an existing one
+Security	Verify Key Removed:	 https://github.com/jamesjohnmcguire/GoogleDriveService/blob/27ee2770e111a9acc19555d95bd07c3c21cef75e/SourceCode/DevelopmentTools/GoogleDriveCli/GoogleDriveServiceAccount.json
+Back Up	Root Folder Not Being Checked for Deletion
+Back Up	Verify that %USERPROFILE% Environment Variable Can Be Used
+Back Up	Ensure that No Temp Files are attempted to be backed up:	[2024-10-26 03:12:10 INF] Checking: %USERPROFILE%\Data\ProgramData\Outlook\~Projects.pst.tmp
+Back Up	Attempting to delete a file not owned by me: sentinel
+Back Up	Exclude tilde files, such as ~$MAKER INFO.xlsx
+Back Up	Set Retry at: [ERR] Exception at: GetFilesAsync: Line: 398	System.Threading.Tasks.TaskCanceledException: The request was canceled due to the configured HttpClient.Timeout of 100 seconds elapsing.	System.TimeoutException: The operation was canceled.	System.Threading.Tasks.TaskCanceledException: The operation was canceled.	System.IO.IOException: Unable to read data from the transport connection: The I/O operation has been aborted because of either a thread exit or an application request..	System.Net.Sockets.SocketException (995): The I/O operation has been aborted because of either a thread exit or an application request.
+Back Up	HttpStatusCode is Gone.	Google.Apis.Requests.RequestError	Google.GoogleApiException: The service drive has thrown an exception. HttpStatusCode is Gone. Internal Error	HttpStatusCode is InternalServerError.	Google.Apis.Requests.RequestError	Google.GoogleApiException: The service drive has thrown an exception. HttpStatusCode is InternalServerError. 
+Back Up	Add "trashed=true"
+Back Up	When deleting a file, also show it's id
+Back Up	Test if top level is missing
+Tests	Add Tests to Ensure that Abandanded and Excluded Files Are Deleted and Not Backed Up
 Eventually, add global property to determine if this item should be deleted anywhere or only in the specified directory
 Revisit RemoveTopLevelAbandonedFiles
 RemoveAbandonedFiles(files, serverFiles); should include check for 'keep'
 Make parameter order consistent
 Update Json config to new configuration
-https://github.com/jamesjohnmcguire/GoogleDriveService	Fix README formatting
+README	https://github.com/jamesjohnmcguire/GoogleDriveService	Fix README formatting
 Improve Message:	Created Folder ID: 1k_XOMirfTlDlB-sx19qyPT4TKnpZoxTO Name Becky!
 Implement help command
 Add first time use, like installer
 Enable different types of authorization
-Improve APIs
 Add support for other services, such as OneDrive
 Library	Improve parameters
 Doesn't remove top-level directories that are no longer listed in the configuration file	RemoveAbandedFolders at the very top level
 Console	Establish clear starting point for console
 Implement https://stackoverflow.com/questions/50416340/how-to-find-the-whole-hierarchy-of-parent-folders-for-a-google-drive-file
-Add more colors	https://stackoverflow.com/questions/34034730/how-to-enable-color-for-php-cli
 Retry	The service drive has thrown an exception: Google.GoogleApiException: Google.Apis.Requests.RequestError	Internal Error [500]	Google.GoogleApiException	retry
 Set configuration directory as command line parameter
 Handle? System.Net.Http.HttpRequestException: No such host is known. (www.googleapis.com:443)
-Exclude directories listed in .gitignore
-Remove directories listed in .gitignore
-ignore git files
 free native resources	needed?
 
 Finished
