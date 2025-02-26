@@ -1,3 +1,4 @@
+Resources.pst not being removed, because of exclude type '5'.  But even afterwards, when it is loaded by another account, if set to normal exclude, it would get a warning 'not owned by me' and not deleted.  So, in this case, I manually deleted the file from the first account, so it can be uploaded by the second account.  It would be preferred for this to happen automatically without manual intervention.
 Why is always loading?	2023-01-30  07:03 AM     1,108,852,123 Subtitles.mp4
 Restore	Implement	Restore, Sync
 Back Up	Add Command Line Parameter -- config point to the config file
@@ -14,7 +15,7 @@ Back Up	HttpStatusCode is Gone.	Google.Apis.Requests.RequestError	Google.GoogleA
 Back Up	Add "trashed=true"
 Back Up	When deleting a file, also show it's id
 Back Up	Test if top level is missing
-Tests	Add Tests to Ensure that Abandanded and Excluded Files Are Deleted and Not Backed Up
+Tests	Add Tests to Ensure that Abandoned and Excluded Files Are Deleted and Not Backed Up
 Eventually, add global property to determine if this item should be deleted anywhere or only in the specified directory
 Revisit RemoveTopLevelAbandonedFiles
 RemoveAbandonedFiles(files, serverFiles); should include check for 'keep'
