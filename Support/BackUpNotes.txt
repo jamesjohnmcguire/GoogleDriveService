@@ -112,3 +112,7 @@ API
 	BackUpDirectory
 		string PathName	Directory Path to Back Up
 		IList<Excludes> Excludes	A List of Sub-Directory Excludes
+Excluded items	These are items that should be ignored, not processed, not backed up, such as temporary generated files
+	If these exist on the server, and owned by me, should be then deleted
+Abandoned items	There are times that exist on the server but not in the current processed directory.
+	If these are owned by me and are not marked as keep, should be then deleted
