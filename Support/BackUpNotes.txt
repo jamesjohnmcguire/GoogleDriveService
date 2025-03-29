@@ -116,3 +116,108 @@ Excluded items	These are items that should be ignored, not processed, not backed
 	If these exist on the server, and owned by me, should be then deleted
 Abandoned items	There are times that exist on the server but not in the current processed directory.
 	If these are owned by me and are not marked as keep, should be then deleted
+Interfaces
+	Here's an example of how you might use C# to interface with OneDrive and Google Drive for a backup library:
+		OneDrive:
+			using Microsoft.Graph;
+			using Microsoft.Identity.Client;
+			using System;
+			using System.IO;
+			using System.Threading.Tasks;
+
+			public class OneDriveBackupService
+			{
+				private readonly GraphServiceClient _graphClient;
+
+				public OneDriveBackupService(string clientId, string tenantId, string clientSecret)
+				{
+					var confidentialClientApplication = ConfidentialClientApplicationBuilder
+						.Create(clientId)
+						.WithTenantId(tenantId)
+						.WithClientSecret(clientSecret)
+						.Build();
+
+					var authProvider = new ClientCredentialProvider(confidentialClientApplication);
+
+					_graphClient = new GraphServiceClient(authProvider);
+				}
+
+				public async Task UploadFile(string filePath, string destinationFolderId)
+				{
+					var fileName = Path.GetFileName(filePath);
+					var stream = new FileStream(filePath, FileMode.Open);
+
+					await _graphClient.Me.Drive.Items[destinationFolderId]
+						.ItemWithPath(fileName)
+						.Content
+						.Request()
+						.PutAsync<DriveItem>(stream);
+				}
+			}	
+		Google Drive:
+			using Google.Apis.Auth.OAuth2;
+			using Google.Apis.Drive.v3;
+			using Google.Apis.Services;
+			using System.IO;
+			using System.Threading.Tasks;
+
+			public class GoogleDriveBackupService
+			{
+				private readonly DriveService _driveService;
+
+				public GoogleDriveBackupService(string applicationName, string credentialsFilePath)
+				{
+					var credentials = GoogleCredential.FromFile(credentialsFilePath)
+						.CreateScoped(DriveService.ScopeConstants.Drive);
+
+					_driveService = new DriveService(new BaseClientService.Initializer()
+					{
+						HttpClientInitializer = credentials,
+						ApplicationName = applicationName
+					});
+				}
+
+				public async Task UploadFile(string filePath, string destinationFolderId)
+				{
+					var fileName = Path.GetFileName(filePath);
+					var fileMetadata = new Google.Apis.Drive.v3.Data.File()
+					{
+						Name = fileName,
+						Parents = new[] { destinationFolderId }
+					};
+
+					using var stream = new FileStream(filePath, FileMode.Open);
+
+					await _driveService.Files.Create(fileMetadata, stream, "application/octet-stream")
+						.UploadAsync();
+				}
+			}
+		Interface
+			public interface IBackupService
+			{
+				Task UploadFile(string filePath, string destinationFolderId);
+			}
+
+
+
+			public class OneDriveBackupService : IBackupService
+			{
+				// Implementation for OneDrive
+			}
+
+			public class GoogleDriveBackupService : IBackupService
+			{
+				// Implementation for Google Drive
+			}
+
+
+			var backupServices = new List<IBackupService>
+			{
+				new OneDriveBackupService(clientId, tenantId, clientSecret),
+				new GoogleDriveBackupService(applicationName, credentialsFilePath)
+			};
+
+			foreach (var backupService in backupServices)
+			{
+				await backupService.UploadFile(filePath, destinationFolderId);
+			}
