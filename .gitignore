@@ -19,3 +19,5 @@ bld/
 # NUNIT
 *.VisualState.xml
 TestResult.xml
+
+/SourceCode/BackUpManager/Properties/launchSettings.json
