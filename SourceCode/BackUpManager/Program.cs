@@ -47,7 +47,7 @@ namespace BackUpManager
 
 				arguments = Commands.UpdateArguments(commands, arguments);
 
-				CommandLineArguments commandLine = new (commands, arguments);
+				CommandLineInstance commandLine = new (commands, arguments);
 
 				if (commandLine.ValidArguments == false)
 				{
