@@ -11,6 +11,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Globalization;
+using System.Linq;
 
 namespace BackUpManager
 {
@@ -39,7 +40,7 @@ namespace BackUpManager
 			return commands;
 		}
 
-		public static void ShowHelp(string additionalMessage)
+		public static void ShowHelp(string additionalMessage = null)
 		{
 			FileVersionInfo fileVersionInfo =
 				VersionSupport.GetAssemblyInformation();
@@ -67,26 +68,32 @@ namespace BackUpManager
 			}
 		}
 
-		public static string[] UpdateArguments(string[] arguments)
+		public static string[] UpdateArguments(
+			IList<Command> commands, string[] arguments)
 		{
 			if (arguments == null || arguments.Length == 0)
 			{
 				arguments = new string[1];
 				arguments[0] = "backup";
 			}
-			else if (!arguments[0].Equals(
-				"backup", StringComparison.Ordinal))
+			else
 			{
-				int length = arguments.Length + 1;
-				string[] newArguments = new string[length];
-				newArguments[0] = "backup";
+				string requestedCommand = arguments[0];
+				bool exists = commands.Any(c => c.Name == requestedCommand);
 
-				for (int index = 0; index < arguments.Length; index++)
+				if (exists == false)
 				{
-					newArguments[index + 1] = arguments[index];
-				}
+					int length = arguments.Length + 1;
+					string[] newArguments = new string[length];
+					newArguments[0] = "backup";
 
-				arguments = newArguments;
+					for (int index = 0; index < arguments.Length; index++)
+					{
+						newArguments[index + 1] = arguments[index];
+					}
+
+					arguments = newArguments;
+				}
 			}
 
 			return arguments;

@@ -45,13 +45,14 @@ namespace BackUpManager
 
 				IList<Command> commands = Commands.GetCommands();
 
-				arguments = Commands.UpdateArguments(arguments);
+				arguments = Commands.UpdateArguments(commands, arguments);
 
 				CommandLineArguments commandLine = new (commands, arguments);
 
 				if (commandLine.ValidArguments == false)
 				{
 					Log.Error(commandLine.ErrorMessage);
+					commandLine.ShowHelp();
 				}
 				else
 				{
@@ -72,6 +73,10 @@ namespace BackUpManager
 
 							await backUpService.BackUp(configurationFile).
 								ConfigureAwait(false);
+							break;
+						case "help":
+							Commands.ShowHelp();
+							commandLine.ShowHelp();
 							break;
 					}
 				}
