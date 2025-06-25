@@ -25,11 +25,6 @@ CD ..\win-x64
 MOVE BackUpManager-win-x64.zip ..
 
 CD ..
-REM Unfortunately, the following command does not work from the windows command
-REM console.  Use a bash terminal.
-REM gh release create v%2 --notes %3 *.zip
-
-REM Old style
-REM hub release create -a BackUpManager.zip -m "%2" v%2
+gh release create v%2 --notes %3 *.zip
 
 :end
