@@ -2,8 +2,6 @@
 
 	<PropertyGroup>
 		<AnalysisMode>All</AnalysisMode>
-		<AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
-		<AssemblyName>DigitalZenWorks.BackUp.Library</AssemblyName>
 		<AssemblyVersion>1.0.0.0</AssemblyVersion>
 		<Authors>James John McGuire</Authors>
 		<CodeAnalysisRuleSet>..\CodeAnalysis.ruleset</CodeAnalysisRuleSet>
@@ -12,16 +10,12 @@
 		<EnableNETAnalyzers>true</EnableNETAnalyzers>
 		<FileVersion>1.7.242.0</FileVersion>
 		<GenerateDocumentationFile>true</GenerateDocumentationFile>
-		<LangVersion>Latest</LangVersion>
 		<NeutralLanguage>en-US</NeutralLanguage>
-		<OutputPath>$(SolutionDir)\Bin\$(Configuration)\$(Platform)</OutputPath>
 		<TargetFramework>net9.0</TargetFramework>
 		<Version>1.7.242</Version>
 	</PropertyGroup>
 
 	<ItemGroup>
-		<PackageReference Include="Common.Logging" Version="3.4.1" />
-		<PackageReference Include="Common.Logging.Core" Version="3.4.1" />
 		<PackageReference Include="Google.Apis.Drive.v3" Version="1.69.0.3783" />
 		<PackageReference Include="Microsoft.Extensions.FileSystemGlobbing" Version="9.0.6" />
 		<PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="9.0.6" />

@@ -2,7 +2,6 @@
 
 	<PropertyGroup>
 		<ImplicitUsings>enable</ImplicitUsings>
-		<IsPackable>false</IsPackable>
 		<IsTestProject>true</IsTestProject>
 		<Nullable>enable</Nullable>
 		<TargetFramework>net9.0</TargetFramework>
