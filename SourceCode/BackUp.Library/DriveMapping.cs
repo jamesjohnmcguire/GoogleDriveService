@@ -103,7 +103,7 @@ namespace DigitalZenWorks.BackUp.Library
 						exclude.Path.Contains(
 							'*', StringComparison.OrdinalIgnoreCase))
 					{
-						IList<Exclude> newExcludes =
+						List<Exclude> newExcludes =
 							ExpandWildCard(exclude.Path);
 
 						if (newExcludes.Count > 0)
@@ -112,7 +112,7 @@ namespace DigitalZenWorks.BackUp.Library
 							IEnumerable<Exclude> interim =
 								expandedExcludes.Concat(newExcludes);
 
-							expandedExcludes = interim.ToList();
+							expandedExcludes = [.. interim];
 						}
 					}
 				}
@@ -142,7 +142,7 @@ namespace DigitalZenWorks.BackUp.Library
 						exclude.Path.Contains(
 							'*', StringComparison.OrdinalIgnoreCase))
 					{
-						IList<Exclude> newExcludes =
+						List<Exclude> newExcludes =
 							ExpandWildCard(exclude.Path);
 
 						if (newExcludes.Count > 0)
@@ -150,7 +150,7 @@ namespace DigitalZenWorks.BackUp.Library
 							excludes.Remove(exclude);
 							IEnumerable<Exclude> interim =
 								excludes.Concat(newExcludes);
-							excludes = interim.ToList();
+							excludes = [.. interim];
 						}
 					}
 				}

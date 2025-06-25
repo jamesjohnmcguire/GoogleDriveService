@@ -24,7 +24,7 @@ namespace BackUpManager
 	/// <summary>
 	/// Back up manager program class.
 	/// </summary>
-	public static class Program
+	internal static class Program
 	{
 		/// <summary>
 		/// The program's main entry point.
