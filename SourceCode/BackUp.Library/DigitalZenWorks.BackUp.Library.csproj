@@ -4,7 +4,6 @@
 		<AnalysisMode>All</AnalysisMode>
 		<AssemblyVersion>1.0.0.0</AssemblyVersion>
 		<Authors>James John McGuire</Authors>
-		<CodeAnalysisRuleSet>..\CodeAnalysis.ruleset</CodeAnalysisRuleSet>
 		<Company>Digital Zen Works</Company>
 		<Copyright>Copyright © 2020 - 2025 James John McGuire</Copyright>
 		<EnableNETAnalyzers>true</EnableNETAnalyzers>
