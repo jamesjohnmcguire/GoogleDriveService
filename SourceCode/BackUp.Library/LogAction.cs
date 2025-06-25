@@ -15,20 +15,31 @@ namespace DigitalZenWorks.BackUp.Library
 		private static readonly Action<ILogger, string, Exception>
 			LogError = LoggerMessage.Define<string>(
 				LogLevel.Error,
-				1,
+				new EventId(1000, nameof(LogError)),
 				"{Message}");
 
 		private static readonly Action<ILogger, string, Exception>
 			LogInformation = LoggerMessage.Define<string>(
 				LogLevel.Information,
-				1,
+				new EventId(1000, nameof(LogInformation)),
 				"{Message}");
 
 		private static readonly Action<ILogger, string, Exception>
 			LogWarning = LoggerMessage.Define<string>(
 				LogLevel.Warning,
-				1,
+				new EventId(1000, nameof(LogWarning)),
 				"{Message}");
+
+		/// <summary>
+		/// Log an error.
+		/// </summary>
+		/// <param name="logger">The ILogger interface.</param>
+		/// <param name="message">The message.</param>
+		public static void Error(
+			ILogger logger, string message)
+		{
+			LogError(logger, message, null);
+		}
 
 		/// <summary>
 		/// Log an error.
@@ -55,7 +66,8 @@ namespace DigitalZenWorks.BackUp.Library
 			[CallerMemberName] string caller = null,
 			[CallerLineNumber] int lineNumber = 0)
 		{
-			string message = $"Exception at: {caller}: Line: {lineNumber}";
+			string message = $"Unhandled exception in {caller} " +
+				$"(line {lineNumber}): {exception.Message}";
 			LogAction.Error(logger, message, exception);
 		}
 
@@ -67,6 +79,16 @@ namespace DigitalZenWorks.BackUp.Library
 		public static void Information(ILogger logger, string message)
 		{
 			LogInformation(logger, message, null);
+		}
+
+		/// <summary>
+		/// Log an warning.
+		/// </summary>
+		/// <param name="logger">The ILogger interface.</param>
+		/// <param name="message">The message.</param>
+		public static void Warning(ILogger logger, string message)
+		{
+			LogWarning(logger, message, null);
 		}
 
 		/// <summary>
