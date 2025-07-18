@@ -1,3 +1,5 @@
+BackUpManager help	Beginning in awkward log format
+Add to Tests?	BackUpManager backup --config %appdata%\DigitalZenWorks\BackUpManager\BackUp.json
 Resources.pst not being removed, because of exclude type '5'.  But even afterwards, when it is loaded by another account, if set to normal exclude, it would get a warning 'not owned by me' and not deleted.  So, in this case, I manually deleted the file from the first account, so it can be uploaded by the second account.  It would be preferred for this to happen automatically without manual intervention.
 Why is always loading?	2023-01-30  07:03 AM     1,108,852,123 Subtitles.mp4
 Restore	Implement	Restore, Sync
