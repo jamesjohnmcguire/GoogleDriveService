@@ -45,7 +45,7 @@ namespace DigitalZenWorks.BackUp.Library
 
 				if ((accounts == null) || (accounts.Count == 0))
 				{
-					LogAction.Error(logger, "No accounts information", null);
+					Log.Error(logger, "No accounts information", null);
 				}
 				else
 				{
@@ -55,7 +55,7 @@ namespace DigitalZenWorks.BackUp.Library
 						{
 							string name = accountData.AccountIdentifier;
 							string message = "Backing up to account: " + name;
-							LogAction.Information(logger, message);
+							Log.Information(logger, message);
 
 							switch (accountData.AccountType)
 							{
@@ -77,14 +77,14 @@ namespace DigitalZenWorks.BackUp.Library
 						}
 						catch (System.Net.Http.HttpRequestException exception)
 						{
-							LogAction.Error(logger, "HTTP Error", exception);
+							Log.Error(logger, "HTTP Error", exception);
 						}
 					}
 				}
 			}
 			catch (JsonException exception)
 			{
-				LogAction.Error(logger, "Accounts File Malformed", exception);
+				Log.Error(logger, "Accounts File Malformed", exception);
 			}
 		}
 

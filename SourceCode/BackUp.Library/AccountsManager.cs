@@ -57,7 +57,7 @@ namespace DigitalZenWorks.BackUp.Library
 			}
 			else
 			{
-				LogAction.Error(logger, "Accounts file doesn't exist", null);
+				Log.Error(logger, "Accounts file doesn't exist", null);
 			}
 
 			return accounts;

@@ -46,7 +46,7 @@ namespace DigitalZenWorks.BackUp.Library
 		{
 			if (serverFolder == null)
 			{
-				LogAction.Warning(
+				Log.Warning(
 					Logger, "server folder is null", null);
 			}
 			else
@@ -56,11 +56,11 @@ namespace DigitalZenWorks.BackUp.Library
 					"Checking server file {0} {1}",
 					serverFolder.Id,
 					serverFolder.Name);
-				LogAction.Information(Logger, message);
+				Log.Information(Logger, message);
 
 				if (serverFolder.Owners == null)
 				{
-					LogAction.Warning(
+					Log.Warning(
 						Logger, "server folder owners null", null);
 				}
 				else
@@ -75,12 +75,12 @@ namespace DigitalZenWorks.BackUp.Library
 						ownersInfo += " " + item;
 					}
 
-					LogAction.Information(Logger, ownersInfo);
+					Log.Information(Logger, ownersInfo);
 				}
 
 				if (serverFolder.Parents == null)
 				{
-					LogAction.Warning(
+					Log.Warning(
 						Logger, "server folder parents is null", null);
 				}
 				else
@@ -93,20 +93,20 @@ namespace DigitalZenWorks.BackUp.Library
 						parentsInfo += " " + item;
 					}
 
-					LogAction.Information(Logger, parentsInfo);
+					Log.Information(Logger, parentsInfo);
 				}
 
 				if (serverFolder.OwnedByMe == true)
 				{
-					LogAction.Information(Logger, "File owned by me");
+					Log.Information(Logger, "File owned by me");
 				}
 				else if (serverFolder.Shared == true)
 				{
-					LogAction.Information(Logger, "File shared with me");
+					Log.Information(Logger, "File shared with me");
 				}
 				else
 				{
-					LogAction.Information(
+					Log.Information(
 						Logger, "File is neither owned by or shared with me");
 				}
 			}
@@ -132,7 +132,7 @@ namespace DigitalZenWorks.BackUp.Library
 				(exception is ArgumentException ||
 				exception is FileNotFoundException)
 			{
-				LogAction.Exception(Logger, exception);
+				Log.Exception(Logger, exception);
 			}
 
 			return authenticated;
@@ -167,7 +167,7 @@ namespace DigitalZenWorks.BackUp.Library
 							"Checking: \"{0}\" with Parent Id: {1}",
 							path,
 							driveParentFolderId);
-						LogAction.Information(Logger, message);
+						Log.Information(Logger, message);
 
 						IList<GoogleDriveFile> serverFiles =
 							await googleDrive.GetFilesAsync(
@@ -215,7 +215,7 @@ namespace DigitalZenWorks.BackUp.Library
 						exception is TaskCanceledException ||
 						exception is UnauthorizedAccessException)
 					{
-						LogAction.Exception(Logger, exception);
+						Log.Exception(Logger, exception);
 					}
 				}
 			}
@@ -296,7 +296,7 @@ namespace DigitalZenWorks.BackUp.Library
 					"Checking: \"{0}\" with Parent Id: {1}",
 					path,
 					driveParentFolderId);
-				LogAction.Information(Logger, message);
+				Log.Information(Logger, message);
 
 				IList<GoogleDriveFile> serverFiles =
 					await googleDrive.GetFilesAsync(
@@ -398,7 +398,7 @@ namespace DigitalZenWorks.BackUp.Library
 						}
 						catch (Google.GoogleApiException exception)
 						{
-							LogAction.Exception(Logger, exception);
+							Log.Exception(Logger, exception);
 						}
 					}
 				}
@@ -556,7 +556,7 @@ namespace DigitalZenWorks.BackUp.Library
 				exception is TaskCanceledException ||
 				exception is UnauthorizedAccessException)
 			{
-				LogAction.Exception(Logger, exception);
+				Log.Exception(Logger, exception);
 			}
 		}
 
@@ -579,7 +579,7 @@ namespace DigitalZenWorks.BackUp.Library
 						CultureInfo.InvariantCulture,
 						"Checking: {0}",
 						fileName);
-					LogAction.Information(Logger, message);
+					Log.Information(Logger, message);
 
 					GoogleDriveFile serverFile =
 							GoogleDrive.GetFileInList(serverFiles, file.Name);
@@ -596,7 +596,7 @@ namespace DigitalZenWorks.BackUp.Library
 							CultureInfo.InvariantCulture,
 							"Excluding file from Server: {0}",
 							file.FullName);
-						LogAction.Information(Logger, message);
+						Log.Information(Logger, message);
 
 						RemoveExcludedFile(file, serverFiles);
 					}
@@ -614,7 +614,7 @@ namespace DigitalZenWorks.BackUp.Library
 				exception is InvalidOperationException ||
 				exception is UnauthorizedAccessException)
 			{
-				LogAction.Exception(Logger, exception);
+				Log.Exception(Logger, exception);
 			}
 		}
 
@@ -664,7 +664,7 @@ namespace DigitalZenWorks.BackUp.Library
 				(exception is ArgumentException ||
 				exception is FileNotFoundException)
 			{
-				LogAction.Exception(Logger, exception);
+				Log.Exception(Logger, exception);
 			}
 
 			return serviceAccountJsonFile;
@@ -718,7 +718,7 @@ namespace DigitalZenWorks.BackUp.Library
 			}
 			catch (Google.GoogleApiException exception)
 			{
-				LogAction.Exception(Logger, exception);
+				Log.Exception(Logger, exception);
 			}
 
 			return removed;
@@ -747,7 +747,7 @@ namespace DigitalZenWorks.BackUp.Library
 				}
 				catch (Google.GoogleApiException exception)
 				{
-					LogAction.Exception(Logger, exception);
+					Log.Exception(Logger, exception);
 				}
 			}
 		}

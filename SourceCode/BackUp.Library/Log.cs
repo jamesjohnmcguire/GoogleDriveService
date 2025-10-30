@@ -1,5 +1,5 @@
 ﻿/////////////////////////////////////////////////////////////////////////////
-// <copyright file="LogAction.cs" company="James John McGuire">
+// <copyright file="Log.cs" company="James John McGuire">
 // Copyright © 2017 - 2025 James John McGuire. All Rights Reserved.
 // </copyright>
 /////////////////////////////////////////////////////////////////////////////
@@ -13,7 +13,7 @@ namespace DigitalZenWorks.BackUp.Library
 	/// <summary>
 	/// The log action class.
 	/// </summary>
-	internal static class LogAction
+	internal static class Log
 	{
 		private static readonly Action<ILogger, string, Exception>
 			LogError = Define(

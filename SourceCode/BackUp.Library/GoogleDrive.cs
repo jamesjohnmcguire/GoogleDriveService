@@ -156,10 +156,10 @@ namespace DigitalZenWorks.BackUp.Library
 
 			if (string.IsNullOrWhiteSpace(parent))
 			{
-				LogAction.Error(logger, "GetFiles: parent is empty", null);
+				Log.Error(logger, "GetFiles: parent is empty", null);
 
 				string message = "StackTrace: " + Environment.StackTrace;
-				LogAction.Error(logger, message, null);
+				Log.Error(logger, message, null);
 			}
 			else
 			{
@@ -181,7 +181,7 @@ namespace DigitalZenWorks.BackUp.Library
 					"Created Folder ID: {0} Name {1}",
 					file.Id,
 					file.Name);
-				LogAction.Information(logger, message);
+				Log.Information(logger, message);
 			}
 
 			return file;
@@ -220,7 +220,7 @@ namespace DigitalZenWorks.BackUp.Library
 				"Created Link Id: {0} of: Name {1}",
 				file.Id,
 				file.Name);
-			LogAction.Information(logger, message);
+			Log.Information(logger, message);
 
 			return file;
 		}
@@ -241,7 +241,7 @@ namespace DigitalZenWorks.BackUp.Library
 						CultureInfo.InvariantCulture,
 						"Deleting file from Server: {0}",
 						fileName);
-					LogAction.Information(logger, message);
+					Log.Information(logger, message);
 
 					FilesResource.DeleteRequest request =
 						driveService.Files.Delete(file.Id);
@@ -254,7 +254,7 @@ namespace DigitalZenWorks.BackUp.Library
 					string message =
 						"Attempting to delete a file not owned by me: " +
 						fileName;
-					LogAction.Warning(logger, message, null);
+					Log.Warning(logger, message, null);
 				}
 			}
 		}
@@ -300,7 +300,7 @@ namespace DigitalZenWorks.BackUp.Library
 				}
 				catch (Google.GoogleApiException exception)
 				{
-					LogAction.Exception(logger, exception);
+					Log.Exception(logger, exception);
 				}
 			}
 
@@ -334,10 +334,10 @@ namespace DigitalZenWorks.BackUp.Library
 
 			if (string.IsNullOrWhiteSpace(parent))
 			{
-				LogAction.Error(logger, "GetFiles: parent is empty", null);
+				Log.Error(logger, "GetFiles: parent is empty", null);
 
 				string message = "StackTrace: " + Environment.StackTrace;
-				LogAction.Error(logger, message, null);
+				Log.Error(logger, message, null);
 			}
 			else
 			{
@@ -367,11 +367,11 @@ namespace DigitalZenWorks.BackUp.Library
 								parent,
 								serverFile.Name,
 								files.Count);
-							LogAction.Information(logger, message);
+							Log.Information(logger, message);
 						}
 						catch (Google.GoogleApiException exception)
 						{
-							LogAction.Exception(logger, exception);
+							Log.Exception(logger, exception);
 							listRequest.PageToken = null;
 						}
 					}
@@ -395,7 +395,7 @@ namespace DigitalZenWorks.BackUp.Library
 					exception is TaskCanceledException ||
 					exception is UnauthorizedAccessException)
 				{
-					LogAction.Exception(logger, exception);
+					Log.Exception(logger, exception);
 				}
 			}
 
@@ -428,7 +428,7 @@ namespace DigitalZenWorks.BackUp.Library
 		}
 
 		/// <summary>
-		/// LogAction Exception.
+		/// Log Exception.
 		/// </summary>
 		/// <param name="exception">The exception.</param>
 		/// <param name="caller">The caller.</param>
@@ -439,7 +439,7 @@ namespace DigitalZenWorks.BackUp.Library
 			[CallerLineNumber] int lineNumber = 0)
 		{
 			string message = $"Exception at: {caller}: Line: {lineNumber}";
-			LogAction.Error(logger, message, exception);
+			Log.Error(logger, message, exception);
 		}
 
 		/// <summary>
@@ -513,7 +513,7 @@ namespace DigitalZenWorks.BackUp.Library
 				extension.Equals(
 					".gsheet", StringComparison.OrdinalIgnoreCase))
 			{
-				LogAction.Information(
+				Log.Information(
 					logger, "Changing mime type to application/json");
 				mimeType = "application/json";
 			}
@@ -529,11 +529,11 @@ namespace DigitalZenWorks.BackUp.Library
 				progress.Status,
 				progress.BytesSent);
 
-			LogAction.Information(logger, message);
+			Log.Information(logger, message);
 
 			if (progress.Exception != null)
 			{
-				LogAction.Error(logger, message, progress.Exception);
+				Log.Error(logger, message, progress.Exception);
 			}
 		}
 
@@ -543,7 +543,7 @@ namespace DigitalZenWorks.BackUp.Library
 			string fileName = SanitizeFileName(file.Name);
 			string message = fileName + " was uploaded successfully";
 
-			LogAction.Information(logger, message);
+			Log.Information(logger, message);
 		}
 
 		private FilesResource.ListRequest GetListRequest(
@@ -604,7 +604,7 @@ namespace DigitalZenWorks.BackUp.Library
 				}
 				catch (AggregateException exception)
 				{
-					LogAction.Error(
+					Log.Error(
 						logger, "AggregateException caught", exception);
 
 					foreach (Exception innerExecption in
@@ -612,7 +612,7 @@ namespace DigitalZenWorks.BackUp.Library
 					{
 						if (innerExecption is TaskCanceledException)
 						{
-							LogAction.Warning(
+							Log.Warning(
 								logger,
 								"TaskCanceledException caught",
 								innerExecption);
