@@ -6,6 +6,9 @@
 
 namespace DigitalZenWorks.BackUp.Library
 {
+	/// <summary>
+	/// The back up host interface.
+	/// </summary>
 	internal interface IBackUpHost
 	{
 	}

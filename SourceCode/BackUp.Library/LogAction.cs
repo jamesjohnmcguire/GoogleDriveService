@@ -10,6 +10,9 @@ namespace DigitalZenWorks.BackUp.Library
 	using System.Runtime.CompilerServices;
 	using Microsoft.Extensions.Logging;
 
+	/// <summary>
+	/// The log action class.
+	/// </summary>
 	internal static class LogAction
 	{
 		private static readonly Action<ILogger, string, Exception>
