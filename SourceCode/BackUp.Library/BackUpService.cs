@@ -17,22 +17,13 @@ namespace DigitalZenWorks.BackUp.Library
 	/// <summary>
 	/// Back up class.
 	/// </summary>
-	public class BackUpService : IBackUpService
+	public class BackUpService(ILogger<BackUpService> logger = null)
+		: IBackUpService
 	{
-		private readonly ILogger<BackUpService> logger;
+		private readonly ILogger<BackUpService> logger = logger;
 
 		private string parentId;
 		private string path;
-
-		/// <summary>
-		/// Initializes a new instance of the <see cref="BackUpService"/>
-		/// class.
-		/// </summary>
-		/// <param name="logger">The logger interface.</param>
-		public BackUpService(ILogger<BackUpService> logger = null)
-		{
-			this.logger = logger;
-		}
 
 		/// <summary>
 		/// Gets or Sets a value indicating whether to ignore abandoned files.

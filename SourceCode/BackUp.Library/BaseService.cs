@@ -14,23 +14,11 @@ namespace DigitalZenWorks.BackUp.Library
 	/// <summary>
 	/// Account Service class.
 	/// </summary>
-	public abstract class BaseService
-	{
-		private readonly Account account;
-		private readonly ILogger<BackUpService> logger;
-
-		/// <summary>
-		/// Initializes a new instance of the
-		/// <see cref="BaseService"/> class.
-		/// </summary>
-		/// <param name="account">The accound data.</param>
-		/// <param name="logger">The logger interface.</param>
-		protected BaseService(
+	public abstract class BaseService(
 			Account account, ILogger<BackUpService> logger = null)
-		{
-			this.logger = logger;
-			this.account = account;
-		}
+	{
+		private readonly Account account = account;
+		private readonly ILogger<BackUpService> logger = logger;
 
 		/// <summary>
 		/// Gets the account data.
