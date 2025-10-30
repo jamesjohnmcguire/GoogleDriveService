@@ -4,12 +4,12 @@
 // </copyright>
 /////////////////////////////////////////////////////////////////////////////
 
-using DigitalZenWorks.CommandLine.Commands;
-using System;
-using System.IO;
-
 namespace BackUpManager
 {
+	using System;
+	using System.IO;
+	using DigitalZenWorks.CommandLine.Commands;
+
 	internal static class Configuration
 	{
 		public static string GetConfigurationFile(Command command)

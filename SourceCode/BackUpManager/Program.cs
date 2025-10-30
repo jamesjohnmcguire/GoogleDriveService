@@ -4,23 +4,23 @@
 // </copyright>
 /////////////////////////////////////////////////////////////////////////////
 
-using DigitalZenWorks.BackUp.Library;
-using DigitalZenWorks.CommandLine.Commands;
-using DigitalZenWorks.Common.VersionUtilities;
-using Microsoft.Extensions.DependencyInjection;
-using Serilog;
-using Serilog.Configuration;
-using Serilog.Events;
-using System;
-using System.Collections.Generic;
-using System.Globalization;
-using System.IO;
-using System.Threading.Tasks;
-
-[assembly: CLSCompliant(true)]
+[assembly: System.CLSCompliant(true)]
 
 namespace BackUpManager
 {
+	using System;
+	using System.Collections.Generic;
+	using System.Globalization;
+	using System.IO;
+	using System.Threading.Tasks;
+	using DigitalZenWorks.BackUp.Library;
+	using DigitalZenWorks.CommandLine.Commands;
+	using DigitalZenWorks.Common.VersionUtilities;
+	using Microsoft.Extensions.DependencyInjection;
+	using Serilog;
+	using Serilog.Configuration;
+	using Serilog.Events;
+
 	/// <summary>
 	/// Back up manager program class.
 	/// </summary>
