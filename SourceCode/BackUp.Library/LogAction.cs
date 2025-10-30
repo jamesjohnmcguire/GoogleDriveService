@@ -16,22 +16,29 @@ namespace DigitalZenWorks.BackUp.Library
 	internal static class LogAction
 	{
 		private static readonly Action<ILogger, string, Exception>
-			LogError = LoggerMessage.Define<string>(
+			LogError = Define(
 				LogLevel.Error,
-				new EventId(1000, nameof(LogError)),
-				"{Message}");
+				LogEvent.Error,
+				nameof(LogError));
 
 		private static readonly Action<ILogger, string, Exception>
-			LogInformation = LoggerMessage.Define<string>(
+			LogInformation = Define(
 				LogLevel.Information,
-				new EventId(1000, nameof(LogInformation)),
-				"{Message}");
+				LogEvent.Information,
+				nameof(LogInformation));
 
 		private static readonly Action<ILogger, string, Exception>
-			LogWarning = LoggerMessage.Define<string>(
+			LogWarning = Define(
 				LogLevel.Warning,
-				new EventId(1000, nameof(LogWarning)),
-				"{Message}");
+				LogEvent.Warning,
+				nameof(LogWarning));
+
+		private enum LogEvent
+		{
+			Error = 1000,
+			Information = 1001,
+			Warning = 1002
+		}
 
 		/// <summary>
 		/// Log an error.
@@ -71,7 +78,7 @@ namespace DigitalZenWorks.BackUp.Library
 		{
 			string message = $"Unhandled exception in {caller} " +
 				$"(line {lineNumber}): {exception.Message}";
-			LogAction.Error(logger, message, exception);
+			Error(logger, message, exception);
 		}
 
 		/// <summary>
@@ -85,7 +92,7 @@ namespace DigitalZenWorks.BackUp.Library
 		}
 
 		/// <summary>
-		/// Log an warning.
+		/// Log a warning.
 		/// </summary>
 		/// <param name="logger">The ILogger interface.</param>
 		/// <param name="message">The message.</param>
@@ -95,7 +102,7 @@ namespace DigitalZenWorks.BackUp.Library
 		}
 
 		/// <summary>
-		/// Log an warning.
+		/// Log a warning.
 		/// </summary>
 		/// <param name="logger">The ILogger interface.</param>
 		/// <param name="message">The message.</param>
@@ -104,6 +111,21 @@ namespace DigitalZenWorks.BackUp.Library
 			ILogger logger, string message, Exception exception)
 		{
 			LogWarning(logger, message, exception);
+		}
+
+		private static Action<ILogger, string, Exception> Define(
+			LogLevel level, LogEvent logEvent, string name)
+		{
+			int id = (int)logEvent;
+			EventId eventId = new (id, name);
+
+			Action<ILogger, string, Exception> action =
+				LoggerMessage.Define<string>(
+				level,
+				eventId,
+				"{Message}");
+
+			return action;
 		}
 	}
 }
