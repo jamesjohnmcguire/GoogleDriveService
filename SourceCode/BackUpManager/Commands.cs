@@ -4,19 +4,25 @@
 // </copyright>
 /////////////////////////////////////////////////////////////////////////////
 
-using DigitalZenWorks.CommandLine.Commands;
-using DigitalZenWorks.Common.VersionUtilities;
-using Serilog;
-using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Globalization;
-using System.Linq;
-
 namespace BackUpManager
 {
+	using System.Collections.Generic;
+	using System.Diagnostics;
+	using System.Globalization;
+	using System.Linq;
+	using DigitalZenWorks.CommandLine.Commands;
+	using DigitalZenWorks.Common.VersionUtilities;
+	using Serilog;
+
+	/// <summary>
+	/// Commands class.
+	/// </summary>
 	internal static class Commands
 	{
+		/// <summary>
+		/// Gets the list of commands.
+		/// </summary>
+		/// <returns>The list of commands.</returns>
 		public static IList<Command> GetCommands()
 		{
 			List<Command> commands = [];
@@ -40,6 +46,11 @@ namespace BackUpManager
 			return commands;
 		}
 
+		/// <summary>
+		/// Show help.
+		/// </summary>
+		/// <param name="additionalMessage">An additional message,
+		/// if any.</param>
 		public static void ShowHelp(string additionalMessage = null)
 		{
 			FileVersionInfo fileVersionInfo =
@@ -68,6 +79,12 @@ namespace BackUpManager
 			}
 		}
 
+		/// <summary>
+		/// Update arguments.
+		/// </summary>
+		/// <param name="commands">The command.</param>
+		/// <param name="arguments">The arguments.</param>
+		/// <returns>The updated command arguments.</returns>
 		public static string[] UpdateArguments(
 			IList<Command> commands, string[] arguments)
 		{
