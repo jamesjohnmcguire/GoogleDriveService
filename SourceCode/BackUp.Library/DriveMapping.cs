@@ -4,15 +4,15 @@
 // </copyright>
 /////////////////////////////////////////////////////////////////////////////
 
-using Microsoft.Extensions.FileSystemGlobbing;
-using Newtonsoft.Json;
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-
 namespace DigitalZenWorks.BackUp.Library
 {
+	using System;
+	using System.Collections.Generic;
+	using System.IO;
+	using System.Linq;
+	using Microsoft.Extensions.FileSystemGlobbing;
+	using Newtonsoft.Json;
+
 	/// <summary>
 	/// DriveMapping custom class.
 	/// </summary>

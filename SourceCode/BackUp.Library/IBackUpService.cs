@@ -4,10 +4,10 @@
 // </copyright>
 /////////////////////////////////////////////////////////////////////////////
 
-using System.Threading.Tasks;
-
 namespace DigitalZenWorks.BackUp.Library
 {
+	using System.Threading.Tasks;
+
 	/// <summary>
 	/// The back up service interface.
 	/// </summary>

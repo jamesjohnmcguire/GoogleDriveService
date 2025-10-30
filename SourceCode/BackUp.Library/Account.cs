@@ -4,10 +4,10 @@
 // </copyright>
 /////////////////////////////////////////////////////////////////////////////
 
-using System.Collections.Generic;
-
 namespace DigitalZenWorks.BackUp.Library
 {
+	using System.Collections.Generic;
+
 	/// <summary>
 	/// Account class.
 	/// </summary>

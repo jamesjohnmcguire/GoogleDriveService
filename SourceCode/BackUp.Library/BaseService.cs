@@ -4,13 +4,13 @@
 // </copyright>
 /////////////////////////////////////////////////////////////////////////////
 
-using Microsoft.Extensions.Logging;
-using System;
-using System.Collections.Generic;
-using System.IO;
-
 namespace DigitalZenWorks.BackUp.Library
 {
+	using System;
+	using System.Collections.Generic;
+	using System.IO;
+	using Microsoft.Extensions.Logging;
+
 	/// <summary>
 	/// Account Service class.
 	/// </summary>

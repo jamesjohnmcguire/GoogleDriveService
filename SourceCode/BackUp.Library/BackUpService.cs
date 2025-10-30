@@ -4,16 +4,16 @@
 // </copyright>
 /////////////////////////////////////////////////////////////////////////////
 
-using Microsoft.Extensions.Logging;
-using Newtonsoft.Json;
-using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
-
-[assembly: CLSCompliant(false)]
+[assembly: System.CLSCompliant(false)]
 
 namespace DigitalZenWorks.BackUp.Library
 {
+	using System;
+	using System.Collections.Generic;
+	using System.Threading.Tasks;
+	using Microsoft.Extensions.Logging;
+	using Newtonsoft.Json;
+
 	/// <summary>
 	/// Back up class.
 	/// </summary>

@@ -4,12 +4,12 @@
 // </copyright>
 /////////////////////////////////////////////////////////////////////////////
 
-using Microsoft.Extensions.Logging;
-using System;
-using System.Runtime.CompilerServices;
-
 namespace DigitalZenWorks.BackUp.Library
 {
+	using System;
+	using System.Runtime.CompilerServices;
+	using Microsoft.Extensions.Logging;
+
 	internal static class LogAction
 	{
 		private static readonly Action<ILogger, string, Exception>

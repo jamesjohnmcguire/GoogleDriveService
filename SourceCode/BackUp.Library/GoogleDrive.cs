@@ -4,23 +4,23 @@
 // </copyright>
 /////////////////////////////////////////////////////////////////////////////
 
-using Google.Apis.Auth.OAuth2;
-using Google.Apis.Drive.v3;
-using Google.Apis.Services;
-using Google.Apis.Upload;
-using Microsoft.Extensions.Logging;
-using System;
-using System.Collections.Generic;
-using System.Globalization;
-using System.IO;
-using System.Reflection;
-using System.Runtime.CompilerServices;
-using System.Threading.Tasks;
-
-using GoogleDriveFile = Google.Apis.Drive.v3.Data.File;
-
 namespace DigitalZenWorks.BackUp.Library
 {
+	using System;
+	using System.Collections.Generic;
+	using System.Globalization;
+	using System.IO;
+	using System.Reflection;
+	using System.Runtime.CompilerServices;
+	using System.Threading.Tasks;
+	using Google.Apis.Auth.OAuth2;
+	using Google.Apis.Drive.v3;
+	using Google.Apis.Services;
+	using Google.Apis.Upload;
+	using Microsoft.Extensions.Logging;
+
+	using GoogleDriveFile = Google.Apis.Drive.v3.Data.File;
+
 	/// <summary>
 	/// Google drive class.
 	/// </summary>
@@ -428,7 +428,7 @@ namespace DigitalZenWorks.BackUp.Library
 		}
 
 		/// <summary>
-		/// Log Exception.
+		/// LogAction Exception.
 		/// </summary>
 		/// <param name="exception">The exception.</param>
 		/// <param name="caller">The caller.</param>
