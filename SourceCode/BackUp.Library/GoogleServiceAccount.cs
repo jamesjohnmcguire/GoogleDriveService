@@ -118,7 +118,7 @@ namespace DigitalZenWorks.BackUp.Library
 		/// https://developers.google.com/accounts/docs/OAuth2#serviceaccount.
 		/// </summary>
 		/// <returns>True upon success,false otherwise.</returns>
-		public bool Authorize()
+		public async Task<bool> Authorize()
 		{
 			bool authenticated = false;
 
@@ -126,7 +126,8 @@ namespace DigitalZenWorks.BackUp.Library
 			{
 				string accountsFile = GetServiceAccountJsonFile();
 
-				authenticated = googleDrive.Authorize(accountsFile);
+				authenticated = await googleDrive.Authorize(
+					accountsFile).ConfigureAwait(false);
 			}
 			catch (Exception exception) when
 				(exception is ArgumentException ||
@@ -144,7 +145,7 @@ namespace DigitalZenWorks.BackUp.Library
 		/// <returns>A task indicating completion.</returns>
 		public async Task BackUp()
 		{
-			bool authenticated = Authorize();
+			bool authenticated = await Authorize().ConfigureAwait(false);
 
 			if (authenticated == true)
 			{

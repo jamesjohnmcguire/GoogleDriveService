@@ -6,19 +6,21 @@
 
 namespace DigitalZenWorks.BackUp.Library
 {
+	using Google.Apis.Auth.OAuth2;
+	using Google.Apis.Drive.v3;
+	using Google.Apis.Json;
+	using Google.Apis.Services;
+	using Google.Apis.Upload;
+	using Microsoft.Extensions.Logging;
+	using Newtonsoft.Json;
 	using System;
 	using System.Collections.Generic;
 	using System.Globalization;
 	using System.IO;
 	using System.Reflection;
 	using System.Runtime.CompilerServices;
+	using System.Threading;
 	using System.Threading.Tasks;
-	using Google.Apis.Auth.OAuth2;
-	using Google.Apis.Drive.v3;
-	using Google.Apis.Services;
-	using Google.Apis.Upload;
-	using Microsoft.Extensions.Logging;
-
 	using GoogleDriveFile = Google.Apis.Drive.v3.Data.File;
 
 	/// <summary>
@@ -120,15 +122,18 @@ namespace DigitalZenWorks.BackUp.Library
 		/// <param name="credentialsFile">A file containing the credentials
 		/// information.</param>
 		/// <returns>True upon success,false otherwise.</returns>
-		public bool Authorize(string credentialsFile)
+		public async Task<bool> Authorize(string credentialsFile)
 		{
 			bool authorized = false;
 
 			if (!string.IsNullOrEmpty(credentialsFile) &&
 				File.Exists(credentialsFile))
 			{
-				credentialedAccount =
-					GoogleCredential.FromFile(credentialsFile);
+				using var cts = new CancellationTokenSource();
+
+				credentialedAccount = await GoogleCredential.FromFileAsync(
+						credentialsFile, cts.Token).ConfigureAwait(false);
+
 				credentialedAccount = credentialedAccount.CreateScoped(Scopes);
 
 				initializer = new BaseClientService.Initializer();
