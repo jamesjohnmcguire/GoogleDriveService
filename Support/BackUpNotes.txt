@@ -221,3 +221,49 @@ Interfaces
 			{
 				await backupService.UploadFile(filePath, destinationFolderId);
 			}
+BackUpManager
+	Authorize() Alternatives
+		Environment.SetEnvironmentVariable(
+			Option #1
+			"GOOGLE_APPLICATION_CREDENTIALS", credentialsFile);
+			Option #2
+				using var cts = new CancellationTokenSource();
+
+				GoogleCredential serviceAccountCredential =
+					await CredentialFactory.FromFileAsync<GoogleCredential>(
+						credentialsFile, cts.Token).ConfigureAwait(false);
+
+				GoogleCredential credential =
+					CredentialFactory.FromFileAsync<GoogleCredential>(
+						credentialsFile, cts.Token)
+											 .CreateScoped(scopes)
+											 .ToGoogleCredential();
+
+				//var some = serviceAccountCredential.ToGoogleCredential();
+
+				//GoogleCredential credential = serviceAccountCredential
+				//	.ToGoogleCredential()
+				//	.CreateScoped(scopes);
+
+				//var factory = new CredentialFactory();
+			Option #3
+				string text = File.ReadAllText(credentialsFile);
+				using FileStream stream = new FileStream(
+					credentialsFile, FileMode.Open, FileAccess.Read);
+
+				using var cts = new CancellationTokenSource();
+
+				var accounts = JsonConvert.DeserializeObject<JsonCredentialParameters>(
+					text);
+				if (accounts.Type != "service_account" ||
+					string.IsNullOrEmpty(accounts.ClientEmail) ||
+					string.IsNullOrEmpty(accounts.PrivateKey))
+				{
+					Log.Warning(logger, "GetFiles: parent is empty", null);
+				}
+
+
+	Issues
+		Inner Exception 1:	InvalidOperationException: The credential type Google.Apis.Auth.OAuth2.ServiceAccountCredential is not compatible with the requested type Google.Apis.Auth.OAuth2.GoogleCredential
+ Google Source Code
+	https://github.com/googleapis/google-api-dotnet-client/blob/main/Src/Generated/Google.Apis.Drive.v3/Google.Apis.Drive.v3.cs
