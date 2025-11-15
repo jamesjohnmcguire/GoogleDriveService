@@ -6,13 +6,6 @@
 
 namespace DigitalZenWorks.BackUp.Library
 {
-	using Google.Apis.Auth.OAuth2;
-	using Google.Apis.Drive.v3;
-	using Google.Apis.Json;
-	using Google.Apis.Services;
-	using Google.Apis.Upload;
-	using Microsoft.Extensions.Logging;
-	using Newtonsoft.Json;
 	using System;
 	using System.Collections.Generic;
 	using System.Globalization;
@@ -21,6 +14,11 @@ namespace DigitalZenWorks.BackUp.Library
 	using System.Runtime.CompilerServices;
 	using System.Threading;
 	using System.Threading.Tasks;
+	using Google.Apis.Auth.OAuth2;
+	using Google.Apis.Drive.v3;
+	using Google.Apis.Services;
+	using Google.Apis.Upload;
+	using Microsoft.Extensions.Logging;
 	using GoogleDriveFile = Google.Apis.Drive.v3.Data.File;
 
 	/// <summary>
