@@ -7,12 +7,12 @@
 		<Company>Digital Zen Works</Company>
 		<Copyright>Copyright © 2020 - 2025 James John McGuire</Copyright>
 		<EnableNETAnalyzers>true</EnableNETAnalyzers>
-		<FileVersion>1.7.242.0</FileVersion>
+		<FileVersion>1.7.244.0</FileVersion>
 		<GenerateDocumentationFile>true</GenerateDocumentationFile>
 		<NeutralLanguage>en-US</NeutralLanguage>
 		<OutputType>Exe</OutputType>
 		<TargetFramework>net10.0</TargetFramework>
-		<Version>1.7.242</Version>
+		<Version>1.7.244</Version>
 	</PropertyGroup>
 
 	<ItemGroup>
