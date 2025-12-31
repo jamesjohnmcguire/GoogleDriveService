@@ -33,4 +33,8 @@
 		<ProjectReference Include="..\BackUp.Library\DigitalZenWorks.BackUp.Library.csproj" />
 	</ItemGroup>
 
+	<ItemGroup>
+		<AdditionalFiles Include="../stylecop.json" />
+	</ItemGroup>
+
 </Project>
