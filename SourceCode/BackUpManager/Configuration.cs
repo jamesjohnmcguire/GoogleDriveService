@@ -79,15 +79,14 @@ namespace BackUpManager
 		/// application data folder.</returns>
 		public static string GetDefaultDataLocation()
 		{
-			string defaultDataLocation;
-
 			string baseDataDirectory = Environment.GetFolderPath(
 				Environment.SpecialFolder.ApplicationData,
 				Environment.SpecialFolderOption.Create);
 
-			string applicationDataDirectory = @"DigitalZenWorks\BackUpManager";
+			const string applicationDataDirectory =
+				@"DigitalZenWorks\BackUpManager";
 
-			defaultDataLocation =
+			string defaultDataLocation =
 				Path.Combine(baseDataDirectory, applicationDataDirectory);
 
 			return defaultDataLocation;

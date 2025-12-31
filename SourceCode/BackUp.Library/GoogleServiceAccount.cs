@@ -30,7 +30,7 @@ namespace DigitalZenWorks.BackUp.Library
 		Account account, ILogger<BackUpService> logger = null)
 		: BaseService(account, logger), IDisposable
 	{
-		private GoogleDrive googleDrive = new GoogleDrive(logger);
+		private GoogleDrive googleDrive = new(logger);
 
 		/// <summary>
 		/// Report server folder information.
@@ -473,6 +473,10 @@ namespace DigitalZenWorks.BackUp.Library
 			return keep;
 		}
 
+		[System.Diagnostics.CodeAnalysis.SuppressMessage(
+			"Roslynator",
+			"RCS1212:Remove redundant assignment",
+			Justification = "The current pattern is more maintainable.")]
 		private static string GetNormalizedPath(string path)
 		{
 			path = path.Replace("\\", "/", StringComparison.OrdinalIgnoreCase);

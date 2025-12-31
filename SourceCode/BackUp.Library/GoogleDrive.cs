@@ -490,11 +490,8 @@ namespace DigitalZenWorks.BackUp.Library
 			if (disposing)
 			{
 				// dispose managed resources
-				if (driveService != null)
-				{
-					driveService.Dispose();
-					driveService = null;
-				}
+				driveService?.Dispose();
+				driveService = null;
 			}
 
 			// free native resources
@@ -549,7 +546,7 @@ namespace DigitalZenWorks.BackUp.Library
 		{
 			FilesResource.ListRequest listRequest = driveService.Files.List();
 
-			string fileFields = "id, name, mimeType, modifiedTime, " +
+			const string fileFields = "id, name, mimeType, modifiedTime, " +
 				"ownedByMe, owners, parents, webContentLink";
 			listRequest.Fields = string.Format(
 				CultureInfo.InvariantCulture,

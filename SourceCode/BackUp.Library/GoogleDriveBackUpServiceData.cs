@@ -9,24 +9,19 @@ namespace DigitalZenWorks.BackUp.Library
 	/// <summary>
 	/// Google Drive back up service data.
 	/// </summary>
-	public class GoogleDriveBackUpServiceData : IBackUpServiceData
+	/// <remarks>
+	/// Initializes a new instance of the <see
+	/// cref="GoogleDriveBackUpServiceData"/> class.
+	/// </remarks>
+	/// <param name="serviceAccountJsonFile">The service account
+	/// json file.</param>
+	/// <param name="parentId">The parent folder id.</param>
+	public class GoogleDriveBackUpServiceData(
+		string serviceAccountJsonFile, string parentId) : IBackUpServiceData
 	{
-		private readonly string parentId;
-		private readonly string serviceAccountJsonFile;
-
-		/// <summary>
-		/// Initializes a new instance of the <see
-		/// cref="GoogleDriveBackUpServiceData"/> class.
-		/// </summary>
-		/// <param name="serviceAccountJsonFile">The service account
-		/// json file.</param>
-		/// <param name="parentId">The parent folder id.</param>
-		public GoogleDriveBackUpServiceData(
-			string serviceAccountJsonFile, string parentId)
-		{
-			this.serviceAccountJsonFile = serviceAccountJsonFile;
-			this.parentId = parentId;
-		}
+		private readonly string parentId = parentId;
+		private readonly string serviceAccountJsonFile =
+			serviceAccountJsonFile;
 
 		/// <summary>
 		/// Gets or sets the Name of service.
