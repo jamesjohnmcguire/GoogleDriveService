@@ -6,6 +6,8 @@
 
 namespace BackUp.Tests
 {
+	using System.Collections.Generic;
+	using System.IO;
 	using DigitalZenWorks.BackUp.Library;
 	using NUnit.Framework;
 	using NUnit.Framework.Internal;
