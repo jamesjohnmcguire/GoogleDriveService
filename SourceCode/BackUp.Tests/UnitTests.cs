@@ -1,8 +1,9 @@
-using DigitalZenWorks.BackUp.Library;
-using NUnit.Framework.Internal;
-
 namespace BackUp.Tests
 {
+	using DigitalZenWorks.BackUp.Library;
+	using NUnit.Framework;
+	using NUnit.Framework.Internal;
+
 	public class Tests
 	{
 		[SetUp]
