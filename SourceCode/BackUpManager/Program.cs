@@ -111,7 +111,7 @@ namespace BackUpManager
 			string logFilePath =
 				Path.Combine(applicationDataDirectory, "BackUp.log");
 
-			string outputTemplate =
+			const string outputTemplate =
 				"[{Timestamp:yyyy-MM-dd HH:mm:ss} {Level:u3}] " +
 				"{Message:lj}{NewLine}{Exception}";
 

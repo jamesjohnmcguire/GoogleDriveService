@@ -68,7 +68,7 @@ namespace BackUp.Tests
 				null,
 				null);
 
-			Assert.That(filesRemoved, Is.EqualTo(0));
+			Assert.That(filesRemoved, Is.Zero);
 		}
 	}
 }
