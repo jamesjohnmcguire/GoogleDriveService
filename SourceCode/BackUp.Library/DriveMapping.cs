@@ -38,12 +38,11 @@ namespace DigitalZenWorks.BackUp.Library
 				Settings settings = JsonConvert.DeserializeObject<Settings>(
 						settingsText);
 
-				if (settings != null && settings.GlobalExcludes != null)
+				if (settings?.GlobalExcludes != null)
 				{
 					foreach (string excludeName in settings.GlobalExcludes)
 					{
-						Exclude exclude =
-							new (excludeName, ExcludeType.Global);
+						Exclude exclude = new(excludeName, ExcludeType.Global);
 						excludes.Add(exclude);
 					}
 				}
@@ -89,7 +88,7 @@ namespace DigitalZenWorks.BackUp.Library
 				for (int index = excludes.Count - 1; index >= 0; index--)
 				{
 					Exclude temporaryExclude = excludes[index];
-					Exclude exclude = new (
+					Exclude exclude = new(
 						temporaryExclude.Path, temporaryExclude.ExcludeType);
 
 					if (exclude.ExcludeType == ExcludeType.Global)
@@ -170,7 +169,7 @@ namespace DigitalZenWorks.BackUp.Library
 					'*', StringComparison.OrdinalIgnoreCase);
 				string pattern = path[index..];
 
-				Matcher matcher = new ();
+				Matcher matcher = new();
 				matcher.AddInclude(pattern);
 
 				string directory = System.IO.Path.GetDirectoryName(path);
@@ -179,7 +178,7 @@ namespace DigitalZenWorks.BackUp.Library
 
 				foreach (string match in matchingFiles)
 				{
-					Exclude exclude = new (match, ExcludeType.File);
+					Exclude exclude = new(match, ExcludeType.File);
 					newExcludes.Add(exclude);
 				}
 			}

@@ -20,22 +20,17 @@ namespace DigitalZenWorks.BackUp.Library
 	/// <summary>
 	/// Google service account class.
 	/// </summary>
-	public class GoogleServiceAccount : BaseService, IDisposable
+	/// <remarks>
+	/// Initializes a new instance of the
+	/// <see cref="GoogleServiceAccount"/> class.
+	/// </remarks>
+	/// <param name="account">The accound data.</param>
+	/// <param name="logger">The logger interface.</param>
+	public class GoogleServiceAccount(
+		Account account, ILogger<BackUpService> logger = null)
+		: BaseService(account, logger), IDisposable
 	{
-		private GoogleDrive googleDrive;
-
-		/// <summary>
-		/// Initializes a new instance of the
-		/// <see cref="GoogleServiceAccount"/> class.
-		/// </summary>
-		/// <param name="account">The accound data.</param>
-		/// <param name="logger">The logger interface.</param>
-		public GoogleServiceAccount(
-			Account account, ILogger<BackUpService> logger = null)
-			: base(account, logger)
-		{
-			googleDrive = new GoogleDrive(logger);
-		}
+		private GoogleDrive googleDrive = new GoogleDrive(logger);
 
 		/// <summary>
 		/// Report server folder information.
@@ -328,7 +323,7 @@ namespace DigitalZenWorks.BackUp.Library
 
 			if (processFiles == true)
 			{
-				DirectoryInfo directoryInfo = new (path);
+				DirectoryInfo directoryInfo = new(path);
 
 				FileInfo[] files = directoryInfo.GetFiles();
 
@@ -523,7 +518,7 @@ namespace DigitalZenWorks.BackUp.Library
 								path, paths, null, thisServerFiles, excludes);
 						}
 
-						DirectoryInfo directoryInfo = new (path);
+						DirectoryInfo directoryInfo = new(path);
 
 						foreach (string subDirectory in subDirectories)
 						{

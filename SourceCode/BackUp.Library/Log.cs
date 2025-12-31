@@ -117,7 +117,7 @@ namespace DigitalZenWorks.BackUp.Library
 			LogLevel level, LogEvent logEvent, string name)
 		{
 			int id = (int)logEvent;
-			EventId eventId = new (id, name);
+			EventId eventId = new(id, name);
 
 			Action<ILogger, string, Exception> action =
 				LoggerMessage.Define<string>(

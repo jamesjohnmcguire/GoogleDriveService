@@ -24,7 +24,13 @@ namespace DigitalZenWorks.BackUp.Library
 	/// <summary>
 	/// Google drive class.
 	/// </summary>
-	public class GoogleDrive : IDisposable
+	/// <remarks>
+	/// Initializes a new instance of the
+	/// <see cref="GoogleDrive"/> class.
+	/// </remarks>
+	/// <param name="logger">The logger interface.</param>
+	public class GoogleDrive(ILogger<BackUpService> logger = null)
+		: IDisposable
 	{
 		private static readonly string[] Scopes =
 		[
@@ -37,7 +43,7 @@ namespace DigitalZenWorks.BackUp.Library
 			DriveService.Scope.DriveScripts
 		];
 
-		private readonly ILogger<BackUpService> logger;
+		private readonly ILogger<BackUpService> logger = logger;
 
 		// Included as member, as sometimes there is a
 		// need to recreate service.
@@ -47,16 +53,6 @@ namespace DigitalZenWorks.BackUp.Library
 		// Included as member, as sometimes there is a
 		// need to recreate service.
 		private BaseClientService.Initializer initializer;
-
-		/// <summary>
-		/// Initializes a new instance of the
-		/// <see cref="GoogleDrive"/> class.
-		/// </summary>
-		/// <param name="logger">The logger interface.</param>
-		public GoogleDrive(ILogger<BackUpService> logger = null)
-		{
-			this.logger = logger;
-		}
 
 		/// <summary>
 		/// Create a very slight delay.
@@ -166,7 +162,7 @@ namespace DigitalZenWorks.BackUp.Library
 			}
 			else
 			{
-				GoogleDriveFile fileMetadata = new ();
+				GoogleDriveFile fileMetadata = new();
 
 				fileMetadata.Name = folderName;
 				fileMetadata.MimeType = "application/vnd.google-apps.folder";
@@ -200,12 +196,11 @@ namespace DigitalZenWorks.BackUp.Library
 		public GoogleDriveFile CreateLink(
 			string parent, string linkName, string targetId)
 		{
-			GoogleDriveFile fileMetadata = new ();
+			GoogleDriveFile fileMetadata = new();
 
 			fileMetadata.Name = linkName;
 			fileMetadata.MimeType = "application/vnd.google-apps.shortcut";
-			GoogleDriveFile.ShortcutDetailsData shortCut =
-				new ();
+			GoogleDriveFile.ShortcutDetailsData shortCut = new();
 
 			shortCut.TargetId = targetId;
 			fileMetadata.ShortcutDetails = shortCut;
@@ -455,7 +450,7 @@ namespace DigitalZenWorks.BackUp.Library
 		{
 			if (file != null)
 			{
-				GoogleDriveFile placeHolder = new ();
+				GoogleDriveFile placeHolder = new();
 
 				FilesResource.UpdateRequest updateRequest =
 					driveService.Files.Update(placeHolder, file.Id);
@@ -474,12 +469,12 @@ namespace DigitalZenWorks.BackUp.Library
 		/// <param name="fileId">The file id.</param>
 		public void Upload(string folder, string filePath, string fileId)
 		{
-			FileInfo file = new (filePath);
+			FileInfo file = new(filePath);
 
-			GoogleDriveFile fileMetadata = new ();
+			GoogleDriveFile fileMetadata = new();
 			fileMetadata.Name = file.Name;
 
-			using FileStream stream = new (filePath, System.IO.FileMode.Open);
+			using FileStream stream = new(filePath, System.IO.FileMode.Open);
 
 			string mimeType = GetMimeType(file);
 

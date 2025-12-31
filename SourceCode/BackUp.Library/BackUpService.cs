@@ -62,7 +62,7 @@ namespace DigitalZenWorks.BackUp.Library
 								case AccountType.GoogleServiceAccount:
 								{
 									using GoogleServiceAccount account =
-										new (accountData, logger);
+										new(accountData, logger);
 
 									account.IgnoreAbandoned = IgnoreAbandoned;
 
