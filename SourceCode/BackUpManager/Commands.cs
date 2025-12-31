@@ -27,20 +27,20 @@ namespace BackUpManager
 		{
 			List<Command> commands = [];
 
-			Command help = new ("help");
+			Command help = new("help");
 			help.Description = "Show this information";
 			commands.Add(help);
 
 			List<CommandOption> options = [];
 
-			CommandOption configFile = new ("c", "config", true);
+			CommandOption configFile = new("c", "config", true);
 			options.Add(configFile);
 
 			CommandOption ignoreAbandoned =
-				new ("i", "ignore-abandoned", false);
+				new("i", "ignore-abandoned", false);
 			options.Add(ignoreAbandoned);
 
-			Command backup = new ("backup", options, 0, "Back up files");
+			Command backup = new("backup", options, 0, "Back up files");
 			commands.Add(backup);
 
 			return commands;

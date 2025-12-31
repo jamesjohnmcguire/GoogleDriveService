@@ -19,10 +19,9 @@ namespace BackUp.Tests
 		[Test]
 		public void RemoveAbandanedFoltersNone()
 		{
-			Account accountData = new ();
+			Account accountData = new();
 
-			using GoogleServiceAccount account =
-				new (accountData);
+			using GoogleServiceAccount account = new(accountData);
 			account.IgnoreAbandoned = false;
 
 			string path = Directory.GetCurrentDirectory();

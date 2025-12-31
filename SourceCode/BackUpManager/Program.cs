@@ -47,7 +47,7 @@ namespace BackUpManager
 
 				arguments = Commands.UpdateArguments(commands, arguments);
 
-				CommandLineInstance commandLine = new (commands, arguments);
+				CommandLineInstance commandLine = new(commands, arguments);
 
 				if (commandLine.ValidArguments == false)
 				{
@@ -91,7 +91,7 @@ namespace BackUpManager
 
 		private static ServiceProvider ConfigureServices()
 		{
-			ServiceCollection serviceCollection = new ();
+			ServiceCollection serviceCollection = new();
 
 			serviceCollection.AddLogging(config => config.AddSerilog())
 				.AddTransient<BackUpService>();
@@ -115,7 +115,7 @@ namespace BackUpManager
 				"[{Timestamp:yyyy-MM-dd HH:mm:ss} {Level:u3}] " +
 				"{Message:lj}{NewLine}{Exception}";
 
-			LoggerConfiguration configuration = new ();
+			LoggerConfiguration configuration = new();
 			LoggerSinkConfiguration sinkConfiguration = configuration.WriteTo;
 			sinkConfiguration.Console(
 				LogEventLevel.Verbose,
