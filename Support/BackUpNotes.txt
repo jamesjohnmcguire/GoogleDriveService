@@ -153,7 +153,7 @@ Interfaces
 						.Request()
 						.PutAsync<DriveItem>(stream);
 				}
-			}	
+			}
 		Google Drive:
 			using Google.Apis.Auth.OAuth2;
 			using Google.Apis.Drive.v3;
@@ -267,3 +267,11 @@ BackUpManager
 		Inner Exception 1:	InvalidOperationException: The credential type Google.Apis.Auth.OAuth2.ServiceAccountCredential is not compatible with the requested type Google.Apis.Auth.OAuth2.GoogleCredential
  Google Source Code
 	https://github.com/googleapis/google-api-dotnet-client/blob/main/Src/Generated/Google.Apis.Drive.v3/Google.Apis.Drive.v3.cs
+Back Ups
+	Remove : 0 bytes from Starting: 0 bytes
+	Google Drive Zeroed Accounts
+		avian-sunlight-270307-49b9bd51f56e.json
+		AvianSunlightGoogleDriveServiceAccount.json
+		gawaproject-1a467-ServiceAccount.json
+		jjm2026@avian-sunlight.json
+		DigitalZenWorks-14a3dc9fce3e.json
