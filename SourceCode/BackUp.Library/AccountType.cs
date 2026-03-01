@@ -4,41 +4,40 @@
 // </copyright>
 /////////////////////////////////////////////////////////////////////////////
 
-namespace DigitalZenWorks.BackUp.Library
+namespace DigitalZenWorks.BackUp.Library;
+
+/// <summary>
+/// Account types enumeration.
+/// </summary>
+public enum AccountType
 {
 	/// <summary>
-	/// Account types enumeration.
+	/// Unknown account type.
 	/// </summary>
-	public enum AccountType
-	{
-		/// <summary>
-		/// Unknown account type.
-		/// </summary>
-		Unknown,
+	Unknown,
 
-		/// <summary>
-		/// Drop box account.
-		/// </summary>
-		DropBox,
+	/// <summary>
+	/// Drop box account.
+	/// </summary>
+	DropBox,
 
-		/// <summary>
-		/// Google drive account.
-		/// </summary>
-		GoogleDrive,
+	/// <summary>
+	/// Google drive account.
+	/// </summary>
+	GoogleDrive,
 
-		/// <summary>
-		/// Google service account.
-		/// </summary>
-		GoogleServiceAccount,
+	/// <summary>
+	/// Google service account.
+	/// </summary>
+	GoogleServiceAccount,
 
-		/// <summary>
-		/// One drive account.
-		/// </summary>
-		OneDrive,
+	/// <summary>
+	/// One drive account.
+	/// </summary>
+	OneDrive,
 
-		/// <summary>
-		/// Other account type.
-		/// </summary>
-		Other
-	}
+	/// <summary>
+	/// Other account type.
+	/// </summary>
+	Other
 }

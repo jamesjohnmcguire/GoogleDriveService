@@ -4,12 +4,11 @@
 // </copyright>
 /////////////////////////////////////////////////////////////////////////////
 
-namespace DigitalZenWorks.BackUp.Library
+namespace DigitalZenWorks.BackUp.Library;
+
+/// <summary>
+/// The back up host interface.
+/// </summary>
+internal interface IBackUpHost
 {
-	/// <summary>
-	/// The back up host interface.
-	/// </summary>
-	internal interface IBackUpHost
-	{
-	}
 }

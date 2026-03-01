@@ -4,17 +4,16 @@
 // </copyright>
 /////////////////////////////////////////////////////////////////////////////
 
-namespace DigitalZenWorks.BackUp.Library
+namespace DigitalZenWorks.BackUp.Library;
+
+/// <summary>
+/// The back up service data interface.
+/// </summary>
+public interface IBackUpServiceData
 {
 	/// <summary>
-	/// The back up service data interface.
+	/// Gets or sets the Name of service.
 	/// </summary>
-	public interface IBackUpServiceData
-	{
-		/// <summary>
-		/// Gets or sets the Name of service.
-		/// </summary>
-		/// <value>The Name of service.</value>
-		public string Name { get; set; }
-	}
+	/// <value>The Name of service.</value>
+	public string Name { get; set; }
 }
