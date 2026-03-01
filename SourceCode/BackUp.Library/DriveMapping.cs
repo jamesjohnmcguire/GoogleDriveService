@@ -128,9 +128,11 @@ namespace DigitalZenWorks.BackUp.Library
 		{
 			if (excludes != null)
 			{
-				for (int index = excludes.Count - 1; index >= 0; index--)
+				List<Exclude> expandedExcludes = [];
+
+				foreach (Exclude temporaryExclude in excludes)
 				{
-					Exclude exclude = excludes[index];
+					Exclude exclude = temporaryExclude;
 
 					if (exclude.ExcludeType != ExcludeType.Global)
 					{
@@ -146,13 +148,20 @@ namespace DigitalZenWorks.BackUp.Library
 
 						if (newExcludes.Count > 0)
 						{
-							excludes.Remove(exclude);
-							IEnumerable<Exclude> interim =
-								excludes.Concat(newExcludes);
-							excludes = [.. interim];
+							expandedExcludes.AddRange(newExcludes);
+						}
+						else
+						{
+							expandedExcludes.Add(exclude);
 						}
 					}
+					else
+					{
+						expandedExcludes.Add(exclude);
+					}
 				}
+
+				excludes = expandedExcludes;
 			}
 
 			return excludes;
