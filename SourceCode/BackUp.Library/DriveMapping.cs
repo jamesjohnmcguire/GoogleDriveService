@@ -168,10 +168,6 @@ public class DriveMapping
 					{
 						expandedExcludes.AddRange(newExcludes);
 					}
-					else
-					{
-						expandedExcludes.Add(exclude);
-					}
 				}
 				else
 				{
