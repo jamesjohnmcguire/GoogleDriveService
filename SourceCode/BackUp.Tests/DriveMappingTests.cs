@@ -341,7 +341,7 @@ internal class DriveMappingTests
 			Path.Combine(tempDirectory, "MyFolder"));
 
 		int count = result.Count;
-		Exclude lastExclude = result[count - 1];
+		Exclude lastExclude = GetLastExclude(result);
 		string lastPath = lastExclude.Path;
 
 		Assert.That(count, Is.GreaterThan(0));
@@ -393,10 +393,7 @@ internal class DriveMappingTests
 	[Test]
 	public void ExpandExcludesWildcardFileExpands()
 	{
-		string fileA = Path.Combine(tempDirectory, "report_jan.csv");
-		string fileB = Path.Combine(tempDirectory, "report_feb.csv");
-		File.WriteAllText(fileA, string.Empty);
-		File.WriteAllText(fileB, string.Empty);
+		AddCsvTestfiles();
 
 		string wildcardPath = Path.Combine(tempDirectory, "*.csv");
 
@@ -417,38 +414,42 @@ internal class DriveMappingTests
 
 	/// <summary>
 	/// Two wildcard patterns in ExpandExcludes: both should be fully expanded.
-	/// The bug causes the second wildcard (lower index, iterated last in the
-	/// reverse loop) to be skipped after the first expansion rebuilds the list.
 	/// </summary>
 	[Test]
 	public void ExpandExcludesMultipleWildcardsAllExpanded()
 	{
-		// *.csv  → 2 files
-		File.WriteAllText(
-			Path.Combine(tempDirectory, "data_a.csv"), string.Empty);
-		File.WriteAllText(
-			Path.Combine(tempDirectory, "data_b.csv"), string.Empty);
+		AddCsvTestfiles();
+		AddLogTestfiles();
 
-		// *.log  → 2 files
-		File.WriteAllText(
-			Path.Combine(tempDirectory, "app_1.log"), string.Empty);
-		File.WriteAllText(
-			Path.Combine(tempDirectory, "app_2.log"), string.Empty);
-
-		var excList = (List<Exclude>)tempDirectoryMapping.Excludes;
-		excList.Add(new Exclude(
-			Path.Combine(tempDirectory, "*.csv"), ExcludeType.File));
-		excList.Add(new Exclude(
-			Path.Combine(tempDirectory, "*.log"), ExcludeType.File));
-
-		IList<Exclude> result = tempDirectoryMapping.ExpandExcludes();
+		IList<Exclude> result = AddCsvAndLogToExcludes();
 
 		int count = result.Count;
-		Exclude lastExclude = result[count - 1];
+		Exclude lastExclude = GetLastExclude(result);
 		string lastPath = lastExclude.Path;
 
-		// Expect all 4 concrete files; the bug leaves one wildcard unexpanded.
+		// Expect all 4 concrete files.
 		Assert.That(count, Is.GreaterThanOrEqualTo(4));
+		Assert.That(result, Has.None.Matches<Exclude>(e => e.Path.Contains(
+			'*', System.StringComparison.OrdinalIgnoreCase)));
+	}
+
+	/// <summary>
+	/// Two wildcard patterns in ExpandExcludes: one should be fully expanded.
+	/// But the other having no matches, should simply be removed.
+	/// </summary>
+	[Test]
+	public void ExpandExcludesMultipleWildcardsSomeNoMatches()
+	{
+		AddCsvTestfiles();
+		IList<Exclude> result = AddCsvAndLogToExcludes();
+
+		int count = result.Count;
+		Exclude lastExclude = GetLastExclude(result);
+
+		string lastPath = lastExclude.Path;
+
+		// Expect 2 concrete files.
+		Assert.That(count, Is.GreaterThanOrEqualTo(2));
 		Assert.That(result, Has.None.Matches<Exclude>(e => e.Path.Contains(
 			'*', System.StringComparison.OrdinalIgnoreCase)));
 	}
@@ -461,16 +462,20 @@ internal class DriveMappingTests
 	[Test]
 	public void ExpandExcludesNonWildcardNonWildcardIsPreserved()
 	{
-		File.WriteAllText(Path.Combine(tempDirectory, "report.csv"), string.Empty);
+		string reportFile = Path.Combine(tempDirectory, "report.csv");
+		File.WriteAllText(reportFile, string.Empty);
 
 		string fixedFolder = Path.Combine(tempDirectory, "FixedFolder");
 		string wildcardPath = Path.Combine(tempDirectory, "*.csv");
 
 		List<Exclude> excludeList = (List<Exclude>)tempDirectoryMapping.Excludes;
 
+		Exclude folderExclude = new(fixedFolder, ExcludeType.SubDirectory);
+		Exclude wildCardExclude = new(wildcardPath, ExcludeType.File);
+
 		// Fixed entry first, wildcard second — reverse loop hits wildcard first.
-		excludeList.Add(new Exclude(fixedFolder, ExcludeType.SubDirectory));
-		excludeList.Add(new Exclude(wildcardPath, ExcludeType.File));
+		excludeList.Add(folderExclude);
+		excludeList.Add(wildCardExclude);
 
 		IList<Exclude> result = tempDirectoryMapping.ExpandExcludes();
 
@@ -488,19 +493,10 @@ internal class DriveMappingTests
 	/// Same stale-index scenario exercised via the static ExpandGlobalExcludes.
 	/// </summary>
 	[Test]
-	public void ExpandGlobalExcludesMultipleWildcards()
+	public void ExpandExcludesMultipleWildcards()
 	{
-		string bakFile1 = Path.Combine(tempDirectory, "snap_a.bak");
-		File.WriteAllText(bakFile1, string.Empty);
-
-		string bakFile2 = Path.Combine(tempDirectory, "snap_b.bak");
-		File.WriteAllText(bakFile2, string.Empty);
-
-		string tmpFile1 = Path.Combine(tempDirectory, "trace_1.tmp");
-		File.WriteAllText(tmpFile1, string.Empty);
-
-		string tmpFile2 = Path.Combine(tempDirectory, "trace_2.tmp");
-		File.WriteAllText(tmpFile2, string.Empty);
+		AddBakTestfiles();
+		AddTmpTestfiles();
 
 		string bakWildcard = Path.Combine(tempDirectory, "*.bak");
 		string tmpWildcard = Path.Combine(tempDirectory, "*.tmp");
@@ -518,5 +514,185 @@ internal class DriveMappingTests
 		Assert.That(result, Has.Count.EqualTo(4));
 		Assert.That(
 			result, Has.None.Matches<Exclude>(e => e.Path.Contains('*')));
+	}
+
+	/// <summary>
+	/// Two wildcard patterns in ExpandExcludes: both should be fully expanded.
+	/// </summary>
+	[Test]
+	public void ExpandGlobalExcludesMultipleWildcardsAllExpanded()
+	{
+		AddCsvTestfiles();
+		AddLogTestfiles();
+
+		List<Exclude> excludeList =
+			(List<Exclude>)tempDirectoryMapping.Excludes;
+		excludeList.Add(new Exclude(
+			Path.Combine(tempDirectory, "*.csv"), ExcludeType.File));
+		excludeList.Add(new Exclude(
+			Path.Combine(tempDirectory, "*.log"), ExcludeType.File));
+
+		IList<Exclude> result = DriveMapping.ExpandGlobalExcludes(
+			tempDirectory, excludeList);
+
+		int count = result.Count;
+		Exclude lastExclude = GetLastExclude(result);
+		string lastPath = lastExclude.Path;
+
+		// Expect all 4 concrete files.
+		Assert.That(count, Is.GreaterThanOrEqualTo(4));
+		Assert.That(result, Has.None.Matches<Exclude>(e => e.Path.Contains(
+			'*', System.StringComparison.OrdinalIgnoreCase)));
+	}
+
+	/// <summary>
+	/// Two wildcard patterns in ExpandExcludes: one should be fully expanded.
+	/// But the other having no matches, should simply be removed.
+	/// </summary>
+	[Test]
+	public void ExpandGlobalExcludesMultipleWildcardsSomeNoMatches()
+	{
+		AddCsvTestfiles();
+
+		List<Exclude> excludeList =
+			(List<Exclude>)tempDirectoryMapping.Excludes;
+		excludeList.Add(new Exclude(
+			Path.Combine(tempDirectory, "*.csv"), ExcludeType.File));
+		excludeList.Add(new Exclude(
+			Path.Combine(tempDirectory, "*.log"), ExcludeType.File));
+
+		IList<Exclude> result = DriveMapping.ExpandGlobalExcludes(
+			tempDirectory, excludeList);
+
+		int count = result.Count;
+		Exclude lastExclude = GetLastExclude(result);
+
+		string lastPath = lastExclude.Path;
+
+		// Expect 2 concrete files.
+		Assert.That(count, Is.GreaterThanOrEqualTo(2));
+		Assert.That(result, Has.None.Matches<Exclude>(e => e.Path.Contains(
+			'*', System.StringComparison.OrdinalIgnoreCase)));
+	}
+
+	/// <summary>
+	/// A non-wildcard exclude followed by a wildcard exclude: the non-wildcard
+	/// entry must survive intact. The stale-index bug can cause it to be lost
+	/// when the list is rebuilt during wildcard expansion.
+	/// </summary>
+	[Test]
+	public void ExpandExcludesNonWildcardNonWildcardIsPreserved2()
+	{
+		string reportFile = Path.Combine(tempDirectory, "report.csv");
+		File.WriteAllText(reportFile, string.Empty);
+
+		string fixedFolder = Path.Combine(tempDirectory, "FixedFolder");
+		string wildcardPath = Path.Combine(tempDirectory, "*.csv");
+
+		List<Exclude> excludeList = (List<Exclude>)tempDirectoryMapping.Excludes;
+
+		Exclude folderExclude = new(fixedFolder, ExcludeType.SubDirectory);
+		Exclude wildCardExclude = new(wildcardPath, ExcludeType.File);
+
+		// Fixed entry first, wildcard second — reverse loop hits wildcard first.
+		excludeList.Add(folderExclude);
+		excludeList.Add(wildCardExclude);
+
+		IList<Exclude> result = DriveMapping.ExpandGlobalExcludes(
+			tempDirectory, excludeList);
+
+		int count = result.Count;
+
+		// Should contain the expanded csv file AND the fixed folder.
+		Assert.That(count, Is.GreaterThanOrEqualTo(2));
+		Assert.That(result, Has.Some.Matches<Exclude>(e =>
+			e.Path.EndsWith("report.csv")));
+		Assert.That(result, Has.Some.Matches<Exclude>(e =>
+			e.Path == Path.GetFullPath(fixedFolder)));
+	}
+
+	/// <summary>
+	/// Same stale-index scenario exercised via the static ExpandGlobalExcludes.
+	/// </summary>
+	[Test]
+	public void ExpandGlobalExcludesMultipleWildcards()
+	{
+		AddBakTestfiles();
+		AddTmpTestfiles();
+
+		string bakWildcard = Path.Combine(tempDirectory, "*.bak");
+		string tmpWildcard = Path.Combine(tempDirectory, "*.tmp");
+
+		Exclude exclude1 = new Exclude(bakWildcard, ExcludeType.File);
+		Exclude exclude2 = new Exclude(tmpWildcard, ExcludeType.File);
+
+		List<Exclude> excludes = [];
+		excludes.Add(exclude1);
+		excludes.Add(exclude2);
+
+		IList<Exclude> result = DriveMapping.ExpandGlobalExcludes(
+			tempDirectory, excludes);
+
+		Assert.That(result, Has.Count.EqualTo(4));
+		Assert.That(
+			result, Has.None.Matches<Exclude>(e => e.Path.Contains('*')));
+	}
+
+	private void AddBakTestfiles()
+	{
+		string fileA = Path.Combine(tempDirectory, "snap_a.bak");
+		string fileB = Path.Combine(tempDirectory, "snap_b.bak");
+
+		File.WriteAllText(fileA, string.Empty);
+		File.WriteAllText(fileB, string.Empty);
+	}
+
+	private void AddCsvTestfiles()
+	{
+		string fileA = Path.Combine(tempDirectory, "data_a.csv");
+		string fileB = Path.Combine(tempDirectory, "data_b.csv");
+
+		File.WriteAllText(fileA, string.Empty);
+		File.WriteAllText(fileB, string.Empty);
+	}
+
+	private IList<Exclude> AddCsvAndLogToExcludes()
+	{
+		List<Exclude> excludeList =
+			(List<Exclude>)tempDirectoryMapping.Excludes;
+		excludeList.Add(new Exclude(
+			Path.Combine(tempDirectory, "*.csv"), ExcludeType.File));
+		excludeList.Add(new Exclude(
+			Path.Combine(tempDirectory, "*.log"), ExcludeType.File));
+
+		IList<Exclude> result = tempDirectoryMapping.ExpandExcludes();
+
+		return result;
+	}
+
+	private void AddLogTestfiles()
+	{
+		string fileA = Path.Combine(tempDirectory, "app_1.log");
+		string fileB = Path.Combine(tempDirectory, "app_2.log");
+
+		File.WriteAllText(fileA, string.Empty);
+		File.WriteAllText(fileB, string.Empty);
+	}
+
+	private void AddTmpTestfiles()
+	{
+		string fileA = Path.Combine(tempDirectory, "trace_1.tmp");
+		string fileB = Path.Combine(tempDirectory, "trace_2.tmp");
+
+		File.WriteAllText(fileA, string.Empty);
+		File.WriteAllText(fileB, string.Empty);
+	}
+
+	private Exclude GetLastExclude(IList<Exclude> excludes)
+	{
+		int count = excludes.Count;
+		Exclude lastExclude = excludes[count - 1];
+
+		return lastExclude;
 	}
 }
