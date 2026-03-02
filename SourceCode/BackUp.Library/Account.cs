@@ -4,68 +4,86 @@
 // </copyright>
 /////////////////////////////////////////////////////////////////////////////
 
-namespace DigitalZenWorks.BackUp.Library
+namespace DigitalZenWorks.BackUp.Library;
+
+using System.Collections.Generic;
+
+/// <summary>
+/// Account class.
+/// </summary>
+public class Account
 {
-	using System.Collections.Generic;
+	private readonly IList<DriveMapping> driveMappings = [];
+
+	private List<string> driveMappingPaths;
 
 	/// <summary>
-	/// Account class.
+	/// Gets or sets service account property.
 	/// </summary>
-	public class Account
+	/// <value>Service account property.</value>
+	public string AccountIdentifier { get; set; }
+
+	/// <summary>
+	/// Gets or sets the account type.
+	/// </summary>
+	/// <value>The account type.</value>
+	public AccountType AccountType { get; set; }
+
+	/// <summary>
+	/// Gets or sets a value indicating whether [check drive mappings].
+	/// </summary>
+	/// <value>
+	///   <c>true</c> if [check drive mappings]; otherwise, <c>false</c>.
+	/// </value>
+	public bool CheckDriveMappings { get; set; }
+
+	/// <summary>
+	/// Gets driveMappings property.
+	/// </summary>
+	/// <value>DriveMappings property.</value>
+	public IList<string> DriveMappingPaths
 	{
-		private readonly IList<DriveMapping> driveMappings = [];
-
-		private List<string> driveMappingPaths;
-
-		/// <summary>
-		/// Gets or sets service account property.
-		/// </summary>
-		/// <value>Service account property.</value>
-		public string AccountIdentifier { get; set; }
-
-		/// <summary>
-		/// Gets or sets the account type.
-		/// </summary>
-		/// <value>The account type.</value>
-		public AccountType AccountType { get; set; }
-
-		/// <summary>
-		/// Gets or sets a value indicating whether [check drive mappings].
-		/// </summary>
-		/// <value>
-		///   <c>true</c> if [check drive mappings]; otherwise, <c>false</c>.
-		/// </value>
-		public bool CheckDriveMappings { get; set; }
-
-		/// <summary>
-		/// Gets driveMappings property.
-		/// </summary>
-		/// <value>DriveMappings property.</value>
-		public IList<string> DriveMappingPaths
+		get
 		{
-			get
+			if (driveMappingPaths == null)
 			{
-				if (driveMappingPaths == null)
+				driveMappingPaths = [];
+
+				foreach (DriveMapping mapping in driveMappings)
 				{
-					driveMappingPaths = [];
-
-					foreach (DriveMapping mapping in driveMappings)
-					{
-						driveMappingPaths.Add(mapping.Path);
-					}
+					driveMappingPaths.Add(mapping.Path);
 				}
-
-				return driveMappingPaths;
 			}
-		}
 
-		/// <summary>
-		/// Gets driveMappings property.
-		/// </summary>
-		/// <value>DriveMappings property.</value>
-		public IList<DriveMapping> DriveMappings
+			return driveMappingPaths;
+		}
+	}
+
+	/// <summary>
+	/// Gets driveMappings property.
+	/// </summary>
+	/// <value>DriveMappings property.</value>
+	public IList<DriveMapping> DriveMappings
+	{
+		get { return driveMappings; }
+	}
+
+	/// <summary>
+	/// Adds the specified global exclusion strings to all existing drive
+	/// mappings.
+	/// </summary>
+	/// <remarks>This method iterates through all drive mappings and applies
+	/// the provided global exclusions to each one. Ensure that the exclusion
+	/// strings are valid and appropriate for the context of the drive
+	/// mappings.</remarks>
+	/// <param name="globalExcludes">A read-only list of exclusion strings to
+	/// be applied to each drive mapping. This parameter cannot be null or
+	/// empty.</param>
+	public void AddGlobalExcludes(IReadOnlyList<string> globalExcludes)
+	{
+		foreach (DriveMapping mapping in driveMappings)
 		{
-			get { return driveMappings; }
+			mapping.AddGlobalExcludes(globalExcludes);
 		}
 	}
 }

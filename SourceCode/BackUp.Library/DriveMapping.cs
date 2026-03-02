@@ -4,213 +4,229 @@
 // </copyright>
 /////////////////////////////////////////////////////////////////////////////
 
-namespace DigitalZenWorks.BackUp.Library
+namespace DigitalZenWorks.BackUp.Library;
+
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using Microsoft.Extensions.FileSystemGlobbing;
+using Newtonsoft.Json;
+
+/// <summary>
+/// DriveMapping custom class.
+/// </summary>
+public class DriveMapping
 {
-	using System;
-	using System.Collections.Generic;
-	using System.IO;
-	using System.Linq;
-	using Microsoft.Extensions.FileSystemGlobbing;
-	using Newtonsoft.Json;
+	private List<Exclude> excludes = [];
 
 	/// <summary>
-	/// DriveMapping custom class.
+	/// Initializes a new instance of the <see cref="DriveMapping"/> class
+	/// using the specified settings.
 	/// </summary>
-	public class DriveMapping
+	/// <remarks>Global excludes defined in the provided settings are
+	/// processed to determine which items should be excluded from the drive
+	/// mapping.</remarks>
+	/// <param name="settings">The settings used to configure the drive
+	/// mapping. If null, default settings are applied.</param>
+	public DriveMapping(Settings settings = null)
 	{
-		private List<Exclude> excludes = [];
-
-		/// <summary>
-		/// Initializes a new instance of the <see cref="DriveMapping"/> class.
-		/// </summary>
-		public DriveMapping()
+		if (settings != null)
 		{
-			string baseDataDirectory = Environment.GetFolderPath(
-				Environment.SpecialFolder.ApplicationData,
-				Environment.SpecialFolderOption.Create);
-			string settingsPath = baseDataDirectory +
-				"/DigitalZenWorks/BackUpManager/Settings.json";
+			excludes = AddGlobalExcludes(settings.GlobalExcludes);
+		}
+	}
 
-			if (System.IO.File.Exists(settingsPath))
+	/// <summary>
+	/// Gets or sets path property.
+	/// </summary>
+	/// <value>Path property.</value>
+	public string Path { get; set; }
+
+	/// <summary>
+	/// Gets or sets the core shared parent folder id property.
+	/// </summary>
+	/// <value>The core shared parent folder id property.</value>
+	public string DriveParentFolderId { get; set; }
+
+	/// <summary>
+	/// Gets excludes property.
+	/// </summary>
+	/// <value>Excludes property.</value>
+	public IList<Exclude> Excludes
+	{
+		get { return excludes; }
+	}
+
+	/// <summary>
+	/// Expand global excludes method.
+	/// </summary>
+	/// <param name="rootPath">The root path.</param>
+	/// <param name="excludes">The current set of includes.</param>
+	/// <returns>A list of expanded excludes.</returns>
+	public static IList<Exclude> ExpandGlobalExcludes(
+		string rootPath, IList<Exclude> excludes)
+	{
+		List<Exclude> expandedExcludes = null;
+
+		if (excludes != null)
+		{
+			expandedExcludes = [];
+
+			for (int index = excludes.Count - 1; index >= 0; index--)
 			{
-				string settingsText = File.ReadAllText(settingsPath);
+				Exclude temporaryExclude = excludes[index];
+				Exclude exclude = new(
+					temporaryExclude.Path, temporaryExclude.ExcludeType);
 
-				Settings settings = JsonConvert.DeserializeObject<Settings>(
-						settingsText);
-
-				if (settings?.GlobalExcludes != null)
+				if (exclude.ExcludeType == ExcludeType.Global)
 				{
-					foreach (string excludeName in settings.GlobalExcludes)
+					exclude = ExpandExclude(rootPath, exclude);
+				}
+
+				expandedExcludes.Add(exclude);
+
+				if (exclude.ExcludeType == ExcludeType.File &&
+					exclude.Path.Contains(
+						'*', StringComparison.OrdinalIgnoreCase))
+				{
+					List<Exclude> newExcludes = ExpandWildCard(exclude.Path);
+
+					if (newExcludes.Count > 0)
 					{
-						Exclude exclude = new(excludeName, ExcludeType.Global);
-						excludes.Add(exclude);
+						expandedExcludes.Remove(exclude);
+						IEnumerable<Exclude> interim =
+							expandedExcludes.Concat(newExcludes);
+
+						expandedExcludes = [.. interim];
 					}
 				}
 			}
 		}
 
-		/// <summary>
-		/// Gets or sets path property.
-		/// </summary>
-		/// <value>Path property.</value>
-		public string Path { get; set; }
+		return expandedExcludes;
+	}
 
-		/// <summary>
-		/// Gets or sets the core shared parent folder id property.
-		/// </summary>
-		/// <value>The core shared parent folder id property.</value>
-		public string DriveParentFolderId { get; set; }
-
-		/// <summary>
-		/// Gets excludes property.
-		/// </summary>
-		/// <value>Excludes property.</value>
-		public IList<Exclude> Excludes
+	/// <summary>
+	/// Adds the specified global exclusion names to the collection, ensuring
+	/// that only unique exclusions are included.
+	/// </summary>
+	/// <remarks>If the provided list is null, no exclusions are added.
+	/// Duplicate exclusion names are ignored, and only unique names are
+	/// stored.</remarks>
+	/// <param name="globalExcludes">A read-only list of exclusion names to
+	/// add as global exclusions. Each name must be unique and cannot be null.
+	/// </param>
+	/// <returns>A list of Exclude objects representing all global exclusions,
+	/// including any newly added exclusions.</returns>
+	public List<Exclude> AddGlobalExcludes(
+		IReadOnlyList<string> globalExcludes)
+	{
+		if (globalExcludes != null)
 		{
-			get { return excludes; }
-		}
-
-		/// <summary>
-		/// Expand global excludes method.
-		/// </summary>
-		/// <param name="rootPath">The root path.</param>
-		/// <param name="excludes">The current set of includes.</param>
-		/// <returns>A list of expanded excludes.</returns>
-		public static IList<Exclude> ExpandGlobalExcludes(
-			string rootPath, IList<Exclude> excludes)
-		{
-			List<Exclude> expandedExcludes = null;
-
-			if (excludes != null)
+			foreach (string excludeName in globalExcludes)
 			{
-				expandedExcludes = [];
+				bool exists = excludes.Any(e =>
+					e.Path.Equals(
+						excludeName, StringComparison.OrdinalIgnoreCase));
 
-				for (int index = excludes.Count - 1; index >= 0; index--)
+				if (exists == false)
 				{
-					Exclude temporaryExclude = excludes[index];
-					Exclude exclude = new(
-						temporaryExclude.Path, temporaryExclude.ExcludeType);
-
-					if (exclude.ExcludeType == ExcludeType.Global)
-					{
-						exclude = ExpandExclude(rootPath, exclude);
-					}
-
-					expandedExcludes.Add(exclude);
-
-					if (exclude.ExcludeType == ExcludeType.File &&
-						exclude.Path.Contains(
-							'*', StringComparison.OrdinalIgnoreCase))
-					{
-						List<Exclude> newExcludes =
-							ExpandWildCard(exclude.Path);
-
-						if (newExcludes.Count > 0)
-						{
-							expandedExcludes.Remove(exclude);
-							IEnumerable<Exclude> interim =
-								expandedExcludes.Concat(newExcludes);
-
-							expandedExcludes = [.. interim];
-						}
-					}
+					Exclude exclude = new(excludeName, ExcludeType.Global);
+					excludes.Add(exclude);
 				}
 			}
-
-			return expandedExcludes;
 		}
 
-		/// <summary>
-		/// Expand excludes method.
-		/// </summary>
-		/// <returns>A list of expanded excludes.</returns>
-		public IList<Exclude> ExpandExcludes()
+		return excludes;
+	}
+
+	/// <summary>
+	/// Expand excludes method.
+	/// </summary>
+	/// <returns>A list of expanded excludes.</returns>
+	public IList<Exclude> ExpandExcludes()
+	{
+		if (excludes != null)
 		{
-			if (excludes != null)
+			List<Exclude> expandedExcludes = [];
+
+			foreach (Exclude temporaryExclude in excludes)
 			{
-				List<Exclude> expandedExcludes = [];
+				Exclude exclude = temporaryExclude;
 
-				foreach (Exclude temporaryExclude in excludes)
+				if (exclude.ExcludeType != ExcludeType.Global)
 				{
-					Exclude exclude = temporaryExclude;
+					exclude = ExpandExclude(Path, exclude);
+				}
 
-					if (exclude.ExcludeType != ExcludeType.Global)
+				if (exclude.ExcludeType == ExcludeType.File &&
+					exclude.Path.Contains(
+						'*', StringComparison.OrdinalIgnoreCase))
+				{
+					List<Exclude> newExcludes = ExpandWildCard(exclude.Path);
+
+					if (newExcludes.Count > 0)
 					{
-						exclude = ExpandExclude(Path, exclude);
-					}
-
-					if (exclude.ExcludeType == ExcludeType.File &&
-						exclude.Path.Contains(
-							'*', StringComparison.OrdinalIgnoreCase))
-					{
-						List<Exclude> newExcludes =
-							ExpandWildCard(exclude.Path);
-
-						if (newExcludes.Count > 0)
-						{
-							expandedExcludes.AddRange(newExcludes);
-						}
-						else
-						{
-							expandedExcludes.Add(exclude);
-						}
+						expandedExcludes.AddRange(newExcludes);
 					}
 					else
 					{
 						expandedExcludes.Add(exclude);
 					}
 				}
-
-				excludes = expandedExcludes;
-			}
-
-			return excludes;
-		}
-
-		private static List<Exclude> ExpandWildCard(string path)
-		{
-			List<Exclude> newExcludes = [];
-
-			if (path.Contains(
-				'*', StringComparison.OrdinalIgnoreCase))
-			{
-				int index = path.IndexOf(
-					'*', StringComparison.OrdinalIgnoreCase);
-				string pattern = path[index..];
-
-				Matcher matcher = new();
-				matcher.AddInclude(pattern);
-
-				string directory = System.IO.Path.GetDirectoryName(path);
-				IEnumerable<string> matchingFiles =
-					matcher.GetResultsInFullPath(directory);
-
-				foreach (string match in matchingFiles)
+				else
 				{
-					Exclude exclude = new(match, ExcludeType.File);
-					newExcludes.Add(exclude);
+					expandedExcludes.Add(exclude);
 				}
 			}
 
-			return newExcludes;
+			excludes = expandedExcludes;
 		}
 
-		private static Exclude ExpandExclude(string rootPath, Exclude exclude)
+		return excludes;
+	}
+
+	private static List<Exclude> ExpandWildCard(string path)
+	{
+		List<Exclude> newExcludes = [];
+
+		if (path.Contains(
+			'*', StringComparison.OrdinalIgnoreCase))
 		{
-			exclude.Path = Environment.ExpandEnvironmentVariables(
-				exclude.Path);
+			int index = path.IndexOf('*', StringComparison.OrdinalIgnoreCase);
+			string pattern = path[index..];
 
-			bool isQualified =
-				System.IO.Path.IsPathFullyQualified(exclude.Path);
+			Matcher matcher = new();
+			matcher.AddInclude(pattern);
 
-			if (isQualified == false)
+			string directory = System.IO.Path.GetDirectoryName(path);
+			IEnumerable<string> matchingFiles =
+				matcher.GetResultsInFullPath(directory);
+
+			foreach (string match in matchingFiles)
 			{
-				exclude.Path = System.IO.Path.Combine(rootPath, exclude.Path);
+				Exclude exclude = new(match, ExcludeType.File);
+				newExcludes.Add(exclude);
 			}
-
-			exclude.Path = System.IO.Path.GetFullPath(exclude.Path);
-
-			return exclude;
 		}
+
+		return newExcludes;
+	}
+
+	private static Exclude ExpandExclude(string rootPath, Exclude exclude)
+	{
+		exclude.Path = Environment.ExpandEnvironmentVariables(exclude.Path);
+
+		bool isQualified = System.IO.Path.IsPathFullyQualified(exclude.Path);
+
+		if (isQualified == false)
+		{
+			exclude.Path = System.IO.Path.Combine(rootPath, exclude.Path);
+		}
+
+		exclude.Path = System.IO.Path.GetFullPath(exclude.Path);
+
+		return exclude;
 	}
 }
