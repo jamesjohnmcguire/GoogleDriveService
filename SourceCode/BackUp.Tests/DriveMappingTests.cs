@@ -400,7 +400,7 @@ internal class DriveMappingTests
 
 		string wildcardPath = Path.Combine(tempDirectory, "*.csv");
 
-		Exclude item = new Exclude(wildcardPath, ExcludeType.Global);
+		Exclude item = new Exclude(wildcardPath, ExcludeType.File);
 		List<Exclude> excludes = (List<Exclude>)tempDirectoryMapping.Excludes;
 		excludes.Add(item);
 
