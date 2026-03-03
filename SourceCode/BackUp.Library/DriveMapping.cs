@@ -71,18 +71,14 @@ public class DriveMapping
 		{
 			expandedExcludes = [];
 
-			for (int index = excludes.Count - 1; index >= 0; index--)
+			foreach (Exclude temporaryExclude in excludes)
 			{
-				Exclude temporaryExclude = excludes[index];
-				Exclude exclude = new(
-					temporaryExclude.Path, temporaryExclude.ExcludeType);
+				Exclude exclude = temporaryExclude;
 
 				if (exclude.ExcludeType == ExcludeType.Global)
 				{
 					exclude = ExpandExclude(rootPath, exclude);
 				}
-
-				expandedExcludes.Add(exclude);
 
 				if (exclude.ExcludeType == ExcludeType.File &&
 					exclude.Path.Contains(
@@ -92,12 +88,12 @@ public class DriveMapping
 
 					if (newExcludes.Count > 0)
 					{
-						expandedExcludes.Remove(exclude);
-						IEnumerable<Exclude> interim =
-							expandedExcludes.Concat(newExcludes);
-
-						expandedExcludes = [.. interim];
+						expandedExcludes.AddRange(newExcludes);
 					}
+				}
+				else
+				{
+					expandedExcludes.Add(exclude);
 				}
 			}
 		}
