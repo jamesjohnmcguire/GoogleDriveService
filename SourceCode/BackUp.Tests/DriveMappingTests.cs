@@ -80,6 +80,7 @@ internal class DriveMappingTests
 		DriveMapping mapping = new();
 
 		Assert.That(mapping.Excludes, Is.Not.Null);
+		Assert.That(mapping.Excludes, Is.Empty);
 	}
 
 	/// <summary>
