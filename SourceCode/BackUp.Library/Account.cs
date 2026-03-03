@@ -79,7 +79,7 @@ public class Account
 	/// <param name="globalExcludes">A read-only list of exclusion strings to
 	/// be applied to each drive mapping. This parameter cannot be null or
 	/// empty.</param>
-	public void AddGlobalExcludes(IReadOnlyList<string> globalExcludes)
+	public void AddGlobalExcludes(IReadOnlyCollection<string> globalExcludes)
 	{
 		foreach (DriveMapping mapping in driveMappings)
 		{

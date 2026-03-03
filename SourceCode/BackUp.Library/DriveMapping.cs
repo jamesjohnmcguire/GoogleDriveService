@@ -61,7 +61,7 @@ public class DriveMapping
 	/// Gets the global excludes templates.
 	/// </summary>
 	/// <value>The global excludes templates.</value>
-	public ICollection<string> GlobalExcludesTemplates { get; }
+	public ICollection<string> GlobalExcludesTemplates { get; } = [];
 
 	/// <summary>
 	/// Expand global excludes method.
@@ -168,7 +168,7 @@ public class DriveMapping
 	/// names to add as global exclusions. Each name must be unique and cannot
 	/// be null. </param>
 	public void AddGlobalExcludesTemplates(
-		IReadOnlyList<string> globalExcludesTemplates)
+		IReadOnlyCollection<string> globalExcludesTemplates)
 	{
 		if (globalExcludesTemplates != null)
 		{
