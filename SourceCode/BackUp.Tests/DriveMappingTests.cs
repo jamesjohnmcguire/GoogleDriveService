@@ -147,7 +147,7 @@ internal class DriveMappingTests
 	public void ExpandWildCardExcludesNotNull()
 	{
 		ICollection<Exclude> result =
-			DriveMapping.ExpandWildCardExcludes(tempDirectory, null);
+			DriveMapping.ExpandWildCardExcludes(null);
 
 		Assert.That(result, Is.Not.Null);
 		Assert.That(result, Is.Empty);
@@ -180,8 +180,7 @@ internal class DriveMappingTests
 	[Test]
 	public void ExpandWildCardExcludesEmptyList()
 	{
-		ICollection<Exclude> result =
-			DriveMapping.ExpandWildCardExcludes(tempDirectory, []);
+		ICollection<Exclude> result = DriveMapping.ExpandWildCardExcludes([]);
 
 		Assert.That(result, Is.Not.Null);
 		Assert.That(result, Is.Empty);
@@ -315,8 +314,8 @@ internal class DriveMappingTests
 		string wildcardPath = Path.Combine(tempDirectory, "*.txt");
 		Exclude wildcardExclude = new(wildcardPath, ExcludeType.File);
 
-		ICollection<Exclude> result = DriveMapping.ExpandWildCardExcludes(
-			tempDirectory, [wildcardExclude]);
+		ICollection<Exclude> result =
+			DriveMapping.ExpandWildCardExcludes([wildcardExclude]);
 
 		// The wildcard entry itself should be removed and replaced by the
 		// two matched .txt files.
@@ -368,8 +367,8 @@ internal class DriveMappingTests
 		string wildcardPath = Path.Combine(tempDirectory, "*.xyz");
 		Exclude wildcardExclude = new(wildcardPath, ExcludeType.File);
 
-		ICollection<Exclude> result = DriveMapping.ExpandWildCardExcludes(
-			tempDirectory, [wildcardExclude]);
+		ICollection<Exclude> result =
+			DriveMapping.ExpandWildCardExcludes([wildcardExclude]);
 
 		// No matches – original entry stays because ExpandWildCard returns
 		// an empty list and the remove-and-concat branch is not entered.
@@ -536,7 +535,7 @@ internal class DriveMappingTests
 		excludeList.Add(exclude2);
 
 		ICollection<Exclude> result =
-			DriveMapping.ExpandWildCardExcludes(tempDirectory, excludeList);
+			DriveMapping.ExpandWildCardExcludes(excludeList);
 
 		int count = result.Count;
 
@@ -566,7 +565,7 @@ internal class DriveMappingTests
 		excludeList.Add(exclude2);
 
 		ICollection<Exclude> result =
-			DriveMapping.ExpandWildCardExcludes(tempDirectory, excludeList);
+			DriveMapping.ExpandWildCardExcludes(excludeList);
 
 		int count = result.Count;
 
@@ -653,7 +652,7 @@ internal class DriveMappingTests
 		excludeList.Add(wildCardExclude);
 
 		ICollection<Exclude> result =
-			DriveMapping.ExpandWildCardExcludes(tempDirectory, excludeList);
+			DriveMapping.ExpandWildCardExcludes(excludeList);
 
 		int count = result.Count;
 
