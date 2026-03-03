@@ -57,6 +57,14 @@ public class DriveMapping
 	}
 
 	/// <summary>
+	/// Gets or sets the global excludes templates.
+	/// </summary>
+	/// <value>The global excludes templates.</value>
+#pragma warning disable CA2227 // Collection properties should be read only
+	public ICollection<string> GlobalExcludesTemplates { get; set; }
+#pragma warning restore CA2227 // Collection properties should be read only
+
+	/// <summary>
 	/// Expand global excludes method.
 	/// </summary>
 	/// <param name="rootPath">The root path.</param>
