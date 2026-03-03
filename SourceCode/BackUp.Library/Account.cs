@@ -83,7 +83,7 @@ public class Account
 	{
 		foreach (DriveMapping mapping in driveMappings)
 		{
-			mapping.AddGlobalExcludes(globalExcludes);
+			mapping.AddGlobalExcludesTemplates(globalExcludes);
 		}
 	}
 }

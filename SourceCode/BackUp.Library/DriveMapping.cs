@@ -31,7 +31,7 @@ public class DriveMapping
 	{
 		if (settings != null)
 		{
-			excludes = AddGlobalExcludes(settings.GlobalExcludes);
+			AddGlobalExcludesTemplates(settings.GlobalExcludes);
 		}
 	}
 
@@ -116,31 +116,25 @@ public class DriveMapping
 	/// <remarks>If the provided list is null, no exclusions are added.
 	/// Duplicate exclusion names are ignored, and only unique names are
 	/// stored.</remarks>
-	/// <param name="globalExcludes">A read-only list of exclusion names to
-	/// add as global exclusions. Each name must be unique and cannot be null.
-	/// </param>
-	/// <returns>A list of Exclude objects representing all global exclusions,
-	/// including any newly added exclusions.</returns>
-	public List<Exclude> AddGlobalExcludes(
-		IReadOnlyList<string> globalExcludes)
+	/// <param name="globalExcludesTemplates">A read-only list of exclusion
+	/// names to add as global exclusions. Each name must be unique and cannot
+	/// be null. </param>
+	public void AddGlobalExcludesTemplates(
+		IReadOnlyList<string> globalExcludesTemplates)
 	{
-		if (globalExcludes != null)
+		if (globalExcludesTemplates != null)
 		{
-			foreach (string excludeName in globalExcludes)
+			foreach (string excludeName in globalExcludesTemplates)
 			{
-				bool exists = excludes.Any(e =>
-					e.Path.Equals(
-						excludeName, StringComparison.OrdinalIgnoreCase));
+				bool exists = GlobalExcludesTemplates.Any(e => e.Equals(
+					excludeName, StringComparison.OrdinalIgnoreCase));
 
 				if (exists == false)
 				{
-					Exclude exclude = new(excludeName, ExcludeType.Global);
-					excludes.Add(exclude);
+					GlobalExcludesTemplates.Add(excludeName);
 				}
 			}
 		}
-
-		return excludes;
 	}
 
 	/// <summary>
