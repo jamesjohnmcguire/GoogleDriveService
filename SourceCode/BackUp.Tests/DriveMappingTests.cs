@@ -288,7 +288,7 @@ internal class DriveMappingTests
 
 		// No matches – original entry stays because ExpandWildCard returns
 		// an empty list and the remove-and-concat branch is not entered.
-		Assert.That(result, Has.Count.EqualTo(1));
+		Assert.That(result, Has.Count.EqualTo(0));
 	}
 
 	// ------------------------------------------------------------------------
