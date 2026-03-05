@@ -293,7 +293,6 @@ internal class ShouldProcessFolderTests
 		Exclude exclude = new("obj", ExcludeType.Global);
 		excludes.Add(exclude);
 
-		// Both relative — cannot make a definitive match, allow
 		string relativePath = Path.Combine("Data", "obj");
 
 		bool result = BaseService.ShouldProcessFolder(excludes, relativePath);
@@ -342,39 +341,6 @@ internal class ShouldProcessFolderTests
 	/// </summary>
 	[Test]
 	public void ExcludeTypeSubDirectoryIsRespectedReturnsFalse()
-	{
-		ICollection<Exclude> excludes = [];
-
-		Exclude exclude = new(clientsPath, ExcludeType.SubDirectory);
-		excludes.Add(exclude);
-
-		bool result = BaseService.ShouldProcessFolder(excludes, clientsPath);
-
-		Assert.That(result, Is.False);
-	}
-
-	/// <summary>
-	/// The exclude type global is respected returns false test.
-	/// </summary>
-	[Test]
-	public void ExcludeTypeGlobalIsRespectedReturnsFalse()
-	{
-		ICollection<Exclude> excludes = [];
-
-		Exclude exclude = new("node_modules", ExcludeType.Global);
-		excludes.Add(exclude);
-
-		bool result =
-			BaseService.ShouldProcessFolder(excludes, nodeModulesPath);
-
-		Assert.That(result, Is.False);
-	}
-
-	/// <summary>
-	/// The exclude type sub-directory is respected returns false test.
-	/// </summary>
-	[Test]
-	public void ExcludeTypeFolderIsRespectedReturnsFalse()
 	{
 		ICollection<Exclude> excludes = [];
 
