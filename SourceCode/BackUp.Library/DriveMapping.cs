@@ -52,7 +52,7 @@ public class DriveMapping
 	/// Gets excludes property.
 	/// </summary>
 	/// <value>Excludes property.</value>
-	public IList<Exclude> Excludes
+	public ICollection<Exclude> Excludes
 	{
 		get { return excludes; }
 	}
@@ -67,10 +67,10 @@ public class DriveMapping
 	/// Expand global excludes method.
 	/// </summary>
 	/// <param name="rootPath">The root path.</param>
-	/// <param name="excludes">The current set of includes.</param>
+	/// <param name="excludes">The current set of excludes.</param>
 	/// <returns>A list of expanded excludes.</returns>
 	public static IList<Exclude> ExpandGlobalExcludes(
-		string rootPath, IList<Exclude> excludes)
+		string rootPath, ICollection<Exclude> excludes)
 	{
 		List<Exclude> expandedExcludes = null;
 

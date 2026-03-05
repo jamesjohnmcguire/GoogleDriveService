@@ -231,7 +231,7 @@ public class GoogleServiceAccount(
 	/// <param name="subDirectories">The sub directories.</param>
 	/// <param name="driveMappings">The drive mappings.</param>
 	/// <param name="serverFiles">The server files.</param>
-	/// <param name="excludes">The excludes.</param>
+	/// <param name="excludes">The collection of excludes.</param>
 	/// <param name="checkDriveMappings">Indicates whether or not to check
 	/// the drive mappings.</param>
 	/// <returns>The amount of files removed.</returns>
@@ -240,7 +240,7 @@ public class GoogleServiceAccount(
 		IList<string> subDirectories,
 		IList<string> driveMappings,
 		IList<GoogleDriveFile> serverFiles,
-		IList<Exclude> excludes,
+		ICollection<Exclude> excludes,
 		bool checkDriveMappings = false)
 	{
 		int removedFilesCount = 0;
@@ -309,12 +309,12 @@ public class GoogleServiceAccount(
 	/// <param name="driveParentId">The drive parent id.</param>
 	/// <param name="path">The path to back up.</param>
 	/// <param name="serverFiles">The list of server files.</param>
-	/// <param name="excludes">The list of excludes.</param>
+	/// <param name="excludes">The collection of excludes.</param>
 	protected void BackUpFiles(
 		string driveParentId,
 		string path,
 		IList<GoogleDriveFile> serverFiles,
-		IList<Exclude> excludes)
+		ICollection<Exclude> excludes)
 	{
 		bool processFiles = ShouldProcessFiles(excludes, path);
 
@@ -360,7 +360,7 @@ public class GoogleServiceAccount(
 		string parentPath,
 		FileInfo[] files,
 		IList<GoogleDriveFile> serverFiles,
-		IList<Exclude> excludes)
+		ICollection<Exclude> excludes)
 	{
 		if (serverFiles != null)
 		{
@@ -448,7 +448,7 @@ public class GoogleServiceAccount(
 	}
 
 	private static bool CheckForKeepExclude(
-		string fileName, IList<Exclude> excludes)
+		string fileName, ICollection<Exclude> excludes)
 	{
 		bool keep = false;
 
@@ -485,7 +485,7 @@ public class GoogleServiceAccount(
 		string driveParentId,
 		string path,
 		IList<GoogleDriveFile> serverFiles,
-		IList<Exclude> excludes)
+		ICollection<Exclude> excludes)
 	{
 		try
 		{
@@ -558,7 +558,7 @@ public class GoogleServiceAccount(
 		string driveParentId,
 		FileInfo file,
 		IList<GoogleDriveFile> serverFiles,
-		IList<Exclude> excludes)
+		ICollection<Exclude> excludes)
 	{
 		try
 		{
@@ -612,7 +612,7 @@ public class GoogleServiceAccount(
 	}
 
 	private bool ExcludeKeepOrDeleteFile(
-		GoogleDriveFile file, IList<Exclude> excludes)
+		GoogleDriveFile file, ICollection<Exclude> excludes)
 	{
 		bool removed = false;
 
@@ -668,7 +668,7 @@ public class GoogleServiceAccount(
 		string path,
 		IList<string> subDirectories,
 		IList<string> driveMappings,
-		IList<Exclude> excludes,
+		ICollection<Exclude> excludes,
 		bool checkDriveMappings = false)
 	{
 		bool removed = false;

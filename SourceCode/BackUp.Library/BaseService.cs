@@ -46,7 +46,7 @@ public abstract class BaseService(
 	/// <returns>A value indicating whether to process the file
 	/// or not.</returns>
 	protected static bool ShouldSkipThisDirectory(
-		string parentPath, IList<Exclude> excludes)
+		string parentPath, ICollection<Exclude> excludes)
 	{
 		bool skipThisDirectory = false;
 
@@ -77,7 +77,7 @@ public abstract class BaseService(
 	/// <returns>A value indicating whether to process the file
 	/// or not.</returns>
 	protected static bool ShouldProcessFile(
-		IList<Exclude> excludes, string path)
+		ICollection<Exclude> excludes, string path)
 	{
 		bool processFile = true;
 
@@ -111,7 +111,7 @@ public abstract class BaseService(
 	/// <returns>A value indicating whether to process the file
 	/// or not.</returns>
 	protected static bool ShouldProcessFiles(
-		IList<Exclude> excludes, string path)
+		ICollection<Exclude> excludes, string path)
 	{
 		bool processFiles = true;
 
@@ -139,12 +139,12 @@ public abstract class BaseService(
 	/// <summary>
 	/// Should process folder method.
 	/// </summary>
-	/// <param name="excludes">The list of excludes.</param>
+	/// <param name="excludes">The collection of excludes.</param>
 	/// <param name="path">The path to process.</param>
 	/// <returns>A value indicating whether to process the file
 	/// or not.</returns>
-	protected static bool ShouldProcessFolder(
-		IList<Exclude> excludes, string path)
+	internal static bool ShouldProcessFolder(
+		ICollection<Exclude> excludes, string path)
 	{
 		bool processSubFolders = true;
 
@@ -198,7 +198,7 @@ public abstract class BaseService(
 	/// <returns>A value indicating whether to remove the file
 	/// or not.</returns>
 	protected static bool ShouldRemoveFile(
-		IList<Exclude> excludes, string path)
+		ICollection<Exclude> excludes, string path)
 	{
 		bool removeFile = true;
 
