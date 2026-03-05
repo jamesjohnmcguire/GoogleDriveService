@@ -152,12 +152,21 @@ public abstract class BaseService(
 		{
 			foreach (Exclude exclude in excludes)
 			{
+				if (exclude == null)
+				{
+					continue;
+				}
+
 				ExcludeType clause = exclude.ExcludeType;
 
 				if (clause == ExcludeType.SubDirectory ||
-					clause == ExcludeType.Global ||
-					clause == ExcludeType.FileIgnore)
+					clause == ExcludeType.Global)
 				{
+					if (exclude.Path == null)
+					{
+						continue;
+					}
+
 					bool isQualified =
 						System.IO.Path.IsPathFullyQualified(exclude.Path);
 
