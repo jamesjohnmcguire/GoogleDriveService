@@ -72,22 +72,26 @@ public class ShouldProcessFolderTests
 	[Test]
 	public void NullExcludeEntry_IsSkipped_ReturnsTrue()
 	{
-		ICollection<Exclude> excludes = [null];
+		ICollection<Exclude> excludes = [];
+		excludes.Add(null);
 
-		Assert.That(
-			BaseService.ShouldProcessFolder(excludes, clientsPath),
-			Is.True);
+		bool result = BaseService.ShouldProcessFolder(excludes, clientsPath);
+
+		Assert.That(result, Is.True);
 	}
 
 	[Test]
 	public void ExcludeWithNullPath_IsSkipped_ReturnsTrue()
 	{
-		ICollection<Exclude> excludes =
-			[new Exclude(null, ExcludeType.SubDirectory)];
+		Exclude exclude = new(null, ExcludeType.SubDirectory);
 
-		Assert.That(
-			BaseService.ShouldProcessFolder(excludes, clientsPath),
-			Is.True);
+		ICollection<Exclude> excludes = [];
+		excludes.Add(exclude);
+
+		bool result = BaseService.ShouldProcessFolder(excludes, clientsPath);
+
+		Assert.That(result, Is.True);
+
 	}
 
 	// -------------------------------------------------------------------------
@@ -200,16 +204,19 @@ public class ShouldProcessFolderTests
 	}
 
 	[Test]
-	public void RelativePath_WithRelativeExclude_IsPermissive_ReturnsTrue()
+	public void RelativePath_WithRelativeExcludeReturnsFalse()
 	{
+		Exclude exclude = new("obj", ExcludeType.Global);
+
+		ICollection<Exclude> excludes = [];
+		excludes.Add(exclude);
+
 		// Both relative — cannot make a definitive match, allow
 		string relativePath = Path.Combine("Data", "obj");
-		ICollection<Exclude> excludes =
-			[new Exclude("obj", ExcludeType.Global)];
 
-		Assert.That(
-			BaseService.ShouldProcessFolder(excludes, relativePath),
-			Is.True);
+		bool result = BaseService.ShouldProcessFolder(excludes, relativePath);
+
+		Assert.That(result, Is.False);
 	}
 
 	// -------------------------------------------------------------------------
@@ -230,12 +237,14 @@ public class ShouldProcessFolderTests
 	[Test]
 	public void ExcludeType_FileIgnore_IsIgnored_ReturnsTrue()
 	{
-		ICollection<Exclude> excludes =
-			[new Exclude(clientsPath, ExcludeType.FileIgnore)];
+		Exclude exclude = new (clientsPath, ExcludeType.FileIgnore);
 
-		Assert.That(
-			BaseService.ShouldProcessFolder(excludes, clientsPath),
-			Is.True);
+		ICollection<Exclude> excludes = [];
+		excludes.Add(exclude);
+
+		bool result = BaseService.ShouldProcessFolder(excludes, clientsPath);
+
+		Assert.That(result, Is.True);
 	}
 
 	[Test]
