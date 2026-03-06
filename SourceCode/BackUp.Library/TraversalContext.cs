@@ -1,0 +1,11 @@
+/////////////////////////////////////////////////////////////////////////////
+// <copyright file="TraversalContext.cs" company="James John McGuire">
+// Copyright © 2017 - 2026 James John McGuire. All Rights Reserved.
+// </copyright>
+/////////////////////////////////////////////////////////////////////////////
+
+namespace DigitalZenWorks.BackUp.Library;
+
+public class TraversalContext
+{
+}
