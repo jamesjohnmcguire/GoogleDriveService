@@ -267,3 +267,101 @@ BackUpManager
 		Inner Exception 1:	InvalidOperationException: The credential type Google.Apis.Auth.OAuth2.ServiceAccountCredential is not compatible with the requested type Google.Apis.Auth.OAuth2.GoogleCredential
  Google Source Code
 	https://github.com/googleapis/google-api-dotnet-client/blob/main/Src/Generated/Google.Apis.Drive.v3/Google.Apis.Drive.v3.cs
+Refactor Considerations
+	It may be worth mentioning, maybe not fully implemented yet, but the plan is to update the excludes upon entering any new directory, especially or perhaps, only the global excludes, so that they all should be potentially relevant to the current directory being processed.
+		If excludes are re-expanded per directory as the traversal descends, then by the time ShouldProcessFolder is called, the global excludes should already be fully resolved to absolute paths for the current context. That would mean the relative-path branch in ShouldProcessFolder becomes less necessary — or at least its role changes. It's currently a fallback for when expansion hasn't happened yet, but if expansion is guaranteed before each call, you could potentially assert that all paths are fully qualified by the time they reach this method.
+
+		A DirectoryContext or TraversalContext class that holds the current path and its expanded excludes, updated as traversal descends, would make this explicit and testable — rather than having the expansion and the evaluation scattered across the call stack. That would also tie back to the BaseService refactor we touched on earlier.
+	Separate your data model from your domain model
+		Have a plain DriveMappingConfig (or similar) that's just a dumb data container — pure properties, no logic — which JSON deserializes into cleanly. Then have DriveMapping be a proper domain object that gets constructed from a DriveMappingConfig plus whatever dependencies it needs. Account would similarly have an AccountConfig counterpart.
+	AppStartup
+	  → loads Settings.json once → Settings
+	  → loads Account.json once  → AccountConfig
+	  → constructs Account(AccountConfig, Settings)
+		   → constructs DriveMapping(DriveMappingConfig, Settings) for each mapping
+	Accounts.json
+		AccountIdentifier is a filename (JamesSanGCloud.json). That's a Google-specific credential mechanism. As you add OneDrive (which uses OAuth tokens) and Dropbox (similar), this field's meaning will drift per provider. You might want a more explicit structure like:
+	DriveMappingPaths is a derived/cached value that could go stale
+		If driveMappings changes after DriveMappingPaths is first accessed, the cached driveMappingPaths list won't reflect it. It's also not something that needs to exist on the model at all — it looks like a convenience property that probably serves one specific call site. A simple LINQ expression at that call site (driveMappings.Select(m => m.Path)) would be cleaner.
+	CheckDriveMappings is a flag on the model
+		Behavioural flags on data models are usually a smell — it suggests the model is being used to control flow somewhere. That logic probably belongs in whatever service processes the account.
+	You essentially have two layers conflated into one set of classes:
+		A data/config layer — what gets deserialized from JSON, plain properties, no logic
+		A domain/service layer — what actually does the work, needs dependencies like Settings
+
+		I'd suggest splitting them explicitly:
+			AccountConfig          → deserializes from accounts.json
+			DriveMappingConfig     → deserializes from accounts.json
+			Settings               → deserializes from settings.json
+
+			Account                → domain object, constructed from AccountConfig + Settings
+			DriveMapping           → domain object, constructed from DriveMappingConfig + Settings
+		Then a simple bootstrap at startup:
+	ExcludeType
+		Semantic Slipperiness
+			Yes, there's some muddiness here. Looking at the enum carefully:
+			SubDirectory says "relative to the root directory" — implying it only applies at one specific level of the tree
+			Global says "whenever the directory is present" — which is the obj anywhere-in-the-tree case we discussed
+			OnlyRoot is about files in the root, not subdirectories
+
+			So the hierarchy is roughly:
+				OnlyRoot    → files, root level only
+				SubDirectory → directory, specific location relative to root
+				Global      → directory, any depth in tree
+				File        → specific file, with remote removal
+				FileIgnore  → specific file, without remote removal
+				Keep        → remote retention, inverse of exclusion really
+
+			public enum ExcludeScope
+			{
+				RootOnly,       // applies at root level only
+				Specific,       // applies at a specific path
+				Global,         // applies anywhere in the tree
+			}
+
+			public enum RemoteBehaviour
+			{
+				Remove,         // remove from remote if not local
+				Keep,           // retain on remote even if not local
+				Ignore,         // don't touch remote
+			}
+
+			public class Exclude
+			{
+				public string Path { get; set; }
+				public ExcludeScope Scope { get; set; }
+				public RemoteBehaviour RemoteBehaviour { get; set; }
+			}
+	Coverage gaps we know about:
+		SettingsManager — nothing yet, and it's about to become important
+		Account — no tests at all
+		Exclude class itself — we've been testing it indirectly but never directly
+		The ExcludeType semantics — particularly the SubDirectory vs Global distinction under actual traversal conditions
+	Flow
+		ExpandWildCardExcludes — once per account/mapping
+			Wildcard expansion is filesystem-expensive (it's doing actual directory enumeration via Matcher). The set of files matching *.bak relative to a mapping root doesn't change as you traverse subdirectories, so expanding once upfront and caching the results is the right call.
+		ExpandGlobalExcludes — once per directory entered
+			Global excludes like obj or node_modules need to be resolved relative to each directory as traversal descends, because their absolute paths change at each level. This is cheap by comparison since it's just string manipulation — Path.Combine, GetFullPath, ExpandEnvironmentVariables — no filesystem hits.
+
+			So the traversal pipeline is becoming clearer:
+				Account initialisation
+				  → ExpandWildCardExcludes(excludes)        // once, filesystem hit
+
+				EnterDirectory(path)
+				  → ExpandGlobalExcludes(path, excludes)    // per directory, string ops only
+				  → ShouldProcessFolder(path, excludes)     // per directory, pure logic
+				  → if true, process files, recurse
+
+				ExpandGlobalExcludes belongs closer to the traversal logic
+
+	/// <summary>
+	/// Determines whether a folder should be processed during backup.
+	///
+	/// This method is designed to be called after excludes have been
+	/// expanded for the current directory context, particularly global
+	/// excludes which are re-expanded as the traversal descends into
+	/// each new directory. Fully qualified paths in both the subject
+	/// and excludes are therefore the expected common case. Relative
+	/// path handling is retained as a permissive fallback for cases
+	/// where expansion has not yet occurred.
+	/// </summary>
