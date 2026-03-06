@@ -137,12 +137,17 @@ public abstract class BaseService(
 	}
 
 	/// <summary>
-	/// Should process folder method.
+	/// Determines whether a folder should be processed during backup.
 	/// </summary>
-	/// <param name="excludes">The collection of excludes.</param>
+	/// <remarks>This method evaluates a single folder in isolation. Prevention
+	/// of processing of an excluded folder's subtree is the responsibility
+	/// of the caller.</remarks>
+	/// <param name="excludes">The collection of excludes to check
+	/// against. A null or empty collection always permits
+	/// processing.</param>
 	/// <param name="path">The path to process.</param>
-	/// <returns>A value indicating whether to process the file
-	/// or not.</returns>
+	/// <returns>True if the folder should be processed;
+	/// false if it is explicitly excluded.</returns>
 	internal static bool ShouldProcessFolder(
 		ICollection<Exclude> excludes, string path)
 	{
