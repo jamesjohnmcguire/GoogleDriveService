@@ -433,6 +433,10 @@ public class GoogleServiceAccount(
 							name = Path.GetFileName(exclude.Path);
 							path = Path.GetDirectoryName(exclude.Path);
 						}
+						else
+						{
+							Log.Warning(Logger, "IsPathFullyQualified is false", null);
+						}
 
 						if (serverFile.Name.Equals(
 							name, StringComparison.OrdinalIgnoreCase) &&
