@@ -153,7 +153,7 @@ Interfaces
 						.Request()
 						.PutAsync<DriveItem>(stream);
 				}
-			}	
+			}
 		Google Drive:
 			using Google.Apis.Auth.OAuth2;
 			using Google.Apis.Drive.v3;
@@ -365,3 +365,43 @@ Refactor Considerations
 	/// path handling is retained as a permissive fallback for cases
 	/// where expansion has not yet occurred.
 	/// </summary>
+Back Up Manager
+	SourceControlStatus
+		GoogleDriveCLI
+	Improve app startup sequence
+	Make nullable
+
+	DRY DriveMappings
+	Organize Tests
+	Fix parameter ordering: 	protected static bool ShouldProcessFile(ICollection<Exclude> excludes, string path)
+	ShouldProcessFolder - Refactor Relative Path Branch
+	ShouldRemoveFile - Refactor
+	Refactor Double Log Reference - 	Log.Warning(Logger, "server folder is null", null);
+	Review, Test and Refactor - RemoveExcludedItems
+
+			IReadOnlySet<ExcludeType> excludeTypes = new HashSet<ExcludeType>
+			{
+				ExcludeType.File,
+				ExcludeType.Global,
+				ExcludeType.SubDirectory
+			};
+	Review
+		bool processFolder = ShouldProcessFolder(excludes, path);
+
+		RemoveExcludedItems(path, thisServerFiles, expandExcludes);
+
+		bool processFiles = ShouldProcessFiles(excludes, path);
+
+		bool checkFile = ShouldProcessFile(excludes, file.FullName);
+
+		bool remove = ShouldRemoveFile(excludes, file.FullName);
+	bool skipThisDirectory =
+	ShouldSkipThisDirectory(folderPath, excludes);
+	Revisit Logging
+	Re-enable, After Getting Static Logging Worked Out	bool isFullyQualified = Path.IsPathFullyQualified(path); if (isFullyQualified == false) { Log.Warning(logger, $"Path is not fully qualified: {path}", null); path = Path.GetFullPath(path); } }
+Future Commit
+	Remove Relative Path Branch
+
+	Relative paths shouldn't exist at the point this method is called.  So, it
+	was just adding noise.
+
