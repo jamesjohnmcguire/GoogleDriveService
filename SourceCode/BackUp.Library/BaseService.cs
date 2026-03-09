@@ -45,12 +45,16 @@ public abstract class BaseService(
 	/// <param name="excludes">The list of excludes.</param>
 	/// <returns>A value indicating whether to process the file
 	/// or not.</returns>
-	protected static bool ShouldSkipThisDirectory(
+	internal static bool ShouldSkipThisDirectory(
 		string parentPath, ICollection<Exclude> excludes)
 	{
 		bool skipThisDirectory = false;
 
-		if (!string.IsNullOrWhiteSpace(parentPath) && excludes != null)
+		if (string.IsNullOrWhiteSpace(parentPath))
+		{
+			skipThisDirectory = true;
+		}
+		else if (excludes != null)
 		{
 			foreach (Exclude exclude in excludes)
 			{
@@ -76,7 +80,7 @@ public abstract class BaseService(
 	/// <param name="path">The path to process.</param>
 	/// <returns>A value indicating whether to process the file
 	/// or not.</returns>
-	protected static bool ShouldProcessFile(
+	internal static bool ShouldProcessFile(
 		ICollection<Exclude> excludes, string path)
 	{
 		bool processFile = true;
@@ -110,7 +114,7 @@ public abstract class BaseService(
 	/// <param name="path">The path to process.</param>
 	/// <returns>A value indicating whether to process the file
 	/// or not.</returns>
-	protected static bool ShouldProcessFiles(
+	internal static bool ShouldProcessFiles(
 		ICollection<Exclude> excludes, string path)
 	{
 		bool processFiles = true;
@@ -211,7 +215,7 @@ public abstract class BaseService(
 	/// <param name="path">The path to remove.</param>
 	/// <returns>A value indicating whether to remove the file
 	/// or not.</returns>
-	protected static bool ShouldRemoveFile(
+	internal static bool ShouldRemoveFile(
 		ICollection<Exclude> excludes, string path)
 	{
 		bool removeFile = true;
