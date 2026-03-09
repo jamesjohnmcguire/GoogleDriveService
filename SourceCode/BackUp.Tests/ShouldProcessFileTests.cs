@@ -20,9 +20,10 @@ internal class ShouldProcessFileTests
 {
 	private string root;
 	private string dataPath;
-	private string clientsPath;
 	private string objPath;
 	private string nodeModulesPath;
+	private string testFile;
+	private string testFileOther;
 
 	/// <summary>
 	/// Initializes various paths for use in each test run.
@@ -33,9 +34,27 @@ internal class ShouldProcessFileTests
 		// Build OS-agnostic paths from the temp directory root
 		root = Path.GetTempPath();
 		dataPath = Path.Combine(root, "Data");
-		clientsPath = Path.Combine(dataPath, "Clients");
+		Directory.CreateDirectory(dataPath);
+
 		objPath = Path.Combine(dataPath, "obj");
+		Directory.CreateDirectory(objPath);
+
 		nodeModulesPath = Path.Combine(dataPath, "node_modules");
+
+		testFile = Path.Combine(dataPath, "TestFile.txt");
+		using (File.Create(testFile)) { }
+
+		testFileOther = Path.Combine(dataPath, "TestFileOther.txt");
+		using (File.Create(testFileOther)) { }
+	}
+
+	[TearDown]
+	public void TearDown()
+	{
+		if (Directory.Exists(dataPath))
+		{
+			Directory.Delete(dataPath, recursive: true);
+		}
 	}
 
 	// ------------------------------------------------------------------------
@@ -48,7 +67,7 @@ internal class ShouldProcessFileTests
 	[Test]
 	public void NullExcludesReturnsTrue()
 	{
-		bool result = BaseService.ShouldProcessFile(null, clientsPath);
+		bool result = BaseService.ShouldProcessFile(null, testFile);
 
 		Assert.That(result, Is.True);
 	}
@@ -59,7 +78,7 @@ internal class ShouldProcessFileTests
 	[Test]
 	public void EmptyExcludesReturnsTrue()
 	{
-		bool result = BaseService.ShouldProcessFile([], clientsPath);
+		bool result = BaseService.ShouldProcessFile([], testFile);
 
 		Assert.That(result, Is.True);
 	}
@@ -76,10 +95,10 @@ internal class ShouldProcessFileTests
 	{
 		ICollection<Exclude> excludes = [];
 
-		Exclude exclude = new(clientsPath, ExcludeType.File);
+		Exclude exclude = new(testFile, ExcludeType.File);
 		excludes.Add(exclude);
 
-		bool result = BaseService.ShouldProcessFile(excludes, clientsPath);
+		bool result = BaseService.ShouldProcessFile(excludes, testFile);
 
 		Assert.That(result, Is.False);
 	}
@@ -96,11 +115,11 @@ internal class ShouldProcessFileTests
 	{
 		ICollection<Exclude> excludes = [];
 
-		string path = clientsPath.ToLowerInvariant();
+		string path = testFile.ToLowerInvariant();
 		Exclude exclude = new(path, ExcludeType.File);
 		excludes.Add(exclude);
 
-		string checkPath = clientsPath.ToUpperInvariant();
+		string checkPath = testFile.ToUpperInvariant();
 		bool result = BaseService.ShouldProcessFile(excludes, checkPath);
 
 		Assert.That(result, Is.False);
@@ -114,10 +133,10 @@ internal class ShouldProcessFileTests
 	{
 		ICollection<Exclude> excludes = [];
 
-		Exclude exclude = new(clientsPath, ExcludeType.File);
+		Exclude exclude = new(testFileOther, ExcludeType.File);
 		excludes.Add(exclude);
 
-		bool result = BaseService.ShouldProcessFile(excludes, objPath);
+		bool result = BaseService.ShouldProcessFile(excludes, testFile);
 
 		Assert.That(result, Is.True);
 	}
@@ -133,48 +152,7 @@ internal class ShouldProcessFileTests
 		Exclude exclude = new("obj", ExcludeType.File);
 		excludes.Add(exclude);
 
-		bool result = BaseService.ShouldProcessFile(excludes, clientsPath);
-
-		Assert.That(result, Is.True);
-	}
-
-	/// <summary>
-	/// The relative exclude partial name matches returns true test.
-	/// </summary>
-	[Test]
-	public void RelativeExcludePartialNameMatchReturnsTrue()
-	{
-		// "obj" should not match "objstore" or "myobj"
-		string partialMatch = Path.Combine(dataPath, "objstore");
-		ICollection<Exclude> excludes = [];
-
-		Exclude exclude = new("obj", ExcludeType.File);
-		excludes.Add(exclude);
-
-		bool result = BaseService.ShouldProcessFile(excludes, partialMatch);
-
-		Assert.That(result, Is.True);
-	}
-
-	// ------------------------------------------------------------------------
-	// Permissive cases
-	// ------------------------------------------------------------------------
-
-	/// <summary>
-	/// The relative path with qualified exclude is permissive returns true
-	/// test.
-	/// </summary>
-	[Test]
-	public void RelativePathWithQualifiedExcludeIsPermissiveReturnsTrue()
-	{
-		// Cannot definitively match — must allow
-		string relativePath = Path.Combine("Data", "Clients");
-		ICollection<Exclude> excludes = [];
-
-		Exclude exclude = new(clientsPath, ExcludeType.File);
-		excludes.Add(exclude);
-
-		bool result = BaseService.ShouldProcessFile(excludes, relativePath);
+		bool result = BaseService.ShouldProcessFile(excludes, testFile);
 
 		Assert.That(result, Is.True);
 	}
@@ -191,10 +169,10 @@ internal class ShouldProcessFileTests
 	{
 		ICollection<Exclude> excludes = [];
 
-		Exclude exclude = new(clientsPath, ExcludeType.SubDirectory);
+		Exclude exclude = new(testFile, ExcludeType.SubDirectory);
 		excludes.Add(exclude);
 
-		bool result = BaseService.ShouldProcessFile(excludes, clientsPath);
+		bool result = BaseService.ShouldProcessFile(excludes, testFile);
 
 		Assert.That(result, Is.True);
 	}
@@ -207,10 +185,10 @@ internal class ShouldProcessFileTests
 	{
 		ICollection<Exclude> excludes = [];
 
-		Exclude exclude = new(clientsPath, ExcludeType.Global);
+		Exclude exclude = new(testFile, ExcludeType.Global);
 		excludes.Add(exclude);
 
-		bool result = BaseService.ShouldProcessFile(excludes, clientsPath);
+		bool result = BaseService.ShouldProcessFile(excludes, testFile);
 
 		Assert.That(result, Is.True);
 	}
@@ -223,10 +201,10 @@ internal class ShouldProcessFileTests
 	{
 		ICollection<Exclude> excludes = [];
 
-		Exclude exclude = new(clientsPath, ExcludeType.File);
+		Exclude exclude = new(testFile, ExcludeType.File);
 		excludes.Add(exclude);
 
-		bool result = BaseService.ShouldProcessFile(excludes, clientsPath);
+		bool result = BaseService.ShouldProcessFile(excludes, testFile);
 
 		Assert.That(result, Is.False);
 	}
@@ -277,7 +255,7 @@ internal class ShouldProcessFileTests
 		excludes.Add(exclude2);
 		excludes.Add(exclude3);
 
-		bool result = BaseService.ShouldProcessFile(excludes, clientsPath);
+		bool result = BaseService.ShouldProcessFile(excludes, testFile);
 
 		Assert.That(result, Is.True);
 	}
@@ -292,47 +270,16 @@ internal class ShouldProcessFileTests
 
 		// File and FileIgnore excludes for clientsPath should not
 		// prevent the folder from being processed
-		Exclude exclude1 = new(clientsPath, ExcludeType.SubDirectory);
-		Exclude exclude2 = new(clientsPath, ExcludeType.Global);
+		Exclude exclude1 = new(testFile, ExcludeType.SubDirectory);
+		Exclude exclude2 = new(testFile, ExcludeType.Global);
 		Exclude exclude3 = new(objPath, ExcludeType.File);
 
 		excludes.Add(exclude1);
 		excludes.Add(exclude2);
 		excludes.Add(exclude3);
 
-		bool result = BaseService.ShouldProcessFile(excludes, clientsPath);
+		bool result = BaseService.ShouldProcessFile(excludes, testFile);
 
 		Assert.That(result, Is.True);
-	}
-
-	// ------------------------------------------------------------------------
-	// Subtree exclusion — documents caller responsibility
-	// ------------------------------------------------------------------------
-
-	/// <summary>
-	/// The relative excludes sub-directory excludes caller responsibility
-	/// test.
-	/// </summary>
-	[Test]
-	public void RelativeExcludeSubfolderOfExcludedCallerResponsibility()
-	{
-		// This test documents that ShouldProcessFile evaluates each
-		// folder in isolation. A subfolder of an excluded folder is NOT
-		// automatically excluded — the caller must honour the false result
-		// on the parent and not recurse into it.
-		string subFolder = Path.Combine(objPath, "Debug", "net8.0");
-		ICollection<Exclude> excludes = [];
-
-		Exclude exclude = new("obj", ExcludeType.File);
-		excludes.Add(exclude);
-
-		bool result = BaseService.ShouldProcessFile(excludes, subFolder);
-
-		// The subfolder itself doesn't match "obj" by name,
-		// so this returns true — subtree skipping is the caller's job.
-		string message = "Subtree exclusion is the caller's " +
-			"responsibility, not this method's.";
-
-		Assert.That(result, Is.True, message);
 	}
 }

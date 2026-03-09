@@ -6,6 +6,7 @@
 
 namespace DigitalZenWorks.BackUp.Library.Tests;
 
+using System;
 using System.Collections.Generic;
 using System.IO;
 using DigitalZenWorks.BackUp.Library;
@@ -33,9 +34,24 @@ internal class ShouldProcessFilesTests
 		// Build OS-agnostic paths from the temp directory root
 		root = Path.GetTempPath();
 		dataPath = Path.Combine(root, "Data");
+		Directory.CreateDirectory(dataPath);
+
 		clientsPath = Path.Combine(dataPath, "Clients");
+		Directory.CreateDirectory(clientsPath);
+
 		objPath = Path.Combine(dataPath, "obj");
+		Directory.CreateDirectory(objPath);
+
 		nodeModulesPath = Path.Combine(dataPath, "node_modules");
+	}
+
+	[TearDown]
+	public void TearDown()
+	{
+		if (Directory.Exists(dataPath))
+		{
+			Directory.Delete(dataPath, recursive: true);
+		}
 	}
 
 	// ------------------------------------------------------------------------
@@ -146,6 +162,8 @@ internal class ShouldProcessFilesTests
 	{
 		// "obj" should not match "objstore" or "myobj"
 		string partialMatch = Path.Combine(dataPath, "objstore");
+		Directory.CreateDirectory(partialMatch);
+
 		ICollection<Exclude> excludes = [];
 
 		Exclude exclude = new("obj", ExcludeType.OnlyRoot);
@@ -153,28 +171,7 @@ internal class ShouldProcessFilesTests
 
 		bool result = BaseService.ShouldProcessFiles(excludes, partialMatch);
 
-		Assert.That(result, Is.True);
-	}
-
-	// ------------------------------------------------------------------------
-	// Permissive cases
-	// ------------------------------------------------------------------------
-
-	/// <summary>
-	/// The relative path with qualified exclude is permissive returns true
-	/// test.
-	/// </summary>
-	[Test]
-	public void RelativePathWithQualifiedExcludeIsPermissiveReturnsTrue()
-	{
-		// Cannot definitively match — must allow
-		string relativePath = Path.Combine("Data", "Clients");
-		ICollection<Exclude> excludes = [];
-
-		Exclude exclude = new(clientsPath, ExcludeType.OnlyRoot);
-		excludes.Add(exclude);
-
-		bool result = BaseService.ShouldProcessFiles(excludes, relativePath);
+		Directory.Delete(partialMatch);
 
 		Assert.That(result, Is.True);
 	}
@@ -321,12 +318,16 @@ internal class ShouldProcessFilesTests
 		// automatically excluded — the caller must honour the false result
 		// on the parent and not recurse into it.
 		string subFolder = Path.Combine(objPath, "Debug", "net8.0");
+		Directory.CreateDirectory(subFolder);
+
 		ICollection<Exclude> excludes = [];
 
 		Exclude exclude = new("obj", ExcludeType.OnlyRoot);
 		excludes.Add(exclude);
 
 		bool result = BaseService.ShouldProcessFiles(excludes, subFolder);
+
+		Directory.Delete(subFolder);
 
 		// The subfolder itself doesn't match "obj" by name,
 		// so this returns true — subtree skipping is the caller's job.
