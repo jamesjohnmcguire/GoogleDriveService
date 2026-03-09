@@ -493,6 +493,13 @@ public class GoogleServiceAccount(
 	{
 		try
 		{
+			bool isQualified = Path.IsPathFullyQualified(path);
+
+			if (isQualified == false)
+			{
+				Log.Warning(Logger, "IsPathFullyQualified is false", null);
+			}
+
 			if (System.IO.Directory.Exists(path))
 			{
 				bool processFolder = ShouldProcessFolder(excludes, path);
