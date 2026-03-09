@@ -1,5 +1,11 @@
 Deal with Google Drive Deprecation
 Deal with One-Off Cancellation Exception
+Move all checks and validation of path and excludes at the point of Each Directory BackUp
+ShouldProcessFolder(excludes, null); should be false, same for string.Empty non-existent or invalid path
+How to Prevent Relative Paths in Excludes - At Each Directory, call ExpandExcludes
+Change name of allowedTypes
+ShouldSkipThisDirectory / ShouldProcessFolder ?? ShouldSkipThisDirectory is about removing abandoned directories or files.
+Exclude Refactor	Use IsExcludeMatch Everywhere relevant
 ExpandWildCardExcludes	Will be run once, per account, while ExpandGlobalExcludes (or whatever it's called), should be done per directory.  Sound right?
 ExpandExcludes	What happens when ExpandExcludes is called twice on the same mapping? Is it idempotent?
 Pin the current behaviour of ExpandExcludes and ExpandGlobalExcludes with a few more edge cases — these are the methods we're about to change, so locking them down first is highest value
