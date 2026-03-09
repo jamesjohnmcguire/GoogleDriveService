@@ -162,7 +162,7 @@ internal class ShouldProcessFolderTests
 		Exclude exclude = new(path, ExcludeType.SubDirectory);
 		excludes.Add(exclude);
 
-		string checkPath = clientsPath.ToLowerInvariant();
+		string checkPath = clientsPath.ToUpperInvariant();
 		bool result = BaseService.ShouldProcessFolder(excludes, checkPath);
 
 		Assert.That(result, Is.False);
