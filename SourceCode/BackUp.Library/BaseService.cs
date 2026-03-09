@@ -40,43 +40,6 @@ public abstract class BaseService(
 	public ILogger<BackUpService> Logger { get => logger; }
 
 	/// <summary>
-	/// Should skip this directory method.
-	/// </summary>
-	/// <param name="parentPath">The parent path.</param>
-	/// <param name="excludes">The list of excludes.</param>
-	/// <returns>A value indicating whether to process the file
-	/// or not.</returns>
-	internal static bool ShouldSkipThisDirectory(
-		string parentPath, ICollection<Exclude> excludes)
-	{
-		bool skipThisDirectory = false;
-
-		if (string.IsNullOrWhiteSpace(parentPath))
-		{
-			skipThisDirectory = true;
-		}
-		else if (excludes != null)
-		{
-			IReadOnlySet<ExcludeType> allowedTypes =
-				new HashSet<ExcludeType> { ExcludeType.Keep };
-
-			foreach (Exclude exclude in excludes)
-			{
-				bool isMatch = TraversalContext.IsExcludeMatch(
-					parentPath, exclude, allowedTypes);
-
-				if (isMatch == true)
-				{
-					skipThisDirectory = true;
-					break;
-				}
-			}
-		}
-
-		return skipThisDirectory;
-	}
-
-	/// <summary>
 	/// Should process file method.
 	/// </summary>
 	/// <param name="excludes">The list of excludes.</param>
@@ -250,5 +213,42 @@ public abstract class BaseService(
 		}
 
 		return removeFile;
+	}
+
+	/// <summary>
+	/// Should skip this directory method.
+	/// </summary>
+	/// <param name="parentPath">The parent path.</param>
+	/// <param name="excludes">The list of excludes.</param>
+	/// <returns>A value indicating whether to process the file
+	/// or not.</returns>
+	internal static bool ShouldSkipThisDirectory(
+		string parentPath, ICollection<Exclude> excludes)
+	{
+		bool skipThisDirectory = false;
+
+		if (string.IsNullOrWhiteSpace(parentPath))
+		{
+			skipThisDirectory = true;
+		}
+		else if (excludes != null)
+		{
+			IReadOnlySet<ExcludeType> allowedTypes =
+				new HashSet<ExcludeType> { ExcludeType.Keep };
+
+			foreach (Exclude exclude in excludes)
+			{
+				bool isMatch = TraversalContext.IsExcludeMatch(
+					parentPath, exclude, allowedTypes);
+
+				if (isMatch == true)
+				{
+					skipThisDirectory = true;
+					break;
+				}
+			}
+		}
+
+		return skipThisDirectory;
 	}
 }
