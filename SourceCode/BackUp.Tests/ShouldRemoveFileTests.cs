@@ -48,7 +48,7 @@ internal class ShouldRemoveFileTests
 	[Test]
 	public void NullExcludesReturnsTrue()
 	{
-		bool result = BaseService.ShouldRemoveFile(null, clientsPath);
+		bool result = BaseService.ShouldRemoveFile(clientsPath, null);
 
 		Assert.That(result, Is.True);
 	}
@@ -59,7 +59,7 @@ internal class ShouldRemoveFileTests
 	[Test]
 	public void EmptyExcludesReturnsTrue()
 	{
-		bool result = BaseService.ShouldRemoveFile([], clientsPath);
+		bool result = BaseService.ShouldRemoveFile(clientsPath, []);
 
 		Assert.That(result, Is.True);
 	}
@@ -79,7 +79,7 @@ internal class ShouldRemoveFileTests
 		Exclude exclude = new(clientsPath, ExcludeType.FileIgnore);
 		excludes.Add(exclude);
 
-		bool result = BaseService.ShouldRemoveFile(excludes, clientsPath);
+		bool result = BaseService.ShouldRemoveFile(clientsPath, excludes);
 
 		Assert.That(result, Is.False);
 	}
@@ -101,7 +101,7 @@ internal class ShouldRemoveFileTests
 		excludes.Add(exclude);
 
 		string checkPath = clientsPath.ToUpperInvariant();
-		bool result = BaseService.ShouldRemoveFile(excludes, checkPath);
+		bool result = BaseService.ShouldRemoveFile(checkPath, excludes);
 
 		Assert.That(result, Is.False);
 	}
@@ -117,7 +117,7 @@ internal class ShouldRemoveFileTests
 		Exclude exclude = new(clientsPath, ExcludeType.File);
 		excludes.Add(exclude);
 
-		bool result = BaseService.ShouldRemoveFile(excludes, objPath);
+		bool result = BaseService.ShouldRemoveFile(objPath, excludes);
 
 		Assert.That(result, Is.True);
 	}
@@ -133,7 +133,7 @@ internal class ShouldRemoveFileTests
 		Exclude exclude = new("obj", ExcludeType.FileIgnore);
 		excludes.Add(exclude);
 
-		bool result = BaseService.ShouldRemoveFile(excludes, clientsPath);
+		bool result = BaseService.ShouldRemoveFile(clientsPath, excludes);
 
 		Assert.That(result, Is.True);
 	}
@@ -151,7 +151,7 @@ internal class ShouldRemoveFileTests
 		Exclude exclude = new("obj", ExcludeType.FileIgnore);
 		excludes.Add(exclude);
 
-		bool result = BaseService.ShouldRemoveFile(excludes, partialMatch);
+		bool result = BaseService.ShouldRemoveFile(partialMatch, excludes);
 
 		Assert.That(result, Is.True);
 	}
@@ -174,7 +174,7 @@ internal class ShouldRemoveFileTests
 		Exclude exclude = new(clientsPath, ExcludeType.FileIgnore);
 		excludes.Add(exclude);
 
-		bool result = BaseService.ShouldRemoveFile(excludes, relativePath);
+		bool result = BaseService.ShouldRemoveFile(relativePath, excludes);
 
 		Assert.That(result, Is.True);
 	}
@@ -194,7 +194,7 @@ internal class ShouldRemoveFileTests
 		Exclude exclude = new(clientsPath, ExcludeType.SubDirectory);
 		excludes.Add(exclude);
 
-		bool result = BaseService.ShouldRemoveFile(excludes, clientsPath);
+		bool result = BaseService.ShouldRemoveFile(clientsPath, excludes);
 
 		Assert.That(result, Is.True);
 	}
@@ -210,7 +210,7 @@ internal class ShouldRemoveFileTests
 		Exclude exclude = new(clientsPath, ExcludeType.Global);
 		excludes.Add(exclude);
 
-		bool result = BaseService.ShouldRemoveFile(excludes, clientsPath);
+		bool result = BaseService.ShouldRemoveFile(clientsPath, excludes);
 
 		Assert.That(result, Is.True);
 	}
@@ -226,7 +226,7 @@ internal class ShouldRemoveFileTests
 		Exclude exclude = new(clientsPath, ExcludeType.FileIgnore);
 		excludes.Add(exclude);
 
-		bool result = BaseService.ShouldRemoveFile(excludes, clientsPath);
+		bool result = BaseService.ShouldRemoveFile(clientsPath, excludes);
 
 		Assert.That(result, Is.False);
 	}
@@ -254,7 +254,7 @@ internal class ShouldRemoveFileTests
 		excludes.Add(exclude3);
 
 		bool result =
-			BaseService.ShouldRemoveFile(excludes, nodeModulesPath);
+			BaseService.ShouldRemoveFile(nodeModulesPath, excludes);
 
 		Assert.That(result, Is.False);
 	}
@@ -277,7 +277,7 @@ internal class ShouldRemoveFileTests
 		excludes.Add(exclude2);
 		excludes.Add(exclude3);
 
-		bool result = BaseService.ShouldRemoveFile(excludes, clientsPath);
+		bool result = BaseService.ShouldRemoveFile(clientsPath, excludes);
 
 		Assert.That(result, Is.True);
 	}
@@ -300,7 +300,7 @@ internal class ShouldRemoveFileTests
 		excludes.Add(exclude2);
 		excludes.Add(exclude3);
 
-		bool result = BaseService.ShouldRemoveFile(excludes, clientsPath);
+		bool result = BaseService.ShouldRemoveFile(clientsPath, excludes);
 
 		Assert.That(result, Is.True);
 	}
@@ -326,7 +326,7 @@ internal class ShouldRemoveFileTests
 		Exclude exclude = new("obj", ExcludeType.FileIgnore);
 		excludes.Add(exclude);
 
-		bool result = BaseService.ShouldRemoveFile(excludes, subFolder);
+		bool result = BaseService.ShouldRemoveFile(subFolder, excludes);
 
 		// The subfolder itself doesn't match "obj" by name,
 		// so this returns true — subtree skipping is the caller's job.

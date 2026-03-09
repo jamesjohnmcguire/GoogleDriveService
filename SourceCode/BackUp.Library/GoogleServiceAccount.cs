@@ -316,7 +316,7 @@ public class GoogleServiceAccount(
 		IList<GoogleDriveFile> serverFiles,
 		ICollection<Exclude> excludes)
 	{
-		bool processFiles = ShouldProcessFiles(excludes, path);
+		bool processFiles = ShouldProcessFiles(path, excludes);
 
 		if (processFiles == true)
 		{
@@ -502,7 +502,7 @@ public class GoogleServiceAccount(
 
 			if (System.IO.Directory.Exists(path))
 			{
-				bool processFolder = ShouldProcessFolder(excludes, path);
+				bool processFolder = ShouldProcessFolder(path, excludes);
 
 				if (processFolder == true)
 				{
@@ -573,7 +573,7 @@ public class GoogleServiceAccount(
 	{
 		try
 		{
-			bool checkFile = ShouldProcessFile(excludes, file.FullName);
+			bool checkFile = ShouldProcessFile(file.FullName, excludes);
 
 			if (checkFile == true)
 			{
@@ -592,7 +592,7 @@ public class GoogleServiceAccount(
 			}
 			else
 			{
-				bool remove = ShouldRemoveFile(excludes, file.FullName);
+				bool remove = ShouldRemoveFile(file.FullName, excludes);
 
 				if (remove == true)
 				{

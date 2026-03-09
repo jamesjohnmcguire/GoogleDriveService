@@ -67,7 +67,7 @@ internal class ShouldProcessFileTests
 	[Test]
 	public void NullExcludesReturnsTrue()
 	{
-		bool result = BaseService.ShouldProcessFile(null, testFile);
+		bool result = BaseService.ShouldProcessFile(testFile, null);
 
 		Assert.That(result, Is.True);
 	}
@@ -78,7 +78,7 @@ internal class ShouldProcessFileTests
 	[Test]
 	public void EmptyExcludesReturnsTrue()
 	{
-		bool result = BaseService.ShouldProcessFile([], testFile);
+		bool result = BaseService.ShouldProcessFile(testFile, []);
 
 		Assert.That(result, Is.True);
 	}
@@ -98,7 +98,7 @@ internal class ShouldProcessFileTests
 		Exclude exclude = new(testFile, ExcludeType.File);
 		excludes.Add(exclude);
 
-		bool result = BaseService.ShouldProcessFile(excludes, testFile);
+		bool result = BaseService.ShouldProcessFile(testFile, excludes);
 
 		Assert.That(result, Is.False);
 	}
@@ -120,7 +120,7 @@ internal class ShouldProcessFileTests
 		excludes.Add(exclude);
 
 		string checkPath = testFile.ToUpperInvariant();
-		bool result = BaseService.ShouldProcessFile(excludes, checkPath);
+		bool result = BaseService.ShouldProcessFile(checkPath, excludes);
 
 		Assert.That(result, Is.False);
 	}
@@ -136,7 +136,7 @@ internal class ShouldProcessFileTests
 		Exclude exclude = new(testFileOther, ExcludeType.File);
 		excludes.Add(exclude);
 
-		bool result = BaseService.ShouldProcessFile(excludes, testFile);
+		bool result = BaseService.ShouldProcessFile(testFile, excludes);
 
 		Assert.That(result, Is.True);
 	}
@@ -152,7 +152,7 @@ internal class ShouldProcessFileTests
 		Exclude exclude = new("obj", ExcludeType.File);
 		excludes.Add(exclude);
 
-		bool result = BaseService.ShouldProcessFile(excludes, testFile);
+		bool result = BaseService.ShouldProcessFile(testFile, excludes);
 
 		Assert.That(result, Is.True);
 	}
@@ -172,7 +172,7 @@ internal class ShouldProcessFileTests
 		Exclude exclude = new(testFile, ExcludeType.SubDirectory);
 		excludes.Add(exclude);
 
-		bool result = BaseService.ShouldProcessFile(excludes, testFile);
+		bool result = BaseService.ShouldProcessFile(testFile, excludes);
 
 		Assert.That(result, Is.True);
 	}
@@ -188,7 +188,7 @@ internal class ShouldProcessFileTests
 		Exclude exclude = new(testFile, ExcludeType.Global);
 		excludes.Add(exclude);
 
-		bool result = BaseService.ShouldProcessFile(excludes, testFile);
+		bool result = BaseService.ShouldProcessFile(testFile, excludes);
 
 		Assert.That(result, Is.True);
 	}
@@ -204,7 +204,7 @@ internal class ShouldProcessFileTests
 		Exclude exclude = new(testFile, ExcludeType.File);
 		excludes.Add(exclude);
 
-		bool result = BaseService.ShouldProcessFile(excludes, testFile);
+		bool result = BaseService.ShouldProcessFile(testFile, excludes);
 
 		Assert.That(result, Is.False);
 	}
@@ -232,7 +232,7 @@ internal class ShouldProcessFileTests
 		excludes.Add(exclude3);
 
 		bool result =
-			BaseService.ShouldProcessFile(excludes, nodeModulesPath);
+			BaseService.ShouldProcessFile(nodeModulesPath, excludes);
 
 		Assert.That(result, Is.False);
 	}
@@ -255,7 +255,7 @@ internal class ShouldProcessFileTests
 		excludes.Add(exclude2);
 		excludes.Add(exclude3);
 
-		bool result = BaseService.ShouldProcessFile(excludes, testFile);
+		bool result = BaseService.ShouldProcessFile(testFile, excludes);
 
 		Assert.That(result, Is.True);
 	}
@@ -278,7 +278,7 @@ internal class ShouldProcessFileTests
 		excludes.Add(exclude2);
 		excludes.Add(exclude3);
 
-		bool result = BaseService.ShouldProcessFile(excludes, testFile);
+		bool result = BaseService.ShouldProcessFile(testFile, excludes);
 
 		Assert.That(result, Is.True);
 	}

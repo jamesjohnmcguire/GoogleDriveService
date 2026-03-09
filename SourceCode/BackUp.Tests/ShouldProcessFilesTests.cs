@@ -64,7 +64,7 @@ internal class ShouldProcessFilesTests
 	[Test]
 	public void NullExcludesReturnsTrue()
 	{
-		bool result = BaseService.ShouldProcessFiles(null, clientsPath);
+		bool result = BaseService.ShouldProcessFiles(clientsPath, null);
 
 		Assert.That(result, Is.True);
 	}
@@ -75,7 +75,7 @@ internal class ShouldProcessFilesTests
 	[Test]
 	public void EmptyExcludesReturnsTrue()
 	{
-		bool result = BaseService.ShouldProcessFiles([], clientsPath);
+		bool result = BaseService.ShouldProcessFiles(clientsPath, []);
 
 		Assert.That(result, Is.True);
 	}
@@ -95,7 +95,7 @@ internal class ShouldProcessFilesTests
 		Exclude exclude = new(clientsPath, ExcludeType.OnlyRoot);
 		excludes.Add(exclude);
 
-		bool result = BaseService.ShouldProcessFiles(excludes, clientsPath);
+		bool result = BaseService.ShouldProcessFiles(clientsPath, excludes);
 
 		Assert.That(result, Is.False);
 	}
@@ -117,7 +117,7 @@ internal class ShouldProcessFilesTests
 		excludes.Add(exclude);
 
 		string checkPath = clientsPath.ToUpperInvariant();
-		bool result = BaseService.ShouldProcessFiles(excludes, checkPath);
+		bool result = BaseService.ShouldProcessFiles(checkPath, excludes);
 
 		Assert.That(result, Is.False);
 	}
@@ -133,7 +133,7 @@ internal class ShouldProcessFilesTests
 		Exclude exclude = new(clientsPath, ExcludeType.OnlyRoot);
 		excludes.Add(exclude);
 
-		bool result = BaseService.ShouldProcessFiles(excludes, objPath);
+		bool result = BaseService.ShouldProcessFiles(objPath, excludes);
 
 		Assert.That(result, Is.True);
 	}
@@ -149,7 +149,7 @@ internal class ShouldProcessFilesTests
 		Exclude exclude = new("obj", ExcludeType.OnlyRoot);
 		excludes.Add(exclude);
 
-		bool result = BaseService.ShouldProcessFiles(excludes, clientsPath);
+		bool result = BaseService.ShouldProcessFiles(clientsPath, excludes);
 
 		Assert.That(result, Is.True);
 	}
@@ -169,7 +169,7 @@ internal class ShouldProcessFilesTests
 		Exclude exclude = new("obj", ExcludeType.OnlyRoot);
 		excludes.Add(exclude);
 
-		bool result = BaseService.ShouldProcessFiles(excludes, partialMatch);
+		bool result = BaseService.ShouldProcessFiles(partialMatch, excludes);
 
 		Directory.Delete(partialMatch);
 
@@ -191,7 +191,7 @@ internal class ShouldProcessFilesTests
 		Exclude exclude = new(clientsPath, ExcludeType.File);
 		excludes.Add(exclude);
 
-		bool result = BaseService.ShouldProcessFiles(excludes, clientsPath);
+		bool result = BaseService.ShouldProcessFiles(clientsPath, excludes);
 
 		Assert.That(result, Is.True);
 	}
@@ -207,7 +207,7 @@ internal class ShouldProcessFilesTests
 		Exclude exclude = new(clientsPath, ExcludeType.FileIgnore);
 		excludes.Add(exclude);
 
-		bool result = BaseService.ShouldProcessFiles(excludes, clientsPath);
+		bool result = BaseService.ShouldProcessFiles(clientsPath, excludes);
 
 		Assert.That(result, Is.True);
 	}
@@ -223,7 +223,7 @@ internal class ShouldProcessFilesTests
 		Exclude exclude = new(clientsPath, ExcludeType.OnlyRoot);
 		excludes.Add(exclude);
 
-		bool result = BaseService.ShouldProcessFiles(excludes, clientsPath);
+		bool result = BaseService.ShouldProcessFiles(clientsPath, excludes);
 
 		Assert.That(result, Is.False);
 	}
@@ -251,7 +251,7 @@ internal class ShouldProcessFilesTests
 		excludes.Add(exclude3);
 
 		bool result =
-			BaseService.ShouldProcessFiles(excludes, nodeModulesPath);
+			BaseService.ShouldProcessFiles(nodeModulesPath, excludes);
 
 		Assert.That(result, Is.False);
 	}
@@ -274,7 +274,7 @@ internal class ShouldProcessFilesTests
 		excludes.Add(exclude2);
 		excludes.Add(exclude3);
 
-		bool result = BaseService.ShouldProcessFiles(excludes, clientsPath);
+		bool result = BaseService.ShouldProcessFiles(clientsPath, excludes);
 
 		Assert.That(result, Is.True);
 	}
@@ -297,7 +297,7 @@ internal class ShouldProcessFilesTests
 		excludes.Add(exclude2);
 		excludes.Add(exclude3);
 
-		bool result = BaseService.ShouldProcessFiles(excludes, clientsPath);
+		bool result = BaseService.ShouldProcessFiles(clientsPath, excludes);
 
 		Assert.That(result, Is.True);
 	}
@@ -325,7 +325,7 @@ internal class ShouldProcessFilesTests
 		Exclude exclude = new("obj", ExcludeType.OnlyRoot);
 		excludes.Add(exclude);
 
-		bool result = BaseService.ShouldProcessFiles(excludes, subFolder);
+		bool result = BaseService.ShouldProcessFiles(subFolder, excludes);
 
 		Directory.Delete(subFolder);
 

@@ -48,7 +48,7 @@ internal class ShouldProcessFolderTests
 	[Test]
 	public void NullExcludesReturnsTrue()
 	{
-		bool result = BaseService.ShouldProcessFolder(null, clientsPath);
+		bool result = BaseService.ShouldProcessFolder(clientsPath, null);
 
 		Assert.That(result, Is.True);
 	}
@@ -59,7 +59,7 @@ internal class ShouldProcessFolderTests
 	[Test]
 	public void EmptyExcludesReturnsTrue()
 	{
-		bool result = BaseService.ShouldProcessFolder([], clientsPath);
+		bool result = BaseService.ShouldProcessFolder(clientsPath, []);
 
 		Assert.That(result, Is.True);
 	}
@@ -73,7 +73,7 @@ internal class ShouldProcessFolderTests
 		ICollection<Exclude> excludes = [];
 		excludes.Add(null);
 
-		bool result = BaseService.ShouldProcessFolder(excludes, clientsPath);
+		bool result = BaseService.ShouldProcessFolder(clientsPath, excludes);
 
 		Assert.That(result, Is.True);
 	}
@@ -89,7 +89,7 @@ internal class ShouldProcessFolderTests
 		ICollection<Exclude> excludes = [];
 		excludes.Add(exclude);
 
-		bool result = BaseService.ShouldProcessFolder(excludes, clientsPath);
+		bool result = BaseService.ShouldProcessFolder(clientsPath, excludes);
 
 		Assert.That(result, Is.True);
 	}
@@ -109,7 +109,7 @@ internal class ShouldProcessFolderTests
 		Exclude exclude = new(clientsPath, ExcludeType.SubDirectory);
 		excludes.Add(exclude);
 
-		bool result = BaseService.ShouldProcessFolder(excludes, clientsPath);
+		bool result = BaseService.ShouldProcessFolder(clientsPath, excludes);
 
 		Assert.That(result, Is.False);
 	}
@@ -131,7 +131,7 @@ internal class ShouldProcessFolderTests
 		excludes.Add(exclude);
 
 		string checkPath = clientsPath.ToUpperInvariant();
-		bool result = BaseService.ShouldProcessFolder(excludes, checkPath);
+		bool result = BaseService.ShouldProcessFolder(clientsPath, excludes);
 
 		Assert.That(result, Is.False);
 	}
@@ -147,7 +147,7 @@ internal class ShouldProcessFolderTests
 		Exclude exclude = new(clientsPath, ExcludeType.SubDirectory);
 		excludes.Add(exclude);
 
-		bool result = BaseService.ShouldProcessFolder(excludes, objPath);
+		bool result = BaseService.ShouldProcessFolder(objPath, excludes);
 
 		Assert.That(result, Is.True);
 	}
@@ -163,7 +163,7 @@ internal class ShouldProcessFolderTests
 		Exclude exclude = new("obj", ExcludeType.Global);
 		excludes.Add(exclude);
 
-		bool result = BaseService.ShouldProcessFolder(excludes, clientsPath);
+		bool result = BaseService.ShouldProcessFolder(clientsPath, excludes);
 
 		Assert.That(result, Is.True);
 	}
@@ -181,7 +181,7 @@ internal class ShouldProcessFolderTests
 		Exclude exclude = new("obj", ExcludeType.Global);
 		excludes.Add(exclude);
 
-		bool result = BaseService.ShouldProcessFolder(excludes, partialMatch);
+		bool result = BaseService.ShouldProcessFolder(partialMatch, excludes);
 
 		Assert.That(result, Is.True);
 	}
@@ -204,7 +204,7 @@ internal class ShouldProcessFolderTests
 		Exclude exclude = new(clientsPath, ExcludeType.SubDirectory);
 		excludes.Add(exclude);
 
-		bool result = BaseService.ShouldProcessFolder(excludes, relativePath);
+		bool result = BaseService.ShouldProcessFolder(relativePath, excludes);
 
 		Assert.That(result, Is.True);
 	}
@@ -224,7 +224,7 @@ internal class ShouldProcessFolderTests
 		Exclude exclude = new(clientsPath, ExcludeType.File);
 		excludes.Add(exclude);
 
-		bool result = BaseService.ShouldProcessFolder(excludes, clientsPath);
+		bool result = BaseService.ShouldProcessFolder(clientsPath, excludes);
 
 		Assert.That(result, Is.True);
 	}
@@ -240,7 +240,7 @@ internal class ShouldProcessFolderTests
 		Exclude exclude = new(clientsPath, ExcludeType.FileIgnore);
 		excludes.Add(exclude);
 
-		bool result = BaseService.ShouldProcessFolder(excludes, clientsPath);
+		bool result = BaseService.ShouldProcessFolder(clientsPath, excludes);
 
 		Assert.That(result, Is.True);
 	}
@@ -256,7 +256,7 @@ internal class ShouldProcessFolderTests
 		Exclude exclude = new(clientsPath, ExcludeType.SubDirectory);
 		excludes.Add(exclude);
 
-		bool result = BaseService.ShouldProcessFolder(excludes, clientsPath);
+		bool result = BaseService.ShouldProcessFolder(clientsPath, excludes);
 
 		Assert.That(result, Is.False);
 	}
@@ -284,7 +284,7 @@ internal class ShouldProcessFolderTests
 		excludes.Add(exclude3);
 
 		bool result =
-			BaseService.ShouldProcessFolder(excludes, nodeModulesPath);
+			BaseService.ShouldProcessFolder(nodeModulesPath, excludes);
 
 		Assert.That(result, Is.False);
 	}
@@ -307,7 +307,7 @@ internal class ShouldProcessFolderTests
 		excludes.Add(exclude2);
 		excludes.Add(exclude3);
 
-		bool result = BaseService.ShouldProcessFolder(excludes, clientsPath);
+		bool result = BaseService.ShouldProcessFolder(clientsPath, excludes);
 
 		Assert.That(result, Is.True);
 	}
@@ -330,7 +330,7 @@ internal class ShouldProcessFolderTests
 		excludes.Add(exclude2);
 		excludes.Add(exclude3);
 
-		bool result = BaseService.ShouldProcessFolder(excludes, clientsPath);
+		bool result = BaseService.ShouldProcessFolder(clientsPath, excludes);
 
 		Assert.That(result, Is.True);
 	}
@@ -356,7 +356,7 @@ internal class ShouldProcessFolderTests
 		Exclude exclude = new("obj", ExcludeType.Global);
 		excludes.Add(exclude);
 
-		bool result = BaseService.ShouldProcessFolder(excludes, subFolder);
+		bool result = BaseService.ShouldProcessFolder(subFolder, excludes);
 
 		// The subfolder itself doesn't match "obj" by name,
 		// so this returns true — subtree skipping is the caller's job.

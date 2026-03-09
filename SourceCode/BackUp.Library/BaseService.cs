@@ -42,8 +42,8 @@ public abstract class BaseService(
 	/// <summary>
 	/// Should process file method.
 	/// </summary>
-	/// <param name="excludes">The list of excludes.</param>
 	/// <param name="path">The path to process.</param>
+	/// <param name="excludes">The list of excludes.</param>
 	/// <returns>A value indicating whether to process the file
 	/// or not.</returns>
 	[System.Diagnostics.CodeAnalysis.SuppressMessage(
@@ -51,7 +51,7 @@ public abstract class BaseService(
 		"CA1062:Validate arguments of public methods",
 		Justification = "File.Exists also covers the null argument case.")]
 	internal static bool ShouldProcessFile(
-		ICollection<Exclude> excludes, string path)
+		string path, ICollection<Exclude> excludes)
 	{
 		bool processFile = true;
 
@@ -88,8 +88,8 @@ public abstract class BaseService(
 	/// <summary>
 	/// Should process files method.
 	/// </summary>
-	/// <param name="excludes">The list of excludes.</param>
 	/// <param name="path">The path to process.</param>
+	/// <param name="excludes">The list of excludes.</param>
 	/// <returns>A value indicating whether to process the file
 	/// or not.</returns>
 	[System.Diagnostics.CodeAnalysis.SuppressMessage(
@@ -97,7 +97,7 @@ public abstract class BaseService(
 		"CA1062:Validate arguments of public methods",
 		Justification = "File.Exists also covers the null argument case.")]
 	internal static bool ShouldProcessFiles(
-		ICollection<Exclude> excludes, string path)
+		string path, ICollection<Exclude> excludes)
 	{
 		bool processFiles = true;
 
@@ -134,14 +134,14 @@ public abstract class BaseService(
 	/// <remarks>This method evaluates a single folder in isolation. Prevention
 	/// of processing of an excluded folder's subtree is the responsibility
 	/// of the caller.</remarks>
+	/// <param name="path">The path to process.</param>
 	/// <param name="excludes">The collection of excludes to check
 	/// against. A null or empty collection always permits
 	/// processing.</param>
-	/// <param name="path">The path to process.</param>
 	/// <returns>True if the folder should be processed;
 	/// false if it is explicitly excluded.</returns>
 	internal static bool ShouldProcessFolder(
-		ICollection<Exclude> excludes, string path)
+		string path, ICollection<Exclude> excludes)
 	{
 		bool processSubFolders = true;
 
@@ -181,8 +181,8 @@ public abstract class BaseService(
 	/// </summary>
 	/// <remarks>This method assumes the file has already been excluded
 	/// from uploading.</remarks>
-	/// <param name="excludes">The list of excludes.</param>
 	/// <param name="path">The path to remove.</param>
+	/// <param name="excludes">The list of excludes.</param>
 	/// <returns>A value indicating whether to remove the file
 	/// or not.</returns>
 	[System.Diagnostics.CodeAnalysis.SuppressMessage(
@@ -190,7 +190,7 @@ public abstract class BaseService(
 		"CA1062:Validate arguments of public methods",
 		Justification = "File.Exists also covers the null argument case.")]
 	internal static bool ShouldRemoveFile(
-		ICollection<Exclude> excludes, string path)
+		string path, ICollection<Exclude> excludes)
 	{
 		bool removeFile = true;
 
