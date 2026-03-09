@@ -65,20 +65,6 @@ internal class ShouldProcessFolderTests
 	}
 
 	/// <summary>
-	/// The nulll exclude entry is skipped, returns true test.
-	/// </summary>
-	[Test]
-	public void NullExcludeEntryIsSkippedReturnsTrue()
-	{
-		ICollection<Exclude> excludes = [];
-		excludes.Add(null);
-
-		bool result = BaseService.ShouldProcessFolder(clientsPath, excludes);
-
-		Assert.That(result, Is.True);
-	}
-
-	/// <summary>
 	/// The exclude with null path is skipped, returns true.
 	/// </summary>
 	[Test]

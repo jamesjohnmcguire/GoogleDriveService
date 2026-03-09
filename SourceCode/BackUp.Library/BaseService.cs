@@ -46,41 +46,16 @@ public abstract class BaseService(
 	/// <param name="excludes">The list of excludes.</param>
 	/// <returns>A value indicating whether to process the file
 	/// or not.</returns>
-	[System.Diagnostics.CodeAnalysis.SuppressMessage(
-		"Design",
-		"CA1062:Validate arguments of public methods",
-		Justification = "File.Exists also covers the null argument case.")]
 	internal static bool ShouldProcessFile(
 		string path, ICollection<Exclude> excludes)
 	{
-		bool processFile = true;
-
-		bool exists = File.Exists(path);
-
-		if (exists == false)
-		{
-			processFile = false;
-		}
-		else if (excludes != null)
-		{
-			IReadOnlySet<ExcludeType> allowedTypes = new HashSet<ExcludeType>
+		IReadOnlySet<ExcludeType> excludeTypes = new HashSet<ExcludeType>
 			{
 				ExcludeType.File,
 				ExcludeType.FileIgnore
 			};
 
-			foreach (Exclude exclude in excludes)
-			{
-				bool isMatch = TraversalContext.IsExcludeMatch(
-					path, exclude, allowedTypes);
-
-				if (isMatch == true)
-				{
-					processFile = false;
-					break;
-				}
-			}
-		}
+		bool processFile = ShouldProcessItem(path, excludes, excludeTypes);
 
 		return processFile;
 	}
@@ -92,38 +67,13 @@ public abstract class BaseService(
 	/// <param name="excludes">The list of excludes.</param>
 	/// <returns>A value indicating whether to process the file
 	/// or not.</returns>
-	[System.Diagnostics.CodeAnalysis.SuppressMessage(
-		"Design",
-		"CA1062:Validate arguments of public methods",
-		Justification = "File.Exists also covers the null argument case.")]
 	internal static bool ShouldProcessFiles(
 		string path, ICollection<Exclude> excludes)
 	{
-		bool processFiles = true;
+		IReadOnlySet<ExcludeType> excludeTypes =
+			new HashSet<ExcludeType> { ExcludeType.OnlyRoot };
 
-		bool exists = Path.Exists(path);
-
-		if (exists == false)
-		{
-			processFiles = false;
-		}
-		else if (excludes != null)
-		{
-			IReadOnlySet<ExcludeType> allowedTypes =
-				new HashSet<ExcludeType> { ExcludeType.OnlyRoot };
-
-			foreach (Exclude exclude in excludes)
-			{
-				bool isMatch = TraversalContext.IsExcludeMatch(
-					path, exclude, allowedTypes);
-
-				if (isMatch == true)
-				{
-					processFiles = false;
-					break;
-				}
-			}
-		}
+		bool processFiles = ShouldProcessItem(path, excludes, excludeTypes);
 
 		return processFiles;
 	}
@@ -143,35 +93,14 @@ public abstract class BaseService(
 	internal static bool ShouldProcessFolder(
 		string path, ICollection<Exclude> excludes)
 	{
-		bool processSubFolders = true;
-
-		if (excludes != null)
-		{
-			IReadOnlySet<ExcludeType> allowedTypes = new HashSet<ExcludeType>
+		IReadOnlySet<ExcludeType> excludeTypes = new HashSet<ExcludeType>
 			{
 				ExcludeType.Global,
 				ExcludeType.SubDirectory
 			};
 
-			foreach (Exclude exclude in excludes)
-			{
-				if (exclude == null || exclude.Path == null)
-				{
-					continue;
-				}
-
-				{
-					bool isMatch = TraversalContext.IsExcludeMatch(
-						path, exclude, allowedTypes);
-
-					if (isMatch == true)
-					{
-						processSubFolders = false;
-						break;
-					}
-				}
-			}
-		}
+		bool processSubFolders =
+			ShouldProcessItem(path, excludes, excludeTypes);
 
 		return processSubFolders;
 	}
@@ -185,32 +114,13 @@ public abstract class BaseService(
 	/// <param name="excludes">The list of excludes.</param>
 	/// <returns>A value indicating whether to remove the file
 	/// or not.</returns>
-	[System.Diagnostics.CodeAnalysis.SuppressMessage(
-		"Design",
-		"CA1062:Validate arguments of public methods",
-		Justification = "File.Exists also covers the null argument case.")]
 	internal static bool ShouldRemoveFile(
 		string path, ICollection<Exclude> excludes)
 	{
-		bool removeFile = true;
+		IReadOnlySet<ExcludeType> excludeTypes =
+			new HashSet<ExcludeType> { ExcludeType.FileIgnore };
 
-		if (excludes != null)
-		{
-			IReadOnlySet<ExcludeType> allowedTypes =
-				new HashSet<ExcludeType> { ExcludeType.FileIgnore };
-
-			foreach (Exclude exclude in excludes)
-			{
-				bool isMatch = TraversalContext.IsExcludeMatch(
-					path, exclude, allowedTypes);
-
-				if (isMatch == true)
-				{
-					removeFile = false;
-					break;
-				}
-			}
-		}
+		bool removeFile = ShouldProcessItem(path, excludes, excludeTypes);
 
 		return removeFile;
 	}
@@ -225,30 +135,39 @@ public abstract class BaseService(
 	internal static bool ShouldSkipThisDirectory(
 		string parentPath, ICollection<Exclude> excludes)
 	{
-		bool skipThisDirectory = false;
+		IReadOnlySet<ExcludeType> excludeTypes =
+			new HashSet<ExcludeType> { ExcludeType.Keep };
 
-		if (string.IsNullOrWhiteSpace(parentPath))
-		{
-			skipThisDirectory = true;
-		}
-		else if (excludes != null)
-		{
-			IReadOnlySet<ExcludeType> allowedTypes =
-				new HashSet<ExcludeType> { ExcludeType.Keep };
+		bool processitem =
+			ShouldProcessItem(parentPath, excludes, excludeTypes);
 
+		bool skipThisDirectory = !processitem;
+
+		return skipThisDirectory;
+	}
+
+	private static bool ShouldProcessItem(
+		string path,
+		ICollection<Exclude> excludes,
+		IReadOnlySet<ExcludeType> excludeTypes)
+	{
+		bool processItem = true;
+
+		if (excludes != null)
+		{
 			foreach (Exclude exclude in excludes)
 			{
 				bool isMatch = TraversalContext.IsExcludeMatch(
-					parentPath, exclude, allowedTypes);
+					path, exclude, excludeTypes);
 
 				if (isMatch == true)
 				{
-					skipThisDirectory = true;
+					processItem = false;
 					break;
 				}
 			}
 		}
 
-		return skipThisDirectory;
+		return processItem;
 	}
 }
