@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// <copyright file="ShouldProcessFolderTests.cs" company="James John McGuire">
+// <copyright file="ShouldProcessFilesTests.cs" company="James John McGuire">
 // Copyright © 2017 - 2026 James John McGuire. All Rights Reserved.
 // </copyright>
 /////////////////////////////////////////////////////////////////////////////
@@ -12,11 +12,11 @@ using DigitalZenWorks.BackUp.Library;
 using NUnit.Framework;
 
 /// <summary>
-/// Provides unit tests for the ShouldProcessFolder method under various
+/// Provides unit tests for the ShouldProcessFiles method under various
 /// scenarios.
 /// </summary>
 [TestFixture]
-internal class ShouldProcessFolderTests
+internal class ShouldProcessFilesTests
 {
 	private string root;
 	private string dataPath;
@@ -48,7 +48,7 @@ internal class ShouldProcessFolderTests
 	[Test]
 	public void NullExcludesReturnsTrue()
 	{
-		bool result = BaseService.ShouldProcessFolder(null, clientsPath);
+		bool result = BaseService.ShouldProcessFiles(null, clientsPath);
 
 		Assert.That(result, Is.True);
 	}
@@ -59,37 +59,7 @@ internal class ShouldProcessFolderTests
 	[Test]
 	public void EmptyExcludesReturnsTrue()
 	{
-		bool result = BaseService.ShouldProcessFolder([], clientsPath);
-
-		Assert.That(result, Is.True);
-	}
-
-	/// <summary>
-	/// The nulll exclude entry is skipped, returns true test.
-	/// </summary>
-	[Test]
-	public void NullExcludeEntryIsSkippedReturnsTrue()
-	{
-		ICollection<Exclude> excludes = [];
-		excludes.Add(null);
-
-		bool result = BaseService.ShouldProcessFolder(excludes, clientsPath);
-
-		Assert.That(result, Is.True);
-	}
-
-	/// <summary>
-	/// The exclude with null path is skipped, returns true.
-	/// </summary>
-	[Test]
-	public void ExcludeWithNullPathIsSkippedReturnsTrue()
-	{
-		Exclude exclude = new(null, ExcludeType.SubDirectory);
-
-		ICollection<Exclude> excludes = [];
-		excludes.Add(exclude);
-
-		bool result = BaseService.ShouldProcessFolder(excludes, clientsPath);
+		bool result = BaseService.ShouldProcessFiles([], clientsPath);
 
 		Assert.That(result, Is.True);
 	}
@@ -106,10 +76,10 @@ internal class ShouldProcessFolderTests
 	{
 		ICollection<Exclude> excludes = [];
 
-		Exclude exclude = new(clientsPath, ExcludeType.SubDirectory);
+		Exclude exclude = new(clientsPath, ExcludeType.OnlyRoot);
 		excludes.Add(exclude);
 
-		bool result = BaseService.ShouldProcessFolder(excludes, clientsPath);
+		bool result = BaseService.ShouldProcessFiles(excludes, clientsPath);
 
 		Assert.That(result, Is.False);
 	}
@@ -127,11 +97,11 @@ internal class ShouldProcessFolderTests
 		ICollection<Exclude> excludes = [];
 
 		string path = clientsPath.ToLowerInvariant();
-		Exclude exclude = new(path, ExcludeType.SubDirectory);
+		Exclude exclude = new(path, ExcludeType.OnlyRoot);
 		excludes.Add(exclude);
 
 		string checkPath = clientsPath.ToUpperInvariant();
-		bool result = BaseService.ShouldProcessFolder(excludes, checkPath);
+		bool result = BaseService.ShouldProcessFiles(excludes, checkPath);
 
 		Assert.That(result, Is.False);
 	}
@@ -144,10 +114,10 @@ internal class ShouldProcessFolderTests
 	{
 		ICollection<Exclude> excludes = [];
 
-		Exclude exclude = new(clientsPath, ExcludeType.SubDirectory);
+		Exclude exclude = new(clientsPath, ExcludeType.OnlyRoot);
 		excludes.Add(exclude);
 
-		bool result = BaseService.ShouldProcessFolder(excludes, objPath);
+		bool result = BaseService.ShouldProcessFiles(excludes, objPath);
 
 		Assert.That(result, Is.True);
 	}
@@ -160,10 +130,10 @@ internal class ShouldProcessFolderTests
 	{
 		ICollection<Exclude> excludes = [];
 
-		Exclude exclude = new("obj", ExcludeType.Global);
+		Exclude exclude = new("obj", ExcludeType.OnlyRoot);
 		excludes.Add(exclude);
 
-		bool result = BaseService.ShouldProcessFolder(excludes, clientsPath);
+		bool result = BaseService.ShouldProcessFiles(excludes, clientsPath);
 
 		Assert.That(result, Is.True);
 	}
@@ -178,10 +148,10 @@ internal class ShouldProcessFolderTests
 		string partialMatch = Path.Combine(dataPath, "objstore");
 		ICollection<Exclude> excludes = [];
 
-		Exclude exclude = new("obj", ExcludeType.Global);
+		Exclude exclude = new("obj", ExcludeType.OnlyRoot);
 		excludes.Add(exclude);
 
-		bool result = BaseService.ShouldProcessFolder(excludes, partialMatch);
+		bool result = BaseService.ShouldProcessFiles(excludes, partialMatch);
 
 		Assert.That(result, Is.True);
 	}
@@ -201,10 +171,10 @@ internal class ShouldProcessFolderTests
 		string relativePath = Path.Combine("Data", "Clients");
 		ICollection<Exclude> excludes = [];
 
-		Exclude exclude = new(clientsPath, ExcludeType.SubDirectory);
+		Exclude exclude = new(clientsPath, ExcludeType.OnlyRoot);
 		excludes.Add(exclude);
 
-		bool result = BaseService.ShouldProcessFolder(excludes, relativePath);
+		bool result = BaseService.ShouldProcessFiles(excludes, relativePath);
 
 		Assert.That(result, Is.True);
 	}
@@ -224,7 +194,7 @@ internal class ShouldProcessFolderTests
 		Exclude exclude = new(clientsPath, ExcludeType.File);
 		excludes.Add(exclude);
 
-		bool result = BaseService.ShouldProcessFolder(excludes, clientsPath);
+		bool result = BaseService.ShouldProcessFiles(excludes, clientsPath);
 
 		Assert.That(result, Is.True);
 	}
@@ -240,7 +210,7 @@ internal class ShouldProcessFolderTests
 		Exclude exclude = new(clientsPath, ExcludeType.FileIgnore);
 		excludes.Add(exclude);
 
-		bool result = BaseService.ShouldProcessFolder(excludes, clientsPath);
+		bool result = BaseService.ShouldProcessFiles(excludes, clientsPath);
 
 		Assert.That(result, Is.True);
 	}
@@ -253,10 +223,10 @@ internal class ShouldProcessFolderTests
 	{
 		ICollection<Exclude> excludes = [];
 
-		Exclude exclude = new(clientsPath, ExcludeType.SubDirectory);
+		Exclude exclude = new(clientsPath, ExcludeType.OnlyRoot);
 		excludes.Add(exclude);
 
-		bool result = BaseService.ShouldProcessFolder(excludes, clientsPath);
+		bool result = BaseService.ShouldProcessFiles(excludes, clientsPath);
 
 		Assert.That(result, Is.False);
 	}
@@ -273,18 +243,18 @@ internal class ShouldProcessFolderTests
 	{
 		ICollection<Exclude> excludes = [];
 
-		Exclude exclude1 = new(objPath, ExcludeType.Global);
-		Exclude exclude2 = new(nodeModulesPath, ExcludeType.Global);
+		Exclude exclude1 = new(objPath, ExcludeType.OnlyRoot);
+		Exclude exclude2 = new(nodeModulesPath, ExcludeType.OnlyRoot);
 
 		string vsPath = Path.Combine(dataPath, ".vs");
-		Exclude exclude3 = new(vsPath, ExcludeType.Global);
+		Exclude exclude3 = new(vsPath, ExcludeType.OnlyRoot);
 
 		excludes.Add(exclude1);
 		excludes.Add(exclude2);
 		excludes.Add(exclude3);
 
 		bool result =
-			BaseService.ShouldProcessFolder(excludes, nodeModulesPath);
+			BaseService.ShouldProcessFiles(excludes, nodeModulesPath);
 
 		Assert.That(result, Is.False);
 	}
@@ -297,17 +267,17 @@ internal class ShouldProcessFolderTests
 	{
 		ICollection<Exclude> excludes = [];
 
-		Exclude exclude1 = new(objPath, ExcludeType.Global);
-		Exclude exclude2 = new(nodeModulesPath, ExcludeType.Global);
+		Exclude exclude1 = new(objPath, ExcludeType.OnlyRoot);
+		Exclude exclude2 = new(nodeModulesPath, ExcludeType.OnlyRoot);
 
 		string vsPath = Path.Combine(dataPath, ".vs");
-		Exclude exclude3 = new(vsPath, ExcludeType.Global);
+		Exclude exclude3 = new(vsPath, ExcludeType.OnlyRoot);
 
 		excludes.Add(exclude1);
 		excludes.Add(exclude2);
 		excludes.Add(exclude3);
 
-		bool result = BaseService.ShouldProcessFolder(excludes, clientsPath);
+		bool result = BaseService.ShouldProcessFiles(excludes, clientsPath);
 
 		Assert.That(result, Is.True);
 	}
@@ -324,13 +294,13 @@ internal class ShouldProcessFolderTests
 		// prevent the folder from being processed
 		Exclude exclude1 = new(clientsPath, ExcludeType.File);
 		Exclude exclude2 = new(clientsPath, ExcludeType.FileIgnore);
-		Exclude exclude3 = new(objPath, ExcludeType.Global);
+		Exclude exclude3 = new(objPath, ExcludeType.OnlyRoot);
 
 		excludes.Add(exclude1);
 		excludes.Add(exclude2);
 		excludes.Add(exclude3);
 
-		bool result = BaseService.ShouldProcessFolder(excludes, clientsPath);
+		bool result = BaseService.ShouldProcessFiles(excludes, clientsPath);
 
 		Assert.That(result, Is.True);
 	}
@@ -346,17 +316,17 @@ internal class ShouldProcessFolderTests
 	[Test]
 	public void RelativeExcludeSubfolderOfExcludedCallerResponsibility()
 	{
-		// This test documents that ShouldProcessFolder evaluates each
+		// This test documents that ShouldProcessFiles evaluates each
 		// folder in isolation. A subfolder of an excluded folder is NOT
 		// automatically excluded — the caller must honour the false result
 		// on the parent and not recurse into it.
 		string subFolder = Path.Combine(objPath, "Debug", "net8.0");
 		ICollection<Exclude> excludes = [];
 
-		Exclude exclude = new("obj", ExcludeType.Global);
+		Exclude exclude = new("obj", ExcludeType.OnlyRoot);
 		excludes.Add(exclude);
 
-		bool result = BaseService.ShouldProcessFolder(excludes, subFolder);
+		bool result = BaseService.ShouldProcessFiles(excludes, subFolder);
 
 		// The subfolder itself doesn't match "obj" by name,
 		// so this returns true — subtree skipping is the caller's job.
