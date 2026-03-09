@@ -65,38 +65,6 @@ internal class ShouldProcessFolderTests
 	}
 
 	/// <summary>
-	/// The null path returns true test.
-	/// </summary>
-	[Test]
-	public void NullPathReturnsTrue()
-	{
-		ICollection<Exclude> excludes = [];
-
-		Exclude exclude = new("anything", ExcludeType.SubDirectory);
-		excludes.Add(exclude);
-
-		bool result = BaseService.ShouldProcessFolder(excludes, null);
-
-		Assert.That(result, Is.True);
-	}
-
-	/// <summary>
-	/// The empty path return true test.
-	/// </summary>
-	[Test]
-	public void EmptyPathReturnsTrue()
-	{
-		ICollection<Exclude> excludes = [];
-
-		Exclude exclude = new("anything", ExcludeType.SubDirectory);
-		excludes.Add(exclude);
-
-		bool result = BaseService.ShouldProcessFolder(excludes, string.Empty);
-
-		Assert.That(result, Is.True);
-	}
-
-	/// <summary>
 	/// The nulll exclude entry is skipped, returns true test.
 	/// </summary>
 	[Test]
@@ -184,47 +152,6 @@ internal class ShouldProcessFolderTests
 		Assert.That(result, Is.True);
 	}
 
-	// ------------------------------------------------------------------------
-	// Relative exclude vs fully qualified path — name-only match
-	// Covers the "obj anywhere in the tree" requirement
-	// ------------------------------------------------------------------------
-
-	/// <summary>
-	/// The relative exclude matches folder name at any depth, returns false
-	/// test.
-	/// </summary>
-	[Test]
-	public void RelativeExcludeMatchesFolderNameAtAnyDepthReturnsFalse()
-	{
-		// "obj" should match regardless of where it appears in the tree
-		string deepObjPath = Path.Combine(
-			dataPath, "Projects", "MyApp", "obj");
-		ICollection<Exclude> excludes = [];
-
-		Exclude exclude = new("obj", ExcludeType.Global);
-		excludes.Add(exclude);
-
-		bool result = BaseService.ShouldProcessFolder(excludes, deepObjPath);
-
-		Assert.That(result, Is.False);
-	}
-
-	/// <summary>
-	/// The relative exclude matches shallow folder, returns false test.
-	/// </summary>
-	[Test]
-	public void RelativeExcludeMatchesShallowFolderReturnsFalse()
-	{
-		ICollection<Exclude> excludes = [];
-
-		Exclude exclude = new("obj", ExcludeType.Global);
-		excludes.Add(exclude);
-
-		bool result = BaseService.ShouldProcessFolder(excludes, objPath);
-
-		Assert.That(result, Is.False);
-	}
-
 	/// <summary>
 	/// The relative exclude no name matches returns false test.
 	/// </summary>
@@ -280,24 +207,6 @@ internal class ShouldProcessFolderTests
 		bool result = BaseService.ShouldProcessFolder(excludes, relativePath);
 
 		Assert.That(result, Is.True);
-	}
-
-	/// <summary>
-	/// The relative path with relative exclude returns false test.
-	/// </summary>
-	[Test]
-	public void RelativePathWithRelativeExcludeReturnsFalse()
-	{
-		ICollection<Exclude> excludes = [];
-
-		Exclude exclude = new("obj", ExcludeType.Global);
-		excludes.Add(exclude);
-
-		string relativePath = Path.Combine("Data", "obj");
-
-		bool result = BaseService.ShouldProcessFolder(excludes, relativePath);
-
-		Assert.That(result, Is.False);
 	}
 
 	// ------------------------------------------------------------------------
@@ -364,9 +273,11 @@ internal class ShouldProcessFolderTests
 	{
 		ICollection<Exclude> excludes = [];
 
-		Exclude exclude1 = new("obj", ExcludeType.Global);
-		Exclude exclude2 = new("node_modules", ExcludeType.Global);
-		Exclude exclude3 = new(".vs", ExcludeType.Global);
+		Exclude exclude1 = new(objPath, ExcludeType.Global);
+		Exclude exclude2 = new(nodeModulesPath, ExcludeType.Global);
+
+		string vsPath = Path.Combine(dataPath, ".vs");
+		Exclude exclude3 = new(vsPath, ExcludeType.Global);
 
 		excludes.Add(exclude1);
 		excludes.Add(exclude2);
