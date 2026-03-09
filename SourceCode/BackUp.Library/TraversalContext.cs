@@ -8,8 +8,8 @@ namespace DigitalZenWorks.BackUp.Library;
 
 using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Diagnostics.CodeAnalysis;
+using System.IO;
 
 #nullable enable
 
@@ -81,5 +81,39 @@ public static class TraversalContext
 		}
 
 		return isMatch;
+	}
+
+	/// <summary>
+	/// Normalizes the specified file or directory path and returns a fully
+	/// qualified path if the path exists.
+	/// </summary>
+	/// <remarks>If the provided path is not fully qualified, it is converted
+	/// to an absolute path using the current working directory. The method
+	/// returns null if the path does not exist or if the input is null, empty,
+	/// or consists only of whitespace.</remarks>
+	/// <param name="path">The path to normalize. This can be a relative or
+	/// absolute path. The value must not be null, empty, or whitespace.
+	/// </param>
+	/// <returns>A fully qualified path as a string if the specified path
+	/// exists; otherwise, null.</returns>
+	internal static string? NormalizePath(string? path)
+	{
+		string? normalizedPath = null;
+
+		bool exists = File.Exists(path) || Directory.Exists(path);
+
+		if (!string.IsNullOrWhiteSpace(path) && exists == true)
+		{
+			normalizedPath = path;
+
+			bool isFullyQualified = Path.IsPathFullyQualified(path);
+
+			if (isFullyQualified == false)
+			{
+				normalizedPath = Path.GetFullPath(path);
+			}
+		}
+
+		return normalizedPath;
 	}
 }
