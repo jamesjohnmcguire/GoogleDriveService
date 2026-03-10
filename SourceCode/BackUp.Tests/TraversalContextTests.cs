@@ -4,7 +4,7 @@
 // </copyright>
 /////////////////////////////////////////////////////////////////////////////
 
-namespace BackUp.Tests;
+namespace DigitalZenWorks.BackUp.Library.Tests;
 
 using System;
 using System.Collections.Generic;
@@ -15,6 +15,10 @@ using NUnit.Framework;
 [TestFixture]
 public class TraversalContextTests
 {
+	private string tempDirectory;
+	private string existingFilePath;
+	private string existingDirectoryPath;
+
 	private static readonly HashSet<ExcludeType> FolderTypes =
 	[
 		ExcludeType.SubDirectory,
@@ -42,13 +46,22 @@ public class TraversalContextTests
 	[SetUp]
 	public void SetUp()
 	{
+		tempDirectory = Path.Combine(
+			Path.GetTempPath(), Path.GetRandomFileName());
+		Directory.CreateDirectory(tempDirectory);
+
+		existingDirectoryPath = Path.Combine(tempDirectory, "TestFolder");
+		Directory.CreateDirectory(existingDirectoryPath);
+
+		existingFilePath = Path.Combine(tempDirectory, "TestFile.txt");
+		File.WriteAllText(existingFilePath, string.Empty);
 		root = Path.GetTempPath();
 		clientsPath = Path.Combine(root, "Data", "Clients");
 		objPath = Path.Combine(root, "Data", "obj");
 	}
 
 	// ------------------------------------------------------------------------
-	// Basic matching
+	// IsExcludeMatch — basic matching
 	// ------------------------------------------------------------------------
 
 	/// <summary>
@@ -208,5 +221,140 @@ public class TraversalContextTests
 			clientsPath, exclude, FolderTypes);
 
 		Assert.That(result, Is.False);
+	}
+
+	// -------------------------------------------------------------------------
+	// IsExcludeMatch — basic matching
+	// -------------------------------------------------------------------------
+
+	[Test]
+	public void IsExcludeMatchExactPathMatchAllowedTypeReturnsTrue()
+	{
+		Exclude exclude = new(
+			existingDirectoryPath, ExcludeType.SubDirectory);
+
+		bool result = TraversalContext.IsExcludeMatch(
+			existingDirectoryPath, exclude, FolderTypes);
+
+		Assert.That(result, Is.True);
+	}
+
+	[Test]
+	public void IsExcludeMatchDifferentPathReturnsFalse()
+	{
+		string otherPath = Path.Combine(tempDirectory, "OtherFolder");
+		Exclude exclude = new(
+			existingDirectoryPath, ExcludeType.SubDirectory);
+
+		bool result = TraversalContext.IsExcludeMatch(
+			otherPath, exclude, FolderTypes);
+
+		Assert.That(result, Is.False);
+	}
+
+	[Test]
+	public void IsExcludeMatchCaseSensitivityReflectsOperatingSystem()
+	{
+		Exclude exclude = new(
+			existingDirectoryPath.ToLowerInvariant(),
+			ExcludeType.SubDirectory);
+
+		bool result = TraversalContext.IsExcludeMatch(
+			existingDirectoryPath.ToUpperInvariant(), exclude, FolderTypes);
+
+		if (OperatingSystem.IsWindows())
+			Assert.That(result, Is.True);
+		else
+			Assert.That(result, Is.False);
+	}
+
+	// -------------------------------------------------------------------------
+	// IsExcludeMatch — ExcludeType filtering
+	// -------------------------------------------------------------------------
+
+	[Test]
+	public void IsExcludeMatchTypeNotInAllowedSetReturnsFalse()
+	{
+		Exclude exclude = new(existingFilePath, ExcludeType.File);
+
+		bool result = TraversalContext.IsExcludeMatch(
+			existingFilePath, exclude, FolderTypes);
+
+		Assert.That(result, Is.False);
+	}
+
+	[Test]
+	public void IsExcludeMatchFileTypeInFileAllowedSetReturnsTrue()
+	{
+		Exclude exclude = new(existingFilePath, ExcludeType.File);
+
+		bool result = TraversalContext.IsExcludeMatch(
+			existingFilePath, exclude, FileTypes);
+
+		Assert.That(result, Is.True);
+	}
+
+	[Test]
+	public void IsExcludeMatchFileIgnoreTypeInFileAllowedSetReturnsTrue()
+	{
+		Exclude exclude = new(existingFilePath, ExcludeType.FileIgnore);
+
+		bool result = TraversalContext.IsExcludeMatch(
+			existingFilePath, exclude, FileTypes);
+
+		Assert.That(result, Is.True);
+	}
+
+	// ------------------------------------------------------------------------
+	// NormalizePath — existing paths
+	// ------------------------------------------------------------------------
+
+	[Test]
+	public void NormalizePathExistingFileReturnsFullyQualifiedPath()
+	{
+		string? result = TraversalContext.NormalizePath(existingFilePath);
+
+		Assert.That(result, Is.Not.Null);
+		Assert.That(Path.IsPathFullyQualified(result!), Is.True);
+	}
+
+	[Test]
+	public void NormalizePathExistingDirectoryReturnsFullyQualifiedPath()
+	{
+		string? result =
+			TraversalContext.NormalizePath(existingDirectoryPath);
+
+		Assert.That(result, Is.Not.Null);
+		Assert.That(Path.IsPathFullyQualified(result!), Is.True);
+	}
+
+	[Test]
+	public void NormalizePathAlreadyFullyQualifiedReturnsSamePath()
+	{
+		string? result =
+			TraversalContext.NormalizePath(existingDirectoryPath);
+
+		Assert.That(result, Is.EqualTo(existingDirectoryPath));
+	}
+
+	[Test]
+	public void NormalizePathRelativePathReturnsFullyQualifiedPath()
+	{
+		string originalDirectory = Directory.GetCurrentDirectory();
+
+		try
+		{
+			Directory.SetCurrentDirectory(tempDirectory);
+			string relativePath = "TestFolder";
+
+			string? result = TraversalContext.NormalizePath(relativePath);
+
+			Assert.That(result, Is.Not.Null);
+			Assert.That(Path.IsPathFullyQualified(result!), Is.True);
+		}
+		finally
+		{
+			Directory.SetCurrentDirectory(originalDirectory);
+		}
 	}
 }

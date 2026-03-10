@@ -319,7 +319,7 @@ Refactor Considerations
 				Global,         // applies anywhere in the tree
 			}
 
-			public enum RemoteBehaviour
+			public enum RemoteExcludeBehaviour
 			{
 				Remove,         // remove from remote if not local
 				Keep,           // retain on remote even if not local
@@ -399,9 +399,3 @@ Back Up Manager
 	ShouldSkipThisDirectory(folderPath, excludes);
 	Revisit Logging
 	Re-enable, After Getting Static Logging Worked Out	bool isFullyQualified = Path.IsPathFullyQualified(path); if (isFullyQualified == false) { Log.Warning(logger, $"Path is not fully qualified: {path}", null); path = Path.GetFullPath(path); } }
-Future Commit
-	Remove Relative Path Branch
-
-	Relative paths shouldn't exist at the point this method is called.  So, it
-	was just adding noise.
-
