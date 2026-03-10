@@ -6,6 +6,7 @@
 
 namespace DigitalZenWorks.BackUp.Library.Tests;
 
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
@@ -623,7 +624,7 @@ internal class DriveMappingTests
 		// Should contain the expanded csv file AND the fixed folder.
 		Assert.That(count, Is.GreaterThanOrEqualTo(2));
 		Assert.That(result, Has.Some.Matches<Exclude>(e =>
-			e.Path.EndsWith("report.csv")));
+			e.Path.EndsWith("report.csv", StringComparison.Ordinal)));
 		Assert.That(result, Has.Some.Matches<Exclude>(e =>
 			e.Path == Path.GetFullPath(fixedFolder)));
 	}
@@ -659,7 +660,7 @@ internal class DriveMappingTests
 		// Should contain the expanded csv file AND the fixed folder.
 		Assert.That(count, Is.GreaterThanOrEqualTo(2));
 		Assert.That(result, Has.Some.Matches<Exclude>(e =>
-			e.Path.EndsWith("report.csv")));
+			e.Path.EndsWith("report.csv", StringComparison.Ordinal)));
 		Assert.That(result, Has.Some.Matches<Exclude>(e =>
 			e.Path == Path.GetFullPath(fixedFolder)));
 	}
@@ -688,7 +689,8 @@ internal class DriveMappingTests
 
 		Assert.That(result, Has.Count.EqualTo(4));
 		Assert.That(
-			result, Has.None.Matches<Exclude>(e => e.Path.Contains('*')));
+			result, Has.None.Matches<Exclude>(e => e.Path.Contains(
+				'*', StringComparison.Ordinal)));
 	}
 
 	/// <summary>
@@ -781,7 +783,7 @@ internal class DriveMappingTests
 		// Should contain the expanded csv file AND the fixed folder.
 		Assert.That(count, Is.GreaterThanOrEqualTo(2));
 		Assert.That(result, Has.Some.Matches<Exclude>(e =>
-			e.Path.EndsWith("report.csv")));
+			e.Path.EndsWith("report.csv", StringComparison.Ordinal)));
 		Assert.That(result, Has.Some.Matches<Exclude>(e =>
 			e.Path == Path.GetFullPath(fixedFolder)));
 	}
@@ -810,7 +812,8 @@ internal class DriveMappingTests
 
 		Assert.That(result, Has.Count.EqualTo(4));
 		Assert.That(
-			result, Has.None.Matches<Exclude>(e => e.Path.Contains('*')));
+			result, Has.None.Matches<Exclude>(e => e.Path.Contains(
+				'*', StringComparison.Ordinal)));
 	}
 
 	private void AddBakTestfiles()

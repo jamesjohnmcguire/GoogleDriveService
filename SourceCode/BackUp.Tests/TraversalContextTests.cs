@@ -12,13 +12,18 @@ using System.IO;
 using DigitalZenWorks.BackUp.Library;
 using NUnit.Framework;
 
+/// <summary>
+/// Provides a suite of unit tests for verifying the behavior of the
+/// TraversalContext class, focusing on exclusion logic for file and
+/// directory paths.
+/// </summary>
+/// <remarks>This test class includes tests that validate exclusion matching,
+/// case sensitivity, type filtering, and global exclusion handling. The tests
+/// ensure that TraversalContext correctly identifies paths to exclude based on
+/// various criteria and platform-specific behaviors.</remarks>
 [TestFixture]
-public class TraversalContextTests
+internal sealed class TraversalContextTests
 {
-	private string tempDirectory;
-	private string existingFilePath;
-	private string existingDirectoryPath;
-
 	private static readonly HashSet<ExcludeType> FolderTypes =
 	[
 		ExcludeType.SubDirectory,
@@ -31,9 +36,12 @@ public class TraversalContextTests
 		ExcludeType.FileIgnore,
 	];
 
-	private string root;
 	private string clientsPath;
+	private string existingDirectoryPath;
+	private string existingFilePath;
 	private string objPath;
+	private string root;
+	private string tempDirectory;
 
 	/// <summary>
 	/// Initializes the test environment by setting up temporary file paths for
@@ -55,6 +63,7 @@ public class TraversalContextTests
 
 		existingFilePath = Path.Combine(tempDirectory, "TestFile.txt");
 		File.WriteAllText(existingFilePath, string.Empty);
+
 		root = Path.GetTempPath();
 		clientsPath = Path.Combine(root, "Data", "Clients");
 		objPath = Path.Combine(root, "Data", "obj");
@@ -227,6 +236,14 @@ public class TraversalContextTests
 	// IsExcludeMatch — basic matching
 	// -------------------------------------------------------------------------
 
+	/// <summary>
+	/// Verifies that the exclusion logic correctly identifies an exact path
+	/// match as valid when the exclusion type is set to SubDirectory.
+	/// </summary>
+	/// <remarks>This test ensures that the IsExcludeMatch method returns true
+	/// when the provided directory path exactly matches an exclusion of type
+	/// SubDirectory. It confirms that the matching logic behaves as expected
+	/// for this scenario.</remarks>
 	[Test]
 	public void IsExcludeMatchExactPathMatchAllowedTypeReturnsTrue()
 	{
@@ -239,6 +256,15 @@ public class TraversalContextTests
 		Assert.That(result, Is.True);
 	}
 
+	/// <summary>
+	/// Verifies that the exclusion match does not occur when the provided path
+	/// differs from the specified exclusion path.
+	/// </summary>
+	/// <remarks>This test ensures that the exclusion logic correctly identifies
+	/// paths outside the excluded
+	/// directory and does not falsely match them. It helps validate that only
+	/// the intended paths are excluded according to the exclusion criteria.
+	/// </remarks>
 	[Test]
 	public void IsExcludeMatchDifferentPathReturnsFalse()
 	{
@@ -252,6 +278,14 @@ public class TraversalContextTests
 		Assert.That(result, Is.False);
 	}
 
+	/// <summary>
+	/// Verifies that exclusion matching logic respects the case sensitivity
+	/// rules of the underlying operating system.
+	/// </summary>
+	/// <remarks>This test ensures that exclusion matching is case-insensitive
+	/// on Windows and case-sensitive on non-Windows platforms. It does so by
+	/// comparing the behavior when the exclusion path and the tested path
+	/// differ in letter casing.</remarks>
 	[Test]
 	public void IsExcludeMatchCaseSensitivityReflectsOperatingSystem()
 	{
@@ -263,15 +297,22 @@ public class TraversalContextTests
 			existingDirectoryPath.ToUpperInvariant(), exclude, FolderTypes);
 
 		if (OperatingSystem.IsWindows())
+		{
 			Assert.That(result, Is.True);
+		}
 		else
+		{
 			Assert.That(result, Is.False);
+		}
 	}
 
 	// -------------------------------------------------------------------------
 	// IsExcludeMatch — ExcludeType filtering
 	// -------------------------------------------------------------------------
 
+	/// <summary>
+	/// The is exclude match type not in allowed set return false test.
+	/// </summary>
 	[Test]
 	public void IsExcludeMatchTypeNotInAllowedSetReturnsFalse()
 	{
@@ -283,6 +324,9 @@ public class TraversalContextTests
 		Assert.That(result, Is.False);
 	}
 
+	/// <summary>
+	/// The is exclude match file type in file allowed set return true test.
+	/// </summary>
 	[Test]
 	public void IsExcludeMatchFileTypeInFileAllowedSetReturnsTrue()
 	{
@@ -294,6 +338,10 @@ public class TraversalContextTests
 		Assert.That(result, Is.True);
 	}
 
+	/// <summary>
+	/// The is exclude match file ignore type in file allowed set return true
+	/// test.
+	/// </summary>
 	[Test]
 	public void IsExcludeMatchFileIgnoreTypeInFileAllowedSetReturnsTrue()
 	{
@@ -309,6 +357,9 @@ public class TraversalContextTests
 	// NormalizePath — existing paths
 	// ------------------------------------------------------------------------
 
+	/// <summary>
+	/// The normalize path existing file returns fully qualified path test.
+	/// </summary>
 	[Test]
 	public void NormalizePathExistingFileReturnsFullyQualifiedPath()
 	{
@@ -319,6 +370,10 @@ public class TraversalContextTests
 		Assert.That(Path.IsPathFullyQualified(result!), Is.True);
 	}
 
+	/// <summary>
+	/// The normalize path existing directory returns fully qualified path
+	/// test.
+	/// </summary>
 	[Test]
 	public void NormalizePathExistingDirectoryReturnsFullyQualifiedPath()
 	{
@@ -329,6 +384,9 @@ public class TraversalContextTests
 		Assert.That(Path.IsPathFullyQualified(result!), Is.True);
 	}
 
+	/// <summary>
+	/// The normalize path already fully qualified returns same path test.
+	/// </summary>
 	[Test]
 	public void NormalizePathAlreadyFullyQualifiedReturnsSamePath()
 	{
@@ -338,6 +396,9 @@ public class TraversalContextTests
 		Assert.That(result, Is.EqualTo(existingDirectoryPath));
 	}
 
+	/// <summary>
+	/// The normalize path relative path returns fully qualified path test.
+	/// </summary>
 	[Test]
 	public void NormalizePathRelativePathReturnsFullyQualifiedPath()
 	{
