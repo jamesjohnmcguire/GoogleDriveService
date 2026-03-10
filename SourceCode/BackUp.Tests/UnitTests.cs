@@ -20,7 +20,7 @@ using NUnit.Framework.Internal;
 /// is marked with the [Test] attribute and is executed independently by
 /// the test runner. The [SetUp] method is called before each test to
 /// perform any necessary initialization.</remarks>
-public class UnitTests
+internal sealed class UnitTests
 {
 	/// <summary>
 	/// Initializes resources or state before each test is run.
