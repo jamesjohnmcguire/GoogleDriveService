@@ -6,7 +6,6 @@
 
 namespace DigitalZenWorks.BackUp.Library.Tests;
 
-using System;
 using System.Collections.Generic;
 using System.IO;
 using Newtonsoft.Json;
