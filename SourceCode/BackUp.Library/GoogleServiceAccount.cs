@@ -524,10 +524,10 @@ public class GoogleServiceAccount(
 					string[] subDirectories = Directory.GetDirectories(path);
 					List<string> paths = [.. subDirectories];
 
-					IList<Exclude> expandExcludes =
+					IList<Exclude> expandedExcludes =
 						DriveMapping.ExpandGlobalExcludes(path, excludes);
 
-					RemoveExcludedItems(path, thisServerFiles, expandExcludes);
+					RemoveExcludedItems(path, thisServerFiles, expandedExcludes);
 
 					if (IgnoreAbandoned == false)
 					{
