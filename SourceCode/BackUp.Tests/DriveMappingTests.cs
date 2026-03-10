@@ -22,7 +22,7 @@ using NUnit.Framework;
 /// wildcards. The fixture uses a temporary directory for isolation and cleanup
 /// between tests.</remarks>
 [TestFixture]
-internal class DriveMappingTests
+internal sealed class DriveMappingTests
 {
 	private string tempDirectory;
 	private DriveMapping tempDirectoryMapping;

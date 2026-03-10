@@ -13,7 +13,7 @@ using Newtonsoft.Json;
 using NUnit.Framework;
 
 [TestFixture]
-public class SettingsManagerTests
+internal sealed class SettingsManagerTests
 {
 	private string tempDirectory;
 	private string settingsPath;

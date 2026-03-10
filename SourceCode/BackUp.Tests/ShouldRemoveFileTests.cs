@@ -16,7 +16,7 @@ using NUnit.Framework;
 /// scenarios.
 /// </summary>
 [TestFixture]
-internal class ShouldRemoveFileTests
+internal sealed class ShouldRemoveFileTests
 {
 	private string root;
 	private string dataPath;

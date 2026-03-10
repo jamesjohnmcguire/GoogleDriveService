@@ -16,7 +16,7 @@ using NUnit.Framework;
 /// scenarios.
 /// </summary>
 [TestFixture]
-internal class ShouldProcessFileTests
+internal sealed class ShouldProcessFileTests
 {
 	private string root;
 	private string dataPath;

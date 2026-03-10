@@ -16,7 +16,7 @@ using NUnit.Framework;
 /// scenarios.
 /// </summary>
 [TestFixture]
-internal class ShouldSkipThisDirectoryTests
+internal sealed class ShouldSkipThisDirectoryTests
 {
 	private string root;
 	private string dataPath;
