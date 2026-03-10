@@ -9,8 +9,10 @@ namespace DigitalZenWorks.BackUp.Library;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.IO;
 using System.Linq;
 using Microsoft.Extensions.FileSystemGlobbing;
+using Newtonsoft.Json;
 
 /// <summary>
 /// DriveMapping custom class.
@@ -37,10 +39,11 @@ public class DriveMapping
 	}
 
 	/// <summary>
-	/// Gets or sets path property.
+	/// Gets or sets the local path property.
 	/// </summary>
-	/// <value>Path property.</value>
-	public string Path { get; set; }
+	/// <value>The local path property.</value>
+	[JsonProperty("Path")]
+	public string LocalPath { get; set; }
 
 	/// <summary>
 	/// Gets or sets the core shared parent folder id property.
@@ -199,7 +202,7 @@ public class DriveMapping
 
 				if (exclude.ExcludeType != ExcludeType.Global)
 				{
-					exclude = ExpandExclude(Path, exclude);
+					exclude = ExpandExclude(LocalPath, exclude);
 				}
 
 				if (exclude.ExcludeType == ExcludeType.File &&
@@ -238,7 +241,7 @@ public class DriveMapping
 			Matcher matcher = new();
 			matcher.AddInclude(pattern);
 
-			string directory = System.IO.Path.GetDirectoryName(path);
+			string directory = Path.GetDirectoryName(path);
 			IEnumerable<string> matchingFiles =
 				matcher.GetResultsInFullPath(directory);
 
@@ -256,14 +259,14 @@ public class DriveMapping
 	{
 		exclude.Path = Environment.ExpandEnvironmentVariables(exclude.Path);
 
-		bool isQualified = System.IO.Path.IsPathFullyQualified(exclude.Path);
+		bool isQualified = Path.IsPathFullyQualified(exclude.Path);
 
 		if (isQualified == false)
 		{
-			exclude.Path = System.IO.Path.Combine(rootPath, exclude.Path);
+			exclude.Path = Path.Combine(rootPath, exclude.Path);
 		}
 
-		exclude.Path = System.IO.Path.GetFullPath(exclude.Path);
+		exclude.Path = Path.GetFullPath(exclude.Path);
 
 		return exclude;
 	}
