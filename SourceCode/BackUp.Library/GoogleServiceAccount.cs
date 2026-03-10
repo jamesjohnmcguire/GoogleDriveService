@@ -145,72 +145,7 @@ public class GoogleServiceAccount(
 		{
 			foreach (DriveMapping driveMapping in Account.DriveMappings)
 			{
-				try
-				{
-					string driveParentFolderId =
-						driveMapping.DriveParentFolderId;
-
-					string path = Environment.ExpandEnvironmentVariables(
-						driveMapping.Path);
-					path = Path.GetFullPath(path);
-
-					driveMapping.ExpandExcludes();
-
-					string message = string.Format(
-						CultureInfo.InvariantCulture,
-						"Checking: \"{0}\" with Parent Id: {1}",
-						path,
-						driveParentFolderId);
-					Log.Information(Logger, message);
-
-					IList<GoogleDriveFile> serverFiles =
-						await googleDrive.GetFilesAsync(
-							driveParentFolderId, true).ConfigureAwait(false);
-
-					DirectoryInfo parentDirectory = Directory.GetParent(path);
-
-					string[] subDirectories =
-						Directory.GetDirectories(parentDirectory.FullName);
-					List<string> paths = [.. subDirectories];
-					IList<string> driveMappingPaths = Account.DriveMappingPaths;
-
-					RemoveAbandonedFolders(
-						parentDirectory.FullName,
-						paths,
-						driveMappingPaths,
-						serverFiles,
-						driveMapping.Excludes,
-						Account.CheckDriveMappings);
-
-					serverFiles = await googleDrive.GetFilesAsync(
-							driveParentFolderId, false).ConfigureAwait(false);
-
-					await BackUp(
-						driveParentFolderId,
-						path,
-						serverFiles,
-						driveMapping.Excludes).ConfigureAwait(false);
-				}
-				catch (Exception exception) when
-					(exception is ArgumentException ||
-					exception is ArgumentNullException ||
-					exception is DirectoryNotFoundException ||
-					exception is FileNotFoundException ||
-					exception is Google.GoogleApiException ||
-					exception is IndexOutOfRangeException ||
-					exception is InvalidOperationException ||
-					exception is NullReferenceException ||
-					exception is IOException ||
-					exception is PathTooLongException ||
-					exception is System.Net.Http.HttpRequestException ||
-					exception is System.Net.Sockets.SocketException ||
-					exception is System.Security.SecurityException ||
-					exception is TargetException ||
-					exception is TaskCanceledException ||
-					exception is UnauthorizedAccessException)
-				{
-					Log.Exception(Logger, exception);
-				}
+				await ProcessDriveMapping(driveMapping).ConfigureAwait(false);
 			}
 		}
 	}
@@ -265,6 +200,79 @@ public class GoogleServiceAccount(
 		}
 
 		return removedFilesCount;
+	}
+
+	/// <summary>
+	/// Synchronizes the specified local directory with its corresponding
+	/// Google Drive folder based on the provided drive mapping configuration.
+	/// </summary>
+	/// <remarks>This method checks for files and directories present in the
+	/// specified Google Drive folder and updates the local directory
+	/// accordingly. It removes any local directories that are no longer
+	/// present on Google Drive and backs up files from Google Drive to the
+	/// local path. Exceptions encountered during processing are logged and not
+	/// propagated to the caller.</remarks>
+	/// <param name="driveMapping">The drive mapping configuration that
+	/// specifies the Google Drive parent folder ID, the local path to
+	/// synchronize, and any file or directory exclusions to apply during
+	/// processing. Cannot be null.</param>
+	/// <returns>A task that represents the asynchronous operation of
+	/// processing the drive mapping.</returns>
+	internal async Task ProcessDriveMapping(DriveMapping driveMapping)
+	{
+		try
+		{
+			string driveParentFolderId = driveMapping.DriveParentFolderId;
+
+			string path =
+				Environment.ExpandEnvironmentVariables(driveMapping.Path);
+			path = Path.GetFullPath(path);
+
+			driveMapping.ExpandExcludes();
+
+			string message = string.Format(
+				CultureInfo.InvariantCulture,
+				"Checking: \"{0}\" with Parent Id: {1}",
+				path,
+				driveParentFolderId);
+			Log.Information(Logger, message);
+
+			await RemoveAbandonedSiblingFolders(
+				path,
+				driveParentFolderId,
+				driveMapping.Excludes,
+				Account.CheckDriveMappings).ConfigureAwait(false);
+
+			IList<GoogleDriveFile> serverFiles =
+				await googleDrive.GetFilesAsync(
+					driveParentFolderId, false).ConfigureAwait(false);
+
+			await BackUp(
+				driveParentFolderId,
+				path,
+				serverFiles,
+				driveMapping.Excludes).ConfigureAwait(false);
+		}
+		catch (Exception exception) when
+			(exception is ArgumentException ||
+			exception is ArgumentNullException ||
+			exception is DirectoryNotFoundException ||
+			exception is FileNotFoundException ||
+			exception is Google.GoogleApiException ||
+			exception is IndexOutOfRangeException ||
+			exception is InvalidOperationException ||
+			exception is NullReferenceException ||
+			exception is IOException ||
+			exception is PathTooLongException ||
+			exception is System.Net.Http.HttpRequestException ||
+			exception is System.Net.Sockets.SocketException ||
+			exception is System.Security.SecurityException ||
+			exception is TargetException ||
+			exception is TaskCanceledException ||
+			exception is UnauthorizedAccessException)
+		{
+			Log.Exception(Logger, exception);
+		}
 	}
 
 	/// <summary>
@@ -722,6 +730,34 @@ public class GoogleServiceAccount(
 		{
 			Log.Exception(Logger, exception);
 		}
+
+		return removed;
+	}
+
+	private async Task<int> RemoveAbandonedSiblingFolders(
+		string path,
+		string driveParentFolderId,
+		ICollection<Exclude> excludes,
+		bool checkDriveMappings)
+	{
+		IList<GoogleDriveFile> serverFiles =
+			await googleDrive.GetFilesAsync(
+				driveParentFolderId, true).ConfigureAwait(false);
+
+		DirectoryInfo parentDirectory = Directory.GetParent(path);
+
+		string[] subDirectories =
+			Directory.GetDirectories(parentDirectory.FullName);
+		List<string> paths = [.. subDirectories];
+		IList<string> driveMappingPaths = Account.DriveMappingPaths;
+
+		int removed = RemoveAbandonedFolders(
+			parentDirectory.FullName,
+			paths,
+			driveMappingPaths,
+			serverFiles,
+			excludes,
+			checkDriveMappings);
 
 		return removed;
 	}
