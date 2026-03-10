@@ -225,8 +225,7 @@ public class GoogleServiceAccount(
 			string driveParentFolderId = driveMapping.DriveParentFolderId;
 
 			string path =
-				Environment.ExpandEnvironmentVariables(driveMapping.LocalPath);
-			path = Path.GetFullPath(path);
+				TraversalContext.NormalizePath(driveMapping.LocalPath);
 
 			driveMapping.ExpandExcludes();
 
