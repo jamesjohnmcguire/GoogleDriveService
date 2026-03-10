@@ -312,7 +312,8 @@ public class TraversalContextTests
 	[Test]
 	public void NormalizePathExistingFileReturnsFullyQualifiedPath()
 	{
-		string? result = TraversalContext.NormalizePath(existingFilePath);
+		string? result =
+			TraversalContext.NormalizePath(existingFilePath, tempDirectory);
 
 		Assert.That(result, Is.Not.Null);
 		Assert.That(Path.IsPathFullyQualified(result!), Is.True);
@@ -321,8 +322,8 @@ public class TraversalContextTests
 	[Test]
 	public void NormalizePathExistingDirectoryReturnsFullyQualifiedPath()
 	{
-		string? result =
-			TraversalContext.NormalizePath(existingDirectoryPath);
+		string? result = TraversalContext.NormalizePath(
+			existingDirectoryPath, tempDirectory);
 
 		Assert.That(result, Is.Not.Null);
 		Assert.That(Path.IsPathFullyQualified(result!), Is.True);
@@ -331,8 +332,8 @@ public class TraversalContextTests
 	[Test]
 	public void NormalizePathAlreadyFullyQualifiedReturnsSamePath()
 	{
-		string? result =
-			TraversalContext.NormalizePath(existingDirectoryPath);
+		string? result = TraversalContext.NormalizePath(
+			existingDirectoryPath, tempDirectory);
 
 		Assert.That(result, Is.EqualTo(existingDirectoryPath));
 	}
@@ -347,7 +348,8 @@ public class TraversalContextTests
 			Directory.SetCurrentDirectory(tempDirectory);
 			string relativePath = "TestFolder";
 
-			string? result = TraversalContext.NormalizePath(relativePath);
+			string? result =
+				TraversalContext.NormalizePath(relativePath, tempDirectory);
 
 			Assert.That(result, Is.Not.Null);
 			Assert.That(Path.IsPathFullyQualified(result!), Is.True);

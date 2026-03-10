@@ -94,23 +94,32 @@ public static class TraversalContext
 	/// <param name="path">The path to normalize. This can be a relative or
 	/// absolute path. The value must not be null, empty, or whitespace.
 	/// </param>
+	/// <param name="rootPath">The root path to use for resolving relative
+	/// paths.</param>
 	/// <returns>A fully qualified path as a string if the specified path
 	/// exists; otherwise, null.</returns>
-	internal static string? NormalizePath(string? path)
+	internal static string? NormalizePath(string? path, string rootPath)
 	{
 		string? normalizedPath = null;
 
-		bool exists = File.Exists(path) || Directory.Exists(path);
-
-		if (!string.IsNullOrWhiteSpace(path) && exists == true)
+		if (!string.IsNullOrWhiteSpace(path))
 		{
-			normalizedPath = path;
+			path = Environment.ExpandEnvironmentVariables(path);
 
-			bool isFullyQualified = Path.IsPathFullyQualified(path);
+			bool exists = File.Exists(path) || Directory.Exists(path);
 
-			if (isFullyQualified == false)
+			if (exists == true)
 			{
-				normalizedPath = Path.GetFullPath(path);
+				normalizedPath = path;
+
+				bool isFullyQualified = Path.IsPathFullyQualified(path);
+
+				if (isFullyQualified == false)
+				{
+					normalizedPath = Path.Combine(rootPath, path);
+				}
+
+				normalizedPath = Path.GetFullPath(normalizedPath);
 			}
 		}
 
