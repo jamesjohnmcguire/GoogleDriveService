@@ -4,7 +4,7 @@
 // </copyright>
 /////////////////////////////////////////////////////////////////////////////
 
-namespace BackUp.Tests;
+namespace DigitalZenWorks.BackUp.Library.Tests;
 
 using System.Collections.Generic;
 using System.IO;
