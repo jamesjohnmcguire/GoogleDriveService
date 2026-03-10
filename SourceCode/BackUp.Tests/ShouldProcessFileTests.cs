@@ -42,12 +42,16 @@ internal sealed class ShouldProcessFileTests
 		nodeModulesPath = Path.Combine(dataPath, "node_modules");
 
 		testFile = Path.Combine(dataPath, "TestFile.txt");
-		using (File.Create(testFile)) { }
+		using FileStream file = File.Create(testFile);
 
 		testFileOther = Path.Combine(dataPath, "TestFileOther.txt");
-		using (File.Create(testFileOther)) { }
+		using FileStream file2 = File.Create(testFileOther);
 	}
 
+	/// <summary>
+	/// The tear down method cleans up the test data directory after each test
+	/// run.
+	/// </summary>
 	[TearDown]
 	public void TearDown()
 	{
