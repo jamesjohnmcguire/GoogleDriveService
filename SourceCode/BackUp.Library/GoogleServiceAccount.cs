@@ -225,7 +225,7 @@ public class GoogleServiceAccount(
 			string driveParentFolderId = driveMapping.DriveParentFolderId;
 
 			string path =
-				Environment.ExpandEnvironmentVariables(driveMapping.Path);
+				Environment.ExpandEnvironmentVariables(driveMapping.LocalPath);
 			path = Path.GetFullPath(path);
 
 			driveMapping.ExpandExcludes();
@@ -287,7 +287,7 @@ public class GoogleServiceAccount(
 			string driveParentFolderId = driveMapping.DriveParentFolderId;
 
 			string path =
-				Environment.ExpandEnvironmentVariables(driveMapping.Path);
+				Environment.ExpandEnvironmentVariables(driveMapping.LocalPath);
 			path = Path.GetFullPath(path);
 
 			driveMapping.ExpandExcludes();
@@ -527,7 +527,8 @@ public class GoogleServiceAccount(
 					IList<Exclude> expandedExcludes =
 						DriveMapping.ExpandGlobalExcludes(path, excludes);
 
-					RemoveExcludedItems(path, thisServerFiles, expandedExcludes);
+					RemoveExcludedItems(
+						path, thisServerFiles, expandedExcludes);
 
 					if (IgnoreAbandoned == false)
 					{

@@ -51,7 +51,7 @@ public class Account
 
 				foreach (DriveMapping mapping in driveMappings)
 				{
-					driveMappingPaths.Add(mapping.Path);
+					driveMappingPaths.Add(mapping.LocalPath);
 				}
 			}
 

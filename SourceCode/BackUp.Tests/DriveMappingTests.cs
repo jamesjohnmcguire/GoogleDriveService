@@ -42,7 +42,7 @@ internal class DriveMappingTests
 			Path.GetTempPath(), Path.GetRandomFileName());
 		Directory.CreateDirectory(tempDirectory);
 
-		tempDirectoryMapping = new() { Path = tempDirectory };
+		tempDirectoryMapping = new() { LocalPath = tempDirectory };
 	}
 
 	/// <summary>
@@ -94,7 +94,7 @@ internal class DriveMappingTests
 	[Test]
 	public void PathPropertySetAndRetrieved()
 	{
-		Assert.That(tempDirectoryMapping.Path, Is.EqualTo(tempDirectory));
+		Assert.That(tempDirectoryMapping.LocalPath, Is.EqualTo(tempDirectory));
 	}
 
 	/// <summary>
