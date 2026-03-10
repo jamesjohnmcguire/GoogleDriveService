@@ -98,7 +98,8 @@ public static class TraversalContext
 	/// paths.</param>
 	/// <returns>A fully qualified path as a string if the specified path
 	/// exists; otherwise, null.</returns>
-	internal static string? NormalizePath(string? path, string rootPath)
+	internal static string? NormalizePath(
+		string? path, string? rootPath = null)
 	{
 		string? normalizedPath = null;
 
@@ -114,8 +115,10 @@ public static class TraversalContext
 
 				bool isFullyQualified = Path.IsPathFullyQualified(path);
 
-				if (isFullyQualified == false)
+				if (isFullyQualified == false &&
+					!string.IsNullOrWhiteSpace(rootPath))
 				{
+					// When logging becomes static, add a warning here.
 					normalizedPath = Path.Combine(rootPath, path);
 				}
 
