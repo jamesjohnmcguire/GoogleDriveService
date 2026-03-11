@@ -73,7 +73,7 @@ public class DriveMapping
 	/// <param name="excludes">The current set of excludes.</param>
 	/// <returns>A list of expanded excludes.</returns>
 	public static IList<Exclude> ExpandGlobalExcludes(
-		string rootPath, ICollection<Exclude> excludes)
+		string currentPath, ICollection<Exclude> excludes)
 	{
 		List<Exclude> expandedExcludes = null;
 
@@ -87,7 +87,7 @@ public class DriveMapping
 
 				if (exclude.ExcludeType == ExcludeType.Global)
 				{
-					exclude = ExpandExclude(rootPath, exclude);
+					exclude = ExpandExclude(currentPath, exclude);
 				}
 
 				expandedExcludes.Add(exclude);
