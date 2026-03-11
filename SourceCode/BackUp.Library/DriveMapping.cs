@@ -19,7 +19,7 @@ using Newtonsoft.Json;
 /// </summary>
 public class DriveMapping
 {
-	private List<Exclude> excludes = [];
+	private ICollection<Exclude> excludes = [];
 
 	/// <summary>
 	/// Initializes a new instance of the <see cref="DriveMapping"/> class
@@ -198,11 +198,11 @@ public class DriveMapping
 	/// Expand excludes method.
 	/// </summary>
 	/// <returns>A list of expanded excludes.</returns>
-	public IList<Exclude> ExpandExcludes()
+	public ICollection<Exclude> ExpandExcludes()
 	{
 		if (excludes != null)
 		{
-			List<Exclude> expandedExcludes = [];
+			Collection<Exclude> expandedExcludes = [];
 
 			foreach (Exclude temporaryExclude in excludes)
 			{
