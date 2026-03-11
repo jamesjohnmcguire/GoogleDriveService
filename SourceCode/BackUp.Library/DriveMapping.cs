@@ -211,26 +211,11 @@ public class DriveMapping
 				if (exclude.ExcludeType != ExcludeType.Global)
 				{
 					exclude = ExpandExclude(LocalPath, exclude);
-				}
-
-				if (exclude.ExcludeType == ExcludeType.File &&
-					exclude.Path.Contains(
-						'*', StringComparison.OrdinalIgnoreCase))
-				{
-					List<Exclude> newExcludes = ExpandWildCard(exclude.Path);
-
-					if (newExcludes.Count > 0)
-					{
-						expandedExcludes.AddRange(newExcludes);
-					}
-				}
-				else
-				{
 					expandedExcludes.Add(exclude);
 				}
 			}
 
-			excludes = expandedExcludes;
+			excludes = ExpandWildCardExcludes(expandedExcludes);
 		}
 
 		return excludes;
