@@ -49,7 +49,7 @@ public static class TraversalContext
 	/// </description></item>
 	/// <item><description>
 	///     <paramref name="exclude"/> and
-	///     <paramref name="allowedTypes"/> are not null.
+	///     <paramref name="excludeTypes"/> are not null.
 	/// </description></item>
 	/// </list>
 	/// This method is concerned only with matching — it makes no policy
@@ -59,7 +59,7 @@ public static class TraversalContext
 	/// evaluate.</param>
 	/// <param name="exclude">An Exclude object that defines the exclusion
 	/// criteria, including the path and exclusion type. Cannot be null.</param>
-	/// <param name="allowedTypes">A collection of ExcludeType values
+	/// <param name="excludeTypes">A collection of ExcludeType values
 	/// specifying which types of exclusions are permitted for the evaluation.
 	/// Cannot be null.</param>
 	/// <returns>true if the path matches the exclusion criteria and the
@@ -67,10 +67,10 @@ public static class TraversalContext
 	internal static bool IsExcludeMatch(
 		[NotNull] string path,
 		[NotNull] Exclude exclude,
-		[NotNull] IReadOnlySet<ExcludeType> allowedTypes)
+		[NotNull] IReadOnlySet<ExcludeType> excludeTypes)
 	{
 		bool isMatch = false;
-		bool isTypeAllowed = allowedTypes.Contains(exclude.ExcludeType);
+		bool isTypeAllowed = excludeTypes.Contains(exclude.ExcludeType);
 
 		if (isTypeAllowed == true)
 		{
