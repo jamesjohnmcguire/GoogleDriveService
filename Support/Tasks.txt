@@ -1,29 +1,20 @@
 Deal with Google Drive Deprecation
 Deal with One-Off Cancellation Exception
-Move all checks and validation of path and excludes at the point of Each Directory BackUp
-ShouldProcessFolder(excludes, null); should be false, same for string.Empty non-existent or invalid path
-How to Prevent Relative Paths in Excludes - At Each Directory, call ExpandExcludes
-Change name of allowedTypes
-ShouldSkipThisDirectory / ShouldProcessFolder ?? ShouldSkipThisDirectory is about removing abandoned directories or files.
-Exclude Refactor	Use IsExcludeMatch Everywhere relevant
-ExpandWildCardExcludes	Will be run once, per account, while ExpandGlobalExcludes (or whatever it's called), should be done per directory.  Sound right?
-ExpandExcludes	What happens when ExpandExcludes is called twice on the same mapping? Is it idempotent?
-Pin the current behaviour of ExpandExcludes and ExpandGlobalExcludes with a few more edge cases — these are the methods we're about to change, so locking them down first is highest value
-Write SettingsManager tests alongside its implementation since it's greenfield
-Add Exclude unit tests — simple but important groundwork before the enum split
+Revisit Logging Refactor Double Log Reference - 	Log.Warning(Logger, "server folder is null", null);
+Re-enable, After Getting Static Logging Worked Out	bool isFullyQualified = Path.IsPathFullyQualified(path); if (isFullyQualified == false) { Log.Warning(logger, $"Path is not fully qualified: {path}", null); path = Path.GetFullPath(path); } }
+ExcludeType	Sharpen Enum Values
 Add Account tests
 Add integration tests spanning the pipeline
-ShouldProcessFolder	Switch Parameter Ordering
-ShouldProcessFolder	Check If Relative Paths Ever Given.  If So, Should Everything be Absolute Path Based?
-ShouldProcessFolder	Tests should Expand Test Paths to Fully Qualified?
-ShouldProcessFolder	Revisit Permissiveness with path ending with "obj", Update documentation, Explain updates with Claude
-ShouldProcessFolder	Given null or empty string or invalid path for path, ShouldProcessFolder should return false
+Improve app startup sequence
+Make nullable
+Refactor RemoveExcludedItems(path, thisServerFiles, expandExcludes);
+Organize Tests
+Remove branch - GoogleDriveCLI?
 ShouldProcessFolder	What does ShouldProcessFolder do with a path that has a trailing separator?
-ShouldProcessFolder	What happens with empty string exclude paths vs null?
+
 All Paths	Unicode or special character paths
 DriveMapping	Finish Refactor of GlobalExcludesTemplates.  Might Even Be Moved to Another Class
 DriveMapping	Finish Refactor of ExpandWildCardExcludes
-ExcludeType	Sharpen Enum Values
 Accounts.json	Hardcoded user paths are fragile. Replace with environment variables, such as %USERPROFILE%
 Revisit Namespaces, Especially in Regards to Test Project
 Tests	Add to Tests	BackUpManager backup --config %appdata%\DigitalZenWorks\BackUpManager\BackUp.json
