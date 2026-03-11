@@ -90,21 +90,7 @@ public class DriveMapping
 					exclude = ExpandExclude(rootPath, exclude);
 				}
 
-				if (exclude.ExcludeType == ExcludeType.File &&
-					exclude.Path.Contains(
-						'*', StringComparison.OrdinalIgnoreCase))
-				{
-					List<Exclude> newExcludes = ExpandWildCard(exclude.Path);
-
-					if (newExcludes.Count > 0)
-					{
-						expandedExcludes.AddRange(newExcludes);
-					}
-				}
-				else
-				{
-					expandedExcludes.Add(exclude);
-				}
+				expandedExcludes.Add(exclude);
 			}
 		}
 
