@@ -442,7 +442,7 @@ public class GoogleServiceAccount(
 						}
 						else
 						{
-							Log.Warning(Logger, "IsPathFullyQualified is false", null);
+							Log.Warning(Logger, "IsPathFullyQualified is false");
 						}
 
 						if (serverFile.Name.Equals(
