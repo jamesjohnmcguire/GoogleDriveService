@@ -67,11 +67,33 @@ public class DriveMapping
 	public ICollection<string> GlobalExcludesTemplates { get; } = [];
 
 	/// <summary>
-	/// Expand global excludes method.
+	/// Expands global excludes relative to the current traversal directory,
+	/// returning a new list with all global excludes resolved to fully
+	/// qualified paths.
 	/// </summary>
-	/// <param name="rootPath">The root path.</param>
-	/// <param name="excludes">The current set of excludes.</param>
-	/// <returns>A list of expanded excludes.</returns>
+	/// <remarks>
+	/// This method is intended to be called once per directory as the
+	/// traversal descends the tree. Each global exclude — typically a
+	/// relative name such as "obj" or "node_modules" — is resolved to a
+	/// fully qualified path by combining it with the current directory path.
+	/// Non-global excludes are passed through unchanged.
+	///
+	/// Wildcard excludes should be fully expanded to concrete paths before
+	/// this method is called. See <see cref="ExpandWildCardExcludes"/> for
+	/// wildcard expansion, which is performed once per account prior to
+	/// traversal.
+	///
+	/// If <paramref name="excludes"/> is null, null is returned. If it is
+	/// empty, an empty list is returned.
+	/// </remarks>
+	/// <param name="currentPath">The fully qualified path of the directory
+	/// currently being traversed. Global excludes are resolved relative to
+	/// this path.</param>
+	/// <param name="excludes">The current set of excludes to process.
+	/// May be null.</param>
+	/// <returns>A new list of excludes with global entries resolved to fully
+	/// qualified paths, or null if <paramref name="excludes"/> is
+	/// null.</returns>
 	public static IList<Exclude> ExpandGlobalExcludes(
 		string currentPath, ICollection<Exclude> excludes)
 	{
