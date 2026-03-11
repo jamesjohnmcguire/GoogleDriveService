@@ -10,6 +10,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
+using System.Linq;
 using NUnit.Framework;
 
 /// <summary>
@@ -277,7 +278,7 @@ internal sealed class DriveMappingTests
 	/// the wildcard are included in the result, ensuring accurate exclusion
 	/// behavior.</remarks>
 	[Test]
-	public void ExpandGlobalExcludesWildcardFileExpands()
+	public void ExpandWildCardExcludesWildcardFileExpands()
 	{
 		// Create two matching files inside tempDirectory
 		AddLogTextfiles();
@@ -285,8 +286,8 @@ internal sealed class DriveMappingTests
 		string wildcardPath = Path.Combine(tempDirectory, "*.txt");
 		Exclude wildcardExclude = new(wildcardPath, ExcludeType.File);
 
-		IList<Exclude> result = DriveMapping.ExpandGlobalExcludes(
-			tempDirectory, [wildcardExclude]);
+		ICollection<Exclude> result =
+			DriveMapping.ExpandWildCardExcludes([wildcardExclude]);
 
 		// The wildcard entry itself should be removed and replaced by the
 		// two matched .txt files.
@@ -338,14 +339,14 @@ internal sealed class DriveMappingTests
 	/// correctly handles cases where the wildcard expansion yields no matches,
 	/// preserving the intended exclusion behavior.</remarks>
 	[Test]
-	public void ExpandGlobalExcludesWildcardNoMatches()
+	public void ExpandWildCardExcludesWildcardNoMatches()
 	{
 		// Wildcard that won't match anything in the empty temp dir
 		string wildcardPath = Path.Combine(tempDirectory, "*.xyz");
 		Exclude wildcardExclude = new(wildcardPath, ExcludeType.File);
 
-		IList<Exclude> result = DriveMapping.ExpandGlobalExcludes(
-			tempDirectory, [wildcardExclude]);
+		ICollection<Exclude> result =
+			DriveMapping.ExpandWildCardExcludes([wildcardExclude]);
 
 		// No matches – original entry stays because ExpandWildCard returns
 		// an empty list and the remove-and-concat branch is not entered.
@@ -395,7 +396,7 @@ internal sealed class DriveMappingTests
 		// so the null branch is not reachable via the public API without
 		// reflection – simply verify the empty-list path returns an empty
 		// list.
-		IList<Exclude> result = tempDirectoryMapping.ExpandExcludes();
+		ICollection<Exclude> result = tempDirectoryMapping.ExpandExcludes();
 
 		Assert.That(result, Is.Not.Null);
 		Assert.That(result, Is.Empty);
@@ -420,49 +421,16 @@ internal sealed class DriveMappingTests
 		List<Exclude> excludes = (List<Exclude>)tempDirectoryMapping.Excludes;
 		excludes.Add(item);
 
-		IList<Exclude> result = tempDirectoryMapping.ExpandExcludes();
+		ICollection<Exclude> result = tempDirectoryMapping.ExpandExcludes();
 
 		string expected = Path.GetFullPath(
 			Path.Combine(tempDirectory, "MyFolder"));
 
 		int count = result.Count;
-		Exclude lastExclude = GetLastExclude(result);
-		string lastPath = lastExclude.Path;
+		string lastPath = GetLastExcludePath(result);
 
 		Assert.That(count, Is.GreaterThan(0));
 		Assert.That(lastPath, Is.EqualTo(expected));
-	}
-
-	/// <summary>
-	/// Verifies that the ExpandExcludes method does not re-expand global
-	/// excludes, ensuring that paths marked as global remain unchanged in the
-	/// result.
-	/// </summary>
-	/// <remarks>This test confirms that when an exclude of type Global is
-	/// present in the DriveMapping, the ExpandExcludes method correctly skips
-	/// re-expansion for that path. This preserves the integrity of global
-	/// exclude paths and prevents unintended modifications.</remarks>
-	[Test]
-	public void ExpandExcludesGlobalExcludePathNotExpanded()
-	{
-		// Global excludes should not be re-expanded by ExpandExcludes
-		// (the method skips them with != ExcludeType.Global).
-		string absolutePath =
-			Path.Combine(tempDirectory, "GlobalFolder");
-
-		Exclude item = new Exclude(absolutePath, ExcludeType.Global);
-		List<Exclude> excludes = (List<Exclude>)tempDirectoryMapping.Excludes;
-
-		excludes.Add(item);
-
-		IList<Exclude> result = tempDirectoryMapping.ExpandExcludes();
-
-		int count = result.Count;
-		Exclude lastExclude = result[count - 1];
-		string lastPath = lastExclude.Path;
-
-		// Path should be unchanged because the Global branch is skipped.
-		Assert.That(lastPath, Is.EqualTo(absolutePath));
 	}
 
 	/// <summary>
@@ -486,7 +454,7 @@ internal sealed class DriveMappingTests
 		List<Exclude> excludes = (List<Exclude>)tempDirectoryMapping.Excludes;
 		excludes.Add(item);
 
-		IList<Exclude> result = tempDirectoryMapping.ExpandExcludes();
+		ICollection<Exclude> result = tempDirectoryMapping.ExpandExcludes();
 
 		int count = result.Count;
 
@@ -506,7 +474,7 @@ internal sealed class DriveMappingTests
 		AddCsvTestfiles();
 		AddLogTestfiles();
 
-		IList<Exclude> result = AddCsvAndLogToExcludes();
+		ICollection<Exclude> result = AddCsvAndLogToExcludes();
 
 		int count = result.Count;
 
@@ -584,7 +552,7 @@ internal sealed class DriveMappingTests
 	public void ExpandExcludesMultipleWildcardsSomeNoMatches()
 	{
 		AddCsvTestfiles();
-		IList<Exclude> result = AddCsvAndLogToExcludes();
+		ICollection<Exclude> result = AddCsvAndLogToExcludes();
 
 		int count = result.Count;
 
@@ -617,7 +585,7 @@ internal sealed class DriveMappingTests
 		excludeList.Add(folderExclude);
 		excludeList.Add(wildCardExclude);
 
-		IList<Exclude> result = tempDirectoryMapping.ExpandExcludes();
+		ICollection<Exclude> result = tempDirectoryMapping.ExpandExcludes();
 
 		int count = result.Count;
 
@@ -684,8 +652,8 @@ internal sealed class DriveMappingTests
 		excludes.Add(exclude1);
 		excludes.Add(exclude2);
 
-		IList<Exclude> result =
-			DriveMapping.ExpandGlobalExcludes(tempDirectory, excludes);
+		ICollection<Exclude> result =
+			DriveMapping.ExpandWildCardExcludes(excludes);
 
 		Assert.That(result, Has.Count.EqualTo(4));
 		Assert.That(
@@ -697,7 +665,7 @@ internal sealed class DriveMappingTests
 	/// Two wildcard patterns in ExpandExcludes: both should be fully expanded.
 	/// </summary>
 	[Test]
-	public void ExpandGlobalExcludesMultipleWildcardsAllExpanded()
+	public void ExpandWildCardExcludesMultipleWildcardsAllExpanded()
 	{
 		AddCsvTestfiles();
 		AddLogTestfiles();
@@ -709,12 +677,11 @@ internal sealed class DriveMappingTests
 		excludeList.Add(new Exclude(
 			Path.Combine(tempDirectory, "*.log"), ExcludeType.File));
 
-		IList<Exclude> result = DriveMapping.ExpandGlobalExcludes(
-			tempDirectory, excludeList);
+		ICollection<Exclude> result =
+			DriveMapping.ExpandWildCardExcludes(excludeList);
 
 		int count = result.Count;
-		Exclude lastExclude = GetLastExclude(result);
-		string lastPath = lastExclude.Path;
+		string lastPath = GetLastExcludePath(result);
 
 		// Expect all 4 concrete files.
 		Assert.That(count, Is.GreaterThanOrEqualTo(4));
@@ -727,7 +694,7 @@ internal sealed class DriveMappingTests
 	/// But the other having no matches, should simply be removed.
 	/// </summary>
 	[Test]
-	public void ExpandGlobalExcludesMultipleWildcardsSomeNoMatches()
+	public void ExpandWildCardExcludesMultipleWildcardsSomeNoMatches()
 	{
 		AddCsvTestfiles();
 
@@ -738,13 +705,11 @@ internal sealed class DriveMappingTests
 		excludeList.Add(new Exclude(
 			Path.Combine(tempDirectory, "*.log"), ExcludeType.File));
 
-		IList<Exclude> result = DriveMapping.ExpandGlobalExcludes(
-			tempDirectory, excludeList);
+		ICollection<Exclude> result =
+			DriveMapping.ExpandWildCardExcludes(excludeList);
 
 		int count = result.Count;
-		Exclude lastExclude = GetLastExclude(result);
-
-		string lastPath = lastExclude.Path;
+		string lastPath = GetLastExcludePath(result);
 
 		// Expect 2 concrete files.
 		Assert.That(count, Is.GreaterThanOrEqualTo(2));
@@ -758,7 +723,7 @@ internal sealed class DriveMappingTests
 	/// when the list is rebuilt during wildcard expansion.
 	/// </summary>
 	[Test]
-	public void ExpandExcludesNonWildcardNonWildcardIsPreserved2()
+	public void ExpandWildCardExcludesNonWildcardNonWildcardIsPreserved2()
 	{
 		string reportFile = Path.Combine(tempDirectory, "report.csv");
 		File.WriteAllText(reportFile, string.Empty);
@@ -775,8 +740,8 @@ internal sealed class DriveMappingTests
 		excludeList.Add(folderExclude);
 		excludeList.Add(wildCardExclude);
 
-		IList<Exclude> result = DriveMapping.ExpandGlobalExcludes(
-			tempDirectory, excludeList);
+		ICollection<Exclude> result =
+			DriveMapping.ExpandWildCardExcludes(excludeList);
 
 		int count = result.Count;
 
@@ -792,7 +757,7 @@ internal sealed class DriveMappingTests
 	/// Same stale-index scenario exercised via the static ExpandGlobalExcludes.
 	/// </summary>
 	[Test]
-	public void ExpandGlobalExcludesMultipleWildcards()
+	public void ExpandWildCardExcludesMultipleWildcards()
 	{
 		AddBakTestfiles();
 		AddTmpTestfiles();
@@ -807,8 +772,7 @@ internal sealed class DriveMappingTests
 		excludes.Add(exclude1);
 		excludes.Add(exclude2);
 
-		IList<Exclude> result = DriveMapping.ExpandGlobalExcludes(
-			tempDirectory, excludes);
+		ICollection<Exclude> result = DriveMapping.ExpandWildCardExcludes(excludes);
 
 		Assert.That(result, Has.Count.EqualTo(4));
 		Assert.That(
@@ -834,7 +798,7 @@ internal sealed class DriveMappingTests
 		File.WriteAllText(fileB, string.Empty);
 	}
 
-	private IList<Exclude> AddCsvAndLogToExcludes()
+	private ICollection<Exclude> AddCsvAndLogToExcludes()
 	{
 		List<Exclude> excludeList =
 			(List<Exclude>)tempDirectoryMapping.Excludes;
@@ -847,7 +811,7 @@ internal sealed class DriveMappingTests
 		Exclude exclude2 = new Exclude(excludePath1, ExcludeType.File);
 		excludeList.Add(exclude2);
 
-		IList<Exclude> result = tempDirectoryMapping.ExpandExcludes();
+		ICollection<Exclude> result = tempDirectoryMapping.ExpandExcludes();
 
 		return result;
 	}
@@ -881,11 +845,20 @@ internal sealed class DriveMappingTests
 		File.WriteAllText(fileB, string.Empty);
 	}
 
-	private Exclude GetLastExclude(IList<Exclude> excludes)
+	private static Exclude GetLastExclude(ICollection<Exclude> excludes)
 	{
 		int count = excludes.Count;
-		Exclude lastExclude = excludes[count - 1];
+		Exclude? lastExclude = excludes.Last();
 
 		return lastExclude;
+	}
+
+	private static string GetLastExcludePath(ICollection<Exclude> excludes)
+	{
+		Exclude lastExclude = GetLastExclude(excludes);
+
+		string lastPath = lastExclude.Path;
+
+		return lastPath;
 	}
 }
