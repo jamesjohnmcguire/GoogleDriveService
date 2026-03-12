@@ -67,59 +67,6 @@ public class DriveMapping
 	public ICollection<string> GlobalExcludesTemplates { get; } = [];
 
 	/// <summary>
-	/// Expands global excludes relative to the current traversal directory,
-	/// returning a new list with all global excludes resolved to fully
-	/// qualified paths.
-	/// </summary>
-	/// <remarks>
-	/// This method is intended to be called once per directory as the
-	/// traversal descends the tree. Each global exclude — typically a
-	/// relative name such as "obj" or "node_modules" — is resolved to a
-	/// fully qualified path by combining it with the current directory path.
-	/// Non-global excludes are passed through unchanged.
-	///
-	/// Wildcard excludes should be fully expanded to concrete paths before
-	/// this method is called. See <see cref="ExpandWildCardExcludes"/> for
-	/// wildcard expansion, which is performed once per account prior to
-	/// traversal.
-	///
-	/// If <paramref name="excludes"/> is null, null is returned. If it is
-	/// empty, an empty list is returned.
-	/// </remarks>
-	/// <param name="currentPath">The fully qualified path of the directory
-	/// currently being traversed. Global excludes are resolved relative to
-	/// this path.</param>
-	/// <param name="excludes">The current set of excludes to process.
-	/// May be null.</param>
-	/// <returns>A new collection of excludes with global entries resolved to
-	/// fully qualified paths, or null if <paramref name="excludes"/> is
-	/// null.</returns>
-	public static ICollection<Exclude> ExpandGlobalExcludes(
-		string currentPath, ICollection<Exclude> excludes)
-	{
-		Collection<Exclude> expandedExcludes = null;
-
-		if (excludes != null)
-		{
-			expandedExcludes = [];
-
-			foreach (Exclude temporaryExclude in excludes)
-			{
-				Exclude exclude = temporaryExclude;
-
-				if (exclude.ExcludeType == ExcludeType.Global)
-				{
-					exclude = ExpandExclude(currentPath, exclude);
-				}
-
-				expandedExcludes.Add(exclude);
-			}
-		}
-
-		return expandedExcludes;
-	}
-
-	/// <summary>
 	/// Expands a collection of exclude patterns by resolving wildcard file
 	/// paths into individual exclude entries.
 	/// </summary>
@@ -142,12 +89,10 @@ public class DriveMapping
 			{
 				Exclude exclude = temporaryExclude;
 
-				if (exclude.ExcludeType == ExcludeType.File &&
-					exclude.Path.Contains(
+				if (exclude.Path.Contains(
 						'*', StringComparison.OrdinalIgnoreCase))
 				{
-					Collection<Exclude> newExcludes =
-						ExpandWildCard(exclude.Path);
+					Collection<Exclude> newExcludes = ExpandWildCard(exclude);
 
 					if (newExcludes.Count > 0)
 					{
@@ -209,11 +154,8 @@ public class DriveMapping
 			{
 				Exclude exclude = temporaryExclude;
 
-				if (exclude.ExcludeType != ExcludeType.Global)
-				{
-					exclude = ExpandExclude(LocalPath, exclude);
-					expandedExcludes.Add(exclude);
-				}
+				exclude = ExpandExclude(LocalPath, exclude);
+				expandedExcludes.Add(exclude);
 			}
 
 			excludes = ExpandWildCardExcludes(expandedExcludes);
@@ -222,9 +164,11 @@ public class DriveMapping
 		return excludes;
 	}
 
-	private static Collection<Exclude> ExpandWildCard(string path)
+	private static Collection<Exclude> ExpandWildCard(Exclude originalExclude)
 	{
 		Collection<Exclude> newExcludes = [];
+
+		string path = originalExclude.Path;
 
 		if (path.Contains(
 			'*', StringComparison.OrdinalIgnoreCase))
@@ -241,7 +185,7 @@ public class DriveMapping
 
 			foreach (string match in matchingFiles)
 			{
-				Exclude exclude = new(match, ExcludeType.File);
+				Exclude exclude = new(match, originalExclude.KeepOnRemote);
 				newExcludes.Add(exclude);
 			}
 		}

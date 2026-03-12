@@ -27,17 +27,18 @@ internal sealed class DriveMappingTests
 {
 	private string tempDirectory;
 	private DriveMapping tempDirectoryMapping;
+	private TraversalContext traversalContext;
 
-	/// <summary>
-	/// Initializes a unique temporary directory for use in each test run,
-	/// ensuring a clean environment before test execution.
-	/// </summary>
-	/// <remarks>This method is executed before each test to prevent
-	/// interference between tests by creating a new temporary directory with a
-	/// random name. The directory is guaranteed to be empty at the start of
-	/// each test, allowing test files to be safely created and deleted without
-	/// affecting other tests.</remarks>
-	[SetUp]
+/// <summary>
+/// Initializes a unique temporary directory for use in each test run,
+/// ensuring a clean environment before test execution.
+/// </summary>
+/// <remarks>This method is executed before each test to prevent
+/// interference between tests by creating a new temporary directory with a
+/// random name. The directory is guaranteed to be empty at the start of
+/// each test, allowing test files to be safely created and deleted without
+/// affecting other tests.</remarks>
+[SetUp]
 	public void SetUp()
 	{
 		tempDirectory = Path.Combine(
@@ -45,6 +46,10 @@ internal sealed class DriveMappingTests
 		Directory.CreateDirectory(tempDirectory);
 
 		tempDirectoryMapping = new() { LocalPath = tempDirectory };
+
+		traversalContext = new(
+			tempDirectoryMapping.GlobalExcludesTemplates,
+			tempDirectoryMapping.Excludes);
 	}
 
 	/// <summary>
@@ -132,10 +137,11 @@ internal sealed class DriveMappingTests
 	[Test]
 	public void ExpandGlobalExcludesNullExcludes()
 	{
-		ICollection<Exclude> result =
-			DriveMapping.ExpandGlobalExcludes(tempDirectory, null);
+		ICollection<Exclude>? result =
+			traversalContext.ExpandGlobalExcludes(tempDirectory);
 
-		Assert.That(result, Is.Null);
+		Assert.That(result, Is.Not.Null);
+		Assert.That(result, Is.Empty);
 	}
 
 	/// <summary>
@@ -165,8 +171,8 @@ internal sealed class DriveMappingTests
 	[Test]
 	public void ExpandGlobalExcludesEmptyList()
 	{
-		ICollection<Exclude> result =
-			DriveMapping.ExpandGlobalExcludes(tempDirectory, []);
+		ICollection<Exclude>? result =
+			traversalContext.ExpandGlobalExcludes(tempDirectory);
 
 		Assert.That(result, Is.Not.Null);
 		Assert.That(result, Is.Empty);
@@ -206,10 +212,25 @@ internal sealed class DriveMappingTests
 	public void ExpandGlobalExcludesRelativePathExpanded()
 	{
 		const string relativeName = "SomeFolder";
-		Exclude globalExclude = new(relativeName, ExcludeType.Global);
+		string tempSubDirectory = Path.Combine(tempDirectory, relativeName);
+		Directory.CreateDirectory(tempSubDirectory);
 
-		ICollection<Exclude> result =
-			DriveMapping.ExpandGlobalExcludes(tempDirectory, [globalExclude]);
+		Exclude globalExclude = new(relativeName, false);
+
+		ICollection<string> globalExcludes =
+			tempDirectoryMapping.GlobalExcludesTemplates;
+		globalExcludes.Add(relativeName);
+
+		//ICollection<Exclude> originalExcludes = tempDirectoryMapping.Excludes;
+		//List<Exclude> excludesCopy = originalExcludes.ToList();
+		//excludesCopy.Add(globalExclude);
+
+		TraversalContext localTraversalContext = new(
+			tempDirectoryMapping.GlobalExcludesTemplates,
+			tempDirectoryMapping.Excludes);
+
+		ICollection<Exclude>? result =
+			localTraversalContext.ExpandGlobalExcludes(tempDirectory);
 
 		string expected = Path.GetFullPath(
 			Path.Combine(tempDirectory, relativeName));
@@ -231,10 +252,18 @@ internal sealed class DriveMappingTests
 	public void ExpandGlobalExcludesAbsolutePathIsKept()
 	{
 		string absolutePath = Path.Combine(tempDirectory, "AbsoluteFolder");
-		Exclude globalExclude = new(absolutePath, ExcludeType.Global);
+		Exclude globalExclude = new(absolutePath, false);
 
-		ICollection<Exclude> result =
-			DriveMapping.ExpandGlobalExcludes(tempDirectory, [globalExclude]);
+		ICollection<Exclude> originalExcludes = tempDirectoryMapping.Excludes;
+		List<Exclude> excludesCopy = originalExcludes.ToList();
+		excludesCopy.Add(globalExclude);
+
+		TraversalContext localTraversalContext = new(
+			tempDirectoryMapping.GlobalExcludesTemplates,
+			excludesCopy);
+
+		ICollection<Exclude>? result =
+			localTraversalContext.ExpandGlobalExcludes(tempDirectory);
 		Exclude exclude = GetLastExclude(result);
 
 		Assert.That(result, Has.Count.EqualTo(1));
@@ -254,14 +283,19 @@ internal sealed class DriveMappingTests
 	[Test]
 	public void ExpandGlobalExcludesAllExpanded()
 	{
-		Exclude item = new Exclude("FolderA", ExcludeType.Global);
+		Exclude item = new Exclude("FolderA", false);
 
-		List<Exclude> excludes = [];
-		excludes.Add(item);
-		excludes.Add(item);
+		ICollection<Exclude> originalExcludes = tempDirectoryMapping.Excludes;
+		List<Exclude> excludesCopy = originalExcludes.ToList();
+		excludesCopy.Add(item);
+		excludesCopy.Add(item);
 
-		ICollection<Exclude> result =
-			DriveMapping.ExpandGlobalExcludes(tempDirectory, excludes);
+		TraversalContext localTraversalContext = new(
+			tempDirectoryMapping.GlobalExcludesTemplates,
+			excludesCopy);
+
+		ICollection<Exclude>? result =
+			localTraversalContext.ExpandGlobalExcludes(tempDirectory);
 
 		Assert.That(result, Has.Count.EqualTo(2));
 	}
@@ -286,7 +320,7 @@ internal sealed class DriveMappingTests
 		AddLogTextfiles();
 
 		string wildcardPath = Path.Combine(tempDirectory, "*.txt");
-		Exclude wildcardExclude = new(wildcardPath, ExcludeType.File);
+		Exclude wildcardExclude = new(wildcardPath, false);
 
 		ICollection<Exclude> result =
 			DriveMapping.ExpandWildCardExcludes([wildcardExclude]);
@@ -316,7 +350,7 @@ internal sealed class DriveMappingTests
 		AddLogTextfiles();
 
 		string wildcardPath = Path.Combine(tempDirectory, "*.txt");
-		Exclude wildcardExclude = new(wildcardPath, ExcludeType.File);
+		Exclude wildcardExclude = new(wildcardPath, false);
 
 		ICollection<Exclude> result =
 			DriveMapping.ExpandWildCardExcludes([wildcardExclude]);
@@ -345,7 +379,7 @@ internal sealed class DriveMappingTests
 	{
 		// Wildcard that won't match anything in the empty temp dir
 		string wildcardPath = Path.Combine(tempDirectory, "*.xyz");
-		Exclude wildcardExclude = new(wildcardPath, ExcludeType.File);
+		Exclude wildcardExclude = new(wildcardPath, false);
 
 		ICollection<Exclude> result =
 			DriveMapping.ExpandWildCardExcludes([wildcardExclude]);
@@ -369,7 +403,7 @@ internal sealed class DriveMappingTests
 	{
 		// Wildcard that won't match anything in the empty temp dir
 		string wildcardPath = Path.Combine(tempDirectory, "*.xyz");
-		Exclude wildcardExclude = new(wildcardPath, ExcludeType.File);
+		Exclude wildcardExclude = new(wildcardPath, false);
 
 		ICollection<Exclude> result =
 			DriveMapping.ExpandWildCardExcludes([wildcardExclude]);
@@ -418,7 +452,7 @@ internal sealed class DriveMappingTests
 	{
 		// Add a non-global exclude with a relative path via the Excludes
 		// collection (cast to List<Exclude> since Excludes is IList<Exclude>).
-		Exclude item = new Exclude("MyFolder", ExcludeType.SubDirectory);
+		Exclude item = new Exclude("MyFolder", false);
 
 		List<Exclude> excludes = (List<Exclude>)tempDirectoryMapping.Excludes;
 		excludes.Add(item);
@@ -452,7 +486,7 @@ internal sealed class DriveMappingTests
 
 		string wildcardPath = Path.Combine(tempDirectory, "*.csv");
 
-		Exclude item = new Exclude(wildcardPath, ExcludeType.File);
+		Exclude item = new Exclude(wildcardPath, false);
 		List<Exclude> excludes = (List<Exclude>)tempDirectoryMapping.Excludes;
 		excludes.Add(item);
 
@@ -498,11 +532,11 @@ internal sealed class DriveMappingTests
 		Collection<Exclude> excludeList = [];
 
 		string excludePath1 = Path.Combine(tempDirectory, "*.csv");
-		Exclude exclude1 = new(excludePath1, ExcludeType.File);
+		Exclude exclude1 = new(excludePath1, false);
 		excludeList.Add(exclude1);
 
 		string excludePath2 = Path.Combine(tempDirectory, "*.log");
-		Exclude exclude2 = new(excludePath1, ExcludeType.File);
+		Exclude exclude2 = new(excludePath1, false);
 		excludeList.Add(exclude2);
 
 		ICollection<Exclude> result =
@@ -528,11 +562,11 @@ internal sealed class DriveMappingTests
 		Collection<Exclude> excludeList = [];
 
 		string excludePath1 = Path.Combine(tempDirectory, "*.csv");
-		Exclude exclude1 = new(excludePath1, ExcludeType.File);
+		Exclude exclude1 = new(excludePath1, false);
 		excludeList.Add(exclude1);
 
 		string excludePath2 = Path.Combine(tempDirectory, "*.log");
-		Exclude exclude2 = new(excludePath1, ExcludeType.File);
+		Exclude exclude2 = new(excludePath1, false);
 		excludeList.Add(exclude2);
 
 		ICollection<Exclude> result =
@@ -580,8 +614,8 @@ internal sealed class DriveMappingTests
 
 		List<Exclude> excludeList = (List<Exclude>)tempDirectoryMapping.Excludes;
 
-		Exclude folderExclude = new(fixedFolder, ExcludeType.SubDirectory);
-		Exclude wildCardExclude = new(wildcardPath, ExcludeType.File);
+		Exclude folderExclude = new(fixedFolder, false);
+		Exclude wildCardExclude = new(wildcardPath, false);
 
 		// Fixed entry first, wildcard second — reverse loop hits wildcard first.
 		excludeList.Add(folderExclude);
@@ -615,8 +649,8 @@ internal sealed class DriveMappingTests
 
 		Collection<Exclude> excludeList = [];
 
-		Exclude folderExclude = new(fixedFolder, ExcludeType.SubDirectory);
-		Exclude wildCardExclude = new(wildcardPath, ExcludeType.File);
+		Exclude folderExclude = new(fixedFolder, false);
+		Exclude wildCardExclude = new(wildcardPath, false);
 
 		// Fixed entry first, wildcard second — reverse loop hits wildcard first.
 		excludeList.Add(folderExclude);
@@ -647,8 +681,8 @@ internal sealed class DriveMappingTests
 		string bakWildcard = Path.Combine(tempDirectory, "*.bak");
 		string tmpWildcard = Path.Combine(tempDirectory, "*.tmp");
 
-		Exclude exclude1 = new Exclude(bakWildcard, ExcludeType.File);
-		Exclude exclude2 = new Exclude(tmpWildcard, ExcludeType.File);
+		Exclude exclude1 = new Exclude(bakWildcard, false);
+		Exclude exclude2 = new Exclude(tmpWildcard, false);
 
 		List<Exclude> excludes = [];
 		excludes.Add(exclude1);
@@ -675,9 +709,9 @@ internal sealed class DriveMappingTests
 		List<Exclude> excludeList =
 			(List<Exclude>)tempDirectoryMapping.Excludes;
 		excludeList.Add(new Exclude(
-			Path.Combine(tempDirectory, "*.csv"), ExcludeType.File));
+			Path.Combine(tempDirectory, "*.csv"), false));
 		excludeList.Add(new Exclude(
-			Path.Combine(tempDirectory, "*.log"), ExcludeType.File));
+			Path.Combine(tempDirectory, "*.log"), false));
 
 		ICollection<Exclude> result =
 			DriveMapping.ExpandWildCardExcludes(excludeList);
@@ -703,9 +737,9 @@ internal sealed class DriveMappingTests
 		List<Exclude> excludeList =
 			(List<Exclude>)tempDirectoryMapping.Excludes;
 		excludeList.Add(new Exclude(
-			Path.Combine(tempDirectory, "*.csv"), ExcludeType.File));
+			Path.Combine(tempDirectory, "*.csv"), false));
 		excludeList.Add(new Exclude(
-			Path.Combine(tempDirectory, "*.log"), ExcludeType.File));
+			Path.Combine(tempDirectory, "*.log"), false));
 
 		ICollection<Exclude> result =
 			DriveMapping.ExpandWildCardExcludes(excludeList);
@@ -735,8 +769,8 @@ internal sealed class DriveMappingTests
 
 		List<Exclude> excludeList = (List<Exclude>)tempDirectoryMapping.Excludes;
 
-		Exclude folderExclude = new(fixedFolder, ExcludeType.SubDirectory);
-		Exclude wildCardExclude = new(wildcardPath, ExcludeType.File);
+		Exclude folderExclude = new(fixedFolder, false);
+		Exclude wildCardExclude = new(wildcardPath, false);
 
 		// Fixed entry first, wildcard second — reverse loop hits wildcard first.
 		excludeList.Add(folderExclude);
@@ -767,8 +801,8 @@ internal sealed class DriveMappingTests
 		string bakWildcard = Path.Combine(tempDirectory, "*.bak");
 		string tmpWildcard = Path.Combine(tempDirectory, "*.tmp");
 
-		Exclude exclude1 = new Exclude(bakWildcard, ExcludeType.File);
-		Exclude exclude2 = new Exclude(tmpWildcard, ExcludeType.File);
+		Exclude exclude1 = new Exclude(bakWildcard, false);
+		Exclude exclude2 = new Exclude(tmpWildcard, false);
 
 		List<Exclude> excludes = [];
 		excludes.Add(exclude1);
@@ -806,11 +840,11 @@ internal sealed class DriveMappingTests
 			(List<Exclude>)tempDirectoryMapping.Excludes;
 
 		string excludePath1 = Path.Combine(tempDirectory, "*.csv");
-		Exclude exclude1 = new Exclude(excludePath1, ExcludeType.File);
+		Exclude exclude1 = new Exclude(excludePath1, false);
 		excludeList.Add(exclude1);
 
 		string excludePath2 = Path.Combine(tempDirectory, "*.log");
-		Exclude exclude2 = new Exclude(excludePath1, ExcludeType.File);
+		Exclude exclude2 = new Exclude(excludePath1, false);
 		excludeList.Add(exclude2);
 
 		ICollection<Exclude> result = tempDirectoryMapping.ExpandExcludes();

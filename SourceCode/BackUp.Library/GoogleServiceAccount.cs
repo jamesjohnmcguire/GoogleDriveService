@@ -31,6 +31,7 @@ public class GoogleServiceAccount(
 	: BaseService(account, logger), IDisposable
 {
 	private GoogleDrive googleDrive = new(logger);
+	private TraversalContext traversalContext;
 
 	/// <summary>
 	/// Report server folder information.
@@ -227,14 +228,21 @@ public class GoogleServiceAccount(
 			string path =
 				TraversalContext.NormalizePath(driveMapping.LocalPath);
 
-			driveMapping.ExpandExcludes();
-
 			string message = string.Format(
 				CultureInfo.InvariantCulture,
 				"Checking: \"{0}\" with Parent Id: {1}",
 				path,
 				driveParentFolderId);
 			Log.Information(Logger, message);
+
+			driveMapping.ExpandExcludes();
+
+			traversalContext = new TraversalContext(
+				driveMapping.GlobalExcludesTemplates,
+				driveMapping.Excludes);
+
+			ICollection<Exclude> expandedExcludes =
+				traversalContext.ExpandGlobalExcludes(path);
 
 			await RemoveAbandonedSiblingFolders(
 				path,
@@ -323,23 +331,18 @@ public class GoogleServiceAccount(
 		IList<GoogleDriveFile> serverFiles,
 		ICollection<Exclude> excludes)
 	{
-		bool processFiles = ShouldProcessFiles(path, excludes);
+		DirectoryInfo directoryInfo = new(path);
 
-		if (processFiles == true)
+		FileInfo[] files = directoryInfo.GetFiles();
+
+		if (IgnoreAbandoned == false)
 		{
-			DirectoryInfo directoryInfo = new(path);
+			RemoveAbandonedFiles(path, files, serverFiles, excludes);
+		}
 
-			FileInfo[] files = directoryInfo.GetFiles();
-
-			if (IgnoreAbandoned == false)
-			{
-				RemoveAbandonedFiles(path, files, serverFiles, excludes);
-			}
-
-			foreach (FileInfo file in files)
-			{
-				BackUpFile(driveParentId, file, serverFiles, excludes);
-			}
+		foreach (FileInfo file in files)
+		{
+			BackUpFile(driveParentId, file, serverFiles, excludes);
 		}
 	}
 
@@ -371,10 +374,9 @@ public class GoogleServiceAccount(
 	{
 		if (serverFiles != null)
 		{
-			bool skipThisDirectory =
-				ShouldSkipThisDirectory(parentPath, excludes);
+			bool removeDirectory = ShouldRemoveItem(parentPath, excludes);
 
-			if (skipThisDirectory == false)
+			if (removeDirectory == true)
 			{
 				foreach (GoogleDriveFile serverFile in serverFiles)
 				{
@@ -424,26 +426,10 @@ public class GoogleServiceAccount(
 			{
 				foreach (Exclude exclude in excludes)
 				{
-					ExcludeType clause = exclude.ExcludeType;
-
-					if (clause == ExcludeType.SubDirectory ||
-						clause == ExcludeType.Global ||
-						clause == ExcludeType.File)
+					if (exclude.KeepOnRemote == false)
 					{
-						string name = exclude.Path;
-						string path = parentPath;
-						bool isQualified =
-							Path.IsPathFullyQualified(exclude.Path);
-
-						if (isQualified == true)
-						{
-							name = Path.GetFileName(exclude.Path);
-							path = Path.GetDirectoryName(exclude.Path);
-						}
-						else
-						{
-							Log.Warning(Logger, "IsPathFullyQualified is false");
-						}
+						string name = Path.GetFileName(exclude.Path);
+						string path = Path.GetDirectoryName(exclude.Path);
 
 						if (serverFile.Name.Equals(
 							name, StringComparison.OrdinalIgnoreCase) &&
@@ -456,29 +442,6 @@ public class GoogleServiceAccount(
 				}
 			}
 		}
-	}
-
-	private static bool CheckForKeepExclude(
-		string fileName, ICollection<Exclude> excludes)
-	{
-		bool keep = false;
-
-		foreach (Exclude exclude in excludes)
-		{
-			string name = Path.GetFileName(exclude.Path);
-
-			if (fileName.Equals(name, StringComparison.OrdinalIgnoreCase))
-			{
-				if (exclude.ExcludeType == ExcludeType.Keep ||
-					exclude.ExcludeType == ExcludeType.FileIgnore)
-				{
-					keep = true;
-					break;
-				}
-			}
-		}
-
-		return keep;
 	}
 
 	[System.Diagnostics.CodeAnalysis.SuppressMessage(
@@ -507,9 +470,11 @@ public class GoogleServiceAccount(
 				Log.Warning(Logger, "IsPathFullyQualified is false", null);
 			}
 
-			if (System.IO.Directory.Exists(path))
+			path = TraversalContext.NormalizePath(path);
+
+			if (path != null)
 			{
-				bool processFolder = ShouldProcessFolder(path, excludes);
+				bool processFolder = ShouldProcessItem(path, excludes);
 
 				if (processFolder == true)
 				{
@@ -524,7 +489,7 @@ public class GoogleServiceAccount(
 					List<string> paths = [.. subDirectories];
 
 					ICollection<Exclude> expandedExcludes =
-						DriveMapping.ExpandGlobalExcludes(path, excludes);
+						traversalContext.ExpandGlobalExcludes(path);
 
 					RemoveExcludedItems(
 						path, thisServerFiles, expandedExcludes);
@@ -581,7 +546,7 @@ public class GoogleServiceAccount(
 	{
 		try
 		{
-			bool checkFile = ShouldProcessFile(file.FullName, excludes);
+			bool checkFile = ShouldProcessItem(file.FullName, excludes);
 
 			if (checkFile == true)
 			{
@@ -600,7 +565,7 @@ public class GoogleServiceAccount(
 			}
 			else
 			{
-				bool remove = ShouldRemoveFile(file.FullName, excludes);
+				bool remove = ShouldRemoveItem(file.FullName, excludes);
 
 				if (remove == true)
 				{
@@ -628,27 +593,6 @@ public class GoogleServiceAccount(
 		{
 			Log.Exception(Logger, exception);
 		}
-	}
-
-	private bool ExcludeKeepOrDeleteFile(
-		GoogleDriveFile file, ICollection<Exclude> excludes)
-	{
-		bool removed = false;
-
-		bool keep = true;
-
-		if (excludes != null)
-		{
-			keep = CheckForKeepExclude(file.Name, excludes);
-		}
-
-		if (keep == false)
-		{
-			googleDrive.Delete(file);
-			removed = true;
-		}
-
-		return removed;
 	}
 
 	private string GetServiceAccountJsonFile()
@@ -703,12 +647,12 @@ public class GoogleServiceAccount(
 				bool exists = subDirectories.Any(element => element.Equals(
 						folderPath, StringComparison.Ordinal));
 
-				bool skipThisDirectory =
-					ShouldSkipThisDirectory(folderPath, excludes);
+				bool removeDirectory = ShouldRemoveItem(folderPath, excludes);
 
-				if (exists == false && skipThisDirectory == false)
+				if (exists == false && removeDirectory == true)
 				{
-					removed = ExcludeKeepOrDeleteFile(file, excludes);
+					googleDrive.Delete(file);
+					removed = true;
 				}
 
 				if (removed == false && checkDriveMappings == true)
@@ -719,9 +663,9 @@ public class GoogleServiceAccount(
 					exists = driveMappings.Any(element => element.Equals(
 						folderPath, StringComparison.Ordinal));
 
-					if (exists == false && skipThisDirectory == false)
+					if (exists == false && removeDirectory == true)
 					{
-						removed = ExcludeKeepOrDeleteFile(file, excludes);
+						googleDrive.Delete(file);
 					}
 				}
 			}

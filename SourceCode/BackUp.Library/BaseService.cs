@@ -6,7 +6,9 @@
 
 namespace DigitalZenWorks.BackUp.Library;
 
+using System;
 using System.Collections.Generic;
+using System.IO;
 using Microsoft.Extensions.Logging;
 
 /// <summary>
@@ -17,6 +19,7 @@ public abstract class BaseService(
 {
 	private readonly Account account = account;
 	private readonly ILogger<BackUpService> logger = logger;
+	private TraversalContext traversalContext;
 
 	/// <summary>
 	/// Gets the account data.
@@ -36,126 +39,35 @@ public abstract class BaseService(
 	/// <value>The logger service.</value>
 	public ILogger<BackUpService> Logger { get => logger; }
 
-	/// <summary>
-	/// Should process file method.
-	/// </summary>
-	/// <param name="path">The path to process.</param>
-	/// <param name="excludes">The list of excludes.</param>
-	/// <returns>A value indicating whether to process the file
-	/// or not.</returns>
-	internal static bool ShouldProcessFile(
-		string path, ICollection<Exclude> excludes)
+	protected TraversalContext TraversalContext
 	{
-		IReadOnlySet<ExcludeType> excludeTypes = new HashSet<ExcludeType>
-			{
-				ExcludeType.File,
-				ExcludeType.FileIgnore
-			};
-
-		bool processFile = ShouldProcessItem(path, excludes, excludeTypes);
-
-		return processFile;
+		get => traversalContext;
+		set => traversalContext = value;
 	}
 
 	/// <summary>
-	/// Should process files method.
+	/// Determines whether an item, either a directory or file, should be
+	/// processed during backup.
 	/// </summary>
-	/// <param name="path">The path to process.</param>
-	/// <param name="excludes">The list of excludes.</param>
-	/// <returns>A value indicating whether to process the file
-	/// or not.</returns>
-	internal static bool ShouldProcessFiles(
-		string path, ICollection<Exclude> excludes)
-	{
-		IReadOnlySet<ExcludeType> excludeTypes =
-			new HashSet<ExcludeType> { ExcludeType.OnlyRoot };
-
-		bool processFiles = ShouldProcessItem(path, excludes, excludeTypes);
-
-		return processFiles;
-	}
-
-	/// <summary>
-	/// Determines whether a folder should be processed during backup.
-	/// </summary>
-	/// <remarks>This method evaluates a single folder in isolation. Prevention
-	/// of processing of an excluded folder's subtree is the responsibility
-	/// of the caller.</remarks>
-	/// <param name="path">The path to process.</param>
+	/// <remarks>At the point of this method being called, path should be an
+	/// existing valid, fully qualified path.</remarks>
+	/// <param name="path">The path of the item to process.</param>
 	/// <param name="excludes">The collection of excludes to check
-	/// against. A null or empty collection always permits
-	/// processing.</param>
-	/// <returns>True if the folder should be processed;
+	/// against. This should not be null.</param>
+	/// <returns>True if the item should be processed;
 	/// false if it is explicitly excluded.</returns>
-	internal static bool ShouldProcessFolder(
+	internal static bool ShouldProcessItem(
 		string path, ICollection<Exclude> excludes)
-	{
-		IReadOnlySet<ExcludeType> excludeTypes = new HashSet<ExcludeType>
-			{
-				ExcludeType.Global,
-				ExcludeType.SubDirectory
-			};
-
-		bool processSubFolders =
-			ShouldProcessItem(path, excludes, excludeTypes);
-
-		return processSubFolders;
-	}
-
-	/// <summary>
-	/// Should remove file method.
-	/// </summary>
-	/// <remarks>This method assumes the file has already been excluded
-	/// from uploading.</remarks>
-	/// <param name="path">The path to remove.</param>
-	/// <param name="excludes">The list of excludes.</param>
-	/// <returns>A value indicating whether to remove the file
-	/// or not.</returns>
-	internal static bool ShouldRemoveFile(
-		string path, ICollection<Exclude> excludes)
-	{
-		IReadOnlySet<ExcludeType> excludeTypes =
-			new HashSet<ExcludeType> { ExcludeType.FileIgnore };
-
-		bool removeFile = ShouldProcessItem(path, excludes, excludeTypes);
-
-		return removeFile;
-	}
-
-	/// <summary>
-	/// Should skip this directory method.
-	/// </summary>
-	/// <param name="parentPath">The parent path.</param>
-	/// <param name="excludes">The list of excludes.</param>
-	/// <returns>A value indicating whether to process the file
-	/// or not.</returns>
-	internal static bool ShouldSkipThisDirectory(
-		string parentPath, ICollection<Exclude> excludes)
-	{
-		IReadOnlySet<ExcludeType> excludeTypes =
-			new HashSet<ExcludeType> { ExcludeType.Keep };
-
-		bool processitem =
-			ShouldProcessItem(parentPath, excludes, excludeTypes);
-
-		bool skipThisDirectory = !processitem;
-
-		return skipThisDirectory;
-	}
-
-	private static bool ShouldProcessItem(
-		string path,
-		ICollection<Exclude> excludes,
-		IReadOnlySet<ExcludeType> excludeTypes)
 	{
 		bool processItem = true;
+
+		ArgumentNullException.ThrowIfNull(path);
 
 		if (excludes != null)
 		{
 			foreach (Exclude exclude in excludes)
 			{
-				bool isMatch = TraversalContext.IsExcludeMatch(
-					path, exclude, excludeTypes);
+				bool isMatch = TraversalContext.IsExcludeMatch(path, exclude);
 
 				if (isMatch == true)
 				{
@@ -166,5 +78,58 @@ public abstract class BaseService(
 		}
 
 		return processItem;
+	}
+
+	/// <summary>
+	/// Should remove item method.
+	/// </summary>
+	/// <remarks>This method assumes the item has already been excluded
+	/// from uploading.</remarks>
+	/// <param name="path">The path to remove.</param>
+	/// <param name="excludes">The collection of excludes.</param>
+	/// <returns>A value indicating whether to remove the item
+	/// or not.</returns>
+	internal static bool ShouldRemoveItem(
+		string path, ICollection<Exclude> excludes)
+	{
+		bool removeItem = false;
+
+		Exclude? exclude = GetExclude(path, excludes);
+
+		ArgumentNullException.ThrowIfNull(exclude);
+
+		if (exclude != null)
+		{
+			if (exclude.KeepOnRemote == false)
+			{
+				removeItem = true;
+			}
+		}
+
+		return removeItem;
+	}
+
+	private static Exclude? GetExclude(
+		string path,
+		ICollection<Exclude> excludes)
+	{
+		Exclude? exclude = null;
+
+		if (excludes != null)
+		{
+			foreach (Exclude checkExclude in excludes)
+			{
+				bool isMatch =
+					TraversalContext.IsExcludeMatch(path, checkExclude);
+
+				if (isMatch == true)
+				{
+					exclude = checkExclude;
+					break;
+				}
+			}
+		}
+
+		return exclude;
 	}
 }

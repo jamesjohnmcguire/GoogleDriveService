@@ -8,6 +8,7 @@ namespace DigitalZenWorks.BackUp.Library;
 
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
 
@@ -24,12 +25,74 @@ using System.IO;
 /// paths should be excluded based on defined criteria. This class assumes that
 /// callers handle path validation and symlink or reparse point resolution
 /// prior to invoking its methods.</remarks>
-public static class TraversalContext
+public class TraversalContext
 {
 	private static readonly StringComparison PathComparison =
 		OperatingSystem.IsWindows()
 			? StringComparison.OrdinalIgnoreCase
 			: StringComparison.Ordinal;
+
+	private readonly ICollection<string> globalTemplates;
+	private readonly ICollection<Exclude> baseExcludes;
+
+	public TraversalContext(
+		ICollection<string> globalTemplates,
+		ICollection<Exclude> baseExcludes)
+	{
+		this.globalTemplates = globalTemplates;
+		this.baseExcludes = baseExcludes;
+	}
+
+	/// <summary>
+	/// Expands global excludes relative to the current traversal directory,
+	/// returning a new list with all global excludes resolved to fully
+	/// qualified paths.
+	/// </summary>
+	/// <remarks>
+	/// This method is intended to be called once per directory as the
+	/// traversal descends the tree. Each global exclude — typically a
+	/// relative name such as "obj" or "node_modules" — is resolved to a
+	/// fully qualified path by combining it with the current directory path.
+	/// Non-global excludes are passed through unchanged.
+	///
+	/// Wildcard excludes should be fully expanded to concrete paths before
+	/// this method is called. See <see cref="ExpandWildCardExcludes"/> for
+	/// wildcard expansion, which is performed once per account prior to
+	/// traversal.
+	///
+	/// If <paramref name="excludes"/> is null, null is returned. If it is
+	/// empty, an empty list is returned.
+	/// </remarks>
+	/// <param name="currentPath">The fully qualified path of the directory
+	/// currently being traversed. Global excludes are resolved relative to
+	/// this path.</param>
+	/// <returns>A new collection of excludes with global entries resolved to
+	/// fully qualified paths.</returns>
+	public ICollection<Exclude>? ExpandGlobalExcludes(string currentPath)
+	{
+		ICollection<Exclude>? expandedExcludes = null;
+
+		if (baseExcludes != null)
+		{
+			expandedExcludes = new List<Exclude>(baseExcludes);
+
+			foreach (string template in globalTemplates)
+			{
+				string? normalizedPath = NormalizePath(template, currentPath);
+
+				if (normalizedPath == null)
+				{
+					continue;
+				}
+
+				Exclude exclude = new(normalizedPath, false);
+
+				expandedExcludes.Add(exclude);
+			}
+		}
+
+		return expandedExcludes;
+	}
 
 	/// <summary>
 	/// Determines whether the specified path matches the exclusion criteria
@@ -59,25 +122,17 @@ public static class TraversalContext
 	/// evaluate.</param>
 	/// <param name="exclude">An Exclude object that defines the exclusion
 	/// criteria, including the path and exclusion type. Cannot be null.</param>
-	/// <param name="excludeTypes">A collection of ExcludeType values
-	/// specifying which types of exclusions are permitted for the evaluation.
-	/// Cannot be null.</param>
 	/// <returns>true if the path matches the exclusion criteria and the
 	/// exclusion type is allowed; otherwise, false.</returns>
 	internal static bool IsExcludeMatch(
 		[NotNull] string path,
-		[NotNull] Exclude exclude,
-		[NotNull] IReadOnlySet<ExcludeType> excludeTypes)
+		[NotNull] Exclude exclude)
 	{
 		bool isMatch = false;
-		bool isTypeAllowed = excludeTypes.Contains(exclude.ExcludeType);
 
-		if (isTypeAllowed == true)
+		if (path.Equals(exclude.Path, PathComparison))
 		{
-			if (path.Equals(exclude.Path, PathComparison))
-			{
-				isMatch = true;
-			}
+			isMatch = true;
 		}
 
 		return isMatch;
@@ -107,22 +162,22 @@ public static class TraversalContext
 		{
 			path = Environment.ExpandEnvironmentVariables(path);
 
+			bool isFullyQualified = Path.IsPathFullyQualified(path);
+
+			if (isFullyQualified == false &&
+				!string.IsNullOrWhiteSpace(rootPath))
+			{
+				// When logging becomes static, add a warning here.
+				path = Path.Combine(rootPath, path);
+			}
+
+			path = Path.GetFullPath(path);
+
 			bool exists = File.Exists(path) || Directory.Exists(path);
 
 			if (exists == true)
 			{
 				normalizedPath = path;
-
-				bool isFullyQualified = Path.IsPathFullyQualified(path);
-
-				if (isFullyQualified == false &&
-					!string.IsNullOrWhiteSpace(rootPath))
-				{
-					// When logging becomes static, add a warning here.
-					normalizedPath = Path.Combine(rootPath, path);
-				}
-
-				normalizedPath = Path.GetFullPath(normalizedPath);
 			}
 		}
 

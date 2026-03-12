@@ -6,20 +6,22 @@
 
 namespace DigitalZenWorks.BackUp.Library;
 
+#nullable enable
+
 /// <summary>
-/// Exclude class.
+/// The Exclude class represents an item that should be excluded from backup.
 /// </summary>
-public class Exclude(string path, ExcludeType excludeType)
+public class Exclude(string? path, bool keepOnRemote)
 {
 	/// <summary>
 	/// Gets or sets path property.
 	/// </summary>
 	/// <value>Path property.</value>
-	public string Path { get; set; } = path;
+	public string? Path { get; set; } = path;
 
 	/// <summary>
-	/// Gets or sets exclude type property.
+	/// Gets or sets a value indicating whether to keep on remote property.
 	/// </summary>
-	/// <value>Exclude type property.</value>
-	public ExcludeType ExcludeType { get; set; } = excludeType;
+	/// <value>The value indicating whether to keep on remote property.</value>
+	public bool KeepOnRemote { get; set; } = keepOnRemote;
 }

@@ -24,18 +24,6 @@ using NUnit.Framework;
 [TestFixture]
 internal sealed class TraversalContextTests
 {
-	private static readonly HashSet<ExcludeType> FolderTypes =
-	[
-		ExcludeType.SubDirectory,
-		ExcludeType.Global,
-	];
-
-	private static readonly HashSet<ExcludeType> FileTypes =
-	[
-		ExcludeType.File,
-		ExcludeType.FileIgnore,
-	];
-
 	private string clientsPath;
 	private string existingDirectoryPath;
 	private string existingFilePath;
@@ -83,10 +71,9 @@ internal sealed class TraversalContextTests
 	[Test]
 	public void ExactPathMatchAllowedTypeReturnsTrue()
 	{
-		Exclude exclude = new(clientsPath, ExcludeType.SubDirectory);
+		Exclude exclude = new(clientsPath, false);
 
-		bool result = TraversalContext.IsExcludeMatch(
-			clientsPath, exclude, FolderTypes);
+		bool result = TraversalContext.IsExcludeMatch(clientsPath, exclude);
 
 		Assert.That(result, Is.True);
 	}
@@ -108,10 +95,11 @@ internal sealed class TraversalContextTests
 	public void ExactPathMatchCaseInsensitiveOnWindowsReturnsTrue()
 	{
 		string clientsPathLower = clientsPath.ToLowerInvariant();
-		Exclude exclude = new(clientsPathLower, ExcludeType.SubDirectory);
+		Exclude exclude = new(clientsPathLower, false);
 
-		bool result = TraversalContext.IsExcludeMatch(
-			clientsPath.ToUpperInvariant(), exclude, FolderTypes);
+		string clientsPathUpper = clientsPath.ToUpperInvariant();
+		bool result =
+			TraversalContext.IsExcludeMatch(clientsPathUpper, exclude);
 
 		if (OperatingSystem.IsWindows())
 		{
@@ -134,10 +122,9 @@ internal sealed class TraversalContextTests
 	[Test]
 	public void DifferentPathReturnsTrue()
 	{
-		Exclude exclude = new(clientsPath, ExcludeType.SubDirectory);
+		Exclude exclude = new(clientsPath, false);
 
-		bool result = TraversalContext.IsExcludeMatch(
-			objPath, exclude, FolderTypes);
+		bool result = TraversalContext.IsExcludeMatch(objPath, exclude);
 
 		Assert.That(result, Is.False);
 	}
@@ -145,26 +132,6 @@ internal sealed class TraversalContextTests
 	// ------------------------------------------------------------------------
 	// ExcludeType filtering
 	// ------------------------------------------------------------------------
-
-	/// <summary>
-	/// Verifies that the exclusion logic returns false when the path type does
-	/// not match any of the allowed types.
-	/// </summary>
-	/// <remarks>This test ensures that a path, even if it matches the
-	/// specified value, is not excluded unless its type is included in the
-	/// allowed set. It confirms correct behavior of the exclusion filter when
-	/// the type constraint is not satisfied.</remarks>
-	[Test]
-	public void ExactPathMatchTypeNotInAllowedSetReturnsFalse()
-	{
-		// Path matches but type is not in the allowed set
-		Exclude exclude = new(clientsPath, ExcludeType.File);
-
-		bool result = TraversalContext.IsExcludeMatch(
-			clientsPath, exclude, FolderTypes);
-
-		Assert.That(result, Is.False);
-	}
 
 	/// <summary>
 	/// Verifies that the exclusion logic correctly identifies an exact path
@@ -178,10 +145,9 @@ internal sealed class TraversalContextTests
 	[Test]
 	public void ExactPathMatchFileTypeInFileAllowedSetReturnsTrue()
 	{
-		Exclude exclude = new(clientsPath, ExcludeType.File);
+		Exclude exclude = new(clientsPath, false);
 
-		bool result = TraversalContext.IsExcludeMatch(
-			clientsPath, exclude, FileTypes);
+		bool result = TraversalContext.IsExcludeMatch(clientsPath, exclude);
 
 		Assert.That(result, Is.True);
 	}
@@ -204,10 +170,9 @@ internal sealed class TraversalContextTests
 		// By the time IsExcludeMatch is called, global excludes should
 		// already be expanded to fully qualified paths by the traversal
 		// pipeline — so a full path match is the expected case.
-		Exclude exclude = new(objPath, ExcludeType.Global);
+		Exclude exclude = new(objPath, false);
 
-		bool result = TraversalContext.IsExcludeMatch(
-			objPath, exclude, FolderTypes);
+		bool result = TraversalContext.IsExcludeMatch(objPath, exclude);
 
 		Assert.That(result, Is.True);
 	}
@@ -224,10 +189,9 @@ internal sealed class TraversalContextTests
 	[Test]
 	public void GlobalExcludeDifferentPathReturnsFalse()
 	{
-		Exclude exclude = new(objPath, ExcludeType.Global);
+		Exclude exclude = new(objPath, false);
 
-		bool result = TraversalContext.IsExcludeMatch(
-			clientsPath, exclude, FolderTypes);
+		bool result = TraversalContext.IsExcludeMatch(clientsPath, exclude);
 
 		Assert.That(result, Is.False);
 	}
@@ -248,10 +212,10 @@ internal sealed class TraversalContextTests
 	public void IsExcludeMatchExactPathMatchAllowedTypeReturnsTrue()
 	{
 		Exclude exclude = new(
-			existingDirectoryPath, ExcludeType.SubDirectory);
+			existingDirectoryPath, false);
 
-		bool result = TraversalContext.IsExcludeMatch(
-			existingDirectoryPath, exclude, FolderTypes);
+		bool result =
+			TraversalContext.IsExcludeMatch(existingDirectoryPath, exclude);
 
 		Assert.That(result, Is.True);
 	}
@@ -270,10 +234,9 @@ internal sealed class TraversalContextTests
 	{
 		string otherPath = Path.Combine(tempDirectory, "OtherFolder");
 		Exclude exclude = new(
-			existingDirectoryPath, ExcludeType.SubDirectory);
+			existingDirectoryPath, false);
 
-		bool result = TraversalContext.IsExcludeMatch(
-			otherPath, exclude, FolderTypes);
+		bool result = TraversalContext.IsExcludeMatch(otherPath, exclude);
 
 		Assert.That(result, Is.False);
 	}
@@ -290,11 +253,12 @@ internal sealed class TraversalContextTests
 	public void IsExcludeMatchCaseSensitivityReflectsOperatingSystem()
 	{
 		Exclude exclude = new(
-			existingDirectoryPath.ToLowerInvariant(),
-			ExcludeType.SubDirectory);
+			existingDirectoryPath.ToLowerInvariant(), false);
 
+		string existingDirectoryPathUpper =
+			existingDirectoryPath.ToUpperInvariant();
 		bool result = TraversalContext.IsExcludeMatch(
-			existingDirectoryPath.ToUpperInvariant(), exclude, FolderTypes);
+			existingDirectoryPathUpper, exclude);
 
 		if (OperatingSystem.IsWindows())
 		{
@@ -311,29 +275,15 @@ internal sealed class TraversalContextTests
 	// -------------------------------------------------------------------------
 
 	/// <summary>
-	/// The is exclude match type not in allowed set return false test.
-	/// </summary>
-	[Test]
-	public void IsExcludeMatchTypeNotInAllowedSetReturnsFalse()
-	{
-		Exclude exclude = new(existingFilePath, ExcludeType.File);
-
-		bool result = TraversalContext.IsExcludeMatch(
-			existingFilePath, exclude, FolderTypes);
-
-		Assert.That(result, Is.False);
-	}
-
-	/// <summary>
 	/// The is exclude match file type in file allowed set return true test.
 	/// </summary>
 	[Test]
 	public void IsExcludeMatchFileTypeInFileAllowedSetReturnsTrue()
 	{
-		Exclude exclude = new(existingFilePath, ExcludeType.File);
+		Exclude exclude = new(existingFilePath, false);
 
-		bool result = TraversalContext.IsExcludeMatch(
-			existingFilePath, exclude, FileTypes);
+		bool result =
+			TraversalContext.IsExcludeMatch(existingFilePath, exclude);
 
 		Assert.That(result, Is.True);
 	}
@@ -345,10 +295,10 @@ internal sealed class TraversalContextTests
 	[Test]
 	public void IsExcludeMatchFileIgnoreTypeInFileAllowedSetReturnsTrue()
 	{
-		Exclude exclude = new(existingFilePath, ExcludeType.FileIgnore);
+		Exclude exclude = new(existingFilePath, false);
 
-		bool result = TraversalContext.IsExcludeMatch(
-			existingFilePath, exclude, FileTypes);
+		bool result =
+			TraversalContext.IsExcludeMatch(existingFilePath, exclude);
 
 		Assert.That(result, Is.True);
 	}
