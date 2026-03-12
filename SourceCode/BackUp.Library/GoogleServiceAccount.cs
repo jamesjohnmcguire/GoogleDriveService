@@ -410,11 +410,11 @@ public class GoogleServiceAccount(
 	/// </summary>
 	/// <param name="parentPath">The parent path.</param>
 	/// <param name="serverFiles">The list of server files.</param>
-	/// <param name="excludes">The list of excludes.</param>
+	/// <param name="excludes">The collection of excludes.</param>
 	protected void RemoveExcludedItems(
 		string parentPath,
 		IList<GoogleDriveFile> serverFiles,
-		IList<Exclude> excludes)
+		ICollection<Exclude> excludes)
 	{
 		if (!string.IsNullOrWhiteSpace(parentPath) &&
 			serverFiles != null &&
@@ -523,7 +523,7 @@ public class GoogleServiceAccount(
 					string[] subDirectories = Directory.GetDirectories(path);
 					List<string> paths = [.. subDirectories];
 
-					IList<Exclude> expandedExcludes =
+					ICollection<Exclude> expandedExcludes =
 						DriveMapping.ExpandGlobalExcludes(path, excludes);
 
 					RemoveExcludedItems(

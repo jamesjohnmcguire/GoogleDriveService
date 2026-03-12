@@ -91,13 +91,13 @@ public class DriveMapping
 	/// this path.</param>
 	/// <param name="excludes">The current set of excludes to process.
 	/// May be null.</param>
-	/// <returns>A new list of excludes with global entries resolved to fully
-	/// qualified paths, or null if <paramref name="excludes"/> is
+	/// <returns>A new collection of excludes with global entries resolved to
+	/// fully qualified paths, or null if <paramref name="excludes"/> is
 	/// null.</returns>
-	public static IList<Exclude> ExpandGlobalExcludes(
+	public static ICollection<Exclude> ExpandGlobalExcludes(
 		string currentPath, ICollection<Exclude> excludes)
 	{
-		List<Exclude> expandedExcludes = null;
+		Collection<Exclude> expandedExcludes = null;
 
 		if (excludes != null)
 		{
@@ -146,7 +146,8 @@ public class DriveMapping
 					exclude.Path.Contains(
 						'*', StringComparison.OrdinalIgnoreCase))
 				{
-					List<Exclude> newExcludes = ExpandWildCard(exclude.Path);
+					Collection<Exclude> newExcludes =
+						ExpandWildCard(exclude.Path);
 
 					if (newExcludes.Count > 0)
 					{
@@ -221,9 +222,9 @@ public class DriveMapping
 		return excludes;
 	}
 
-	private static List<Exclude> ExpandWildCard(string path)
+	private static Collection<Exclude> ExpandWildCard(string path)
 	{
-		List<Exclude> newExcludes = [];
+		Collection<Exclude> newExcludes = [];
 
 		if (path.Contains(
 			'*', StringComparison.OrdinalIgnoreCase))

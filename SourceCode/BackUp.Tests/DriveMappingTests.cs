@@ -132,7 +132,7 @@ internal sealed class DriveMappingTests
 	[Test]
 	public void ExpandGlobalExcludesNullExcludes()
 	{
-		IList<Exclude> result =
+		ICollection<Exclude> result =
 			DriveMapping.ExpandGlobalExcludes(tempDirectory, null);
 
 		Assert.That(result, Is.Null);
@@ -165,7 +165,7 @@ internal sealed class DriveMappingTests
 	[Test]
 	public void ExpandGlobalExcludesEmptyList()
 	{
-		IList<Exclude> result =
+		ICollection<Exclude> result =
 			DriveMapping.ExpandGlobalExcludes(tempDirectory, []);
 
 		Assert.That(result, Is.Not.Null);
@@ -208,14 +208,15 @@ internal sealed class DriveMappingTests
 		const string relativeName = "SomeFolder";
 		Exclude globalExclude = new(relativeName, ExcludeType.Global);
 
-		IList<Exclude> result = DriveMapping.ExpandGlobalExcludes(
-			tempDirectory, [globalExclude]);
+		ICollection<Exclude> result =
+			DriveMapping.ExpandGlobalExcludes(tempDirectory, [globalExclude]);
 
 		string expected = Path.GetFullPath(
 			Path.Combine(tempDirectory, relativeName));
+		Exclude exclude = GetLastExclude(result);
 
 		Assert.That(result, Has.Count.EqualTo(1));
-		Assert.That(result[0].Path, Is.EqualTo(expected));
+		Assert.That(exclude.Path, Is.EqualTo(expected));
 	}
 
 	/// <summary>
@@ -232,11 +233,12 @@ internal sealed class DriveMappingTests
 		string absolutePath = Path.Combine(tempDirectory, "AbsoluteFolder");
 		Exclude globalExclude = new(absolutePath, ExcludeType.Global);
 
-		IList<Exclude> result = DriveMapping.ExpandGlobalExcludes(
-			tempDirectory, [globalExclude]);
+		ICollection<Exclude> result =
+			DriveMapping.ExpandGlobalExcludes(tempDirectory, [globalExclude]);
+		Exclude exclude = GetLastExclude(result);
 
 		Assert.That(result, Has.Count.EqualTo(1));
-		Assert.That(result[0].Path, Is.EqualTo(
+		Assert.That(exclude.Path, Is.EqualTo(
 			Path.GetFullPath(absolutePath)));
 	}
 
@@ -258,7 +260,7 @@ internal sealed class DriveMappingTests
 		excludes.Add(item);
 		excludes.Add(item);
 
-		IList<Exclude> result =
+		ICollection<Exclude> result =
 			DriveMapping.ExpandGlobalExcludes(tempDirectory, excludes);
 
 		Assert.That(result, Has.Count.EqualTo(2));
