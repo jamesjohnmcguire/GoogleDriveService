@@ -244,11 +244,13 @@ public class GoogleServiceAccount(
 			ICollection<Exclude> expandedExcludes =
 				traversalContext.ExpandGlobalExcludes(path);
 
+#if REVIEW
 			await RemoveAbandonedSiblingFolders(
 				path,
 				driveParentFolderId,
 				driveMapping.Excludes,
 				Account.CheckDriveMappings).ConfigureAwait(false);
+#endif
 
 			IList<GoogleDriveFile> serverFiles =
 				await googleDrive.GetFilesAsync(
@@ -374,34 +376,30 @@ public class GoogleServiceAccount(
 	{
 		if (serverFiles != null)
 		{
-			bool removeDirectory = ShouldRemoveItem(parentPath, excludes);
-
-			if (removeDirectory == true)
+			foreach (GoogleDriveFile serverFile in serverFiles)
 			{
-				foreach (GoogleDriveFile serverFile in serverFiles)
+				try
 				{
-					try
+					if (!serverFile.MimeType.Equals(
+						"application/vnd.google-apps.folder",
+						StringComparison.Ordinal))
 					{
-						if (!serverFile.MimeType.Equals(
-							"application/vnd.google-apps.folder",
-							StringComparison.Ordinal))
-						{
-							string serverFileName = serverFile.Name;
-							bool exists = files.Any(
-								element => element.Name.Equals(
-									serverFileName,
-									StringComparison.Ordinal));
+						string serverFileName = serverFile.Name;
 
-							if (exists == false)
-							{
-								googleDrive.Delete(serverFile);
-							}
+						bool exists = files.Any(
+							element => element.Name.Equals(
+								serverFileName,
+								StringComparison.Ordinal));
+
+						if (exists == false)
+						{
+							googleDrive.Delete(serverFile);
 						}
 					}
-					catch (Google.GoogleApiException exception)
-					{
-						Log.Exception(Logger, exception);
-					}
+				}
+				catch (Google.GoogleApiException exception)
+				{
+					Log.Exception(Logger, exception);
 				}
 			}
 		}
@@ -497,7 +495,7 @@ public class GoogleServiceAccount(
 					if (IgnoreAbandoned == false)
 					{
 						RemoveAbandonedFolders(
-							path, paths, null, thisServerFiles, excludes);
+							path, paths, null, thisServerFiles, expandedExcludes);
 					}
 
 					DirectoryInfo directoryInfo = new(path);
@@ -508,7 +506,7 @@ public class GoogleServiceAccount(
 							serverFolder.Id,
 							subDirectory,
 							thisServerFiles,
-							excludes).ConfigureAwait(false);
+							expandedExcludes).ConfigureAwait(false);
 					}
 
 					BackUpFiles(
@@ -647,12 +645,16 @@ public class GoogleServiceAccount(
 				bool exists = subDirectories.Any(element => element.Equals(
 						folderPath, StringComparison.Ordinal));
 
-				bool removeDirectory = ShouldRemoveItem(folderPath, excludes);
-
-				if (exists == false && removeDirectory == true)
+				if (exists == false)
 				{
-					googleDrive.Delete(file);
-					removed = true;
+					bool removeDirectory =
+						ShouldRemoveItem(folderPath, excludes);
+
+					if (removeDirectory == true)
+					{
+						googleDrive.Delete(file);
+						removed = true;
+					}
 				}
 
 				if (removed == false && checkDriveMappings == true)
@@ -663,9 +665,16 @@ public class GoogleServiceAccount(
 					exists = driveMappings.Any(element => element.Equals(
 						folderPath, StringComparison.Ordinal));
 
-					if (exists == false && removeDirectory == true)
+					if (exists == false)
 					{
-						googleDrive.Delete(file);
+						bool removeDirectory =
+							ShouldRemoveItem(folderPath, excludes);
+
+						if (removeDirectory == true)
+						{
+							googleDrive.Delete(file);
+							removed = true;
+						}
 					}
 				}
 			}
