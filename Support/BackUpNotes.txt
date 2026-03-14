@@ -435,3 +435,25 @@ Refactor Considerations
 /// during traversal.</param>
 /// <param name="keepOnRemote">If <c>true</c>, any existing remote copy
 /// of this path is retained; if <c>false</c>, it is removed.</param>
+
+Tests
+	ShouldRemoveFileTests
+		All tests should assume, like regular code, an exclude has already been matched.
+	ShouldProcessItemTests
+			Test for False, Exclude Being Matched, Single Exclude
+			Test for True, No Excludes Being Matched, Single Exclude
+			Test for False, Exclude Being Matched, Multiple Excludes
+			Test for True, No Excludes Being Matched, Multiple Excludes
+			Test for Empty Excludes
+			Test for Null Excludes
+
+			Test for Path is null
+			Test for Path with different case	But what if on Linux?
+			Test for obj vs objstore
+			Test for obj in middle of path, caller responsibility
+	NormalizePathTests
+		Test for Path containing environment variable
+		Test for Path is null
+		Test for Path exists
+		Test for Path not exists
+		Test for Path is relative
