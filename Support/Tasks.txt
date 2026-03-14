@@ -17,6 +17,7 @@ ArgumentNullException	{"Value cannot be null. (Parameter 'exclude')"}
 In GetFileById Catch Net.Http.HttpRequestException and retry
 Warn if path IS null at path = TraversalContext.NormalizePath(path); if (path != null)
 RemoveAbandonedSiblingFolders	C:\Users\JamesMc\Data\EmailOthers
+https://github.com/App-vNext/Polly
 Add NormalizePath to Sub Folder Processing
 Merge Async / Non-async Duplicate Code
 Review RemoveAbandonedSiblingFolders - Is this necessary? Should this functionality be elsewhere?
