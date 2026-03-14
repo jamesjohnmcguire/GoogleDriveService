@@ -135,6 +135,7 @@ public class GoogleDrive(ILogger<BackUpService> logger = null)
 			initializer.HttpClientInitializer = credentialedAccount;
 
 			driveService = new DriveService(initializer);
+			driveService.HttpClient.Timeout = TimeSpan.FromMinutes(3);
 
 			authorized = true;
 		}

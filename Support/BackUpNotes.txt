@@ -375,3 +375,85 @@ Refactor Considerations
 				ExcludeType.SubDirectory
 			};
 	ExpandWildCardExcludes	Will be run once, per account, while ExpandGlobalExcludes (or whatever it's called), should be done per directory.
+
+	Exclude Notes
+		Junk or Generated Files
+							"Path": "*.tmp",
+							"ExcludeType": 3
+		Directories Under Source Control
+							"Path": "AxisPoint",
+							"ExcludeType": 1
+
+							"Path": "AzabuInsights/AzabuInsights.com",
+							"ExcludeType": 1
+		This Maybe should be a 3
+							"Path": "JTS/Semata",
+							"ExcludeType": 5
+
+		Files that Are Taken Care Of Else Where
+							"Path": "Admin.Previous.git.7z",
+							"ExcludeType": 3
+
+							"Path": "Partition4.dat",
+							"ExcludeType": 3
+
+							"Path": "iTunes Library Extras.itdb",
+							"ExcludeType": 3
+		Leave on Server, No Matter What
+
+							"Path": "Organizations.pst",
+							"ExcludeType": 5
+
+/// <summary>
+/// Represents a path exclusion rule that controls whether a file or
+/// directory is excluded from backup processing and how any existing
+/// remote copy should be handled.
+/// </summary>
+/// <remarks>
+/// During backup traversal, excluded paths are not copied to the remote
+/// destination regardless of whether they are new or updated locally.
+/// The <see cref="KeepOnRemote"/> property determines the fate of any
+/// existing remote copy:
+/// <list type="bullet">
+/// <item><description>
+///     If <see cref="KeepOnRemote"/> is <c>true</c>, any existing remote
+///     copy is retained even if the path is absent locally or would
+///     otherwise be considered abandoned.
+/// </description></item>
+/// <item><description>
+///     If <see cref="KeepOnRemote"/> is <c>false</c>, any existing remote
+///     copy is removed.
+/// </description></item>
+/// </list>
+/// Excludes may refer to files or directories. Wildcard patterns are
+/// supported and are expanded to concrete paths before traversal begins.
+/// Global excludes — such as common build output folders — are expanded
+/// relative to each directory as traversal descends the tree.
+/// </remarks>
+/// <param name="path">The path or pattern to exclude. May be a fully
+/// qualified path or a relative name matched against each directory
+/// during traversal.</param>
+/// <param name="keepOnRemote">If <c>true</c>, any existing remote copy
+/// of this path is retained; if <c>false</c>, it is removed.</param>
+
+Tests
+	ShouldRemoveFileTests
+		All tests should assume, like regular code, an exclude has already been matched.
+	ShouldProcessItemTests
+			Test for False, Exclude Being Matched, Single Exclude
+			Test for True, No Excludes Being Matched, Single Exclude
+			Test for False, Exclude Being Matched, Multiple Excludes
+			Test for True, No Excludes Being Matched, Multiple Excludes
+			Test for Empty Excludes
+			Test for Null Excludes
+
+			Test for Path is null
+			Test for Path with different case	But what if on Linux?
+			Test for obj vs objstore
+			Test for obj in middle of path, caller responsibility
+	NormalizePathTests
+		Test for Path containing environment variable
+		Test for Path is null
+		Test for Path exists
+		Test for Path not exists
+		Test for Path is relative
