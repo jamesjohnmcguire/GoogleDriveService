@@ -647,14 +647,8 @@ public class GoogleServiceAccount(
 
 				if (exists == false)
 				{
-					bool removeDirectory =
-						ShouldRemoveItem(folderPath, excludes);
-
-					if (removeDirectory == true)
-					{
-						googleDrive.Delete(file);
-						removed = true;
-					}
+					googleDrive.Delete(file);
+					removed = true;
 				}
 
 				if (removed == false && checkDriveMappings == true)
@@ -667,14 +661,8 @@ public class GoogleServiceAccount(
 
 					if (exists == false)
 					{
-						bool removeDirectory =
-							ShouldRemoveItem(folderPath, excludes);
-
-						if (removeDirectory == true)
-						{
-							googleDrive.Delete(file);
-							removed = true;
-						}
+						googleDrive.Delete(file);
+						removed = true;
 					}
 				}
 			}
