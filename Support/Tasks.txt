@@ -1,31 +1,24 @@
-Deal with Google Drive Deprecation
-Deal with One-Off Cancellation Exception
-bool isSymlink = (File.GetAttributes(path) & FileAttributes.ReparsePoint) != 0;
-Clean Up TraversalContextTests
-Switch tests for ExpandGlobalExcludes to TraversalContext
-In All Test Suites, Optimize SetUp calls with SetUpOneTime
-Revisit RemoveExcludedItems.  At the very least, because of OrdinalIgnoreCase
-Revisit RemoveAbandonedFolder - Another convulated method
-normalizedPath = "C:\\Users\\JamesMc\\Data\\Clients\\DigitalZenWorks\\Libraries\\BoilerPlate\\js\\vendor"
-650 ShouldRemoveItem without Corresponding IsExcludeMatch
-ExpandExcludes doesn't need temp variable expandedExcludes
-RemoveExcludedItems - Seems overly complicated
-IgnoreAbandoned flag - What is this about?
-SanitizeFileName sections could be simplified
-Revisit Checking of Abandoned files and folders - Not using ShouldProcessItem, so GetExclude may often fail.
-ArgumentNullException	{"Value cannot be null. (Parameter 'exclude')"}
-In GetFileById Catch Net.Http.HttpRequestException and retry
-Warn if path IS null at path = TraversalContext.NormalizePath(path); if (path != null)
-RemoveAbandonedSiblingFolders	C:\Users\JamesMc\Data\EmailOthers
-https://github.com/App-vNext/Polly
 Add NormalizePath to Sub Folder Processing
-Merge Async / Non-async Duplicate Code
+bool isSymlink = (File.GetAttributes(path) & FileAttributes.ReparsePoint) != 0;
+In All Test Suites, Optimize SetUp calls with SetUpOneTime
+Clean Up TraversalContextTests
+ExpandExcludes doesn't need temp variable expandedExcludes
+Revisit RemoveExcludedItems.  At the very least, because of OrdinalIgnoreCase
+RemoveExcludedItems - Seems overly complicated
+Revisit RemoveAbandonedFolder - Another convoluted method
+RemoveAbandonedSiblingFolders	C:\Users\JamesMc\Data\EmailOthers
 Review RemoveAbandonedSiblingFolders - Is this necessary? Should this functionality be elsewhere?
+IgnoreAbandoned flag - What is this about?
+Maybe Not Make It a Global - Vendor	Example: BoilerPlate\js\vendor
+In GetFileById Catch Net.Http.HttpRequestException and retry
+Merge Async / Non-async Duplicate Code
+Warn if path IS null at path = TraversalContext.NormalizePath(path); if (path != null)
 Revisit Logging Refactor Double Log Reference - 	Log.Warning(Logger, "server folder is null", null);
 Re-enable, After Getting Static Logging Worked Out	bool isFullyQualified = Path.IsPathFullyQualified(path); if (isFullyQualified == false) { Log.Warning(logger, $"Path is not fully qualified: {path}", null); path = Path.GetFullPath(path); } }
-ExcludeType	Sharpen Enum Values
 Add Account tests
 Add integration tests spanning the pipeline
+Retries	https://github.com/App-vNext/Polly
+
 Improve app startup sequence
 Make nullable
 Refactor RemoveExcludedItems(path, thisServerFiles, expandExcludes);

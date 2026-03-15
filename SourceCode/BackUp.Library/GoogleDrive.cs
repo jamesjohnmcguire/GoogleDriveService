@@ -125,8 +125,12 @@ public class GoogleDrive(ILogger<BackUpService> logger = null)
 		{
 			using var cts = new CancellationTokenSource();
 
-			credentialedAccount = await GoogleCredential.FromFileAsync(
+			ServiceAccountCredential serviceAccountCredential =
+				await CredentialFactory.FromFileAsync<ServiceAccountCredential>(
 					credentialsFile, cts.Token).ConfigureAwait(false);
+
+			credentialedAccount =
+				serviceAccountCredential.ToGoogleCredential();
 
 			credentialedAccount = credentialedAccount.CreateScoped(Scopes);
 
@@ -236,10 +240,7 @@ public class GoogleDrive(ILogger<BackUpService> logger = null)
 
 			if (file.OwnedByMe == true)
 			{
-				string message = string.Format(
-					CultureInfo.InvariantCulture,
-					"Deleting file from Server: {0}",
-					fileName);
+				string message = $"Deleting file from Server: {fileName}";
 				Log.Information(logger, message);
 
 				FilesResource.DeleteRequest request =
@@ -251,8 +252,7 @@ public class GoogleDrive(ILogger<BackUpService> logger = null)
 			else
 			{
 				string message =
-					"Attempting to delete a file not owned by me: " +
-					fileName;
+					$"Attempting to delete a file not owned by me: {fileName}";
 				Log.Warning(logger, message, null);
 			}
 		}
