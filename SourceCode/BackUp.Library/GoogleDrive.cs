@@ -125,8 +125,12 @@ public class GoogleDrive(ILogger<BackUpService> logger = null)
 		{
 			using var cts = new CancellationTokenSource();
 
-			credentialedAccount = await GoogleCredential.FromFileAsync(
+			ServiceAccountCredential serviceAccountCredential =
+				await CredentialFactory.FromFileAsync<ServiceAccountCredential>(
 					credentialsFile, cts.Token).ConfigureAwait(false);
+
+			credentialedAccount =
+				serviceAccountCredential.ToGoogleCredential();
 
 			credentialedAccount = credentialedAccount.CreateScoped(Scopes);
 
