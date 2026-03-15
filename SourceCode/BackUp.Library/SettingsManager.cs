@@ -6,11 +6,9 @@
 
 namespace DigitalZenWorks.BackUp.Library;
 
-using Newtonsoft.Json;
 using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Text;
+using Newtonsoft.Json;
 
 /// <summary>
 /// Provides methods and properties for managing application settings.
