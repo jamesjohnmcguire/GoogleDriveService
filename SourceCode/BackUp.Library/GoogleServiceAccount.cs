@@ -567,11 +567,8 @@ public class GoogleServiceAccount(
 			if (checkFile == true)
 			{
 				string fileName = GoogleDrive.SanitizeFileName(file.FullName);
+				string message = $"Checking: {fileName}";
 
-				string message = string.Format(
-					CultureInfo.InvariantCulture,
-					"Checking: {0}",
-					fileName);
 				Log.Information(Logger, message);
 
 				GoogleDriveFile serverFile =
