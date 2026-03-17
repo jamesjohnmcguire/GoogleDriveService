@@ -76,9 +76,12 @@ internal static class Log
 		[CallerMemberName] string caller = null,
 		[CallerLineNumber] int lineNumber = 0)
 	{
-		string message = $"Unhandled exception in {caller} " +
-			$"(line {lineNumber}): {exception.Message}";
+		string message = $"Exception in {caller} method. " +
+			$"Caught at line: {lineNumber}: {exception.Message}";
 		Error(logger, message, exception);
+
+		message = exception.ToString();
+		Error(logger, message);
 	}
 
 	/// <summary>
