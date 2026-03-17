@@ -250,6 +250,10 @@ internal sealed class TraversalContextTests
 	/// comparing the behavior when the exclusion path and the tested path
 	/// differ in letter casing.</remarks>
 	[Test]
+	[System.Diagnostics.CodeAnalysis.SuppressMessage(
+		"Globalization",
+		"CA1308:Normalize strings to uppercase",
+		Justification = "It is just a test.")]
 	public void IsExcludeMatchCaseSensitivityReflectsOperatingSystem()
 	{
 		Exclude exclude = new(

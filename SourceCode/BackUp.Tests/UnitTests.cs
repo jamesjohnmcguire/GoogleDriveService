@@ -35,16 +35,6 @@ internal sealed class UnitTests
 	}
 
 	/// <summary>
-	/// Verifies that the test framework is functioning correctly by
-	/// passing unconditionally.
-	/// </summary>
-	[Test]
-	public void Test1()
-	{
-		Assert.Pass();
-	}
-
-	/// <summary>
 	/// Verifies that no folders are removed when there are no abandoned
 	/// folders present.
 	/// </summary>
@@ -71,5 +61,15 @@ internal sealed class UnitTests
 			null);
 
 		Assert.That(filesRemoved, Is.Zero);
+	}
+
+	/// <summary>
+	/// Verifies that the test framework is functioning correctly by
+	/// passing unconditionally.
+	/// </summary>
+	[Test]
+	public void SanityCheck()
+	{
+		Assert.Pass();
 	}
 }
