@@ -171,14 +171,7 @@ public class TraversalContext
 				path = Path.Combine(rootPath, path);
 			}
 
-			path = Path.GetFullPath(path);
-
-			bool exists = File.Exists(path) || Directory.Exists(path);
-
-			if (exists == true)
-			{
-				normalizedPath = path;
-			}
+			normalizedPath = Path.GetFullPath(path);
 		}
 
 		return normalizedPath;

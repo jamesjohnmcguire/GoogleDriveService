@@ -228,21 +228,27 @@ public class GoogleServiceAccount(
 			string path =
 				TraversalContext.NormalizePath(driveMapping.LocalPath);
 
-			string message = string.Format(
-				CultureInfo.InvariantCulture,
-				"Checking: \"{0}\" with Parent Id: {1}",
-				path,
-				driveParentFolderId);
+			string message =
+				$"Checking: \"{path}\" with Parent Id: {driveParentFolderId}";
 			Log.Information(Logger, message);
 
-			driveMapping.ExpandExcludes();
+			bool exists = Directory.Exists(path);
 
-			traversalContext = new TraversalContext(
-				driveMapping.GlobalExcludesTemplates,
-				driveMapping.Excludes);
+			if (exists == false)
+			{
+				await WarnDirectoryMissing(path, driveParentFolderId).
+					ConfigureAwait(false);
+			}
+			else
+			{
+				driveMapping.ExpandExcludes();
 
-			ICollection<Exclude> expandedExcludes =
-				traversalContext.ExpandGlobalExcludes(path);
+				traversalContext = new TraversalContext(
+					driveMapping.GlobalExcludesTemplates,
+					driveMapping.Excludes);
+
+				ICollection<Exclude> expandedExcludes =
+					traversalContext.ExpandGlobalExcludes(path);
 
 #if REVIEW
 			await RemoveAbandonedSiblingFolders(
@@ -252,15 +258,16 @@ public class GoogleServiceAccount(
 				Account.CheckDriveMappings).ConfigureAwait(false);
 #endif
 
-			IList<GoogleDriveFile> serverFiles =
-				await googleDrive.GetFilesAsync(
-					driveParentFolderId, false).ConfigureAwait(false);
+				IList<GoogleDriveFile> serverFiles =
+					await googleDrive.GetFilesAsync(
+						driveParentFolderId, false).ConfigureAwait(false);
 
-			await BackUp(
-				driveParentFolderId,
-				path,
-				serverFiles,
-				driveMapping.Excludes).ConfigureAwait(false);
+				await BackUp(
+					driveParentFolderId,
+					path,
+					serverFiles,
+					driveMapping.Excludes).ConfigureAwait(false);
+			}
 		}
 		catch (Exception exception) when
 			(exception is ArgumentException ||
@@ -483,34 +490,39 @@ public class GoogleServiceAccount(
 						await googleDrive.GetFilesAsync(
 							serverFolder.Id, false).ConfigureAwait(false);
 
-					string[] subDirectories = Directory.GetDirectories(path);
-					List<string> paths = [.. subDirectories];
-
 					ICollection<Exclude> expandedExcludes =
 						traversalContext.ExpandGlobalExcludes(path);
 
 					RemoveExcludedItems(
 						path, thisServerFiles, expandedExcludes);
 
-					if (IgnoreAbandoned == false)
+					bool exists = Directory.Exists(path);
+
+					if (exists == true)
 					{
-						RemoveAbandonedFolders(
-							path, paths, null, thisServerFiles, expandedExcludes);
+						string[] subDirectories = Directory.GetDirectories(path);
+						List<string> paths = [.. subDirectories];
+
+						if (IgnoreAbandoned == false)
+						{
+							RemoveAbandonedFolders(
+								path, paths, null, thisServerFiles, expandedExcludes);
+						}
+
+						DirectoryInfo directoryInfo = new(path);
+
+						foreach (string subDirectory in subDirectories)
+						{
+							await BackUp(
+								serverFolder.Id,
+								subDirectory,
+								thisServerFiles,
+								expandedExcludes).ConfigureAwait(false);
+						}
+
+						BackUpFiles(
+							serverFolder.Id, path, thisServerFiles, excludes);
 					}
-
-					DirectoryInfo directoryInfo = new(path);
-
-					foreach (string subDirectory in subDirectories)
-					{
-						await BackUp(
-							serverFolder.Id,
-							subDirectory,
-							thisServerFiles,
-							expandedExcludes).ConfigureAwait(false);
-					}
-
-					BackUpFiles(
-						serverFolder.Id, path, thisServerFiles, excludes);
 				}
 			}
 		}
@@ -741,6 +753,29 @@ public class GoogleServiceAccount(
 		{
 			// local file is newer
 			googleDrive.Upload(driveParentId, file.FullName, serverFile.Id);
+		}
+	}
+
+	private async Task WarnDirectoryMissing(
+		string path, string driveParentFolderId)
+	{
+		string message =
+			$"Drive Mapping with \"{path}\" and " +
+			$"Parent Id: {driveParentFolderId} does not exist";
+		Log.Warning(logger, message);
+
+		string directoryName = Path.GetFileName(path);
+		string mimeType = "application/vnd.google-apps.folder";
+
+		string itemId = await googleDrive.DoesDriveItemExist(
+			driveParentFolderId, directoryName, mimeType).
+			ConfigureAwait(false);
+
+		if (itemId != null)
+		{
+			message = $"Folder {directoryName} exists on server with " +
+				$"Id: {itemId}";
+			Log.Warning(logger, message);
 		}
 	}
 }
