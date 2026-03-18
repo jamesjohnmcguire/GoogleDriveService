@@ -35,6 +35,17 @@ public class TraversalContext
 	private readonly ICollection<string> globalTemplates;
 	private readonly ICollection<Exclude> baseExcludes;
 
+	/// <summary>
+	/// Initializes a new instance of the <see cref="TraversalContext"/> class.
+	/// </summary>
+	/// <param name="globalTemplates">A collection of global template strings
+	/// that define patterns for global excludes. These templates are typically
+	/// relative names that will be resolved to fully qualified paths during
+	/// traversal.</param>
+	/// <param name="baseExcludes">A collection of base Exclude objects that
+	/// represent the initial set of excludes to be applied during traversal.
+	/// This collection may be null, in which case only global templates will
+	/// be considered for exclusion.</param>
 	public TraversalContext(
 		ICollection<string> globalTemplates,
 		ICollection<Exclude> baseExcludes)

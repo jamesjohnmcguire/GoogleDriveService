@@ -22,8 +22,7 @@ public class DriveMapping
 	private ICollection<Exclude> excludes = [];
 
 	/// <summary>
-	/// Initializes a new instance of the <see cref="DriveMapping"/> class
-	/// using the specified settings.
+	/// Initializes a new instance of the <see cref="DriveMapping"/> class.
 	/// </summary>
 	/// <remarks>Global excludes defined in the provided settings are
 	/// processed to determine which items should be excluded from the drive
