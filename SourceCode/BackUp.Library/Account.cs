@@ -51,7 +51,7 @@ public class Account
 
 				foreach (DriveMapping mapping in driveMappings)
 				{
-					driveMappingPaths.Add(mapping.Path);
+					driveMappingPaths.Add(mapping.LocalPath);
 				}
 			}
 
@@ -66,24 +66,5 @@ public class Account
 	public IList<DriveMapping> DriveMappings
 	{
 		get { return driveMappings; }
-	}
-
-	/// <summary>
-	/// Adds the specified global exclusion strings to all existing drive
-	/// mappings.
-	/// </summary>
-	/// <remarks>This method iterates through all drive mappings and applies
-	/// the provided global exclusions to each one. Ensure that the exclusion
-	/// strings are valid and appropriate for the context of the drive
-	/// mappings.</remarks>
-	/// <param name="globalExcludes">A read-only list of exclusion strings to
-	/// be applied to each drive mapping. This parameter cannot be null or
-	/// empty.</param>
-	public void AddGlobalExcludes(IReadOnlyList<string> globalExcludes)
-	{
-		foreach (DriveMapping mapping in driveMappings)
-		{
-			mapping.AddGlobalExcludes(globalExcludes);
-		}
 	}
 }

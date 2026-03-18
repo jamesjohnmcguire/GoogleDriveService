@@ -25,12 +25,14 @@ using GoogleDriveFile = Google.Apis.Drive.v3.Data.File;
 /// <see cref="GoogleServiceAccount"/> class.
 /// </remarks>
 /// <param name="account">The accound data.</param>
+/// <param name="settings">The application settings.</param>
 /// <param name="logger">The logger interface.</param>
 public class GoogleServiceAccount(
-	Account account, ILogger<BackUpService> logger = null)
-	: BaseService(account, logger), IDisposable
+	Account account, Settings settings, ILogger<BackUpService> logger = null)
+	: BaseService(account, settings, logger), IDisposable
 {
 	private GoogleDrive googleDrive = new(logger);
+	private TraversalContext traversalContext;
 
 	/// <summary>
 	/// Report server folder information.
@@ -145,72 +147,7 @@ public class GoogleServiceAccount(
 		{
 			foreach (DriveMapping driveMapping in Account.DriveMappings)
 			{
-				try
-				{
-					string driveParentFolderId =
-						driveMapping.DriveParentFolderId;
-
-					string path = Environment.ExpandEnvironmentVariables(
-						driveMapping.Path);
-					path = Path.GetFullPath(path);
-
-					driveMapping.ExpandExcludes();
-
-					string message = string.Format(
-						CultureInfo.InvariantCulture,
-						"Checking: \"{0}\" with Parent Id: {1}",
-						path,
-						driveParentFolderId);
-					Log.Information(Logger, message);
-
-					IList<GoogleDriveFile> serverFiles =
-						await googleDrive.GetFilesAsync(
-							driveParentFolderId, true).ConfigureAwait(false);
-
-					DirectoryInfo parentDirectory = Directory.GetParent(path);
-
-					string[] subDirectories =
-						Directory.GetDirectories(parentDirectory.FullName);
-					List<string> paths = [.. subDirectories];
-					IList<string> driveMappingPaths = Account.DriveMappingPaths;
-
-					RemoveAbandonedFolders(
-						parentDirectory.FullName,
-						paths,
-						driveMappingPaths,
-						serverFiles,
-						driveMapping.Excludes,
-						Account.CheckDriveMappings);
-
-					serverFiles = await googleDrive.GetFilesAsync(
-							driveParentFolderId, false).ConfigureAwait(false);
-
-					await BackUp(
-						driveParentFolderId,
-						path,
-						serverFiles,
-						driveMapping.Excludes).ConfigureAwait(false);
-				}
-				catch (Exception exception) when
-					(exception is ArgumentException ||
-					exception is ArgumentNullException ||
-					exception is DirectoryNotFoundException ||
-					exception is FileNotFoundException ||
-					exception is Google.GoogleApiException ||
-					exception is IndexOutOfRangeException ||
-					exception is InvalidOperationException ||
-					exception is NullReferenceException ||
-					exception is IOException ||
-					exception is PathTooLongException ||
-					exception is System.Net.Http.HttpRequestException ||
-					exception is System.Net.Sockets.SocketException ||
-					exception is System.Security.SecurityException ||
-					exception is TargetException ||
-					exception is TaskCanceledException ||
-					exception is UnauthorizedAccessException)
-				{
-					Log.Exception(Logger, exception);
-				}
+				await ProcessDriveMapping(driveMapping).ConfigureAwait(false);
 			}
 		}
 	}
@@ -231,7 +168,7 @@ public class GoogleServiceAccount(
 	/// <param name="subDirectories">The sub directories.</param>
 	/// <param name="driveMappings">The drive mappings.</param>
 	/// <param name="serverFiles">The server files.</param>
-	/// <param name="excludes">The excludes.</param>
+	/// <param name="excludes">The collection of excludes.</param>
 	/// <param name="checkDriveMappings">Indicates whether or not to check
 	/// the drive mappings.</param>
 	/// <returns>The amount of files removed.</returns>
@@ -240,7 +177,7 @@ public class GoogleServiceAccount(
 		IList<string> subDirectories,
 		IList<string> driveMappings,
 		IList<GoogleDriveFile> serverFiles,
-		IList<Exclude> excludes,
+		ICollection<Exclude> excludes,
 		bool checkDriveMappings = false)
 	{
 		int removedFilesCount = 0;
@@ -268,6 +205,96 @@ public class GoogleServiceAccount(
 	}
 
 	/// <summary>
+	/// Synchronizes the specified local directory with its corresponding
+	/// Google Drive folder based on the provided drive mapping configuration.
+	/// </summary>
+	/// <remarks>This method checks for files and directories present in the
+	/// specified Google Drive folder and updates the local directory
+	/// accordingly. It removes any local directories that are no longer
+	/// present on Google Drive and backs up files from Google Drive to the
+	/// local path. Exceptions encountered during processing are logged and not
+	/// propagated to the caller.</remarks>
+	/// <param name="driveMapping">The drive mapping configuration that
+	/// specifies the Google Drive parent folder ID, the local path to
+	/// synchronize, and any file or directory exclusions to apply during
+	/// processing. Cannot be null.</param>
+	/// <returns>A task that represents the asynchronous operation of
+	/// processing the drive mapping.</returns>
+	internal async Task ProcessDriveMapping(DriveMapping driveMapping)
+	{
+		try
+		{
+			string driveParentFolderId = driveMapping.DriveParentFolderId;
+
+			string path =
+				TraversalContext.NormalizePath(driveMapping.LocalPath);
+
+			string message =
+				$"Checking: \"{path}\" with Parent Id: {driveParentFolderId}";
+			Log.Information(Logger, message);
+
+			bool exists = Directory.Exists(path);
+
+			if (exists == false)
+			{
+				await WarnDirectoryMissing(path, driveParentFolderId).
+					ConfigureAwait(false);
+			}
+			else
+			{
+				driveMapping.ExpandExcludes();
+
+				List<string> globalExcludes = Settings.GlobalExcludes.ToList();
+
+				traversalContext = new TraversalContext(
+					globalExcludes,
+					driveMapping.Excludes);
+
+				ICollection<Exclude> expandedExcludes =
+					traversalContext.ExpandGlobalExcludes(path);
+
+#if REVIEW
+			await RemoveAbandonedSiblingFolders(
+				path,
+				driveParentFolderId,
+				driveMapping.Excludes,
+				Account.CheckDriveMappings).ConfigureAwait(false);
+#endif
+
+				IList<GoogleDriveFile> serverFiles =
+					await googleDrive.GetFilesAsync(
+						driveParentFolderId, false).ConfigureAwait(false);
+
+				await BackUp(
+					driveParentFolderId,
+					path,
+					serverFiles,
+					driveMapping.Excludes).ConfigureAwait(false);
+			}
+		}
+		catch (Exception exception) when
+			(exception is ArgumentException ||
+			exception is ArgumentNullException ||
+			exception is DirectoryNotFoundException ||
+			exception is FileNotFoundException ||
+			exception is Google.GoogleApiException ||
+			exception is IndexOutOfRangeException ||
+			exception is InvalidOperationException ||
+			exception is NullReferenceException ||
+			exception is IOException ||
+			exception is PathTooLongException ||
+			exception is System.Net.Http.HttpRequestException ||
+			exception is System.Net.Sockets.SocketException ||
+			exception is System.Security.SecurityException ||
+			exception is TargetException ||
+			exception is TaskCanceledException ||
+			exception is UnauthorizedAccessException)
+		{
+			Log.Exception(Logger, exception);
+		}
+	}
+
+	/// <summary>
 	/// Back up with drive mapping.
 	/// </summary>
 	/// <param name="driveMapping">The drive mapping.</param>
@@ -279,7 +306,7 @@ public class GoogleServiceAccount(
 			string driveParentFolderId = driveMapping.DriveParentFolderId;
 
 			string path =
-				Environment.ExpandEnvironmentVariables(driveMapping.Path);
+				Environment.ExpandEnvironmentVariables(driveMapping.LocalPath);
 			path = Path.GetFullPath(path);
 
 			driveMapping.ExpandExcludes();
@@ -309,30 +336,25 @@ public class GoogleServiceAccount(
 	/// <param name="driveParentId">The drive parent id.</param>
 	/// <param name="path">The path to back up.</param>
 	/// <param name="serverFiles">The list of server files.</param>
-	/// <param name="excludes">The list of excludes.</param>
+	/// <param name="excludes">The collection of excludes.</param>
 	protected void BackUpFiles(
 		string driveParentId,
 		string path,
 		IList<GoogleDriveFile> serverFiles,
-		IList<Exclude> excludes)
+		ICollection<Exclude> excludes)
 	{
-		bool processFiles = ShouldProcessFiles(excludes, path);
+		DirectoryInfo directoryInfo = new(path);
 
-		if (processFiles == true)
+		FileInfo[] files = directoryInfo.GetFiles();
+
+		if (IgnoreAbandoned == false)
 		{
-			DirectoryInfo directoryInfo = new(path);
+			RemoveAbandonedFiles(path, files, serverFiles, excludes);
+		}
 
-			FileInfo[] files = directoryInfo.GetFiles();
-
-			if (IgnoreAbandoned == false)
-			{
-				RemoveAbandonedFiles(path, files, serverFiles, excludes);
-			}
-
-			foreach (FileInfo file in files)
-			{
-				BackUpFile(driveParentId, file, serverFiles, excludes);
-			}
+		foreach (FileInfo file in files)
+		{
+			BackUpFile(driveParentId, file, serverFiles, excludes);
 		}
 	}
 
@@ -360,39 +382,34 @@ public class GoogleServiceAccount(
 		string parentPath,
 		FileInfo[] files,
 		IList<GoogleDriveFile> serverFiles,
-		IList<Exclude> excludes)
+		ICollection<Exclude> excludes)
 	{
 		if (serverFiles != null)
 		{
-			bool skipThisDirectory =
-				ShouldSkipThisDirectory(parentPath, excludes);
-
-			if (skipThisDirectory == false)
+			foreach (GoogleDriveFile serverFile in serverFiles)
 			{
-				foreach (GoogleDriveFile serverFile in serverFiles)
+				try
 				{
-					try
+					if (!serverFile.MimeType.Equals(
+						"application/vnd.google-apps.folder",
+						StringComparison.Ordinal))
 					{
-						if (!serverFile.MimeType.Equals(
-							"application/vnd.google-apps.folder",
-							StringComparison.Ordinal))
-						{
-							string serverFileName = serverFile.Name;
-							bool exists = files.Any(
-								element => element.Name.Equals(
-									serverFileName,
-									StringComparison.Ordinal));
+						string serverFileName = serverFile.Name;
 
-							if (exists == false)
-							{
-								googleDrive.Delete(serverFile);
-							}
+						bool exists = files.Any(
+							element => element.Name.Equals(
+								serverFileName,
+								StringComparison.Ordinal));
+
+						if (exists == false)
+						{
+							googleDrive.Delete(serverFile);
 						}
 					}
-					catch (Google.GoogleApiException exception)
-					{
-						Log.Exception(Logger, exception);
-					}
+				}
+				catch (Google.GoogleApiException exception)
+				{
+					Log.Exception(Logger, exception);
 				}
 			}
 		}
@@ -403,11 +420,11 @@ public class GoogleServiceAccount(
 	/// </summary>
 	/// <param name="parentPath">The parent path.</param>
 	/// <param name="serverFiles">The list of server files.</param>
-	/// <param name="excludes">The list of excludes.</param>
+	/// <param name="excludes">The collection of excludes.</param>
 	protected void RemoveExcludedItems(
 		string parentPath,
 		IList<GoogleDriveFile> serverFiles,
-		IList<Exclude> excludes)
+		ICollection<Exclude> excludes)
 	{
 		if (!string.IsNullOrWhiteSpace(parentPath) &&
 			serverFiles != null &&
@@ -417,22 +434,10 @@ public class GoogleServiceAccount(
 			{
 				foreach (Exclude exclude in excludes)
 				{
-					ExcludeType clause = exclude.ExcludeType;
-
-					if (clause == ExcludeType.SubDirectory ||
-						clause == ExcludeType.Global ||
-						clause == ExcludeType.File)
+					if (exclude.KeepOnRemote == false)
 					{
-						string name = exclude.Path;
-						string path = parentPath;
-						bool isQualified =
-							Path.IsPathFullyQualified(exclude.Path);
-
-						if (isQualified == true)
-						{
-							name = Path.GetFileName(exclude.Path);
-							path = Path.GetDirectoryName(exclude.Path);
-						}
+						string name = Path.GetFileName(exclude.Path);
+						string path = Path.GetDirectoryName(exclude.Path);
 
 						if (serverFile.Name.Equals(
 							name, StringComparison.OrdinalIgnoreCase) &&
@@ -445,29 +450,6 @@ public class GoogleServiceAccount(
 				}
 			}
 		}
-	}
-
-	private static bool CheckForKeepExclude(
-		string fileName, IList<Exclude> excludes)
-	{
-		bool keep = false;
-
-		foreach (Exclude exclude in excludes)
-		{
-			string name = Path.GetFileName(exclude.Path);
-
-			if (fileName.Equals(name, StringComparison.OrdinalIgnoreCase))
-			{
-				if (exclude.ExcludeType == ExcludeType.Keep ||
-					exclude.ExcludeType == ExcludeType.FileIgnore)
-				{
-					keep = true;
-					break;
-				}
-			}
-		}
-
-		return keep;
 	}
 
 	[System.Diagnostics.CodeAnalysis.SuppressMessage(
@@ -485,13 +467,22 @@ public class GoogleServiceAccount(
 		string driveParentId,
 		string path,
 		IList<GoogleDriveFile> serverFiles,
-		IList<Exclude> excludes)
+		ICollection<Exclude> excludes)
 	{
 		try
 		{
-			if (System.IO.Directory.Exists(path))
+			bool isQualified = Path.IsPathFullyQualified(path);
+
+			if (isQualified == false)
 			{
-				bool processFolder = ShouldProcessFolder(excludes, path);
+				Log.Warning(Logger, "IsPathFullyQualified is false", null);
+			}
+
+			path = TraversalContext.NormalizePath(path);
+
+			if (path != null)
+			{
+				bool processFolder = ShouldProcessItem(path, excludes);
 
 				if (processFolder == true)
 				{
@@ -502,33 +493,39 @@ public class GoogleServiceAccount(
 						await googleDrive.GetFilesAsync(
 							serverFolder.Id, false).ConfigureAwait(false);
 
-					string[] subDirectories = Directory.GetDirectories(path);
-					List<string> paths = [.. subDirectories];
+					ICollection<Exclude> expandedExcludes =
+						traversalContext.ExpandGlobalExcludes(path);
 
-					IList<Exclude> expandExcludes =
-						DriveMapping.ExpandGlobalExcludes(path, excludes);
+					RemoveExcludedItems(
+						path, thisServerFiles, expandedExcludes);
 
-					RemoveExcludedItems(path, thisServerFiles, expandExcludes);
+					bool exists = Directory.Exists(path);
 
-					if (IgnoreAbandoned == false)
+					if (exists == true)
 					{
-						RemoveAbandonedFolders(
-							path, paths, null, thisServerFiles, excludes);
+						string[] subDirectories = Directory.GetDirectories(path);
+						List<string> paths = [.. subDirectories];
+
+						if (IgnoreAbandoned == false)
+						{
+							RemoveAbandonedFolders(
+								path, paths, null, thisServerFiles, expandedExcludes);
+						}
+
+						DirectoryInfo directoryInfo = new(path);
+
+						foreach (string subDirectory in subDirectories)
+						{
+							await BackUp(
+								serverFolder.Id,
+								subDirectory,
+								thisServerFiles,
+								expandedExcludes).ConfigureAwait(false);
+						}
+
+						BackUpFiles(
+							serverFolder.Id, path, thisServerFiles, excludes);
 					}
-
-					DirectoryInfo directoryInfo = new(path);
-
-					foreach (string subDirectory in subDirectories)
-					{
-						await BackUp(
-							serverFolder.Id,
-							subDirectory,
-							thisServerFiles,
-							excludes).ConfigureAwait(false);
-					}
-
-					BackUpFiles(
-						serverFolder.Id, path, thisServerFiles, excludes);
 				}
 			}
 		}
@@ -558,11 +555,11 @@ public class GoogleServiceAccount(
 		string driveParentId,
 		FileInfo file,
 		IList<GoogleDriveFile> serverFiles,
-		IList<Exclude> excludes)
+		ICollection<Exclude> excludes)
 	{
 		try
 		{
-			bool checkFile = ShouldProcessFile(excludes, file.FullName);
+			bool checkFile = ShouldProcessItem(file.FullName, excludes);
 
 			if (checkFile == true)
 			{
@@ -578,7 +575,7 @@ public class GoogleServiceAccount(
 			}
 			else
 			{
-				bool remove = ShouldRemoveFile(excludes, file.FullName);
+				bool remove = ShouldRemoveItem(file.FullName, excludes);
 
 				if (remove == true)
 				{
@@ -606,27 +603,6 @@ public class GoogleServiceAccount(
 		{
 			Log.Exception(Logger, exception);
 		}
-	}
-
-	private bool ExcludeKeepOrDeleteFile(
-		GoogleDriveFile file, IList<Exclude> excludes)
-	{
-		bool removed = false;
-
-		bool keep = true;
-
-		if (excludes != null)
-		{
-			keep = CheckForKeepExclude(file.Name, excludes);
-		}
-
-		if (keep == false)
-		{
-			googleDrive.Delete(file);
-			removed = true;
-		}
-
-		return removed;
 	}
 
 	private string GetServiceAccountJsonFile()
@@ -665,7 +641,7 @@ public class GoogleServiceAccount(
 		string path,
 		IList<string> subDirectories,
 		IList<string> driveMappings,
-		IList<Exclude> excludes,
+		ICollection<Exclude> excludes,
 		bool checkDriveMappings = false)
 	{
 		bool removed = false;
@@ -681,12 +657,10 @@ public class GoogleServiceAccount(
 				bool exists = subDirectories.Any(element => element.Equals(
 						folderPath, StringComparison.Ordinal));
 
-				bool skipThisDirectory =
-					ShouldSkipThisDirectory(folderPath, excludes);
-
-				if (exists == false && skipThisDirectory == false)
+				if (exists == false)
 				{
-					removed = ExcludeKeepOrDeleteFile(file, excludes);
+					googleDrive.Delete(file);
+					removed = true;
 				}
 
 				if (removed == false && checkDriveMappings == true)
@@ -697,9 +671,10 @@ public class GoogleServiceAccount(
 					exists = driveMappings.Any(element => element.Equals(
 						folderPath, StringComparison.Ordinal));
 
-					if (exists == false && skipThisDirectory == false)
+					if (exists == false)
 					{
-						removed = ExcludeKeepOrDeleteFile(file, excludes);
+						googleDrive.Delete(file);
+						removed = true;
 					}
 				}
 			}
@@ -708,6 +683,34 @@ public class GoogleServiceAccount(
 		{
 			Log.Exception(Logger, exception);
 		}
+
+		return removed;
+	}
+
+	private async Task<int> RemoveAbandonedSiblingFolders(
+		string path,
+		string driveParentFolderId,
+		ICollection<Exclude> excludes,
+		bool checkDriveMappings)
+	{
+		IList<GoogleDriveFile> serverFiles =
+			await googleDrive.GetFilesAsync(
+				driveParentFolderId, true).ConfigureAwait(false);
+
+		DirectoryInfo parentDirectory = Directory.GetParent(path);
+
+		string[] subDirectories =
+			Directory.GetDirectories(parentDirectory.FullName);
+		List<string> paths = [.. subDirectories];
+		IList<string> driveMappingPaths = Account.DriveMappingPaths;
+
+		int removed = RemoveAbandonedFolders(
+			parentDirectory.FullName,
+			paths,
+			driveMappingPaths,
+			serverFiles,
+			excludes,
+			checkDriveMappings);
 
 		return removed;
 	}
@@ -753,6 +756,29 @@ public class GoogleServiceAccount(
 		{
 			// local file is newer
 			googleDrive.Upload(driveParentId, file.FullName, serverFile.Id);
+		}
+	}
+
+	private async Task WarnDirectoryMissing(
+		string path, string driveParentFolderId)
+	{
+		string message =
+			$"Drive Mapping with \"{path}\" and " +
+			$"Parent Id: {driveParentFolderId} does not exist";
+		Log.Warning(logger, message);
+
+		string directoryName = Path.GetFileName(path);
+		string mimeType = "application/vnd.google-apps.folder";
+
+		string itemId = await googleDrive.DoesDriveItemExist(
+			driveParentFolderId, directoryName, mimeType).
+			ConfigureAwait(false);
+
+		if (itemId != null)
+		{
+			message = $"Folder {directoryName} exists on server with " +
+				$"Id: {itemId}";
+			Log.Warning(logger, message);
 		}
 	}
 }

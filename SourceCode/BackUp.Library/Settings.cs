@@ -14,8 +14,8 @@ using System.Collections.Generic;
 public class Settings
 {
 	/// <summary>
-	/// Gets or sets a list of global excludes.
+	/// Gets or sets a collection of global excludes.
 	/// </summary>
-	/// <value>A list of global excludes.</value>
-	public IReadOnlyList<string> GlobalExcludes { get; set; }
+	/// <value>A collection of global excludes.</value>
+	public IReadOnlyCollection<string> GlobalExcludes { get; set; }
 }

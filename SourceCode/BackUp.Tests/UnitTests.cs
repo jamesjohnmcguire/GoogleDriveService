@@ -4,7 +4,7 @@
 // </copyright>
 /////////////////////////////////////////////////////////////////////////////
 
-namespace BackUp.Tests;
+namespace DigitalZenWorks.BackUp.Library.Tests;
 
 using System.Collections.Generic;
 using System.IO;
@@ -20,7 +20,7 @@ using NUnit.Framework.Internal;
 /// is marked with the [Test] attribute and is executed independently by
 /// the test runner. The [SetUp] method is called before each test to
 /// perform any necessary initialization.</remarks>
-public class UnitTests
+internal sealed class UnitTests
 {
 	/// <summary>
 	/// Initializes resources or state before each test is run.
@@ -35,16 +35,6 @@ public class UnitTests
 	}
 
 	/// <summary>
-	/// Verifies that the test framework is functioning correctly by
-	/// passing unconditionally.
-	/// </summary>
-	[Test]
-	public void Test1()
-	{
-		Assert.Pass();
-	}
-
-	/// <summary>
 	/// Verifies that no folders are removed when there are no abandoned
 	/// folders present.
 	/// </summary>
@@ -55,8 +45,9 @@ public class UnitTests
 	public void RemoveAbandanedFoltersNone()
 	{
 		Account accountData = new();
+		Settings settings = new Settings();
 
-		using GoogleServiceAccount account = new(accountData);
+		using GoogleServiceAccount account = new(accountData, settings);
 		account.IgnoreAbandoned = false;
 
 		string path = Directory.GetCurrentDirectory();
@@ -71,5 +62,15 @@ public class UnitTests
 			null);
 
 		Assert.That(filesRemoved, Is.Zero);
+	}
+
+	/// <summary>
+	/// Verifies that the test framework is functioning correctly by
+	/// passing unconditionally.
+	/// </summary>
+	[Test]
+	public void SanityCheck()
+	{
+		Assert.Pass();
 	}
 }

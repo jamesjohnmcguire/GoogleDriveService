@@ -273,10 +273,11 @@ public class GoogleDrive(ILogger<BackUpService> logger = null)
 	/// <param name="parentId">The parent id to check in.</param>
 	/// <param name="itemName">The name of the item.</param>
 	/// <param name="mimeType">The mime type of the item.</param>
-	/// <returns>Indicates whether the item was found or not.</returns>
-	public async Task<bool> DoesDriveItemExist(
+	/// <returns>The id of the item, if found, null otherwise.</returns>
+	public async Task<string> DoesDriveItemExist(
 		string parentId, string itemName, string mimeType)
 	{
+		string itemId = null;
 		bool found = false;
 
 		IList<GoogleDriveFile> serverFiles =
@@ -293,6 +294,7 @@ public class GoogleDrive(ILogger<BackUpService> logger = null)
 
 					if (found == true)
 					{
+						itemId = file.Id;
 						break;
 					}
 				}
@@ -301,6 +303,35 @@ public class GoogleDrive(ILogger<BackUpService> logger = null)
 			{
 				Log.Exception(logger, exception);
 			}
+		}
+
+		return itemId;
+	}
+
+	/// <summary>
+	/// The does the drive root item exist method.  This is used to determine
+	/// if the drive item exists, or if the drive has been deleted or
+	/// permissions changed such.
+	/// </summary>
+	/// <param name="driveId">The drive id.</param>
+	/// <returns>Indicates whether the item was found or not.</returns>
+	public bool DoesDriveRootItemExist(string driveId)
+	{
+		bool found = false;
+
+		try
+		{
+			FilesResource.GetRequest request = driveService.Files.Get(driveId);
+			GoogleDriveFile file = request.Execute();
+
+			if (file != null)
+			{
+				found = true;
+			}
+		}
+		catch (Google.GoogleApiException exception)
+		{
+			Log.Exception(logger, exception);
 		}
 
 		return found;

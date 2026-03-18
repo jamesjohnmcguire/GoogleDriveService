@@ -8,17 +8,22 @@ namespace DigitalZenWorks.BackUp.Library;
 
 using System;
 using System.Collections.Generic;
-using System.IO;
 using Microsoft.Extensions.Logging;
+
+#nullable enable
 
 /// <summary>
 /// Account Service class.
 /// </summary>
 public abstract class BaseService(
-		Account account, ILogger<BackUpService> logger = null)
+		Account account,
+		Settings settings,
+		ILogger<BackUpService>? logger = null)
 {
 	private readonly Account account = account;
-	private readonly ILogger<BackUpService> logger = logger;
+	private readonly ILogger<BackUpService>? logger = logger;
+	private Settings settings = settings;
+	private TraversalContext? traversalContext;
 
 	/// <summary>
 	/// Gets the account data.
@@ -36,190 +41,114 @@ public abstract class BaseService(
 	/// Gets the logger service.
 	/// </summary>
 	/// <value>The logger service.</value>
-	public ILogger<BackUpService> Logger { get => logger; }
+	public ILogger<BackUpService>? Logger { get => logger; }
 
 	/// <summary>
-	/// Should skip this directory method.
+	/// Gets the application settings.
 	/// </summary>
-	/// <param name="parentPath">The parent path.</param>
-	/// <param name="excludes">The list of excludes.</param>
-	/// <returns>A value indicating whether to process the file
-	/// or not.</returns>
-	protected static bool ShouldSkipThisDirectory(
-		string parentPath, IList<Exclude> excludes)
+	public Settings Settings
 	{
-		bool skipThisDirectory = false;
-
-		if (!string.IsNullOrWhiteSpace(parentPath) && excludes != null)
-		{
-			foreach (Exclude exclude in excludes)
-			{
-				if (exclude.ExcludeType == ExcludeType.Keep)
-				{
-					if (parentPath.Equals(
-						exclude.Path, StringComparison.OrdinalIgnoreCase))
-					{
-						skipThisDirectory = true;
-						break;
-					}
-				}
-			}
-		}
-
-		return skipThisDirectory;
+		get => settings;
 	}
 
 	/// <summary>
-	/// Should process file method.
+	/// Gets or sets the traversal context, which provides information about
+	/// the traversal state during backup operations. This context may include
+	/// details such as the current directory being processed, the depth of
+	/// traversal, and any relevant metadata needed for decision-making during
+	/// the backup process.
 	/// </summary>
-	/// <param name="excludes">The list of excludes.</param>
-	/// <param name="path">The path to process.</param>
-	/// <returns>A value indicating whether to process the file
-	/// or not.</returns>
-	protected static bool ShouldProcessFile(
-		IList<Exclude> excludes, string path)
+	protected TraversalContext? TraversalContext
 	{
-		bool processFile = true;
+		get => traversalContext;
+		set => traversalContext = value;
+	}
+
+	/// <summary>
+	/// Determines whether an item, either a directory or file, should be
+	/// processed during backup.
+	/// </summary>
+	/// <remarks>At the point of this method being called, path should be an
+	/// existing valid, fully qualified path.</remarks>
+	/// <param name="path">The path of the item to process.</param>
+	/// <param name="excludes">The collection of excludes to check
+	/// against. This should not be null.</param>
+	/// <returns>True if the item should be processed;
+	/// false if it is explicitly excluded.</returns>
+	internal static bool ShouldProcessItem(
+		string path, ICollection<Exclude> excludes)
+	{
+		bool processItem = true;
+
+		ArgumentNullException.ThrowIfNull(path);
 
 		if (excludes != null)
 		{
 			foreach (Exclude exclude in excludes)
 			{
-				ExcludeType clause = exclude.ExcludeType;
+				bool isMatch = TraversalContext.IsExcludeMatch(path, exclude);
 
-				if (clause == ExcludeType.File ||
-					clause == ExcludeType.FileIgnore)
+				if (isMatch == true)
 				{
-					if (exclude.Path.Equals(
-						path, StringComparison.OrdinalIgnoreCase))
-					{
-						processFile = false;
-						break;
-					}
+					processItem = false;
+					break;
 				}
 			}
 		}
 
-		return processFile;
+		return processItem;
 	}
 
 	/// <summary>
-	/// Should process files method.
+	/// Should remove item method.
 	/// </summary>
-	/// <param name="excludes">The list of excludes.</param>
-	/// <param name="path">The path to process.</param>
-	/// <returns>A value indicating whether to process the file
-	/// or not.</returns>
-	protected static bool ShouldProcessFiles(
-		IList<Exclude> excludes, string path)
-	{
-		bool processFiles = true;
-
-		if (excludes != null)
-		{
-			foreach (Exclude exclude in excludes)
-			{
-				ExcludeType clause = exclude.ExcludeType;
-
-				if (clause == ExcludeType.OnlyRoot)
-				{
-					if (exclude.Path.Equals(
-						path, StringComparison.OrdinalIgnoreCase))
-					{
-						processFiles = false;
-						break;
-					}
-				}
-			}
-		}
-
-		return processFiles;
-	}
-
-	/// <summary>
-	/// Should process folder method.
-	/// </summary>
-	/// <param name="excludes">The list of excludes.</param>
-	/// <param name="path">The path to process.</param>
-	/// <returns>A value indicating whether to process the file
-	/// or not.</returns>
-	protected static bool ShouldProcessFolder(
-		IList<Exclude> excludes, string path)
-	{
-		bool processSubFolders = true;
-
-		if (excludes != null)
-		{
-			foreach (Exclude exclude in excludes)
-			{
-				ExcludeType clause = exclude.ExcludeType;
-
-				if (clause == ExcludeType.SubDirectory ||
-					clause == ExcludeType.Global ||
-					clause == ExcludeType.FileIgnore)
-				{
-					bool isQualified =
-						System.IO.Path.IsPathFullyQualified(exclude.Path);
-
-					if (isQualified == true)
-					{
-						if (exclude.Path.Equals(
-							path, StringComparison.OrdinalIgnoreCase))
-						{
-							processSubFolders = false;
-							break;
-						}
-					}
-					else
-					{
-						string name = Path.GetFileName(path);
-
-						if (exclude.Path.Equals(
-							name, StringComparison.OrdinalIgnoreCase))
-						{
-							processSubFolders = false;
-							break;
-						}
-					}
-				}
-			}
-		}
-
-		return processSubFolders;
-	}
-
-	/// <summary>
-	/// Should remove file method.
-	/// </summary>
-	/// <remarks>This method assumes the file has already been excluded
+	/// <remarks>This method assumes the item has already been excluded
 	/// from uploading.</remarks>
-	/// <param name="excludes">The list of excludes.</param>
 	/// <param name="path">The path to remove.</param>
-	/// <returns>A value indicating whether to remove the file
+	/// <param name="excludes">The collection of excludes.</param>
+	/// <returns>A value indicating whether to remove the item
 	/// or not.</returns>
-	protected static bool ShouldRemoveFile(
-		IList<Exclude> excludes, string path)
+	internal static bool ShouldRemoveItem(
+		string path, ICollection<Exclude> excludes)
 	{
-		bool removeFile = true;
+		bool removeItem = false;
+
+		Exclude? exclude = GetExclude(path, excludes);
+
+		ArgumentNullException.ThrowIfNull(exclude);
+
+		if (exclude != null)
+		{
+			if (exclude.KeepOnRemote == false)
+			{
+				removeItem = true;
+			}
+		}
+
+		return removeItem;
+	}
+
+	private static Exclude? GetExclude(
+		string path,
+		ICollection<Exclude> excludes)
+	{
+		Exclude? exclude = null;
 
 		if (excludes != null)
 		{
-			foreach (Exclude exclude in excludes)
+			foreach (Exclude checkExclude in excludes)
 			{
-				ExcludeType clause = exclude.ExcludeType;
+				bool isMatch =
+					TraversalContext.IsExcludeMatch(path, checkExclude);
 
-				if (clause == ExcludeType.FileIgnore)
+				if (isMatch == true)
 				{
-					if (exclude.Path.Equals(
-						path, StringComparison.OrdinalIgnoreCase))
-					{
-						removeFile = false;
-						break;
-					}
+					exclude = checkExclude;
+					break;
 				}
 			}
 		}
 
-		return removeFile;
+		return exclude;
 	}
 }
