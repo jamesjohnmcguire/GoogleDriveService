@@ -20,7 +20,7 @@ using Newtonsoft.Json;
 public class SettingsManager
 {
 	private readonly string settingsPath;
-	private Settings settings;
+	private Settings settings = new();
 
 	/// <summary>
 	/// Initializes a new instance of the <see cref="SettingsManager"/> class,

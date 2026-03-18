@@ -102,17 +102,18 @@ internal sealed class SettingsManagerTests
 	}
 
 	/// <summary>
-	/// The load method should return null when the settings file does not
-	/// exist test.
+	/// The load method should return an (empty) object when the settings file
+	/// does not exist test.
 	/// </summary>
 	[Test]
-	public void LoadFileDoesNotExistReturnsNull()
+	public void LoadFileDoesNotExistReturnsObject()
 	{
 		SettingsManager manager = new(settingsPath);
 
-		Settings result = manager.Load();
+		Settings settings = manager.Load();
 
-		Assert.That(result, Is.Null);
+		Assert.That(settings, Is.Not.Null);
+		Assert.That(settings.GlobalExcludes, Is.Null);
 	}
 
 	/// <summary>
@@ -231,7 +232,8 @@ internal sealed class SettingsManagerTests
 	{
 		SettingsManager manager = new(settingsPath);
 
-		Assert.That(manager.Settings, Is.Null);
+		Assert.That(manager.Settings, Is.Not.Null);
+		Assert.That(manager.Settings.GlobalExcludes, Is.Null);
 	}
 
 	private void WriteSettings(Settings settings)
