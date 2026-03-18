@@ -65,14 +65,6 @@ public class TraversalContext
 	/// relative name such as "obj" or "node_modules" — is resolved to a
 	/// fully qualified path by combining it with the current directory path.
 	/// Non-global excludes are passed through unchanged.
-	///
-	/// Wildcard excludes should be fully expanded to concrete paths before
-	/// this method is called. See <see cref="ExpandWildCardExcludes"/> for
-	/// wildcard expansion, which is performed once per account prior to
-	/// traversal.
-	///
-	/// If <paramref name="excludes"/> is null, null is returned. If it is
-	/// empty, an empty list is returned.
 	/// </remarks>
 	/// <param name="currentPath">The fully qualified path of the directory
 	/// currently being traversed. Global excludes are resolved relative to
@@ -81,7 +73,7 @@ public class TraversalContext
 	/// fully qualified paths.</returns>
 	public ICollection<Exclude>? ExpandGlobalExcludes(string currentPath)
 	{
-		ICollection<Exclude>? expandedExcludes = null;
+		List<Exclude>? expandedExcludes = null;
 
 		if (baseExcludes != null)
 		{
@@ -122,8 +114,7 @@ public class TraversalContext
 	///     is the caller's responsibility prior to this call.
 	/// </description></item>
 	/// <item><description>
-	///     <paramref name="exclude"/> and
-	///     <paramref name="excludeTypes"/> are not null.
+	///     <paramref name="exclude"/> is not null.
 	/// </description></item>
 	/// </list>
 	/// This method is concerned only with matching — it makes no policy

@@ -8,8 +8,9 @@ namespace DigitalZenWorks.BackUp.Library;
 
 using System;
 using System.Collections.Generic;
-using System.IO;
 using Microsoft.Extensions.Logging;
+
+#nullable enable
 
 /// <summary>
 /// Account Service class.
@@ -17,12 +18,12 @@ using Microsoft.Extensions.Logging;
 public abstract class BaseService(
 		Account account,
 		Settings settings,
-		ILogger<BackUpService> logger = null)
+		ILogger<BackUpService>? logger = null)
 {
 	private readonly Account account = account;
-	private readonly ILogger<BackUpService> logger = logger;
+	private readonly ILogger<BackUpService>? logger = logger;
 	private Settings settings = settings;
-	private TraversalContext traversalContext;
+	private TraversalContext? traversalContext;
 
 	/// <summary>
 	/// Gets the account data.
@@ -40,7 +41,7 @@ public abstract class BaseService(
 	/// Gets the logger service.
 	/// </summary>
 	/// <value>The logger service.</value>
-	public ILogger<BackUpService> Logger { get => logger; }
+	public ILogger<BackUpService>? Logger { get => logger; }
 
 	/// <summary>
 	/// Gets the application settings.
@@ -57,7 +58,7 @@ public abstract class BaseService(
 	/// traversal, and any relevant metadata needed for decision-making during
 	/// the backup process.
 	/// </summary>
-	protected TraversalContext TraversalContext
+	protected TraversalContext? TraversalContext
 	{
 		get => traversalContext;
 		set => traversalContext = value;

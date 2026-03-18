@@ -43,7 +43,9 @@ internal sealed class ShouldProcessItemTests
 	[Test]
 	public void NullExcludesReturnsTrue()
 	{
+#pragma warning disable CS8625 // Cannot convert null literal to non-nullable reference type.
 		bool result = BaseService.ShouldProcessItem(dataPath, null);
+#pragma warning restore CS8625 // Cannot convert null literal to non-nullable reference type.
 
 		Assert.That(result, Is.True);
 	}
@@ -67,7 +69,9 @@ internal sealed class ShouldProcessItemTests
 	{
 		Assert.Throws<ArgumentNullException>(() =>
 		{
+#pragma warning disable CS8625 // Cannot convert null literal to non-nullable reference type.
 			BaseService.ShouldProcessItem(null, []);
+#pragma warning restore CS8625 // Cannot convert null literal to non-nullable reference type.
 		});
 	}
 
