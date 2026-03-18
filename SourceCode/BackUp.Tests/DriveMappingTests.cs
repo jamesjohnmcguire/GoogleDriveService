@@ -41,8 +41,10 @@ internal sealed class DriveMappingTests
 	[SetUp]
 	public void SetUp()
 	{
-		tempDirectory = Path.Combine(
-			Path.GetTempPath(), Path.GetRandomFileName());
+		string tempBaseDirectory = Path.GetTempPath();
+		string randomName = Path.GetRandomFileName();
+
+		tempDirectory = Path.Combine(tempBaseDirectory, randomName);
 		Directory.CreateDirectory(tempDirectory);
 
 		tempDirectoryMapping = new() { LocalPath = tempDirectory };
@@ -126,10 +128,6 @@ internal sealed class DriveMappingTests
 		Assert.That(mapping.DriveParentFolderId, Is.EqualTo(folderId));
 	}
 
-	// ------------------------------------------------------------------------
-	// ExpandGlobalExcludes – null / empty guards
-	// ------------------------------------------------------------------------
-
 	/// <summary>
 	/// Verifies that the ExpandWildCardExcludes method returns an empty
 	/// collection when the excludes parameter is null.
@@ -148,24 +146,6 @@ internal sealed class DriveMappingTests
 	}
 
 	/// <summary>
-	/// Verifies that the ExpandGlobalExcludes method returns an empty list
-	/// when no exclusions are provided.
-	/// </summary>
-	/// <remarks>This test ensures that the method under test correctly handles
-	/// scenarios where the exclusions collection is empty, returning a
-	/// non-null, empty list as expected.</remarks>
-	[Test]
-	public void ExpandGlobalExcludesDefaultList()
-	{
-		ICollection<Exclude>? result =
-			traversalContext.ExpandGlobalExcludes(tempDirectory);
-
-		Assert.That(result, Is.Not.Null);
-		Assert.That(result, Has.Count.EqualTo(6));
-
-	}
-
-	/// <summary>
 	/// Verifies that the ExpandWildCardExcludes method returns an empty list
 	/// when no exclusions are provided.
 	/// </summary>
@@ -180,129 +160,6 @@ internal sealed class DriveMappingTests
 		Assert.That(result, Is.Not.Null);
 		Assert.That(result, Is.Empty);
 	}
-
-	// ------------------------------------------------------------------------
-	// ExpandGlobalExcludes – Global exclude expansion
-	// ------------------------------------------------------------------------
-
-	/// <summary>
-	/// Verifies that a global exclude entry with a relative path is correctly
-	/// expanded to its full path when processed by the ExpandGlobalExcludes
-	/// method.
-	/// </summary>
-	/// <remarks>This test ensures that the ExpandGlobalExcludes method
-	/// resolves relative paths in global exclude entries based on the provided
-	/// temporary directory, resulting in the expected absolute path. It
-	/// validates correct path expansion behavior for global excludes.
-	/// </remarks>
-	[Test]
-	public void ExpandGlobalExcludesRelativePathExpanded()
-	{
-		SettingsManager settingsManager = new();
-		settingsManager.Load();
-
-		const string relativeName = "SomeFolder";
-		string tempSubDirectory = Path.Combine(tempDirectory, relativeName);
-		Directory.CreateDirectory(tempSubDirectory);
-
-		Exclude globalExclude = new(relativeName, false);
-
-		IReadOnlyCollection<string> globalExcludesRaw =
-			settingsManager.Settings.GlobalExcludes;
-		List<string> globalExcludes = globalExcludesRaw.ToList();
-
-		globalExcludes.Add(relativeName);
-
-		TraversalContext localTraversalContext = new(
-			globalExcludes,
-			tempDirectoryMapping.Excludes);
-
-		ICollection<Exclude>? result =
-			localTraversalContext.ExpandGlobalExcludes(tempDirectory);
-
-		string expected = Path.GetFullPath(
-			Path.Combine(tempDirectory, relativeName));
-
-		string? lastPath = GetLastExcludePath(result);
-
-		Assert.That(result, Has.Count.EqualTo(7));
-		Assert.That(lastPath, Is.EqualTo(expected));
-	}
-
-	/// <summary>
-	/// Verifies that expanding global excludes preserves the absolute path of
-	/// a global exclude entry.
-	/// </summary>
-	/// <remarks>This test ensures that when an absolute path is specified as a
-	/// global exclude, the expansion process maintains the path as absolute
-	/// and does not alter its format. This is important for correct exclusion
-	/// behavior when working with file system paths.</remarks>
-	[Test]
-	public void ExpandGlobalExcludesAbsolutePathIsKept()
-	{
-		string absolutePath = Path.Combine(tempDirectory, "AbsoluteFolder");
-		Exclude globalExclude = new(absolutePath, false);
-
-		ICollection<Exclude> originalExcludes = tempDirectoryMapping.Excludes;
-		List<Exclude> excludesCopy = originalExcludes.ToList();
-		excludesCopy.Add(globalExclude);
-
-		SettingsManager settingsManager = new();
-		settingsManager.Load();
-
-		Settings settings = settingsManager.Settings;
-		List<string> globalExcludes = settings.GlobalExcludes.ToList();
-
-		TraversalContext localTraversalContext =
-			new(globalExcludes, excludesCopy);
-
-		ICollection<Exclude>? result =
-			localTraversalContext.ExpandGlobalExcludes(tempDirectory);
-		Exclude? exclude = result!.FirstOrDefault();
-
-		Assert.That(result, Has.Count.EqualTo(7));
-		Assert.That(exclude, Is.Not.Null);
-		Assert.That(exclude.Path, Is.EqualTo(
-			Path.GetFullPath(absolutePath)));
-	}
-
-	/// <summary>
-	/// Verifies that the ExpandGlobalExcludes method correctly expands
-	/// multiple global excludes and returns all expected excludes for the
-	/// specified directory.
-	/// </summary>
-	/// <remarks>This test ensures that when multiple global excludes are
-	/// provided, the method returns a list containing all of them. It is
-	/// useful for validating that the exclude expansion logic accounts for all
-	/// global entries as intended.</remarks>
-	[Test]
-	public void ExpandGlobalExcludesAllExpanded()
-	{
-		Exclude item = new Exclude("FolderA", false);
-
-		ICollection<Exclude> originalExcludes = tempDirectoryMapping.Excludes;
-		List<Exclude> excludesCopy = originalExcludes.ToList();
-		excludesCopy.Add(item);
-		excludesCopy.Add(item);
-
-		SettingsManager settingsManager = new();
-		settingsManager.Load();
-
-		Settings settings = settingsManager.Settings;
-		List<string> globalExcludes = settings.GlobalExcludes.ToList();
-
-		TraversalContext localTraversalContext =
-			new(globalExcludes, excludesCopy);
-
-		ICollection<Exclude>? result =
-			localTraversalContext.ExpandGlobalExcludes(tempDirectory);
-
-		Assert.That(result, Has.Count.EqualTo(8));
-	}
-
-	// ------------------------------------------------------------------------
-	// ExpandGlobalExcludes – Wildcard expansion
-	// ------------------------------------------------------------------------
 
 	/// <summary>
 	/// Tests that global exclude entries using a wildcard file pattern are

@@ -9,6 +9,7 @@ namespace DigitalZenWorks.BackUp.Library.Tests;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using DigitalZenWorks.BackUp.Library;
 using NUnit.Framework;
 
@@ -28,8 +29,8 @@ internal sealed class TraversalContextTests
 	private string existingDirectoryPath;
 	private string existingFilePath;
 	private string objPath;
-	private string root;
 	private string tempDirectory;
+	private TraversalContext traversalContext;
 
 	/// <summary>
 	/// Initializes the test environment by setting up temporary file paths for
@@ -42,8 +43,10 @@ internal sealed class TraversalContextTests
 	[SetUp]
 	public void SetUp()
 	{
-		tempDirectory = Path.Combine(
-			Path.GetTempPath(), Path.GetRandomFileName());
+		string tempBaseDirectory = Path.GetTempPath();
+		string randomName = Path.GetRandomFileName();
+
+		tempDirectory = Path.Combine(tempBaseDirectory, randomName);
 		Directory.CreateDirectory(tempDirectory);
 
 		existingDirectoryPath = Path.Combine(tempDirectory, "TestFolder");
@@ -52,75 +55,49 @@ internal sealed class TraversalContextTests
 		existingFilePath = Path.Combine(tempDirectory, "TestFile.txt");
 		File.WriteAllText(existingFilePath, string.Empty);
 
-		root = Path.GetTempPath();
+		string root = Path.GetTempPath();
 		clientsPath = Path.Combine(root, "Data", "Clients");
 		objPath = Path.Combine(root, "Data", "obj");
+
+		SettingsManager settingsManager = new();
+		settingsManager.Load();
+
+		Settings settings = settingsManager.Settings;
+		List<string> globalExcludes = settings.GlobalExcludes.ToList();
+
+		ICollection<Exclude> excludes = [];
+		traversalContext = new(globalExcludes, excludes);
+	}
+
+	/// <summary>
+	/// Cleans up resources by deleting the temporary directory used during
+	/// test execution, if it exists.
+	/// </summary>
+	/// <remarks>This method is typically called after each test to ensure that
+	/// any temporary files or directories created during the test are removed.
+	/// This helps prevent clutter and avoids interference with subsequent
+	/// tests by maintaining a clean test environment.</remarks>
+	[TearDown]
+	public void TearDown()
+	{
+		if (Directory.Exists(tempDirectory))
+		{
+			Directory.Delete(tempDirectory, recursive: true);
+		}
 	}
 
 	// ------------------------------------------------------------------------
 	// IsExcludeMatch — basic matching
 	// ------------------------------------------------------------------------
-
-	/// <summary>
-	/// Verifies that an exact path match with an allowed exclusion type
-	/// returns true when evaluated by the traversal context.
-	/// </summary>
-	/// <remarks>This test ensures that the exclusion logic correctly
-	/// identifies an exact match for a subdirectory path as a valid exclusion
-	/// according to the specified rules.</remarks>
-	[Test]
-	public void ExactPathMatchAllowedTypeReturnsTrue()
-	{
-		Exclude exclude = new(clientsPath, false);
-
-		bool result = TraversalContext.IsExcludeMatch(clientsPath, exclude);
-
-		Assert.That(result, Is.True);
-	}
-
-	/// <summary>
-	/// Verifies that exclusion matching for paths is case-insensitive on
-	/// Windows operating systems by asserting a match regardless of case
-	/// differences.
-	/// </summary>
-	/// <remarks>This test ensures that the exclusion logic correctly
-	/// identifies a path as matching even when the case differs, but only on
-	/// Windows. On non-Windows systems, the match is expected to be
-	/// case-sensitive and not succeed if the case does not match.</remarks>
-	[Test]
-	[System.Diagnostics.CodeAnalysis.SuppressMessage(
-		"Globalization",
-		"CA1308:Normalize strings to uppercase",
-		Justification = "It's just a test.")]
-	public void ExactPathMatchCaseInsensitiveOnWindowsReturnsTrue()
-	{
-		string clientsPathLower = clientsPath.ToLowerInvariant();
-		Exclude exclude = new(clientsPathLower, false);
-
-		string clientsPathUpper = clientsPath.ToUpperInvariant();
-		bool result =
-			TraversalContext.IsExcludeMatch(clientsPathUpper, exclude);
-
-		if (OperatingSystem.IsWindows())
-		{
-			Assert.That(result, Is.True);
-		}
-		else
-		{
-			Assert.That(result, Is.False);
-		}
-	}
 
 	/// <summary>
 	/// Verifies that the exclusion logic does not incorrectly match a path
 	/// that should not be excluded when using subdirectory exclusion criteria.
 	/// </summary>
 	/// <remarks>This test ensures that the traversal context correctly
-	/// identifies non-matching paths and does not exclude them based on the
-	/// provided exclusion settings. It helps confirm that only intended paths
-	/// are excluded during traversal.</remarks>
+	/// identifies non-matching paths.</remarks>
 	[Test]
-	public void DifferentPathReturnsTrue()
+	public void IsExcludeMatchDifferentPathsReturnsFalse()
 	{
 		Exclude exclude = new(clientsPath, false);
 
@@ -129,116 +106,21 @@ internal sealed class TraversalContextTests
 		Assert.That(result, Is.False);
 	}
 
-	// ------------------------------------------------------------------------
-	// ExcludeType filtering
-	// ------------------------------------------------------------------------
-
 	/// <summary>
-	/// Verifies that the exclusion logic correctly identifies an exact path
-	/// match for a file type in the allowed set and returns true.
+	/// Verifies that an exact path matchreturns true when evaluated by the
+	/// traversal context.
 	/// </summary>
-	/// <remarks>This test ensures that when a file exclusion is defined for a
-	/// specific path and file type, the matching logic recognizes the path as
-	/// excluded. It is important for validating that the exclusion mechanism
-	/// behaves as expected for exact path matches within the allowed file
-	/// types.</remarks>
+	/// <remarks>This test ensures that the exclusion logic correctly
+	/// identifies an exact match for a subdirectory path as a valid exclusion
+	/// according to the specified rules.</remarks>
 	[Test]
-	public void ExactPathMatchFileTypeInFileAllowedSetReturnsTrue()
+	public void IsExcludeMatchExactPathMatchReturnsTrue()
 	{
 		Exclude exclude = new(clientsPath, false);
 
 		bool result = TraversalContext.IsExcludeMatch(clientsPath, exclude);
 
 		Assert.That(result, Is.True);
-	}
-
-	// ------------------------------------------------------------------------
-	// Global excludes — name-only matching is caller's responsibility
-	// ------------------------------------------------------------------------
-
-	/// <summary>
-	/// Verifies that a global exclusion correctly matches a fully qualified
-	/// path in the traversal context.
-	/// </summary>
-	/// <remarks>This test ensures that global excludes are expanded to fully
-	/// qualified paths before matching occurs. It is important for callers to
-	/// provide global excludes in their fully qualified form to guarantee
-	/// accurate exclusion behavior during traversal.</remarks>
-	[Test]
-	public void GlobalExcludeFullPathMatchReturnsTrue()
-	{
-		// By the time IsExcludeMatch is called, global excludes should
-		// already be expanded to fully qualified paths by the traversal
-		// pipeline — so a full path match is the expected case.
-		Exclude exclude = new(objPath, false);
-
-		bool result = TraversalContext.IsExcludeMatch(objPath, exclude);
-
-		Assert.That(result, Is.True);
-	}
-
-	/// <summary>
-	/// Verifies that a global exclusion does not match a different path,
-	/// ensuring the exclusion logic correctly distinguishes between excluded
-	/// and non-excluded paths.
-	/// </summary>
-	/// <remarks>This test ensures that when a path is globally excluded, the
-	/// exclusion does not erroneously apply to unrelated paths. This helps
-	/// maintain the accuracy and reliability of the exclusion mechanism within
-	/// the traversal context.</remarks>
-	[Test]
-	public void GlobalExcludeDifferentPathReturnsFalse()
-	{
-		Exclude exclude = new(objPath, false);
-
-		bool result = TraversalContext.IsExcludeMatch(clientsPath, exclude);
-
-		Assert.That(result, Is.False);
-	}
-
-	// -------------------------------------------------------------------------
-	// IsExcludeMatch — basic matching
-	// -------------------------------------------------------------------------
-
-	/// <summary>
-	/// Verifies that the exclusion logic correctly identifies an exact path
-	/// match as valid when the exclusion type is set to SubDirectory.
-	/// </summary>
-	/// <remarks>This test ensures that the IsExcludeMatch method returns true
-	/// when the provided directory path exactly matches an exclusion of type
-	/// SubDirectory. It confirms that the matching logic behaves as expected
-	/// for this scenario.</remarks>
-	[Test]
-	public void IsExcludeMatchExactPathMatchAllowedTypeReturnsTrue()
-	{
-		Exclude exclude = new(
-			existingDirectoryPath, false);
-
-		bool result =
-			TraversalContext.IsExcludeMatch(existingDirectoryPath, exclude);
-
-		Assert.That(result, Is.True);
-	}
-
-	/// <summary>
-	/// Verifies that the exclusion match does not occur when the provided path
-	/// differs from the specified exclusion path.
-	/// </summary>
-	/// <remarks>This test ensures that the exclusion logic correctly identifies
-	/// paths outside the excluded
-	/// directory and does not falsely match them. It helps validate that only
-	/// the intended paths are excluded according to the exclusion criteria.
-	/// </remarks>
-	[Test]
-	public void IsExcludeMatchDifferentPathReturnsFalse()
-	{
-		string otherPath = Path.Combine(tempDirectory, "OtherFolder");
-		Exclude exclude = new(
-			existingDirectoryPath, false);
-
-		bool result = TraversalContext.IsExcludeMatch(otherPath, exclude);
-
-		Assert.That(result, Is.False);
 	}
 
 	/// <summary>
@@ -274,37 +156,138 @@ internal sealed class TraversalContextTests
 		}
 	}
 
-	// -------------------------------------------------------------------------
-	// IsExcludeMatch — ExcludeType filtering
-	// -------------------------------------------------------------------------
-
 	/// <summary>
-	/// The is exclude match file type in file allowed set return true test.
+	/// The expand global excludes has default amount test verifies that the
+	/// traversal context correctly expands global excludes to their fully
+	/// qualified paths and that the expected number of global excludes are
+	/// present after expansion test.
 	/// </summary>
 	[Test]
-	public void IsExcludeMatchFileTypeInFileAllowedSetReturnsTrue()
+	public void ExpandGlobalExcludesHasDefaultAmount()
 	{
-		Exclude exclude = new(existingFilePath, false);
+		Assert.That(traversalContext, Is.Not.Null);
 
-		bool result =
-			TraversalContext.IsExcludeMatch(existingFilePath, exclude);
-
-		Assert.That(result, Is.True);
+		ICollection<Exclude>? globalExcludes =
+			traversalContext.ExpandGlobalExcludes(tempDirectory);
+		Assert.That(globalExcludes, Has.Count.EqualTo(6));
 	}
 
 	/// <summary>
-	/// The is exclude match file ignore type in file allowed set return true
-	/// test.
+	/// Verifies that a global exclude entry with a relative path is correctly
+	/// expanded to its full path when processed by the ExpandGlobalExcludes
+	/// method.
 	/// </summary>
+	/// <remarks>This test ensures that the ExpandGlobalExcludes method
+	/// resolves relative paths in global exclude entries based on the provided
+	/// temporary directory, resulting in the expected absolute path. It
+	/// validates correct path expansion behavior for global excludes.
+	/// </remarks>
 	[Test]
-	public void IsExcludeMatchFileIgnoreTypeInFileAllowedSetReturnsTrue()
+	public void ExpandGlobalExcludesRelativePathExpanded()
 	{
-		Exclude exclude = new(existingFilePath, false);
+		SettingsManager settingsManager = new();
+		settingsManager.Load();
 
-		bool result =
-			TraversalContext.IsExcludeMatch(existingFilePath, exclude);
+		const string relativeName = "SomeFolder";
+		string tempSubDirectory = Path.Combine(tempDirectory, relativeName);
+		Directory.CreateDirectory(tempSubDirectory);
 
-		Assert.That(result, Is.True);
+		Exclude globalExclude = new(relativeName, false);
+
+		IReadOnlyCollection<string> globalExcludesRaw =
+			settingsManager.Settings.GlobalExcludes;
+		List<string> globalExcludes = globalExcludesRaw.ToList();
+
+		globalExcludes.Add(relativeName);
+
+		ICollection<Exclude> excludes = [];
+		TraversalContext localTraversalContext = new(
+			globalExcludes,
+			excludes);
+
+		ICollection<Exclude>? result =
+			localTraversalContext.ExpandGlobalExcludes(tempDirectory);
+
+		string expected = Path.GetFullPath(
+			Path.Combine(tempDirectory, relativeName));
+
+		Exclude exclude = result!.LastOrDefault()!;
+		string? lastPath = exclude.Path;
+
+		Assert.That(result, Has.Count.EqualTo(7));
+		Assert.That(lastPath, Is.EqualTo(expected));
+	}
+
+	/// <summary>
+	/// Verifies that expanding global excludes preserves the absolute path of
+	/// a global exclude entry.
+	/// </summary>
+	/// <remarks>This test ensures that when an absolute path is specified as a
+	/// global exclude, the expansion process maintains the path as absolute
+	/// and does not alter its format. This is important for correct exclusion
+	/// behavior when working with file system paths.</remarks>
+	[Test]
+	public void ExpandGlobalExcludesAbsolutePathIsKept()
+	{
+		string absolutePath = Path.Combine(tempDirectory, "AbsoluteFolder");
+		Exclude globalExclude = new(absolutePath, false);
+
+		ICollection<Exclude> originalExcludes = [];
+		List<Exclude> excludesCopy = originalExcludes.ToList();
+		excludesCopy.Add(globalExclude);
+
+		SettingsManager settingsManager = new();
+		settingsManager.Load();
+
+		Settings settings = settingsManager.Settings;
+		List<string> globalExcludes = settings.GlobalExcludes.ToList();
+
+		TraversalContext localTraversalContext =
+			new(globalExcludes, excludesCopy);
+
+		ICollection<Exclude>? result =
+			localTraversalContext.ExpandGlobalExcludes(tempDirectory);
+		Exclude? exclude = result!.FirstOrDefault();
+
+		Assert.That(result, Has.Count.EqualTo(7));
+		Assert.That(exclude, Is.Not.Null);
+
+		string newPath = Path.GetFullPath(absolutePath);
+		Assert.That(exclude.Path, Is.EqualTo(newPath));
+	}
+
+	/// <summary>
+	/// Verifies that the ExpandGlobalExcludes method correctly expands
+	/// multiple global excludes and returns all expected excludes for the
+	/// specified directory.
+	/// </summary>
+	/// <remarks>This test ensures that when multiple global excludes are
+	/// provided, the method returns a list containing all of them. It is
+	/// useful for validating that the exclude expansion logic accounts for all
+	/// global entries as intended.</remarks>
+	[Test]
+	public void ExpandGlobalExcludesAllExpanded()
+	{
+		Exclude item = new Exclude("FolderA", false);
+
+		ICollection<Exclude> originalExcludes = [];
+		List<Exclude> excludesCopy = originalExcludes.ToList();
+		excludesCopy.Add(item);
+		excludesCopy.Add(item);
+
+		SettingsManager settingsManager = new();
+		settingsManager.Load();
+
+		Settings settings = settingsManager.Settings;
+		List<string> globalExcludes = settings.GlobalExcludes.ToList();
+
+		TraversalContext localTraversalContext =
+			new(globalExcludes, excludesCopy);
+
+		ICollection<Exclude>? result =
+			localTraversalContext.ExpandGlobalExcludes(tempDirectory);
+
+		Assert.That(result, Has.Count.EqualTo(8));
 	}
 
 	// ------------------------------------------------------------------------
@@ -315,34 +298,54 @@ internal sealed class TraversalContextTests
 	/// The normalize path existing file returns fully qualified path test.
 	/// </summary>
 	[Test]
-	public void NormalizePathExistingFileReturnsFullyQualifiedPath()
+	public void NormalizePathReturnsFullyQualifiedPath()
 	{
 		string? result =
 			TraversalContext.NormalizePath(existingFilePath, tempDirectory);
 
 		Assert.That(result, Is.Not.Null);
-		Assert.That(Path.IsPathFullyQualified(result!), Is.True);
+
+		bool fullyQualified = Path.IsPathFullyQualified(result);
+
+		Assert.That(fullyQualified, Is.True);
 	}
 
 	/// <summary>
-	/// The normalize path existing directory returns fully qualified path
-	/// test.
+	/// The normalize path non-existing directory returns true test.
 	/// </summary>
 	[Test]
-	public void NormalizePathExistingDirectoryReturnsFullyQualifiedPath()
+	public void NormalizePathNonExistingDirectoryReturnsTrue()
 	{
-		string? result = TraversalContext.NormalizePath(
-			existingDirectoryPath, tempDirectory);
+		string? result = TraversalContext.NormalizePath(objPath, tempDirectory);
 
 		Assert.That(result, Is.Not.Null);
-		Assert.That(Path.IsPathFullyQualified(result!), Is.True);
+
+		bool fullyQualified = Path.IsPathFullyQualified(result);
+
+		Assert.That(fullyQualified, Is.True);
+	}
+
+	/// <summary>
+	/// The normalize path non-existing file returns true test.
+	/// </summary>
+	[Test]
+	public void NormalizePathNonExistingFileReturnsTrue()
+	{
+		string? result =
+			TraversalContext.NormalizePath("somefile.txt", tempDirectory);
+
+		Assert.That(result, Is.Not.Null);
+
+		bool fullyQualified = Path.IsPathFullyQualified(result);
+
+		Assert.That(fullyQualified, Is.True);
 	}
 
 	/// <summary>
 	/// The normalize path already fully qualified returns same path test.
 	/// </summary>
 	[Test]
-	public void NormalizePathAlreadyFullyQualifiedReturnsSamePath()
+	public void NormalizePathAlreadyFullyQualifiedReturnsSame()
 	{
 		string? result = TraversalContext.NormalizePath(
 			existingDirectoryPath, tempDirectory);
