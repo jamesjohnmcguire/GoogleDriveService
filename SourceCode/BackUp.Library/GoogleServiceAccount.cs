@@ -25,10 +25,11 @@ using GoogleDriveFile = Google.Apis.Drive.v3.Data.File;
 /// <see cref="GoogleServiceAccount"/> class.
 /// </remarks>
 /// <param name="account">The accound data.</param>
+/// <param name="settings">The application settings.</param>
 /// <param name="logger">The logger interface.</param>
 public class GoogleServiceAccount(
-	Account account, ILogger<BackUpService> logger = null)
-	: BaseService(account, logger), IDisposable
+	Account account, Settings settings, ILogger<BackUpService> logger = null)
+	: BaseService(account, settings, logger), IDisposable
 {
 	private GoogleDrive googleDrive = new(logger);
 	private TraversalContext traversalContext;
@@ -243,8 +244,10 @@ public class GoogleServiceAccount(
 			{
 				driveMapping.ExpandExcludes();
 
+				List<string> globalExcludes = Settings.GlobalExcludes.ToList();
+
 				traversalContext = new TraversalContext(
-					driveMapping.GlobalExcludesTemplates,
+					globalExcludes,
 					driveMapping.Excludes);
 
 				ICollection<Exclude> expandedExcludes =

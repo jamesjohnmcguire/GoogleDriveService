@@ -28,14 +28,8 @@ public class DriveMapping
 	/// <remarks>Global excludes defined in the provided settings are
 	/// processed to determine which items should be excluded from the drive
 	/// mapping.</remarks>
-	/// <param name="settings">The settings used to configure the drive
-	/// mapping. If null, default settings are applied.</param>
-	public DriveMapping(Settings settings = null)
+	public DriveMapping()
 	{
-		if (settings != null)
-		{
-			AddGlobalExcludesTemplates(settings.GlobalExcludes);
-		}
 	}
 
 	/// <summary>
@@ -59,12 +53,6 @@ public class DriveMapping
 	{
 		get { return excludes; }
 	}
-
-	/// <summary>
-	/// Gets the global excludes templates.
-	/// </summary>
-	/// <value>The global excludes templates.</value>
-	public ICollection<string> GlobalExcludesTemplates { get; } = [];
 
 	/// <summary>
 	/// Expands a collection of exclude patterns by resolving wildcard file
@@ -110,34 +98,6 @@ public class DriveMapping
 		}
 
 		return expandedExcludes;
-	}
-
-	/// <summary>
-	/// Adds the specified global exclusion names to the collection, ensuring
-	/// that only unique exclusions are included.
-	/// </summary>
-	/// <remarks>If the provided list is null, no exclusions are added.
-	/// Duplicate exclusion names are ignored, and only unique names are
-	/// stored.</remarks>
-	/// <param name="globalExcludesTemplates">A read-only list of exclusion
-	/// names to add as global exclusions. Each name must be unique and cannot
-	/// be null. </param>
-	public void AddGlobalExcludesTemplates(
-		IReadOnlyCollection<string> globalExcludesTemplates)
-	{
-		if (globalExcludesTemplates != null)
-		{
-			foreach (string excludeName in globalExcludesTemplates)
-			{
-				bool exists = GlobalExcludesTemplates.Any(e => e.Equals(
-					excludeName, StringComparison.OrdinalIgnoreCase));
-
-				if (exists == false)
-				{
-					GlobalExcludesTemplates.Add(excludeName);
-				}
-			}
-		}
 	}
 
 	/// <summary>

@@ -47,9 +47,13 @@ internal sealed class DriveMappingTests
 
 		tempDirectoryMapping = new() { LocalPath = tempDirectory };
 
-		traversalContext = new(
-			tempDirectoryMapping.GlobalExcludesTemplates,
-			tempDirectoryMapping.Excludes);
+		SettingsManager settingsManager = new();
+		settingsManager.Load();
+
+		Settings settings = settingsManager.Settings;
+		List<string> globalExcludes = settings.GlobalExcludes.ToList();
+
+		traversalContext = new(globalExcludes, tempDirectoryMapping.Excludes);
 	}
 
 	/// <summary>
@@ -127,24 +131,6 @@ internal sealed class DriveMappingTests
 	// ------------------------------------------------------------------------
 
 	/// <summary>
-	/// Verifies that the ExpandGlobalExcludes method returns null when the
-	/// excludes parameter is null.
-	/// </summary>
-	/// <remarks>This test ensures that passing a null excludes collection to
-	/// ExpandGlobalExcludes results in a null return value, indicating that no
-	/// exclusions are applied. This behavior is important for callers to
-	/// understand how the method handles null input.</remarks>
-	[Test]
-	public void ExpandGlobalExcludesNullExcludes()
-	{
-		ICollection<Exclude>? result =
-			traversalContext.ExpandGlobalExcludes(tempDirectory);
-
-		Assert.That(result, Is.Not.Null);
-		Assert.That(result, Is.Empty);
-	}
-
-	/// <summary>
 	/// Verifies that the ExpandWildCardExcludes method returns an empty
 	/// collection when the excludes parameter is null.
 	/// </summary>
@@ -169,13 +155,14 @@ internal sealed class DriveMappingTests
 	/// scenarios where the exclusions collection is empty, returning a
 	/// non-null, empty list as expected.</remarks>
 	[Test]
-	public void ExpandGlobalExcludesEmptyList()
+	public void ExpandGlobalExcludesDefaultList()
 	{
 		ICollection<Exclude>? result =
 			traversalContext.ExpandGlobalExcludes(tempDirectory);
 
 		Assert.That(result, Is.Not.Null);
-		Assert.That(result, Is.Empty);
+		Assert.That(result, Has.Count.EqualTo(6));
+
 	}
 
 	/// <summary>
@@ -211,18 +198,23 @@ internal sealed class DriveMappingTests
 	[Test]
 	public void ExpandGlobalExcludesRelativePathExpanded()
 	{
+		SettingsManager settingsManager = new();
+		settingsManager.Load();
+
 		const string relativeName = "SomeFolder";
 		string tempSubDirectory = Path.Combine(tempDirectory, relativeName);
 		Directory.CreateDirectory(tempSubDirectory);
 
 		Exclude globalExclude = new(relativeName, false);
 
-		ICollection<string> globalExcludes =
-			tempDirectoryMapping.GlobalExcludesTemplates;
+		IReadOnlyCollection<string> globalExcludesRaw =
+			settingsManager.Settings.GlobalExcludes;
+		List<string> globalExcludes = globalExcludesRaw.ToList();
+
 		globalExcludes.Add(relativeName);
 
 		TraversalContext localTraversalContext = new(
-			tempDirectoryMapping.GlobalExcludesTemplates,
+			globalExcludes,
 			tempDirectoryMapping.Excludes);
 
 		ICollection<Exclude>? result =
@@ -230,11 +222,11 @@ internal sealed class DriveMappingTests
 
 		string expected = Path.GetFullPath(
 			Path.Combine(tempDirectory, relativeName));
-		Exclude? exclude = GetLastExclude(result);
 
-		Assert.That(result, Has.Count.EqualTo(1));
-		Assert.That(exclude, Is.Not.Null);
-		Assert.That(exclude.Path, Is.EqualTo(expected));
+		string? lastPath = GetLastExcludePath(result);
+
+		Assert.That(result, Has.Count.EqualTo(7));
+		Assert.That(lastPath, Is.EqualTo(expected));
 	}
 
 	/// <summary>
@@ -255,15 +247,20 @@ internal sealed class DriveMappingTests
 		List<Exclude> excludesCopy = originalExcludes.ToList();
 		excludesCopy.Add(globalExclude);
 
-		TraversalContext localTraversalContext = new(
-			tempDirectoryMapping.GlobalExcludesTemplates,
-			excludesCopy);
+		SettingsManager settingsManager = new();
+		settingsManager.Load();
+
+		Settings settings = settingsManager.Settings;
+		List<string> globalExcludes = settings.GlobalExcludes.ToList();
+
+		TraversalContext localTraversalContext =
+			new(globalExcludes, excludesCopy);
 
 		ICollection<Exclude>? result =
 			localTraversalContext.ExpandGlobalExcludes(tempDirectory);
-		Exclude? exclude = GetLastExclude(result);
+		Exclude? exclude = result!.FirstOrDefault();
 
-		Assert.That(result, Has.Count.EqualTo(1));
+		Assert.That(result, Has.Count.EqualTo(7));
 		Assert.That(exclude, Is.Not.Null);
 		Assert.That(exclude.Path, Is.EqualTo(
 			Path.GetFullPath(absolutePath)));
@@ -288,14 +285,19 @@ internal sealed class DriveMappingTests
 		excludesCopy.Add(item);
 		excludesCopy.Add(item);
 
-		TraversalContext localTraversalContext = new(
-			tempDirectoryMapping.GlobalExcludesTemplates,
-			excludesCopy);
+		SettingsManager settingsManager = new();
+		settingsManager.Load();
+
+		Settings settings = settingsManager.Settings;
+		List<string> globalExcludes = settings.GlobalExcludes.ToList();
+
+		TraversalContext localTraversalContext =
+			new(globalExcludes, excludesCopy);
 
 		ICollection<Exclude>? result =
 			localTraversalContext.ExpandGlobalExcludes(tempDirectory);
 
-		Assert.That(result, Has.Count.EqualTo(2));
+		Assert.That(result, Has.Count.EqualTo(8));
 	}
 
 	// ------------------------------------------------------------------------

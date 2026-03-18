@@ -45,8 +45,9 @@ internal sealed class UnitTests
 	public void RemoveAbandanedFoltersNone()
 	{
 		Account accountData = new();
+		Settings settings = new Settings();
 
-		using GoogleServiceAccount account = new(accountData);
+		using GoogleServiceAccount account = new(accountData, settings);
 		account.IgnoreAbandoned = false;
 
 		string path = Directory.GetCurrentDirectory();

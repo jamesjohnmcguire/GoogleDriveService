@@ -66,14 +66,12 @@ public class BackUpService(ILogger<BackUpService> logger = null)
 						string message = "Backing up to account: " + name;
 						Log.Information(logger, message);
 
-						accountData.AddGlobalExcludes(Settings.GlobalExcludes);
-
 						switch (accountData.AccountType)
 						{
 							case AccountType.GoogleServiceAccount:
 							{
 								using GoogleServiceAccount account =
-									new(accountData, logger);
+									new(accountData, Settings, logger);
 
 								account.IgnoreAbandoned = IgnoreAbandoned;
 

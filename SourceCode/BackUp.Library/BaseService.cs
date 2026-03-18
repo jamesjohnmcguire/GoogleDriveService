@@ -15,10 +15,13 @@ using Microsoft.Extensions.Logging;
 /// Account Service class.
 /// </summary>
 public abstract class BaseService(
-		Account account, ILogger<BackUpService> logger = null)
+		Account account,
+		Settings settings,
+		ILogger<BackUpService> logger = null)
 {
 	private readonly Account account = account;
 	private readonly ILogger<BackUpService> logger = logger;
+	private Settings settings = settings;
 	private TraversalContext traversalContext;
 
 	/// <summary>
@@ -39,6 +42,21 @@ public abstract class BaseService(
 	/// <value>The logger service.</value>
 	public ILogger<BackUpService> Logger { get => logger; }
 
+	/// <summary>
+	/// Gets the application settings.
+	/// </summary>
+	public Settings Settings
+	{
+		get => settings;
+	}
+
+	/// <summary>
+	/// Gets or sets the traversal context, which provides information about
+	/// the traversal state during backup operations. This context may include
+	/// details such as the current directory being processed, the depth of
+	/// traversal, and any relevant metadata needed for decision-making during
+	/// the backup process.
+	/// </summary>
 	protected TraversalContext TraversalContext
 	{
 		get => traversalContext;

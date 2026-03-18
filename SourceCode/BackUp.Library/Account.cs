@@ -67,23 +67,4 @@ public class Account
 	{
 		get { return driveMappings; }
 	}
-
-	/// <summary>
-	/// Adds the specified global exclusion strings to all existing drive
-	/// mappings.
-	/// </summary>
-	/// <remarks>This method iterates through all drive mappings and applies
-	/// the provided global exclusions to each one. Ensure that the exclusion
-	/// strings are valid and appropriate for the context of the drive
-	/// mappings.</remarks>
-	/// <param name="globalExcludes">A read-only list of exclusion strings to
-	/// be applied to each drive mapping. This parameter cannot be null or
-	/// empty.</param>
-	public void AddGlobalExcludes(IReadOnlyCollection<string> globalExcludes)
-	{
-		foreach (DriveMapping mapping in driveMappings)
-		{
-			mapping.AddGlobalExcludesTemplates(globalExcludes);
-		}
-	}
 }
