@@ -246,6 +246,7 @@ internal sealed class TraversalContextTests
 
 		ICollection<Exclude>? globalExcludes =
 			localTraversalContext.ExpandGlobalExcludes(temporaryPath);
+
 		Assert.That(globalExcludes, Has.Count.EqualTo(6));
 	}
 
@@ -262,26 +263,14 @@ internal sealed class TraversalContextTests
 	[Test]
 	public void ExpandGlobalExcludesRelativePathExpanded()
 	{
-		SettingsManager settingsManager = new();
-
 		const string relativeName = "SomeFolder";
-		string tempSubDirectory = Path.Combine(temporaryPath, relativeName);
-		Directory.CreateDirectory(tempSubDirectory);
+
+		string expected = Path.GetFullPath(
+			Path.Combine(temporaryPath, relativeName));
 
 		Exclude globalExclude = new(relativeName, false);
 
-		IReadOnlyCollection<string> globalExcludesRaw =
-			settingsManager.Settings.GlobalExcludes;
-
 		List<string> globalExcludes = [];
-
-		Settings settings = settingsManager.Settings;
-
-		if (settings.GlobalExcludes != null)
-		{
-			globalExcludes = settings.GlobalExcludes.ToList();
-		}
-
 		globalExcludes.Add(relativeName);
 
 		ICollection<Exclude> excludes = [];
@@ -291,9 +280,6 @@ internal sealed class TraversalContextTests
 
 		ICollection<Exclude>? result =
 			localTraversalContext.ExpandGlobalExcludes(temporaryPath);
-
-		string expected = Path.GetFullPath(
-			Path.Combine(temporaryPath, relativeName));
 
 		Exclude exclude = result!.LastOrDefault()!;
 		string? lastPath = exclude.Path;
@@ -315,17 +301,12 @@ internal sealed class TraversalContextTests
 	[Test]
 	public void ExpandGlobalExcludesRelativePathExpandedWithDefaults()
 	{
-		SettingsManager settingsManager = new();
-		settingsManager.Load();
-
 		const string relativeName = "SomeFolder";
-		string tempSubDirectory = Path.Combine(temporaryPath, relativeName);
-		Directory.CreateDirectory(tempSubDirectory);
+
+		string expected = Path.GetFullPath(
+			Path.Combine(temporaryPath, relativeName));
 
 		Exclude globalExclude = new(relativeName, false);
-
-		IReadOnlyCollection<string> globalExcludesRaw =
-			settingsManager.Settings.GlobalExcludes;
 
 		List<string> globalExcludes = globalExcludesWithDefaults.ToList();
 		globalExcludes.Add(relativeName);
@@ -337,9 +318,6 @@ internal sealed class TraversalContextTests
 
 		ICollection<Exclude>? result =
 			localTraversalContext.ExpandGlobalExcludes(temporaryPath);
-
-		string expected = Path.GetFullPath(
-			Path.Combine(temporaryPath, relativeName));
 
 		Exclude exclude = result!.LastOrDefault()!;
 		string? lastPath = exclude.Path;
@@ -360,25 +338,16 @@ internal sealed class TraversalContextTests
 	public void ExpandGlobalExcludesAbsolutePathIsKept()
 	{
 		string absolutePath = Path.Combine(temporaryPath, "AbsoluteFolder");
+		string expectedPath = Path.GetFullPath(absolutePath);
+
 		Exclude globalExclude = new(absolutePath, false);
 
-		ICollection<Exclude> originalExcludes = [];
-		List<Exclude> excludesCopy = originalExcludes.ToList();
-		excludesCopy.Add(globalExclude);
-
-		SettingsManager settingsManager = new();
+		ICollection<Exclude> excludes = [];
+		excludes.Add(globalExclude);
 
 		List<string> globalExcludes = [];
-
-		Settings settings = settingsManager.Settings;
-
-		if (settings.GlobalExcludes != null)
-		{
-			globalExcludes = settings.GlobalExcludes.ToList();
-		}
-
 		TraversalContext localTraversalContext =
-			new(globalExcludes, excludesCopy);
+			new(globalExcludes, excludes);
 
 		ICollection<Exclude>? result =
 			localTraversalContext.ExpandGlobalExcludes(temporaryPath);
@@ -387,8 +356,7 @@ internal sealed class TraversalContextTests
 		Assert.That(result, Has.Count.EqualTo(1));
 		Assert.That(exclude, Is.Not.Null);
 
-		string newPath = Path.GetFullPath(absolutePath);
-		Assert.That(exclude.Path, Is.EqualTo(newPath));
+		Assert.That(exclude.Path, Is.EqualTo(expectedPath));
 	}
 
 	/// <summary>
@@ -403,17 +371,15 @@ internal sealed class TraversalContextTests
 	public void ExpandGlobalExcludesAbsolutePathIsKeptWithDefaults()
 	{
 		string absolutePath = Path.Combine(temporaryPath, "AbsoluteFolder");
+		string expectedPath = Path.GetFullPath(absolutePath);
+
 		Exclude globalExclude = new(absolutePath, false);
 
-		ICollection<Exclude> originalExcludes = [];
-		List<Exclude> excludesCopy = originalExcludes.ToList();
-		excludesCopy.Add(globalExclude);
-
-		SettingsManager settingsManager = new();
-		settingsManager.Load();
+		ICollection<Exclude> excludes = [];
+		excludes.Add(globalExclude);
 
 		TraversalContext localTraversalContext =
-			new(globalExcludesWithDefaults, excludesCopy);
+			new(globalExcludesWithDefaults, excludes);
 
 		ICollection<Exclude>? result =
 			localTraversalContext.ExpandGlobalExcludes(temporaryPath);
@@ -422,8 +388,7 @@ internal sealed class TraversalContextTests
 		Assert.That(result, Has.Count.EqualTo(7));
 		Assert.That(exclude, Is.Not.Null);
 
-		string newPath = Path.GetFullPath(absolutePath);
-		Assert.That(exclude.Path, Is.EqualTo(newPath));
+		Assert.That(exclude.Path, Is.EqualTo(expectedPath));
 	}
 
 	/// <summary>
@@ -440,24 +405,13 @@ internal sealed class TraversalContextTests
 	{
 		Exclude item = new Exclude("FolderA", false);
 
-		ICollection<Exclude> originalExcludes = [];
-		List<Exclude> excludesCopy = originalExcludes.ToList();
-		excludesCopy.Add(item);
-		excludesCopy.Add(item);
-
-		SettingsManager settingsManager = new();
+		ICollection<Exclude> excludes = [];
+		excludes.Add(item);
+		excludes.Add(item);
 
 		List<string> globalExcludes = [];
-
-		Settings settings = settingsManager.Settings;
-
-		if (settings.GlobalExcludes != null)
-		{
-			globalExcludes = settings.GlobalExcludes.ToList();
-		}
-
 		TraversalContext localTraversalContext =
-			new(globalExcludes, excludesCopy);
+			new(globalExcludes, excludes);
 
 		ICollection<Exclude>? result =
 			localTraversalContext.ExpandGlobalExcludes(temporaryPath);
@@ -479,16 +433,12 @@ internal sealed class TraversalContextTests
 	{
 		Exclude item = new Exclude("FolderA", false);
 
-		ICollection<Exclude> originalExcludes = [];
-		List<Exclude> excludesCopy = originalExcludes.ToList();
-		excludesCopy.Add(item);
-		excludesCopy.Add(item);
-
-		SettingsManager settingsManager = new();
-		settingsManager.Load();
+		ICollection<Exclude> excludes = [];
+		excludes.Add(item);
+		excludes.Add(item);
 
 		TraversalContext localTraversalContext =
-			new(globalExcludesWithDefaults, excludesCopy);
+			new(globalExcludesWithDefaults, excludes);
 
 		ICollection<Exclude>? result =
 			localTraversalContext.ExpandGlobalExcludes(temporaryPath);

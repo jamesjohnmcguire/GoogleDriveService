@@ -27,7 +27,6 @@ internal sealed class DriveMappingTests
 {
 	private string temporaryPath;
 	private DriveMapping tempDirectoryMapping;
-	private TraversalContext traversalContext;
 
 	/// <summary>
 	/// Initializes a unique temporary directory for use in each test run,
@@ -60,8 +59,6 @@ internal sealed class DriveMappingTests
 		{
 			globalExcludes = settings.GlobalExcludes.ToList();
 		}
-
-		traversalContext = new(globalExcludes, tempDirectoryMapping.Excludes);
 	}
 
 	/// <summary>
