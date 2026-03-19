@@ -1,16 +1,17 @@
+Excludes	Upon ShouldProcessItem(path, excludes); being false, it should immediately check, and possibly remove item from server
+Excludes	RemoveExcludedItems Should eventually be removed - All items should be already processed by ShouldProcessItem / ShouldRemoveItem
+Improve protected property "protected TraversalContext TraversalContext"
+IgnoreAbandoned flag - What is this about?
+Maybe Not Make It a Global? - Vendor	Example: BoilerPlate\js\vendor
+In GetFileById Catch Net.Http.HttpRequestException and retry
+Excludes	ExpandExcludes doesn't need temp variable expandedExcludes
+Excludes	Revisit RemoveExcludedItems.  At the very least, because of OrdinalIgnoreCase - Seems overly complicated
 Add NormalizePath to Sub Folder Processing
-bool isSymlink = (File.GetAttributes(path) & FileAttributes.ReparsePoint) != 0;
-In All Test Suites, Optimize SetUp calls with SetUpOneTime
-Clean Up TraversalContextTests
-ExpandExcludes doesn't need temp variable expandedExcludes
-Revisit RemoveExcludedItems.  At the very least, because of OrdinalIgnoreCase
-RemoveExcludedItems - Seems overly complicated
 Revisit RemoveAbandonedFolder - Another convoluted method
 RemoveAbandonedSiblingFolders	C:\Users\JamesMc\Data\EmailOthers
 Review RemoveAbandonedSiblingFolders - Is this necessary? Should this functionality be elsewhere?
-IgnoreAbandoned flag - What is this about?
-Maybe Not Make It a Global - Vendor	Example: BoilerPlate\js\vendor
-In GetFileById Catch Net.Http.HttpRequestException and retry
+DriveMapping	Need a way to process files, not directories, in DriveMapping, Such As Music\Main.m3u
+bool isSymlink = (File.GetAttributes(path) & FileAttributes.ReparsePoint) != 0;
 Merge Async / Non-async Duplicate Code
 Warn if path IS null at path = TraversalContext.NormalizePath(path); if (path != null)
 Revisit Logging Refactor Double Log Reference - 	Log.Warning(Logger, "server folder is null", null);
