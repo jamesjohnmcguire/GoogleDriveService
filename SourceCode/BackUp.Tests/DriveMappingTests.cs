@@ -52,8 +52,14 @@ internal sealed class DriveMappingTests
 		SettingsManager settingsManager = new();
 		settingsManager.Load();
 
+		List<string> globalExcludes = [];
+
 		Settings settings = settingsManager.Settings;
-		List<string> globalExcludes = settings.GlobalExcludes.ToList();
+
+		if (settings.GlobalExcludes != null)
+		{
+			globalExcludes = settings.GlobalExcludes.ToList();
+		}
 
 		traversalContext = new(globalExcludes, tempDirectoryMapping.Excludes);
 	}

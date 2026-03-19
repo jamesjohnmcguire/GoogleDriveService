@@ -62,8 +62,14 @@ internal sealed class TraversalContextTests
 		SettingsManager settingsManager = new();
 		settingsManager.Load();
 
+		List<string> globalExcludes = [];
+
 		Settings settings = settingsManager.Settings;
-		List<string> globalExcludes = settings.GlobalExcludes.ToList();
+
+		if (settings.GlobalExcludes != null)
+		{
+			globalExcludes = settings.GlobalExcludes.ToList();
+		}
 
 		ICollection<Exclude> excludes = [];
 		traversalContext = new(globalExcludes, excludes);
@@ -196,7 +202,15 @@ internal sealed class TraversalContextTests
 
 		IReadOnlyCollection<string> globalExcludesRaw =
 			settingsManager.Settings.GlobalExcludes;
-		List<string> globalExcludes = globalExcludesRaw.ToList();
+
+		List<string> globalExcludes = [];
+
+		Settings settings = settingsManager.Settings;
+
+		if (settings.GlobalExcludes != null)
+		{
+			globalExcludes = settings.GlobalExcludes.ToList();
+		}
 
 		globalExcludes.Add(relativeName);
 
@@ -239,8 +253,14 @@ internal sealed class TraversalContextTests
 		SettingsManager settingsManager = new();
 		settingsManager.Load();
 
+		List<string> globalExcludes = [];
+
 		Settings settings = settingsManager.Settings;
-		List<string> globalExcludes = settings.GlobalExcludes.ToList();
+
+		if (settings.GlobalExcludes != null)
+		{
+			globalExcludes = settings.GlobalExcludes.ToList();
+		}
 
 		TraversalContext localTraversalContext =
 			new(globalExcludes, excludesCopy);
@@ -278,8 +298,14 @@ internal sealed class TraversalContextTests
 		SettingsManager settingsManager = new();
 		settingsManager.Load();
 
+		List<string> globalExcludes = [];
+
 		Settings settings = settingsManager.Settings;
-		List<string> globalExcludes = settings.GlobalExcludes.ToList();
+
+		if (settings.GlobalExcludes != null)
+		{
+			globalExcludes = settings.GlobalExcludes.ToList();
+		}
 
 		TraversalContext localTraversalContext =
 			new(globalExcludes, excludesCopy);
