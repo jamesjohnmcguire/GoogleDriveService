@@ -31,7 +31,7 @@ internal sealed class TraversalContextTests
 	private List<string> globalExcludesWithDefaults = [];
 	private string objPath;
 	private Settings settngsWithDefaults;
-	private string tempDirectory;
+	private string temporaryPath;
 	private string testFixtureDirectory;
 	private TraversalContext traversalContext;
 
@@ -99,13 +99,13 @@ internal sealed class TraversalContextTests
 		string tempBaseDirectory = Path.GetTempPath();
 		string randomName = Path.GetRandomFileName();
 
-		tempDirectory = Path.Combine(tempBaseDirectory, randomName);
-		Directory.CreateDirectory(tempDirectory);
+		temporaryPath = Path.Combine(tempBaseDirectory, randomName);
+		Directory.CreateDirectory(temporaryPath);
 
-		existingDirectoryPath = Path.Combine(tempDirectory, "TestFolder");
+		existingDirectoryPath = Path.Combine(temporaryPath, "TestFolder");
 		Directory.CreateDirectory(existingDirectoryPath);
 
-		existingFilePath = Path.Combine(tempDirectory, "TestFile.txt");
+		existingFilePath = Path.Combine(temporaryPath, "TestFile.txt");
 		File.WriteAllText(existingFilePath, string.Empty);
 
 		string root = Path.GetTempPath();
@@ -138,9 +138,9 @@ internal sealed class TraversalContextTests
 	[TearDown]
 	public void TearDown()
 	{
-		if (Directory.Exists(tempDirectory))
+		if (Directory.Exists(temporaryPath))
 		{
-			Directory.Delete(tempDirectory, recursive: true);
+			Directory.Delete(temporaryPath, recursive: true);
 		}
 	}
 
@@ -226,7 +226,7 @@ internal sealed class TraversalContextTests
 		Assert.That(traversalContext, Is.Not.Null);
 
 		ICollection<Exclude>? globalExcludes =
-			traversalContext.ExpandGlobalExcludes(tempDirectory);
+			traversalContext.ExpandGlobalExcludes(temporaryPath);
 		Assert.That(globalExcludes, Has.Count.EqualTo(0));
 	}
 
@@ -245,7 +245,7 @@ internal sealed class TraversalContextTests
 			excludes);
 
 		ICollection<Exclude>? globalExcludes =
-			localTraversalContext.ExpandGlobalExcludes(tempDirectory);
+			localTraversalContext.ExpandGlobalExcludes(temporaryPath);
 		Assert.That(globalExcludes, Has.Count.EqualTo(6));
 	}
 
@@ -265,7 +265,7 @@ internal sealed class TraversalContextTests
 		SettingsManager settingsManager = new();
 
 		const string relativeName = "SomeFolder";
-		string tempSubDirectory = Path.Combine(tempDirectory, relativeName);
+		string tempSubDirectory = Path.Combine(temporaryPath, relativeName);
 		Directory.CreateDirectory(tempSubDirectory);
 
 		Exclude globalExclude = new(relativeName, false);
@@ -290,10 +290,10 @@ internal sealed class TraversalContextTests
 			excludes);
 
 		ICollection<Exclude>? result =
-			localTraversalContext.ExpandGlobalExcludes(tempDirectory);
+			localTraversalContext.ExpandGlobalExcludes(temporaryPath);
 
 		string expected = Path.GetFullPath(
-			Path.Combine(tempDirectory, relativeName));
+			Path.Combine(temporaryPath, relativeName));
 
 		Exclude exclude = result!.LastOrDefault()!;
 		string? lastPath = exclude.Path;
@@ -319,7 +319,7 @@ internal sealed class TraversalContextTests
 		settingsManager.Load();
 
 		const string relativeName = "SomeFolder";
-		string tempSubDirectory = Path.Combine(tempDirectory, relativeName);
+		string tempSubDirectory = Path.Combine(temporaryPath, relativeName);
 		Directory.CreateDirectory(tempSubDirectory);
 
 		Exclude globalExclude = new(relativeName, false);
@@ -336,10 +336,10 @@ internal sealed class TraversalContextTests
 			excludes);
 
 		ICollection<Exclude>? result =
-			localTraversalContext.ExpandGlobalExcludes(tempDirectory);
+			localTraversalContext.ExpandGlobalExcludes(temporaryPath);
 
 		string expected = Path.GetFullPath(
-			Path.Combine(tempDirectory, relativeName));
+			Path.Combine(temporaryPath, relativeName));
 
 		Exclude exclude = result!.LastOrDefault()!;
 		string? lastPath = exclude.Path;
@@ -359,7 +359,7 @@ internal sealed class TraversalContextTests
 	[Test]
 	public void ExpandGlobalExcludesAbsolutePathIsKept()
 	{
-		string absolutePath = Path.Combine(tempDirectory, "AbsoluteFolder");
+		string absolutePath = Path.Combine(temporaryPath, "AbsoluteFolder");
 		Exclude globalExclude = new(absolutePath, false);
 
 		ICollection<Exclude> originalExcludes = [];
@@ -381,7 +381,7 @@ internal sealed class TraversalContextTests
 			new(globalExcludes, excludesCopy);
 
 		ICollection<Exclude>? result =
-			localTraversalContext.ExpandGlobalExcludes(tempDirectory);
+			localTraversalContext.ExpandGlobalExcludes(temporaryPath);
 		Exclude? exclude = result!.FirstOrDefault();
 
 		Assert.That(result, Has.Count.EqualTo(1));
@@ -402,7 +402,7 @@ internal sealed class TraversalContextTests
 	[Test]
 	public void ExpandGlobalExcludesAbsolutePathIsKeptWithDefaults()
 	{
-		string absolutePath = Path.Combine(tempDirectory, "AbsoluteFolder");
+		string absolutePath = Path.Combine(temporaryPath, "AbsoluteFolder");
 		Exclude globalExclude = new(absolutePath, false);
 
 		ICollection<Exclude> originalExcludes = [];
@@ -416,7 +416,7 @@ internal sealed class TraversalContextTests
 			new(globalExcludesWithDefaults, excludesCopy);
 
 		ICollection<Exclude>? result =
-			localTraversalContext.ExpandGlobalExcludes(tempDirectory);
+			localTraversalContext.ExpandGlobalExcludes(temporaryPath);
 		Exclude? exclude = result!.FirstOrDefault();
 
 		Assert.That(result, Has.Count.EqualTo(7));
@@ -460,7 +460,7 @@ internal sealed class TraversalContextTests
 			new(globalExcludes, excludesCopy);
 
 		ICollection<Exclude>? result =
-			localTraversalContext.ExpandGlobalExcludes(tempDirectory);
+			localTraversalContext.ExpandGlobalExcludes(temporaryPath);
 
 		Assert.That(result, Has.Count.EqualTo(2));
 	}
@@ -491,7 +491,7 @@ internal sealed class TraversalContextTests
 			new(globalExcludesWithDefaults, excludesCopy);
 
 		ICollection<Exclude>? result =
-			localTraversalContext.ExpandGlobalExcludes(tempDirectory);
+			localTraversalContext.ExpandGlobalExcludes(temporaryPath);
 
 		Assert.That(result, Has.Count.EqualTo(8));
 	}
@@ -507,7 +507,7 @@ internal sealed class TraversalContextTests
 	public void NormalizePathReturnsFullyQualifiedPath()
 	{
 		string? result =
-			TraversalContext.NormalizePath(existingFilePath, tempDirectory);
+			TraversalContext.NormalizePath(existingFilePath, temporaryPath);
 
 		Assert.That(result, Is.Not.Null);
 
@@ -522,7 +522,7 @@ internal sealed class TraversalContextTests
 	[Test]
 	public void NormalizePathNonExistingDirectoryReturnsTrue()
 	{
-		string? result = TraversalContext.NormalizePath(objPath, tempDirectory);
+		string? result = TraversalContext.NormalizePath(objPath, temporaryPath);
 
 		Assert.That(result, Is.Not.Null);
 
@@ -538,7 +538,7 @@ internal sealed class TraversalContextTests
 	public void NormalizePathNonExistingFileReturnsTrue()
 	{
 		string? result =
-			TraversalContext.NormalizePath("somefile.txt", tempDirectory);
+			TraversalContext.NormalizePath("somefile.txt", temporaryPath);
 
 		Assert.That(result, Is.Not.Null);
 
@@ -554,7 +554,7 @@ internal sealed class TraversalContextTests
 	public void NormalizePathAlreadyFullyQualifiedReturnsSame()
 	{
 		string? result = TraversalContext.NormalizePath(
-			existingDirectoryPath, tempDirectory);
+			existingDirectoryPath, temporaryPath);
 
 		Assert.That(result, Is.EqualTo(existingDirectoryPath));
 	}
@@ -569,11 +569,11 @@ internal sealed class TraversalContextTests
 
 		try
 		{
-			Directory.SetCurrentDirectory(tempDirectory);
+			Directory.SetCurrentDirectory(temporaryPath);
 			string relativePath = "TestFolder";
 
 			string? result =
-				TraversalContext.NormalizePath(relativePath, tempDirectory);
+				TraversalContext.NormalizePath(relativePath, temporaryPath);
 
 			Assert.That(result, Is.Not.Null);
 			Assert.That(Path.IsPathFullyQualified(result!), Is.True);
