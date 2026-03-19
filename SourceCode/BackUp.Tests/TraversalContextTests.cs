@@ -28,9 +28,62 @@ internal sealed class TraversalContextTests
 	private string clientsPath;
 	private string existingDirectoryPath;
 	private string existingFilePath;
+	private List<string> globalExcludesWithDefaults = [];
 	private string objPath;
+	private Settings settngsWithDefaults;
 	private string tempDirectory;
+	private string testFixtureDirectory;
 	private TraversalContext traversalContext;
+
+	/// <summary>
+	/// The one time setup method.
+	/// </summary>
+	[OneTimeSetUp]
+	public void OneTimeSetUp()
+	{
+		string tempBaseDirectory = Path.GetTempPath();
+		string randomName = Path.GetRandomFileName();
+
+		testFixtureDirectory = Path.Combine(tempBaseDirectory, randomName);
+		Directory.CreateDirectory(testFixtureDirectory);
+
+		string settingsPath = Path.Combine(
+			testFixtureDirectory,
+			"Settings.json");
+
+		string settingsData = "{\n\t\"GlobalExcludes\":\n" +
+			"\t[\n\t\t\"_svn\", \".svn\", \".vs\", \"node_modules\", " +
+			"\"obj\", \"vendor\"\n\t]\n}\n";
+
+		File.WriteAllText(settingsPath, settingsData);
+
+		SettingsManager settingsManager = new(settingsPath);
+		settingsManager.Load();
+
+		settngsWithDefaults = settingsManager.Settings;
+
+		IReadOnlyCollection<string> defaultGlobalExcludes =
+			settngsWithDefaults.GlobalExcludes;
+
+		if (defaultGlobalExcludes != null)
+		{
+			globalExcludesWithDefaults = defaultGlobalExcludes.ToList();
+		}
+	}
+
+	/// <summary>
+	/// One time tear down method.
+	/// </summary>
+	[OneTimeTearDown]
+	public void BaseOneTimeTearDown()
+	{
+		bool result = Directory.Exists(testFixtureDirectory);
+
+		if (result == true)
+		{
+			Directory.Delete(testFixtureDirectory, true);
+		}
+	}
 
 	/// <summary>
 	/// Initializes the test environment by setting up temporary file paths for
@@ -60,7 +113,6 @@ internal sealed class TraversalContextTests
 		objPath = Path.Combine(root, "Data", "obj");
 
 		SettingsManager settingsManager = new();
-		settingsManager.Load();
 
 		List<string> globalExcludes = [];
 
@@ -175,6 +227,25 @@ internal sealed class TraversalContextTests
 
 		ICollection<Exclude>? globalExcludes =
 			traversalContext.ExpandGlobalExcludes(tempDirectory);
+		Assert.That(globalExcludes, Has.Count.EqualTo(0));
+	}
+
+	/// <summary>
+	/// The expand global excludes has default amount test verifies that the
+	/// traversal context correctly expands global excludes to their fully
+	/// qualified paths and that the expected number of global excludes are
+	/// present after expansion test.
+	/// </summary>
+	[Test]
+	public void ExpandGlobalExcludesHasDefaultAmountWithDefaults()
+	{
+		ICollection<Exclude> excludes = [];
+		TraversalContext localTraversalContext = new(
+			globalExcludesWithDefaults,
+			excludes);
+
+		ICollection<Exclude>? globalExcludes =
+			localTraversalContext.ExpandGlobalExcludes(tempDirectory);
 		Assert.That(globalExcludes, Has.Count.EqualTo(6));
 	}
 
@@ -192,7 +263,6 @@ internal sealed class TraversalContextTests
 	public void ExpandGlobalExcludesRelativePathExpanded()
 	{
 		SettingsManager settingsManager = new();
-		settingsManager.Load();
 
 		const string relativeName = "SomeFolder";
 		string tempSubDirectory = Path.Combine(tempDirectory, relativeName);
@@ -212,6 +282,52 @@ internal sealed class TraversalContextTests
 			globalExcludes = settings.GlobalExcludes.ToList();
 		}
 
+		globalExcludes.Add(relativeName);
+
+		ICollection<Exclude> excludes = [];
+		TraversalContext localTraversalContext = new(
+			globalExcludes,
+			excludes);
+
+		ICollection<Exclude>? result =
+			localTraversalContext.ExpandGlobalExcludes(tempDirectory);
+
+		string expected = Path.GetFullPath(
+			Path.Combine(tempDirectory, relativeName));
+
+		Exclude exclude = result!.LastOrDefault()!;
+		string? lastPath = exclude.Path;
+
+		Assert.That(result, Has.Count.EqualTo(1));
+		Assert.That(lastPath, Is.EqualTo(expected));
+	}
+
+	/// <summary>
+	/// Verifies that a global exclude entry with a relative path is correctly
+	/// expanded to its full path when processed by the ExpandGlobalExcludes
+	/// method.
+	/// </summary>
+	/// <remarks>This test ensures that the ExpandGlobalExcludes method
+	/// resolves relative paths in global exclude entries based on the provided
+	/// temporary directory, resulting in the expected absolute path. It
+	/// validates correct path expansion behavior for global excludes.
+	/// </remarks>
+	[Test]
+	public void ExpandGlobalExcludesRelativePathExpandedWithDefaults()
+	{
+		SettingsManager settingsManager = new();
+		settingsManager.Load();
+
+		const string relativeName = "SomeFolder";
+		string tempSubDirectory = Path.Combine(tempDirectory, relativeName);
+		Directory.CreateDirectory(tempSubDirectory);
+
+		Exclude globalExclude = new(relativeName, false);
+
+		IReadOnlyCollection<string> globalExcludesRaw =
+			settingsManager.Settings.GlobalExcludes;
+
+		List<string> globalExcludes = globalExcludesWithDefaults.ToList();
 		globalExcludes.Add(relativeName);
 
 		ICollection<Exclude> excludes = [];
@@ -251,7 +367,6 @@ internal sealed class TraversalContextTests
 		excludesCopy.Add(globalExclude);
 
 		SettingsManager settingsManager = new();
-		settingsManager.Load();
 
 		List<string> globalExcludes = [];
 
@@ -264,6 +379,41 @@ internal sealed class TraversalContextTests
 
 		TraversalContext localTraversalContext =
 			new(globalExcludes, excludesCopy);
+
+		ICollection<Exclude>? result =
+			localTraversalContext.ExpandGlobalExcludes(tempDirectory);
+		Exclude? exclude = result!.FirstOrDefault();
+
+		Assert.That(result, Has.Count.EqualTo(1));
+		Assert.That(exclude, Is.Not.Null);
+
+		string newPath = Path.GetFullPath(absolutePath);
+		Assert.That(exclude.Path, Is.EqualTo(newPath));
+	}
+
+	/// <summary>
+	/// Verifies that expanding global excludes preserves the absolute path of
+	/// a global exclude entry.
+	/// </summary>
+	/// <remarks>This test ensures that when an absolute path is specified as a
+	/// global exclude, the expansion process maintains the path as absolute
+	/// and does not alter its format. This is important for correct exclusion
+	/// behavior when working with file system paths.</remarks>
+	[Test]
+	public void ExpandGlobalExcludesAbsolutePathIsKeptWithDefaults()
+	{
+		string absolutePath = Path.Combine(tempDirectory, "AbsoluteFolder");
+		Exclude globalExclude = new(absolutePath, false);
+
+		ICollection<Exclude> originalExcludes = [];
+		List<Exclude> excludesCopy = originalExcludes.ToList();
+		excludesCopy.Add(globalExclude);
+
+		SettingsManager settingsManager = new();
+		settingsManager.Load();
+
+		TraversalContext localTraversalContext =
+			new(globalExcludesWithDefaults, excludesCopy);
 
 		ICollection<Exclude>? result =
 			localTraversalContext.ExpandGlobalExcludes(tempDirectory);
@@ -296,7 +446,6 @@ internal sealed class TraversalContextTests
 		excludesCopy.Add(item);
 
 		SettingsManager settingsManager = new();
-		settingsManager.Load();
 
 		List<string> globalExcludes = [];
 
@@ -309,6 +458,37 @@ internal sealed class TraversalContextTests
 
 		TraversalContext localTraversalContext =
 			new(globalExcludes, excludesCopy);
+
+		ICollection<Exclude>? result =
+			localTraversalContext.ExpandGlobalExcludes(tempDirectory);
+
+		Assert.That(result, Has.Count.EqualTo(2));
+	}
+
+	/// <summary>
+	/// Verifies that the ExpandGlobalExcludes method correctly expands
+	/// multiple global excludes and returns all expected excludes for the
+	/// specified directory.
+	/// </summary>
+	/// <remarks>This test ensures that when multiple global excludes are
+	/// provided, the method returns a list containing all of them. It is
+	/// useful for validating that the exclude expansion logic accounts for all
+	/// global entries as intended.</remarks>
+	[Test]
+	public void ExpandGlobalExcludesAllExpandedWithDefaults()
+	{
+		Exclude item = new Exclude("FolderA", false);
+
+		ICollection<Exclude> originalExcludes = [];
+		List<Exclude> excludesCopy = originalExcludes.ToList();
+		excludesCopy.Add(item);
+		excludesCopy.Add(item);
+
+		SettingsManager settingsManager = new();
+		settingsManager.Load();
+
+		TraversalContext localTraversalContext =
+			new(globalExcludesWithDefaults, excludesCopy);
 
 		ICollection<Exclude>? result =
 			localTraversalContext.ExpandGlobalExcludes(tempDirectory);
