@@ -1,0 +1,18 @@
+<Solution>
+
+	<Configurations>
+		<Platform Name="Any CPU" />
+		<Platform Name="x64" />
+		<Platform Name="x86" />
+	</Configurations>
+	<Folder Name="/Solution Items/">
+		<File Path="../.github/workflows/dotnet.yml" />
+		<File Path="../README.md" />
+		<File Path=".editorconfig" />
+		<File Path="Directory.Build.props" />
+	</Folder>
+	<Project Path="BackUp.Library/DigitalZenWorks.BackUp.Library.csproj" />
+	<Project Path="BackUp.Tests/BackUp.Tests.csproj" />
+	<Project Path="BackUpManager/BackUpManager.csproj" />
+
+</Solution>
