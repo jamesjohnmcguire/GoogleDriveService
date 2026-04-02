@@ -1,3 +1,6 @@
+@ECHO OFF
+SETLOCAL
+
 CD %~dp0
 CD ..\SourceCode
 
@@ -6,15 +9,18 @@ IF "%1"=="release" GOTO publish
 
 :default
 ECHO Cleaning...
-dotnet clean /p:Platform="Any CPU"
+dotnet clean
 
-ECHO .
+ECHO.
 ECHO Building...
-dotnet build /p:Platform="Any CPU" -restore
+dotnet build -restore
 
-ECHO .
+ECHO.
 ECHO Testing...
-dotnet test /p:Platform="Any CPU"
+dotnet test
+
+CALL clean.cmd
+
 GOTO :EOF
 
 :publish
@@ -44,3 +50,5 @@ MOVE BackUpManager-win-x64.zip ..
 
 CD ..
 gh release create v%2 --notes %3 *.zip
+
+ENDLOCAL
