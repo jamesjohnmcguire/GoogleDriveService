@@ -5,8 +5,15 @@ IF "%1"=="publish" GOTO publish
 IF "%1"=="release" GOTO publish
 
 :default
+ECHO Cleaning...
 dotnet clean /p:Platform="Any CPU"
-dotnet build /p:Platform="Any CPU"
+
+ECHO .
+ECHO Building...
+dotnet build /p:Platform="Any CPU" -restore
+
+ECHO .
+ECHO Testing...
 dotnet test /p:Platform="Any CPU"
 GOTO :EOF
 
