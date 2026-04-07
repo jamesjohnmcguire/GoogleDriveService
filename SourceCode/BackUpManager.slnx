@@ -11,8 +11,9 @@
 		<File Path=".editorconfig" />
 		<File Path="Directory.Build.props" />
 	</Folder>
+
+	<Project Path="BackUpManager/BackUpManager.csproj" />
 	<Project Path="BackUp.Library/DigitalZenWorks.BackUp.Library.csproj" />
 	<Project Path="BackUp.Tests/BackUp.Tests.csproj" />
-	<Project Path="BackUpManager/BackUpManager.csproj" />
 
 </Solution>
