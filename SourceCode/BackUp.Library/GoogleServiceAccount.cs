@@ -366,7 +366,7 @@ public class GoogleServiceAccount(
 	{
 		if (disposing)
 		{
-			googleDrive.Dispose();
+			googleDrive?.Dispose();
 			googleDrive = null;
 		}
 	}
