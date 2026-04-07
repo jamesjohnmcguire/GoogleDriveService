@@ -60,33 +60,7 @@ public class BackUpService(ILogger<BackUpService> logger = null)
 			{
 				foreach (Account accountData in accounts)
 				{
-					try
-					{
-						string name = accountData.AccountIdentifier;
-						string message = "Backing up to account: " + name;
-						Log.Information(logger, message);
-
-						switch (accountData.AccountType)
-						{
-							case AccountType.GoogleServiceAccount:
-							{
-								using GoogleServiceAccount account =
-									new(accountData, Settings, logger);
-
-								account.IgnoreAbandoned = IgnoreAbandoned;
-
-								await account.BackUp().ConfigureAwait(false);
-								break;
-							}
-
-							default:
-								break;
-						}
-					}
-					catch (System.Net.Http.HttpRequestException exception)
-					{
-						Log.Error(logger, "HTTP Error", exception);
-					}
+					await BackUpAccount(accountData).ConfigureAwait(false);
 				}
 			}
 		}
@@ -106,5 +80,36 @@ public class BackUpService(ILogger<BackUpService> logger = null)
 	{
 		this.path = path;
 		parentId = serviceDestinationId;
+	}
+
+	private async Task BackUpAccount(Account accountData)
+	{
+		try
+		{
+			string name = accountData.AccountIdentifier;
+			string message = "Backing up to account: " + name;
+			Log.Information(logger, message);
+
+			switch (accountData.AccountType)
+			{
+				case AccountType.GoogleServiceAccount:
+					{
+						using GoogleServiceAccount account =
+							new(accountData, Settings, logger);
+
+						account.IgnoreAbandoned = IgnoreAbandoned;
+
+						await account.BackUp().ConfigureAwait(false);
+						break;
+					}
+
+				default:
+					break;
+			}
+		}
+		catch (System.Net.Http.HttpRequestException exception)
+		{
+			Log.Error(logger, "HTTP Error", exception);
+		}
 	}
 }
