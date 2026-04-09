@@ -37,4 +37,8 @@
 		<AdditionalFiles Include="../stylecop.json" />
 	</ItemGroup>
 
+	<ItemGroup>
+	  <ProjectReference Include="..\LoggingFoundation\LoggingService\LoggingService.csproj" />
+	</ItemGroup>
+
 </Project>

@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
 	<PropertyGroup>
 		<AssemblyVersion>1.0.0.0</AssemblyVersion>
@@ -36,6 +36,7 @@
 
 	<ItemGroup>
 		<ProjectReference Include="..\BackUp.Library\DigitalZenWorks.BackUp.Library.csproj" />
+		<ProjectReference Include="..\LoggingFoundation\LoggingService\LoggingService.csproj" />
 	</ItemGroup>
 
 	<ItemGroup>

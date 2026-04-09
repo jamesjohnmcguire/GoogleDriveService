@@ -15,5 +15,6 @@
 	<Project Path="BackUpManager/BackUpManager.csproj" />
 	<Project Path="BackUp.Library/DigitalZenWorks.BackUp.Library.csproj" />
 	<Project Path="BackUp.Tests/BackUp.Tests.csproj" />
+	<Project Path="LoggingFoundation/LoggingService/LoggingService.csproj" />
 
 </Solution>
