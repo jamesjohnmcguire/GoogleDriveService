@@ -1,0 +1,3 @@
+[submodule "SourceCode/LoggingFoundation"]
+	path = SourceCode/LoggingFoundation
+	url = https://github.com/jamesjohnmcguire/LoggingFoundation
