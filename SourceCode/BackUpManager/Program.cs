@@ -16,7 +16,9 @@ using System.Threading.Tasks;
 using DigitalZenWorks.BackUp.Library;
 using DigitalZenWorks.CommandLine.Commands;
 using DigitalZenWorks.Common.VersionUtilities;
+using LoggingService;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using Serilog;
 using Serilog.Configuration;
 using Serilog.Events;
@@ -95,15 +97,26 @@ internal static class Program
 
 	private static ServiceProvider ConfigureServices()
 	{
+		string applicationDataDirectory =
+			Configuration.GetDefaultDataLocation();
+
+		string logFilePath =
+			Path.Combine(applicationDataDirectory, "BackUp.log");
+
+		LogService.Configure(logFilePath);
+
 		ServiceCollection serviceCollection = new();
 
-		serviceCollection.AddLogging(config => config.AddSerilog())
-			.AddTransient<BackUpService>();
+		serviceCollection.AddLogging(builder =>
+		{
+			builder.ClearProviders();
+			builder.AddSerilog(Log.Logger);
+		});
+
+		serviceCollection.AddTransient<BackUpService>();
 
 		ServiceProvider serviceProvider =
 			serviceCollection.BuildServiceProvider();
-
-		LogInitialization();
 
 		return serviceProvider;
 	}
