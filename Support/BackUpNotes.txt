@@ -457,9 +457,9 @@ Tests
 		Test for Path exists
 		Test for Path not exists
 		Test for Path is relative
-BackUpManager
+Testing
 	BackUpManager --config C:\Users\JamesMc\AppData\Roaming\DigitalZenWorks\BackUpManager\BackUp.json
-
+Logging
 	https://github.com/jamesjohnmcguire/LoggingFoundation
 	LoggingFoundatation
 		Add exception logging
@@ -481,3 +481,22 @@ BackUpManager
 			message = exception.ToString();
 			Error(logger, message);
 		}
+
+	[LoggerMessage(
+		EventId = 10,
+		Level = LogLevel.Error,
+		Message = "Exception in {caller} at line {lineNumber}")]
+	public static partial void ExceptionOccurred(
+		this ILogger logger,
+		Exception exception,
+		string caller,
+		int lineNumber);
+
+		public static void Exception(
+		this ILogger logger,
+		Exception exception,
+		[CallerMemberName] string caller = "",
+		[CallerLineNumber] int lineNumber = 0)
+	{
+		ExceptionOccurred(logger, exception, caller, lineNumber);
+	}
