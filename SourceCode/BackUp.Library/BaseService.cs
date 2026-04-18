@@ -84,7 +84,11 @@ public abstract class BaseService(
 
 		bool isSymLink = IsSymLink(path);
 
-		if (isSymLink == false && excludes != null)
+		if (isSymLink == true)
+		{
+			processItem = false;
+		}
+		else if (excludes != null)
 		{
 			foreach (Exclude exclude in excludes)
 			{
@@ -162,7 +166,7 @@ public abstract class BaseService(
 		bool hasReparsePoint =
 			directoryInfo.Attributes.HasFlag(FileAttributes.ReparsePoint);
 
-		if (hasReparsePoint == false || directoryInfo.LinkTarget != null)
+		if (hasReparsePoint == true || directoryInfo.LinkTarget != null)
 		{
 			isSymLink = true;
 		}
