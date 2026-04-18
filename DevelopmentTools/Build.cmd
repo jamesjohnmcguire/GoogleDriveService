@@ -19,7 +19,6 @@ ECHO.
 ECHO Testing...
 dotnet test
 
-
 IF /I "%1"=="clean" GOTO clean
 GOTO :EOF
 
