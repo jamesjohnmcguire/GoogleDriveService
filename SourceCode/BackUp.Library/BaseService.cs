@@ -6,12 +6,10 @@
 
 namespace DigitalZenWorks.BackUp.Library;
 
-using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Runtime;
-
+using Microsoft.Extensions.Logging;
 
 #nullable enable
 /// <summary>
