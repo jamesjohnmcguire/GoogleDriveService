@@ -25,15 +25,15 @@ using NUnit.Framework;
 [TestFixture]
 internal sealed class TraversalContextTests
 {
-	private string clientsPath;
-	private string existingDirectoryPath;
-	private string existingFilePath;
+	private string? clientsPath;
+	private string? existingDirectoryPath;
+	private string? existingFilePath;
 	private List<string> globalExcludesWithDefaults = [];
-	private string objPath;
-	private Settings settngsWithDefaults;
-	private string temporaryPath;
-	private string testFixtureDirectory;
-	private TraversalContext traversalContext;
+	private string? objPath;
+	private Settings? settngsWithDefaults;
+	private string? temporaryPath;
+	private string? testFixtureDirectory;
+	private TraversalContext? traversalContext;
 
 	/// <summary>
 	/// Performs one-time setup for the test fixture, creating a temporary
