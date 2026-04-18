@@ -6,12 +6,14 @@
 
 namespace DigitalZenWorks.BackUp.Library;
 
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
-using Microsoft.Extensions.Logging;
+using System.IO;
+using System.Runtime;
+
 
 #nullable enable
-
 /// <summary>
 /// Account Service class.
 /// </summary>
@@ -82,7 +84,9 @@ public abstract class BaseService(
 
 		ArgumentNullException.ThrowIfNull(path);
 
-		if (excludes != null)
+		bool isSymLink = IsSymLink(path);
+
+		if (isSymLink == false && excludes != null)
 		{
 			foreach (Exclude exclude in excludes)
 			{
@@ -150,5 +154,21 @@ public abstract class BaseService(
 		}
 
 		return exclude;
+	}
+
+	private static bool IsSymLink(string path)
+	{
+		bool isSymLink = false;
+		DirectoryInfo directoryInfo = new(path);
+
+		bool hasReparsePoint =
+			directoryInfo.Attributes.HasFlag(FileAttributes.ReparsePoint);
+
+		if (hasReparsePoint == false || directoryInfo.LinkTarget != null)
+		{
+			isSymLink = true;
+		}
+
+		return isSymLink;
 	}
 }
