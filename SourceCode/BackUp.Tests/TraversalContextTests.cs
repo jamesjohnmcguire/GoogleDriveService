@@ -36,8 +36,13 @@ internal sealed class TraversalContextTests
 	private TraversalContext traversalContext;
 
 	/// <summary>
-	/// The one time setup method.
+	/// Performs one-time setup for the test fixture, creating a temporary
+	/// directory and initializing test settings before any tests are run.
 	/// </summary>
+	/// <remarks>This method is executed once before any tests in the fixture
+	/// are run. It prepares a unique temporary directory and settings file to
+	/// ensure test isolation and consistent configuration across test
+	/// runs.</remarks>
 	[OneTimeSetUp]
 	public void OneTimeSetUp()
 	{
@@ -72,8 +77,13 @@ internal sealed class TraversalContextTests
 	}
 
 	/// <summary>
-	/// One time tear down method.
+	/// Performs cleanup operations after all tests in the fixture have run by
+	/// deleting the test fixture directory if it exists.
 	/// </summary>
+	/// <remarks>This method is intended to be used as a one-time teardown in
+	/// test fixtures to ensure that any temporary directories created during
+	/// testing are removed. It should be used in conjunction with the NUnit
+	/// [OneTimeTearDown] attribute.</remarks>
 	[OneTimeTearDown]
 	public void BaseOneTimeTearDown()
 	{
