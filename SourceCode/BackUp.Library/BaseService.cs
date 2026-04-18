@@ -78,26 +78,44 @@ public abstract class BaseService(
 	internal static bool ShouldProcessItem(
 		string path, ICollection<Exclude> excludes)
 	{
-		bool processItem = true;
+		bool processItem = false;
 
 		ArgumentNullException.ThrowIfNull(path);
 
-		bool isSymLink = IsSymLink(path);
+		bool exists = File.Exists(path) || Directory.Exists(path);
 
-		if (isSymLink == true)
+		if (exists == true)
 		{
-			processItem = false;
-		}
-		else if (excludes != null)
-		{
-			foreach (Exclude exclude in excludes)
+			bool isSymLink = IsSymLink(path);
+
+			if (isSymLink == false)
 			{
-				bool isMatch = TraversalContext.IsExcludeMatch(path, exclude);
-
-				if (isMatch == true)
+				if (excludes == null)
 				{
-					processItem = false;
-					break;
+					// An awkward and unlikely edge case, but if excludes
+					// is null, then we should process the item.
+					processItem = true;
+				}
+				else
+				{
+					bool isMatch = false;
+
+					foreach (Exclude exclude in excludes)
+					{
+						bool itemCheck =
+							TraversalContext.IsExcludeMatch(path, exclude);
+
+						if (itemCheck == true)
+						{
+							isMatch = true;
+							break;
+						}
+					}
+
+					if (isMatch == false)
+					{
+						processItem = true;
+					}
 				}
 			}
 		}
