@@ -19,22 +19,52 @@ using NUnit.Framework;
 [TestFixture]
 internal sealed class ShouldProcessItemTests
 {
-	private string dataPath;
-	private string nodeModulesPath;
-	private string objPath;
-	private string root;
+	private string? dataPath;
+	private string? nodeModulesPath;
+	private string? objPath;
+	private string? root;
 
 	/// <summary>
-	/// Initializes various paths for use in each test run.
+	/// Initializes the test environment by creating required temporary
+	/// directories before any tests are run.
 	/// </summary>
-	[SetUp]
-	public void SetUp()
+	/// <remarks>This method is executed once before any tests in the test
+	/// fixture. It sets up OS-agnostic paths for test data and dependencies,
+	/// ensuring that the necessary directory structure exists for subsequent
+	/// tests.</remarks>
+	[OneTimeSetUp]
+	public void OneTimeSetUp()
 	{
 		// Build OS-agnostic paths from the temp directory root
 		root = Path.GetTempPath();
 		dataPath = Path.Combine(root, "Data");
 		nodeModulesPath = Path.Combine(dataPath, "node_modules");
+		Directory.CreateDirectory(nodeModulesPath);
+
 		objPath = Path.Combine(dataPath, "obj");
+		Directory.CreateDirectory(objPath);
+	}
+
+	/// <summary>
+	/// Performs cleanup operations after all tests in the test fixture have
+	/// run by deleting temporary directories used during testing.
+	/// </summary>
+	/// <remarks>This method is intended to be used as a one-time teardown in
+	/// test fixtures to ensure that any temporary files or directories created
+	/// during test execution are removed. It should be decorated with the
+	/// [OneTimeTearDown] attribute when used with NUnit.</remarks>
+	[OneTimeTearDown]
+	public void BaseOneTimeTearDown()
+	{
+		if (Directory.Exists(nodeModulesPath))
+		{
+			Directory.Delete(nodeModulesPath, recursive: true);
+		}
+
+		if (Directory.Exists(objPath))
+		{
+			Directory.Delete(objPath, recursive: true);
+		}
 	}
 
 	/// <summary>
@@ -43,9 +73,10 @@ internal sealed class ShouldProcessItemTests
 	[Test]
 	public void NullExcludesReturnsTrue()
 	{
-#pragma warning disable CS8625 // Cannot convert null literal to non-nullable reference type.
+		// Cannot convert null literal to non-nullable reference type.
+#pragma warning disable CS8625
 		bool result = BaseService.ShouldProcessItem(dataPath, null);
-#pragma warning restore CS8625 // Cannot convert null literal to non-nullable reference type.
+#pragma warning restore CS8625
 
 		Assert.That(result, Is.True);
 	}
@@ -99,6 +130,7 @@ internal sealed class ShouldProcessItemTests
 	{
 		// "obj" should not match "objstore" or "myobj"
 		string partialMatch = Path.Combine(dataPath, "objstore");
+		Directory.CreateDirectory(partialMatch);
 
 		ICollection<Exclude> excludes = [];
 
@@ -106,6 +138,11 @@ internal sealed class ShouldProcessItemTests
 		excludes.Add(exclude);
 
 		bool result = BaseService.ShouldProcessItem(partialMatch, excludes);
+
+		if (Directory.Exists(partialMatch))
+		{
+			Directory.Delete(partialMatch);
+		}
 
 		Assert.That(result, Is.True);
 	}
@@ -174,12 +211,18 @@ internal sealed class ShouldProcessItemTests
 	public void ExcludeInMiddleOfPathReturnsTrue()
 	{
 		string subFolder = Path.Combine(objPath, "Debug", "net8.0");
+		Directory.CreateDirectory(subFolder);
 
 		ICollection<Exclude> excludes = [];
 		Exclude exclude = new("obj", false);
 		excludes.Add(exclude);
 
 		bool result = BaseService.ShouldProcessItem(subFolder, excludes);
+
+		if (Directory.Exists(subFolder))
+		{
+			Directory.Delete(subFolder);
+		}
 
 		// The subfolder itself doesn't match "obj" by name,
 		// so this returns true — subtree skipping is the caller's job.

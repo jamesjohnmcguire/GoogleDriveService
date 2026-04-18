@@ -8,10 +8,10 @@ namespace DigitalZenWorks.BackUp.Library;
 
 using System;
 using System.Collections.Generic;
+using System.IO;
 using Microsoft.Extensions.Logging;
 
 #nullable enable
-
 /// <summary>
 /// Account Service class.
 /// </summary>
@@ -78,20 +78,44 @@ public abstract class BaseService(
 	internal static bool ShouldProcessItem(
 		string path, ICollection<Exclude> excludes)
 	{
-		bool processItem = true;
+		bool processItem = false;
 
 		ArgumentNullException.ThrowIfNull(path);
 
-		if (excludes != null)
-		{
-			foreach (Exclude exclude in excludes)
-			{
-				bool isMatch = TraversalContext.IsExcludeMatch(path, exclude);
+		bool exists = File.Exists(path) || Directory.Exists(path);
 
-				if (isMatch == true)
+		if (exists == true)
+		{
+			bool isSymLink = IsSymLink(path);
+
+			if (isSymLink == false)
+			{
+				if (excludes == null)
 				{
-					processItem = false;
-					break;
+					// An awkward and unlikely edge case, but if excludes
+					// is null, then we should process the item.
+					processItem = true;
+				}
+				else
+				{
+					bool isMatch = false;
+
+					foreach (Exclude exclude in excludes)
+					{
+						bool itemCheck =
+							TraversalContext.IsExcludeMatch(path, exclude);
+
+						if (itemCheck == true)
+						{
+							isMatch = true;
+							break;
+						}
+					}
+
+					if (isMatch == false)
+					{
+						processItem = true;
+					}
 				}
 			}
 		}
@@ -150,5 +174,21 @@ public abstract class BaseService(
 		}
 
 		return exclude;
+	}
+
+	private static bool IsSymLink(string path)
+	{
+		bool isSymLink = false;
+		DirectoryInfo directoryInfo = new(path);
+
+		bool hasReparsePoint =
+			directoryInfo.Attributes.HasFlag(FileAttributes.ReparsePoint);
+
+		if (hasReparsePoint == true || directoryInfo.LinkTarget != null)
+		{
+			isSymLink = true;
+		}
+
+		return isSymLink;
 	}
 }

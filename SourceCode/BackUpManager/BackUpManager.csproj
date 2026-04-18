@@ -3,12 +3,12 @@
 	<PropertyGroup>
 		<AssemblyVersion>1.0.0.0</AssemblyVersion>
 		<Authors>James John McGuire</Authors>
-		<FileVersion>1.8.248.0</FileVersion>
+		<FileVersion>1.9.251.0</FileVersion>
 		<GenerateDocumentationFile>true</GenerateDocumentationFile>
 		<NeutralLanguage>en-US</NeutralLanguage>
 		<OutputType>Exe</OutputType>
 		<TargetFramework>net10.0</TargetFramework>
-		<Version>1.8.248</Version>
+		<Version>1.9.251</Version>
 	</PropertyGroup>
 
 	<ItemGroup>
