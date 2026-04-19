@@ -6,21 +6,20 @@
 
 namespace DigitalZenWorks.BackUp.Library;
 
+using System;
+using System.Collections.Generic;
+using System.Globalization;
+using System.IO;
+using System.Reflection;
+using System.Threading;
+using System.Threading.Tasks;
 using Google.Apis.Auth.OAuth2;
 using Google.Apis.Drive.v3;
 using Google.Apis.Services;
 using Google.Apis.Upload;
 using LoggingService;
 using Microsoft.Extensions.Logging;
-using Serilog;
-using System;
-using System.Collections.Generic;
-using System.Globalization;
-using System.IO;
-using System.Reflection;
-using System.Runtime.CompilerServices;
-using System.Threading;
-using System.Threading.Tasks;
+
 using GoogleDriveFile = Google.Apis.Drive.v3.Data.File;
 
 /// <summary>
@@ -280,7 +279,6 @@ public class GoogleDrive(ILogger<BackUpService> logger = null)
 		string parentId, string itemName, string mimeType)
 	{
 		string itemId = null;
-		bool found = false;
 
 		IList<GoogleDriveFile> serverFiles =
 			await GetFilesAsync(parentId, false).ConfigureAwait(false);
@@ -291,7 +289,7 @@ public class GoogleDrive(ILogger<BackUpService> logger = null)
 			{
 				if (file.MimeType.Equals(mimeType, StringComparison.Ordinal))
 				{
-					found =
+					bool found =
 						file.Name.Equals(itemName, StringComparison.Ordinal);
 
 					if (found == true)
