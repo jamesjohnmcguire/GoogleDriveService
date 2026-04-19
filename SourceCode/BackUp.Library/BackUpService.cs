@@ -8,9 +8,9 @@
 
 namespace DigitalZenWorks.BackUp.Library;
 
-using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using LoggingService;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 
@@ -54,7 +54,7 @@ public class BackUpService(ILogger<BackUpService> logger = null)
 
 			if ((accounts == null) || (accounts.Count == 0))
 			{
-				Log.Error(logger, "No accounts information", null);
+				logger.Error("No accounts information");
 			}
 			else
 			{
@@ -66,7 +66,8 @@ public class BackUpService(ILogger<BackUpService> logger = null)
 		}
 		catch (JsonException exception)
 		{
-			Log.Error(logger, "Accounts File Malformed", exception);
+			logger.Error("Accounts File Malformed");
+			logger.Exception(exception);
 		}
 	}
 
@@ -88,7 +89,7 @@ public class BackUpService(ILogger<BackUpService> logger = null)
 		{
 			string name = accountData.AccountIdentifier;
 			string message = "Backing up to account: " + name;
-			Log.Information(logger, message);
+			logger.Information(message);
 
 			switch (accountData.AccountType)
 			{
@@ -109,7 +110,8 @@ public class BackUpService(ILogger<BackUpService> logger = null)
 		}
 		catch (System.Net.Http.HttpRequestException exception)
 		{
-			Log.Error(logger, "HTTP Error", exception);
+			logger.Error("HTTP Error");
+			logger.Exception(exception);
 		}
 	}
 }

@@ -6,6 +6,13 @@
 
 namespace DigitalZenWorks.BackUp.Library;
 
+using Google.Apis.Auth.OAuth2;
+using Google.Apis.Drive.v3;
+using Google.Apis.Services;
+using Google.Apis.Upload;
+using LoggingService;
+using Microsoft.Extensions.Logging;
+using Serilog;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
@@ -14,11 +21,6 @@ using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
-using Google.Apis.Auth.OAuth2;
-using Google.Apis.Drive.v3;
-using Google.Apis.Services;
-using Google.Apis.Upload;
-using Microsoft.Extensions.Logging;
 using GoogleDriveFile = Google.Apis.Drive.v3.Data.File;
 
 /// <summary>
@@ -160,10 +162,10 @@ public class GoogleDrive(ILogger<BackUpService> logger = null)
 
 		if (string.IsNullOrWhiteSpace(parent))
 		{
-			Log.Error(logger, "GetFiles: parent is empty", null);
+			logger.Error("GetFiles: parent is empty");
 
 			string message = "StackTrace: " + Environment.StackTrace;
-			Log.Error(logger, message, null);
+			logger.Error(message);
 		}
 		else
 		{
@@ -185,7 +187,7 @@ public class GoogleDrive(ILogger<BackUpService> logger = null)
 				"Created Folder ID: {0} Name {1}",
 				file.Id,
 				file.Name);
-			Log.Information(logger, message);
+			logger.Information(message);
 		}
 
 		return file;
@@ -223,7 +225,7 @@ public class GoogleDrive(ILogger<BackUpService> logger = null)
 			"Created Link Id: {0} of: Name {1}",
 			file.Id,
 			file.Name);
-		Log.Information(logger, message);
+		logger.Information(message);
 
 		return file;
 	}
@@ -241,7 +243,7 @@ public class GoogleDrive(ILogger<BackUpService> logger = null)
 			if (file.OwnedByMe == true)
 			{
 				string message = $"Deleting file from Server: {fileName}";
-				Log.Information(logger, message);
+				logger.Information(message);
 
 				FilesResource.DeleteRequest request =
 					driveService.Files.Delete(file.Id);
@@ -253,7 +255,7 @@ public class GoogleDrive(ILogger<BackUpService> logger = null)
 			{
 				string message =
 					$"Attempting to delete a file not owned by me: {fileName}";
-				Log.Warning(logger, message, null);
+				logger.Warning(message);
 			}
 		}
 	}
@@ -301,7 +303,7 @@ public class GoogleDrive(ILogger<BackUpService> logger = null)
 			}
 			catch (Google.GoogleApiException exception)
 			{
-				Log.Exception(logger, exception);
+				logger.Exception(exception);
 			}
 		}
 
@@ -331,7 +333,7 @@ public class GoogleDrive(ILogger<BackUpService> logger = null)
 		}
 		catch (Google.GoogleApiException exception)
 		{
-			Log.Exception(logger, exception);
+			logger.Exception(exception);
 		}
 
 		return found;
@@ -363,10 +365,10 @@ public class GoogleDrive(ILogger<BackUpService> logger = null)
 
 		if (string.IsNullOrWhiteSpace(parent))
 		{
-			Log.Error(logger, "GetFiles: parent is empty", null);
+			logger.Error("GetFiles: parent is empty");
 
 			string message = "StackTrace: " + Environment.StackTrace;
-			Log.Error(logger, message, null);
+			logger.Error(message);
 		}
 		else
 		{
@@ -396,11 +398,11 @@ public class GoogleDrive(ILogger<BackUpService> logger = null)
 							parent,
 							serverFile.Name,
 							files.Count);
-						Log.Information(logger, message);
+						logger.Information(message);
 					}
 					catch (Google.GoogleApiException exception)
 					{
-						Log.Exception(logger, exception);
+						logger.Exception(exception);
 						listRequest.PageToken = null;
 					}
 				}
@@ -424,7 +426,7 @@ public class GoogleDrive(ILogger<BackUpService> logger = null)
 				exception is TaskCanceledException ||
 				exception is UnauthorizedAccessException)
 			{
-				Log.Exception(logger, exception);
+				logger.Exception(exception);
 			}
 		}
 
@@ -454,21 +456,6 @@ public class GoogleDrive(ILogger<BackUpService> logger = null)
 		}
 
 		return serverFolder;
-	}
-
-	/// <summary>
-	/// Log Exception.
-	/// </summary>
-	/// <param name="exception">The exception.</param>
-	/// <param name="caller">The caller.</param>
-	/// <param name="lineNumber">The line number.</param>
-	public void LogException(
-		Exception exception,
-		[CallerMemberName] string caller = null,
-		[CallerLineNumber] int lineNumber = 0)
-	{
-		string message = $"Exception at: {caller}: Line: {lineNumber}";
-		Log.Error(logger, message, exception);
 	}
 
 	/// <summary>
@@ -539,7 +526,7 @@ public class GoogleDrive(ILogger<BackUpService> logger = null)
 			extension.Equals(
 				".gsheet", StringComparison.OrdinalIgnoreCase))
 		{
-			Log.Information(logger, "Changing mime type to application/json");
+			logger.Information("Changing mime type to application/json");
 			mimeType = "application/json";
 		}
 
@@ -554,11 +541,12 @@ public class GoogleDrive(ILogger<BackUpService> logger = null)
 			progress.Status,
 			progress.BytesSent);
 
-		Log.Information(logger, message);
+		logger.Information(message);
 
 		if (progress.Exception != null)
 		{
-			Log.Error(logger, message, progress.Exception);
+			logger.Error(message);
+			logger.Exception(progress.Exception);
 		}
 	}
 
@@ -568,7 +556,7 @@ public class GoogleDrive(ILogger<BackUpService> logger = null)
 		string fileName = SanitizeFileName(file.Name);
 		string message = fileName + " was uploaded successfully";
 
-		Log.Information(logger, message);
+		logger.Information(message);
 	}
 
 	private FilesResource.ListRequest GetListRequest(
@@ -628,16 +616,15 @@ public class GoogleDrive(ILogger<BackUpService> logger = null)
 			}
 			catch (AggregateException exception)
 			{
-				Log.Error(logger, "AggregateException caught", exception);
+				logger.Error("AggregateException caught");
+				logger.Exception(exception);
 
 				foreach (Exception innerExecption in exception.InnerExceptions)
 				{
 					if (innerExecption is TaskCanceledException)
 					{
-						Log.Warning(
-							logger,
-							"TaskCanceledException caught",
-							innerExecption);
+						logger.Warning("TaskCanceledException caught");
+						logger.Exception(innerExecption);
 
 						retries--;
 					}
