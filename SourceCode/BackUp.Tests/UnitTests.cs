@@ -58,7 +58,6 @@ internal sealed class UnitTests
 			path,
 			subDirectories,
 			null,
-			null,
 			null);
 
 		Assert.That(filesRemoved, Is.Zero);

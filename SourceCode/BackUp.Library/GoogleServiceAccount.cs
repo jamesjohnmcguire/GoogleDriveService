@@ -169,7 +169,6 @@ public class GoogleServiceAccount(
 	/// <param name="subDirectories">The sub directories.</param>
 	/// <param name="driveMappings">The drive mappings.</param>
 	/// <param name="serverFiles">The server files.</param>
-	/// <param name="excludes">The collection of excludes.</param>
 	/// <param name="checkDriveMappings">Indicates whether or not to check
 	/// the drive mappings.</param>
 	/// <returns>The amount of files removed.</returns>
@@ -178,7 +177,6 @@ public class GoogleServiceAccount(
 		IList<string> subDirectories,
 		IList<string> driveMappings,
 		IList<GoogleDriveFile> serverFiles,
-		ICollection<Exclude> excludes,
 		bool checkDriveMappings = false)
 	{
 		int removedFilesCount = 0;
@@ -192,7 +190,6 @@ public class GoogleServiceAccount(
 					path,
 					subDirectories,
 					driveMappings,
-					excludes,
 					checkDriveMappings);
 
 				if (removed == true)
@@ -245,7 +242,7 @@ public class GoogleServiceAccount(
 			{
 				driveMapping.ExpandExcludes();
 
-				List<string> globalExcludes = Settings.GlobalExcludes.ToList();
+				List<string> globalExcludes = [.. Settings.GlobalExcludes];
 
 				traversalContext = new TraversalContext(
 					globalExcludes,
@@ -350,7 +347,7 @@ public class GoogleServiceAccount(
 
 		if (IgnoreAbandoned == false)
 		{
-			RemoveAbandonedFiles(path, files, serverFiles, excludes);
+			RemoveAbandonedFiles(files, serverFiles);
 		}
 
 		foreach (FileInfo file in files)
@@ -375,15 +372,11 @@ public class GoogleServiceAccount(
 	/// <summary>
 	/// Remove abandoned files method.
 	/// </summary>
-	/// <param name="parentPath">The parent path.</param>
 	/// <param name="files">The files to back up.</param>
 	/// <param name="serverFiles">The list of server files.</param>
-	/// <param name="excludes">The list of excludes.</param>
 	protected void RemoveAbandonedFiles(
-		string parentPath,
 		FileInfo[] files,
-		IList<GoogleDriveFile> serverFiles,
-		ICollection<Exclude> excludes)
+		IList<GoogleDriveFile> serverFiles)
 	{
 		if (serverFiles != null)
 		{
@@ -510,7 +503,7 @@ public class GoogleServiceAccount(
 						if (IgnoreAbandoned == false)
 						{
 							RemoveAbandonedFolders(
-								path, paths, null, thisServerFiles, expandedExcludes);
+								path, paths, null, thisServerFiles);
 						}
 
 						DirectoryInfo directoryInfo = new(path);
@@ -642,7 +635,6 @@ public class GoogleServiceAccount(
 		string path,
 		IList<string> subDirectories,
 		IList<string> driveMappings,
-		ICollection<Exclude> excludes,
 		bool checkDriveMappings = false)
 	{
 		bool removed = false;
@@ -691,7 +683,6 @@ public class GoogleServiceAccount(
 	private async Task<int> RemoveAbandonedSiblingFolders(
 		string path,
 		string driveParentFolderId,
-		ICollection<Exclude> excludes,
 		bool checkDriveMappings)
 	{
 		IList<GoogleDriveFile> serverFiles =
@@ -710,7 +701,6 @@ public class GoogleServiceAccount(
 			paths,
 			driveMappingPaths,
 			serverFiles,
-			excludes,
 			checkDriveMappings);
 
 		return removed;
@@ -769,7 +759,7 @@ public class GoogleServiceAccount(
 		logger.Warning(message);
 
 		string directoryName = Path.GetFileName(path);
-		string mimeType = "application/vnd.google-apps.folder";
+		const string mimeType = "application/vnd.google-apps.folder";
 
 		string itemId = await googleDrive.DoesDriveItemExist(
 			driveParentFolderId, directoryName, mimeType).
