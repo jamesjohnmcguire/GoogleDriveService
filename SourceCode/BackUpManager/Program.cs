@@ -8,11 +8,6 @@
 
 namespace BackUpManager;
 
-using System;
-using System.Collections.Generic;
-using System.Globalization;
-using System.IO;
-using System.Threading.Tasks;
 using DigitalZenWorks.BackUp.Library;
 using DigitalZenWorks.CommandLine.Commands;
 using DigitalZenWorks.Common.VersionUtilities;
@@ -20,8 +15,11 @@ using LoggingService;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Serilog;
-using Serilog.Configuration;
-using Serilog.Events;
+using Serilog.Core;
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Threading.Tasks;
 
 /// <summary>
 /// Back up manager program class.
@@ -40,10 +38,12 @@ internal static class Program
 		{
 			ServiceProvider serviceProvider = ConfigureServices();
 
+			Microsoft.Extensions.Logging.ILogger logger =
+				serviceProvider.GetRequiredService<ILogger<BackUpService>>();
+
 			string version = VersionSupport.GetVersion();
 
-			Log.Logger.Information(
-				"Starting Back Up Manager Version: " + version);
+			logger.Info($"Starting Back Up Manager Version: {version}");
 
 			IList<Command> commands = Commands.GetCommands();
 
@@ -53,7 +53,7 @@ internal static class Program
 
 			if (commandLine.ValidArguments == false)
 			{
-				Log.Error(commandLine.ErrorMessage);
+				logger.Error(commandLine.ErrorMessage);
 				commandLine.ShowHelp();
 			}
 			else
@@ -119,30 +119,5 @@ internal static class Program
 			serviceCollection.BuildServiceProvider();
 
 		return serviceProvider;
-	}
-
-	private static void LogInitialization()
-	{
-		string applicationDataDirectory =
-			Configuration.GetDefaultDataLocation();
-		string logFilePath =
-			Path.Combine(applicationDataDirectory, "BackUp.log");
-
-		const string outputTemplate =
-			"[{Timestamp:yyyy-MM-dd HH:mm:ss} {Level:u3}] " +
-			"{Message:lj}{NewLine}{Exception}";
-
-		LoggerConfiguration configuration = new();
-		LoggerSinkConfiguration sinkConfiguration = configuration.WriteTo;
-		sinkConfiguration.Console(
-			LogEventLevel.Verbose,
-			outputTemplate,
-			CultureInfo.CurrentCulture);
-		sinkConfiguration.File(
-			logFilePath,
-			LogEventLevel.Verbose,
-			outputTemplate,
-			CultureInfo.CurrentCulture);
-		Log.Logger = configuration.CreateLogger();
 	}
 }
