@@ -40,10 +40,6 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<None Include="App.config">
-			<SubType>Designer</SubType>
-			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-		</None>
 		<AdditionalFiles Include="../stylecop.json" />
 	</ItemGroup>
 
