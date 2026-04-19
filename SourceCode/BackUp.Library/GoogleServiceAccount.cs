@@ -13,6 +13,7 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
+using LoggingService;
 using Microsoft.Extensions.Logging;
 
 using GoogleDriveFile = Google.Apis.Drive.v3.Data.File;
@@ -24,15 +25,27 @@ using GoogleDriveFile = Google.Apis.Drive.v3.Data.File;
 /// Initializes a new instance of the
 /// <see cref="GoogleServiceAccount"/> class.
 /// </remarks>
-/// <param name="account">The accound data.</param>
-/// <param name="settings">The application settings.</param>
-/// <param name="logger">The logger interface.</param>
-public class GoogleServiceAccount(
-	Account account, Settings settings, ILogger<BackUpService> logger = null)
-	: BaseService(account, settings, logger), IDisposable
+public class GoogleServiceAccount
+	: BaseService, IDisposable
 {
-	private GoogleDrive googleDrive = new(logger);
+	private GoogleDrive googleDrive;
 	private TraversalContext traversalContext;
+
+	/// <summary>
+	/// Initializes a new instance of the <see cref="GoogleServiceAccount"/>
+	/// class.
+	/// </summary>
+	/// <param name="account">The account data.</param>
+	/// <param name="settings">The application settings.</param>
+	/// <param name="logger">The logger interface.</param>
+	public GoogleServiceAccount(
+		Account account,
+		Settings settings,
+		ILogger<BackUpService> logger = null)
+		: base(account, settings, logger)
+	{
+		googleDrive = new(Logger);
+	}
 
 	/// <summary>
 	/// Report server folder information.
@@ -43,7 +56,7 @@ public class GoogleServiceAccount(
 	{
 		if (serverFolder == null)
 		{
-			Log.Warning(Logger, "server folder is null", null);
+			Logger.Warning("server folder is null");
 		}
 		else
 		{
@@ -52,11 +65,11 @@ public class GoogleServiceAccount(
 				"Checking server file {0} {1}",
 				serverFolder.Id,
 				serverFolder.Name);
-			Log.Information(Logger, message);
+			Logger.Information(message);
 
 			if (serverFolder.Owners == null)
 			{
-				Log.Warning(Logger, "server folder owners null", null);
+				Logger.Warning("server folder owners null");
 			}
 			else
 			{
@@ -71,12 +84,12 @@ public class GoogleServiceAccount(
 					ownersInfo += " " + item;
 				}
 
-				Log.Information(Logger, ownersInfo);
+				Logger.Information(ownersInfo);
 			}
 
 			if (serverFolder.Parents == null)
 			{
-				Log.Warning(Logger, "server folder parents is null", null);
+				Logger.Warning("server folder parents is null");
 			}
 			else
 			{
@@ -89,21 +102,21 @@ public class GoogleServiceAccount(
 					parentsInfo += " " + item;
 				}
 
-				Log.Information(Logger, parentsInfo);
+				Logger.Information(parentsInfo);
 			}
 
 			if (serverFolder.OwnedByMe == true)
 			{
-				Log.Information(Logger, "File owned by me");
+				Logger.Information("File owned by me");
 			}
 			else if (serverFolder.Shared == true)
 			{
-				Log.Information(Logger, "File shared with me");
+				Logger.Information("File shared with me");
 			}
 			else
 			{
-				Log.Information(
-					Logger, "File is neither owned by or shared with me");
+				Logger.Information(
+					"File is neither owned by or shared with me");
 			}
 		}
 	}
@@ -129,7 +142,7 @@ public class GoogleServiceAccount(
 			(exception is ArgumentException ||
 			exception is FileNotFoundException)
 		{
-			Log.Exception(Logger, exception);
+			Logger.Exception(exception);
 		}
 
 		return authenticated;
@@ -168,7 +181,6 @@ public class GoogleServiceAccount(
 	/// <param name="subDirectories">The sub directories.</param>
 	/// <param name="driveMappings">The drive mappings.</param>
 	/// <param name="serverFiles">The server files.</param>
-	/// <param name="excludes">The collection of excludes.</param>
 	/// <param name="checkDriveMappings">Indicates whether or not to check
 	/// the drive mappings.</param>
 	/// <returns>The amount of files removed.</returns>
@@ -177,7 +189,6 @@ public class GoogleServiceAccount(
 		IList<string> subDirectories,
 		IList<string> driveMappings,
 		IList<GoogleDriveFile> serverFiles,
-		ICollection<Exclude> excludes,
 		bool checkDriveMappings = false)
 	{
 		int removedFilesCount = 0;
@@ -191,7 +202,6 @@ public class GoogleServiceAccount(
 					path,
 					subDirectories,
 					driveMappings,
-					excludes,
 					checkDriveMappings);
 
 				if (removed == true)
@@ -231,7 +241,7 @@ public class GoogleServiceAccount(
 
 			string message =
 				$"Checking: \"{path}\" with Parent Id: {driveParentFolderId}";
-			Log.Information(Logger, message);
+			Logger.Information(message);
 
 			bool exists = Directory.Exists(path);
 
@@ -244,7 +254,7 @@ public class GoogleServiceAccount(
 			{
 				driveMapping.ExpandExcludes();
 
-				List<string> globalExcludes = Settings.GlobalExcludes.ToList();
+				List<string> globalExcludes = [.. Settings.GlobalExcludes];
 
 				traversalContext = new TraversalContext(
 					globalExcludes,
@@ -290,7 +300,7 @@ public class GoogleServiceAccount(
 			exception is TaskCanceledException ||
 			exception is UnauthorizedAccessException)
 		{
-			Log.Exception(Logger, exception);
+			Logger.Exception(exception);
 		}
 	}
 
@@ -316,7 +326,7 @@ public class GoogleServiceAccount(
 				"Checking: \"{0}\" with Parent Id: {1}",
 				path,
 				driveParentFolderId);
-			Log.Information(Logger, message);
+			Logger.Information(message);
 
 			IList<GoogleDriveFile> serverFiles =
 				await googleDrive.GetFilesAsync(
@@ -349,7 +359,7 @@ public class GoogleServiceAccount(
 
 		if (IgnoreAbandoned == false)
 		{
-			RemoveAbandonedFiles(path, files, serverFiles, excludes);
+			RemoveAbandonedFiles(files, serverFiles);
 		}
 
 		foreach (FileInfo file in files)
@@ -374,15 +384,11 @@ public class GoogleServiceAccount(
 	/// <summary>
 	/// Remove abandoned files method.
 	/// </summary>
-	/// <param name="parentPath">The parent path.</param>
 	/// <param name="files">The files to back up.</param>
 	/// <param name="serverFiles">The list of server files.</param>
-	/// <param name="excludes">The list of excludes.</param>
 	protected void RemoveAbandonedFiles(
-		string parentPath,
 		FileInfo[] files,
-		IList<GoogleDriveFile> serverFiles,
-		ICollection<Exclude> excludes)
+		IList<GoogleDriveFile> serverFiles)
 	{
 		if (serverFiles != null)
 		{
@@ -409,7 +415,7 @@ public class GoogleServiceAccount(
 				}
 				catch (Google.GoogleApiException exception)
 				{
-					Log.Exception(Logger, exception);
+					Logger.Exception(exception);
 				}
 			}
 		}
@@ -475,7 +481,7 @@ public class GoogleServiceAccount(
 
 			if (isQualified == false)
 			{
-				Log.Warning(Logger, "IsPathFullyQualified is false", null);
+				Logger.Warning("IsPathFullyQualified is false");
 			}
 
 			path = TraversalContext.NormalizePath(path);
@@ -509,7 +515,7 @@ public class GoogleServiceAccount(
 						if (IgnoreAbandoned == false)
 						{
 							RemoveAbandonedFolders(
-								path, paths, null, thisServerFiles, expandedExcludes);
+								path, paths, null, thisServerFiles);
 						}
 
 						DirectoryInfo directoryInfo = new(path);
@@ -547,7 +553,7 @@ public class GoogleServiceAccount(
 			exception is TaskCanceledException ||
 			exception is UnauthorizedAccessException)
 		{
-			Log.Exception(Logger, exception);
+			Logger.Exception(exception);
 		}
 	}
 
@@ -566,7 +572,7 @@ public class GoogleServiceAccount(
 				string fileName = GoogleDrive.SanitizeFileName(file.FullName);
 				string message = $"Checking: {fileName}";
 
-				Log.Information(Logger, message);
+				Logger.Information(message);
 
 				GoogleDriveFile serverFile =
 					GoogleDrive.GetFileInList(serverFiles, file.Name);
@@ -583,7 +589,7 @@ public class GoogleServiceAccount(
 						CultureInfo.InvariantCulture,
 						"Excluding file from Server: {0}",
 						file.FullName);
-					Log.Information(Logger, message);
+					Logger.Information(message);
 
 					RemoveExcludedFile(file, serverFiles);
 				}
@@ -601,7 +607,7 @@ public class GoogleServiceAccount(
 			exception is InvalidOperationException ||
 			exception is UnauthorizedAccessException)
 		{
-			Log.Exception(Logger, exception);
+			Logger.Exception(exception);
 		}
 	}
 
@@ -630,7 +636,7 @@ public class GoogleServiceAccount(
 			(exception is ArgumentException ||
 			exception is FileNotFoundException)
 		{
-			Log.Exception(Logger, exception);
+			Logger.Exception(exception);
 		}
 
 		return serviceAccountJsonFile;
@@ -641,7 +647,6 @@ public class GoogleServiceAccount(
 		string path,
 		IList<string> subDirectories,
 		IList<string> driveMappings,
-		ICollection<Exclude> excludes,
 		bool checkDriveMappings = false)
 	{
 		bool removed = false;
@@ -681,7 +686,7 @@ public class GoogleServiceAccount(
 		}
 		catch (Google.GoogleApiException exception)
 		{
-			Log.Exception(Logger, exception);
+			Logger.Exception(exception);
 		}
 
 		return removed;
@@ -690,7 +695,6 @@ public class GoogleServiceAccount(
 	private async Task<int> RemoveAbandonedSiblingFolders(
 		string path,
 		string driveParentFolderId,
-		ICollection<Exclude> excludes,
 		bool checkDriveMappings)
 	{
 		IList<GoogleDriveFile> serverFiles =
@@ -709,7 +713,6 @@ public class GoogleServiceAccount(
 			paths,
 			driveMappingPaths,
 			serverFiles,
-			excludes,
 			checkDriveMappings);
 
 		return removed;
@@ -738,7 +741,7 @@ public class GoogleServiceAccount(
 			}
 			catch (Google.GoogleApiException exception)
 			{
-				Log.Exception(Logger, exception);
+				Logger.Exception(exception);
 			}
 		}
 	}
@@ -765,10 +768,10 @@ public class GoogleServiceAccount(
 		string message =
 			$"Drive Mapping with \"{path}\" and " +
 			$"Parent Id: {driveParentFolderId} does not exist";
-		Log.Warning(logger, message);
+		Logger.Warning(message);
 
 		string directoryName = Path.GetFileName(path);
-		string mimeType = "application/vnd.google-apps.folder";
+		const string mimeType = "application/vnd.google-apps.folder";
 
 		string itemId = await googleDrive.DoesDriveItemExist(
 			driveParentFolderId, directoryName, mimeType).
@@ -778,7 +781,7 @@ public class GoogleServiceAccount(
 		{
 			message = $"Folder {directoryName} exists on server with " +
 				$"Id: {itemId}";
-			Log.Warning(logger, message);
+			Logger.Warning(message);
 		}
 	}
 }

@@ -22,7 +22,7 @@ public abstract class BaseService(
 {
 	private readonly Account account = account;
 	private readonly ILogger<BackUpService>? logger = logger;
-	private Settings settings = settings;
+	private readonly Settings settings = settings;
 	private TraversalContext? traversalContext;
 
 	/// <summary>

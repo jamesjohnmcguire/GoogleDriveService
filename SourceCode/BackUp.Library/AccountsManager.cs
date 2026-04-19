@@ -9,6 +9,7 @@ namespace DigitalZenWorks.BackUp.Library;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using LoggingService;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 
@@ -56,7 +57,7 @@ public static class AccountsManager
 		}
 		else
 		{
-			Log.Error(logger, "Accounts file doesn't exist", null);
+			logger.Error("Accounts file doesn't exist");
 		}
 
 		return accounts;
