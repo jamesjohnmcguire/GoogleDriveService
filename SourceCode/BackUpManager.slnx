@@ -12,7 +12,7 @@
 		<File Path="Directory.Build.props" />
 	</Folder>
 
-	<Project Path="BackUpManager/BackUpManager.csproj" />
+	<Project DefaultStartup="true" Path="BackUpManager/BackUpManager.csproj" />
 	<Project Path="BackUp.Library/DigitalZenWorks.BackUp.Library.csproj" />
 	<Project Path="BackUp.Tests/BackUp.Tests.csproj" />
 	<Project Path="LoggingFoundation/LoggingService/LoggingService.csproj" />
