@@ -66,16 +66,10 @@ internal static class Program
 						BackUpService backUpService =
 							serviceProvider.GetService<BackUpService>();
 
-						SettingsManager settingsManager = new();
-						Settings settings = settingsManager.Load();
-						backUpService.Settings = settings;
+						ConfigureServiceSettings(backUpService, command);
 
 						string configurationFile =
 							Configuration.GetConfigurationFile(command);
-
-						bool ignoreAbandoned = command.DoesOptionExist(
-							"i", "ignore-abandoned");
-						backUpService.IgnoreAbandoned = ignoreAbandoned;
 
 						await backUpService.BackUp(configurationFile).
 							ConfigureAwait(false);
@@ -119,5 +113,17 @@ internal static class Program
 			serviceCollection.BuildServiceProvider();
 
 		return serviceProvider;
+	}
+
+	private static void ConfigureServiceSettings(
+		BackUpService backUpService, Command command)
+	{
+		SettingsManager settingsManager = new();
+		Settings settings = settingsManager.Load();
+		backUpService.Settings = settings;
+
+		bool ignoreAbandoned = command.DoesOptionExist(
+			"i", "ignore-abandoned");
+		backUpService.IgnoreAbandoned = ignoreAbandoned;
 	}
 }
