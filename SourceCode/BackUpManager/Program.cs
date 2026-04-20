@@ -58,6 +58,7 @@ internal static class Program
 			else
 			{
 				Command command = commandLine.Command;
+				logger.Info($"Command is: {command.Name}");
 
 				switch (command.Name)
 				{

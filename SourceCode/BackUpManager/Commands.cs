@@ -6,13 +6,13 @@
 
 namespace BackUpManager;
 
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
 using DigitalZenWorks.CommandLine.Commands;
 using DigitalZenWorks.Common.VersionUtilities;
-using Serilog;
 
 /// <summary>
 /// Commands class.
@@ -69,12 +69,12 @@ internal static class Commands
 				assemblyVersion,
 				copyright,
 				companyName);
-			Log.Logger.Information(header);
+			Console.WriteLine(header);
 		}
 
 		if (!string.IsNullOrWhiteSpace(additionalMessage))
 		{
-			Log.Logger.Information(additionalMessage);
+			Console.WriteLine(additionalMessage);
 		}
 	}
 
