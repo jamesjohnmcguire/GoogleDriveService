@@ -75,7 +75,7 @@ internal sealed class ShouldProcessItemTests
 	{
 		// Cannot convert null literal to non-nullable reference type.
 #pragma warning disable CS8625
-		bool result = BaseService.ShouldProcessItem(dataPath, null);
+		bool result = BaseService.ShouldProcessItem(dataPath!, null);
 #pragma warning restore CS8625
 
 		Assert.That(result, Is.True);
@@ -87,7 +87,7 @@ internal sealed class ShouldProcessItemTests
 	[Test]
 	public void EmptyExcludesReturnsTrue()
 	{
-		bool result = BaseService.ShouldProcessItem(dataPath, []);
+		bool result = BaseService.ShouldProcessItem(dataPath!, []);
 
 		Assert.That(result, Is.True);
 	}
@@ -117,7 +117,7 @@ internal sealed class ShouldProcessItemTests
 		Exclude exclude = new(dataPath, false);
 		excludes.Add(exclude);
 
-		bool result = BaseService.ShouldProcessItem(dataPath, excludes);
+		bool result = BaseService.ShouldProcessItem(dataPath!, excludes);
 
 		Assert.That(result, Is.False);
 	}
@@ -129,7 +129,7 @@ internal sealed class ShouldProcessItemTests
 	public void ExcludeNotExactMatchReturnsTrue()
 	{
 		// "obj" should not match "objstore" or "myobj"
-		string partialMatch = Path.Combine(dataPath, "objstore");
+		string partialMatch = Path.Combine(dataPath!, "objstore");
 		Directory.CreateDirectory(partialMatch);
 
 		ICollection<Exclude> excludes = [];
@@ -158,7 +158,7 @@ internal sealed class ShouldProcessItemTests
 		Exclude exclude = new(objPath, false);
 		excludes.Add(exclude);
 
-		bool result = BaseService.ShouldProcessItem(dataPath, excludes);
+		bool result = BaseService.ShouldProcessItem(dataPath!, excludes);
 
 		Assert.That(result, Is.True);
 	}
@@ -176,7 +176,7 @@ internal sealed class ShouldProcessItemTests
 		Exclude exclude2 = new(objPath, false);
 		excludes.Add(exclude2);
 
-		bool result = BaseService.ShouldProcessItem(dataPath, excludes);
+		bool result = BaseService.ShouldProcessItem(dataPath!, excludes);
 
 		Assert.That(result, Is.False);
 	}
@@ -194,7 +194,7 @@ internal sealed class ShouldProcessItemTests
 		Exclude exclude2 = new(nodeModulesPath, false);
 		excludes.Add(exclude2);
 
-		bool result = BaseService.ShouldProcessItem(dataPath, excludes);
+		bool result = BaseService.ShouldProcessItem(dataPath!, excludes);
 
 		Assert.That(result, Is.True);
 	}
@@ -210,7 +210,7 @@ internal sealed class ShouldProcessItemTests
 	[Test]
 	public void ExcludeInMiddleOfPathReturnsTrue()
 	{
-		string subFolder = Path.Combine(objPath, "Debug", "net8.0");
+		string subFolder = Path.Combine(objPath!, "Debug", "net8.0");
 		Directory.CreateDirectory(subFolder);
 
 		ICollection<Exclude> excludes = [];
@@ -244,7 +244,7 @@ internal sealed class ShouldProcessItemTests
 	{
 		ICollection<Exclude> excludes = [];
 
-		string path = dataPath.ToLowerInvariant();
+		string path = dataPath!.ToLowerInvariant();
 		Exclude exclude = new(path, false);
 		excludes.Add(exclude);
 

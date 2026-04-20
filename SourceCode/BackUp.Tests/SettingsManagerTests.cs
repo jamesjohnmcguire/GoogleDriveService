@@ -17,8 +17,8 @@ using NUnit.Framework;
 [TestFixture]
 internal sealed class SettingsManagerTests
 {
-	private string tempDirectory;
-	private string settingsPath;
+	private string? tempDirectory;
+	private string? settingsPath;
 
 	/// <summary>
 	/// Initializes unique temporary directories for use in each test run.
@@ -239,6 +239,6 @@ internal sealed class SettingsManagerTests
 	private void WriteSettings(Settings settings)
 	{
 		string json = JsonConvert.SerializeObject(settings);
-		File.WriteAllText(settingsPath, json);
+		File.WriteAllText(settingsPath!, json);
 	}
 }

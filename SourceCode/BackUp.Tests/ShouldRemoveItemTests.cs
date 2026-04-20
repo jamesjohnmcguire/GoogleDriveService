@@ -19,9 +19,9 @@ using NUnit.Framework;
 [TestFixture]
 internal sealed class ShouldRemoveItemTests
 {
-	private string root;
-	private string dataPath;
-	private string objPath;
+	private string? root;
+	private string? dataPath;
+	private string? objPath;
 
 	/// <summary>
 	/// Initializes various paths for use in each test run.
@@ -47,7 +47,7 @@ internal sealed class ShouldRemoveItemTests
 		Exclude exclude = new(objPath, false);
 		excludes.Add(exclude);
 
-		bool result = BaseService.ShouldRemoveItem(objPath, excludes);
+		bool result = BaseService.ShouldRemoveItem(objPath!, excludes);
 
 		Assert.That(result, Is.True);
 	}
@@ -64,7 +64,7 @@ internal sealed class ShouldRemoveItemTests
 		Exclude exclude = new(objPath, true);
 		excludes.Add(exclude);
 
-		bool result = BaseService.ShouldRemoveItem(objPath, excludes);
+		bool result = BaseService.ShouldRemoveItem(objPath!, excludes);
 
 		Assert.That(result, Is.False);
 	}
@@ -80,7 +80,7 @@ internal sealed class ShouldRemoveItemTests
 
 		Assert.Throws<ArgumentNullException>(() =>
 		{
-			BaseService.ShouldRemoveItem(objPath, excludes);
+			BaseService.ShouldRemoveItem(objPath!, excludes);
 		});
 	}
 }
