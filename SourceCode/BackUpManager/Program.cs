@@ -8,6 +8,10 @@
 
 namespace BackUpManager;
 
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Threading.Tasks;
 using DigitalZenWorks.BackUp.Library;
 using DigitalZenWorks.CommandLine.Commands;
 using DigitalZenWorks.Common.VersionUtilities;
@@ -15,11 +19,6 @@ using LoggingService;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Serilog;
-using Serilog.Core;
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Threading.Tasks;
 
 /// <summary>
 /// Back up manager program class.
