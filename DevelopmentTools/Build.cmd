@@ -53,6 +53,7 @@ CD ..\win-x64
 MOVE BackUpManager-win-x64.zip ..
 
 CD ..
+:: Often the second and third arguments are just the complete version number.
 gh release create v%2 --notes %3 *.zip
 
 ENDLOCAL
