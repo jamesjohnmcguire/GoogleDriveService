@@ -460,43 +460,9 @@ Tests
 Testing
 	BackUpManager --config C:\Users\JamesMc\AppData\Roaming\DigitalZenWorks\BackUpManager\BackUp.json
 Logging
+	Test Out Static Logger
+	Add Options / Configuration Class
+	Deal with rolling logging files
+
 	https://github.com/jamesjohnmcguire/LoggingFoundation
 	LoggingFoundatation
-		Add exception logging
-		Test Out Static Logger
-		Add Options / Configuration Class
-		Deal with rolling logging files
-		Retry Logging in Services
-
-		public static void Exception(
-			ILogger logger,
-			Exception exception,
-			[CallerMemberName] string caller = null,
-			[CallerLineNumber] int lineNumber = 0)
-		{
-			string message = $"Exception in {caller} method. " +
-				$"Caught at line: {lineNumber}: {exception.Message}";
-			Error(logger, message, exception);
-
-			message = exception.ToString();
-			Error(logger, message);
-		}
-
-	[LoggerMessage(
-		EventId = 10,
-		Level = LogLevel.Error,
-		Message = "Exception in {caller} at line {lineNumber}")]
-	public static partial void ExceptionOccurred(
-		this ILogger logger,
-		Exception exception,
-		string caller,
-		int lineNumber);
-
-		public static void Exception(
-		this ILogger logger,
-		Exception exception,
-		[CallerMemberName] string caller = "",
-		[CallerLineNumber] int lineNumber = 0)
-	{
-		ExceptionOccurred(logger, exception, caller, lineNumber);
-	}
