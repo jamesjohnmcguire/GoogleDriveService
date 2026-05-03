@@ -1,3 +1,5 @@
+Fix logging - JraVanExtensions\SourceCode\â\ü[âXâvâìâOâëâÇ\Umakichi\Help\Screen\2600_RC.htm
+Fix Rotating Log Specifying New Day Every Time for Log File
 Excludes	Upon ShouldProcessItem(path, excludes); being false, it should immediately check, and possibly remove item from server
 Excludes	RemoveExcludedItems Should eventually be removed - All items should be already processed by ShouldProcessItem / ShouldRemoveItem
 Improve protected property "protected TraversalContext TraversalContext"
