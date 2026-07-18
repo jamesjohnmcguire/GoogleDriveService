@@ -124,7 +124,7 @@ public class GoogleDrive(ILogger<BackUpService> logger = null)
 		if (!string.IsNullOrEmpty(credentialsFile) &&
 			File.Exists(credentialsFile))
 		{
-			using var cts = new CancellationTokenSource();
+			using CancellationTokenSource cts = new CancellationTokenSource();
 
 			ServiceAccountCredential serviceAccountCredential =
 				await CredentialFactory.FromFileAsync<ServiceAccountCredential>(
