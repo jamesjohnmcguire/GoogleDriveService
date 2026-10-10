@@ -66,3 +66,16 @@ The json fields contain the following information:
 There can multiple service accounts specified.
 
 There is an example at Support/Sample.BackUp.json
+
+## Logging
+
+BackupManager writes current log entries to
+`%AppData%\DigitalZenWorks\BackUpManager\BackUp.log` on Windows.
+On the first logged event of a new local day, the previous file becomes
+`BackUpyyyyMMdd.log`. Existing archive names receive a numbered suffix
+instead of being overwritten. The newest 31 archives are retained.
+
+The library supports both dated active files and a fixed active filename.
+See [file logging](SourceCode/LoggingFoundation/LoggingService/README.md)
+for retention, restart, and ownership details. There is no command-line
+setting for the logging mode yet.

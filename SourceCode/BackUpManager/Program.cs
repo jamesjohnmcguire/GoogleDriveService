@@ -35,7 +35,7 @@ internal static class Program
 	{
 		try
 		{
-			ServiceProvider serviceProvider = ConfigureServices();
+			using ServiceProvider serviceProvider = ConfigureServices();
 
 			Microsoft.Extensions.Logging.ILogger logger =
 				serviceProvider.GetRequiredService<ILogger<BackUpService>>();
@@ -87,6 +87,10 @@ internal static class Program
 
 			throw;
 		}
+		finally
+		{
+			await Log.CloseAndFlushAsync().ConfigureAwait(false);
+		}
 	}
 
 	private static ServiceProvider ConfigureServices()
@@ -97,7 +101,8 @@ internal static class Program
 		string logFilePath =
 			Path.Combine(applicationDataDirectory, "BackUp.log");
 
-		LogService.Configure(logFilePath);
+		LogService.Configure(
+			logFilePath, LogFileMode.FixedNameWithDailyArchives);
 
 		ServiceCollection serviceCollection = new();
 
