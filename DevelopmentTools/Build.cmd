@@ -13,7 +13,7 @@ dotnet clean
 
 ECHO.
 ECHO Building...
-dotnet build -restore
+dotnet build -restore -target:restore
 
 ECHO.
 ECHO Testing...
@@ -28,10 +28,12 @@ CALL clean.cmd
 GOTO :EOF
 
 :publish
+ECHO.
+ECHO Building Publish Application...
 IF EXIST Release\NUL rd /s /q Release
 
 dotnet clean BackUpManager
-dotnet publish --configuration Release --output Release\win-x64 -p:PublishReadyToRun=true -p:PublishSingleFile=true -p:DebugType=embedded -p:PublishDocumentationFiles=false -restore --runtime win-x64 --self-contained true BackUpManager
+dotnet publish --configuration Release --output Release\win-x64 -p:PublishReadyToRun=true -p:PublishSingleFile=true -p:DebugType=embedded -p:PublishDocumentationFiles=false -restore --runtime win-x64 --self-contained true -target:rebuild BackUpManager
 
 IF "%1"=="release" GOTO release
 GOTO :EOF
