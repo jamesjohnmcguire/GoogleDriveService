@@ -31,7 +31,7 @@ GOTO :EOF
 IF EXIST Release\NUL rd /s /q Release
 
 dotnet clean BackUpManager
-dotnet publish --configuration Release --output Release\win-x64 -p:PublishReadyToRun=true -p:PublishSingleFile=true -restore --runtime win-x64 --self-contained BackUpManager
+dotnet publish --configuration Release --output Release\win-x64 -p:PublishReadyToRun=true -p:PublishSingleFile=true -p:DebugType=embedded -p:PublishDocumentationFiles=false -restore --runtime win-x64 --self-contained true BackUpManager
 
 IF "%1"=="release" GOTO release
 GOTO :EOF
