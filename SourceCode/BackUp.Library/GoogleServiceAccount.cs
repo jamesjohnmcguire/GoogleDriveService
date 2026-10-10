@@ -583,14 +583,23 @@ public class GoogleServiceAccount
 			{
 				bool remove = ShouldRemoveItem(file.FullName, excludes);
 
+				string message = string.Format(
+					CultureInfo.InvariantCulture,
+					"Excluding file from Server: {0}",
+					file.FullName);
+
 				if (remove == true)
 				{
-					string message = string.Format(
+					message = string.Format(
 						CultureInfo.InvariantCulture,
-						"Excluding file from Server: {0}",
+						"Excluding amd Removing file from Server: {0}",
 						file.FullName);
-					Logger.Information(message);
+				}
 
+				Logger.Information(message);
+
+				if (remove == true)
+				{
 					RemoveExcludedFile(file, serverFiles);
 				}
 			}
