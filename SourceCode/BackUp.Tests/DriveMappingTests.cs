@@ -190,7 +190,7 @@ internal sealed class DriveMappingTests
 		Assert.That(result, Has.Count.EqualTo(2));
 		Assert.That(
 			result,
-			Has.All.Matches<Exclude>(e => e.Path?.EndsWith(
+			Has.All.Matches<Exclude>(exclude => exclude!.Path?.EndsWith(
 				".txt", System.StringComparison.OrdinalIgnoreCase) ?? false));
 	}
 
@@ -220,7 +220,7 @@ internal sealed class DriveMappingTests
 		Assert.That(result, Has.Count.EqualTo(2));
 		Assert.That(
 			result,
-			Has.All.Matches<Exclude>(e => e.Path?.EndsWith(
+			Has.All.Matches<Exclude>(exclude => exclude!.Path?.EndsWith(
 				".txt", System.StringComparison.OrdinalIgnoreCase) ?? false));
 	}
 
@@ -357,7 +357,7 @@ internal sealed class DriveMappingTests
 		Assert.That(count, Is.GreaterThanOrEqualTo(2));
 		Assert.That(
 			result,
-			Has.Some.Matches<Exclude>(e => e.Path?.EndsWith(
+			Has.Some.Matches<Exclude>(exclude => exclude!.Path?.EndsWith(
 				".csv", System.StringComparison.OrdinalIgnoreCase) ?? false));
 	}
 
@@ -376,7 +376,7 @@ internal sealed class DriveMappingTests
 
 		// Expect all 4 concrete files.
 		Assert.That(count, Is.GreaterThanOrEqualTo(4));
-		Assert.That(result, Has.None.Matches<Exclude>(e => e.Path?.Contains(
+		Assert.That(result, Has.None.Matches<Exclude>(exclude => exclude!.Path?.Contains(
 			'*', System.StringComparison.OrdinalIgnoreCase) ?? false));
 	}
 
@@ -406,7 +406,8 @@ internal sealed class DriveMappingTests
 
 		// Expect all 4 concrete files.
 		Assert.That(count, Is.GreaterThanOrEqualTo(4));
-		Assert.That(result, Has.None.Matches<Exclude>(e => e.Path?.Contains(
+		Assert.That(result, Has.None.Matches<Exclude>(
+			exclude => exclude!.Path?.Contains(
 			'*', System.StringComparison.OrdinalIgnoreCase) ?? false));
 	}
 
@@ -436,7 +437,8 @@ internal sealed class DriveMappingTests
 
 		// Expect 2 concrete files.
 		Assert.That(count, Is.GreaterThanOrEqualTo(2));
-		Assert.That(result, Has.None.Matches<Exclude>(e => e.Path?.Contains(
+		Assert.That(result, Has.None.Matches<Exclude>(
+			exclude => exclude!.Path?.Contains(
 			'*', System.StringComparison.OrdinalIgnoreCase) ?? false));
 	}
 
@@ -454,7 +456,8 @@ internal sealed class DriveMappingTests
 
 		// Expect 2 concrete files.
 		Assert.That(count, Is.GreaterThanOrEqualTo(2));
-		Assert.That(result, Has.None.Matches<Exclude>(e => e.Path?.Contains(
+		Assert.That(result, Has.None.Matches<Exclude>(
+			exclude => exclude!.Path?.Contains(
 			'*', System.StringComparison.OrdinalIgnoreCase) ?? false));
 	}
 
@@ -486,10 +489,11 @@ internal sealed class DriveMappingTests
 
 		// Should contain the expanded csv file AND the fixed folder.
 		Assert.That(count, Is.GreaterThanOrEqualTo(2));
-		Assert.That(result, Has.Some.Matches<Exclude>(e =>
-			e.Path?.EndsWith("report.csv", StringComparison.Ordinal) ?? false));
-		Assert.That(result, Has.Some.Matches<Exclude>(e =>
-			e.Path == Path.GetFullPath(fixedFolder)));
+		Assert.That(result, Has.Some.Matches<Exclude>(
+			exclude => exclude!.Path?.EndsWith(
+				"report.csv", StringComparison.Ordinal) ?? false));
+		Assert.That(result, Has.Some.Matches<Exclude>(
+			exclude => exclude!.Path == Path.GetFullPath(fixedFolder)));
 	}
 
 	/// <summary>
@@ -521,11 +525,11 @@ internal sealed class DriveMappingTests
 
 		// Should contain the expanded csv file AND the fixed folder.
 		Assert.That(count, Is.GreaterThanOrEqualTo(2));
-		Assert.That(result, Has.Some.Matches<Exclude>(e =>
-			e.Path?.EndsWith(
+		Assert.That(result, Has.Some.Matches<Exclude>(
+			exclude => exclude!.Path?.EndsWith(
 				"report.csv", StringComparison.Ordinal) ?? false));
-		Assert.That(result, Has.Some.Matches<Exclude>(e =>
-			e.Path == Path.GetFullPath(fixedFolder)));
+		Assert.That(result, Has.Some.Matches<Exclude>(
+			exclude => exclude!.Path == Path.GetFullPath(fixedFolder)));
 	}
 
 	/// <summary>
@@ -552,7 +556,8 @@ internal sealed class DriveMappingTests
 
 		Assert.That(result, Has.Count.EqualTo(4));
 		Assert.That(
-			result, Has.None.Matches<Exclude>(e => e.Path?.Contains(
+			result, Has.None.Matches<Exclude>(
+				exclude => exclude!.Path?.Contains(
 				'*', StringComparison.Ordinal) ?? false));
 	}
 
@@ -580,7 +585,8 @@ internal sealed class DriveMappingTests
 
 		// Expect all 4 concrete files.
 		Assert.That(count, Is.GreaterThanOrEqualTo(4));
-		Assert.That(result, Has.None.Matches<Exclude>(e => e.Path?.Contains(
+		Assert.That(result, Has.None.Matches<Exclude>(
+			exclude => exclude!.Path?.Contains(
 			'*', System.StringComparison.OrdinalIgnoreCase) ?? false));
 	}
 
@@ -608,7 +614,8 @@ internal sealed class DriveMappingTests
 
 		// Expect 2 concrete files.
 		Assert.That(count, Is.GreaterThanOrEqualTo(2));
-		Assert.That(result, Has.None.Matches<Exclude>(e => e.Path?.Contains(
+		Assert.That(result, Has.None.Matches<Exclude>(
+			exclude => exclude!.Path?.Contains(
 			'*', System.StringComparison.OrdinalIgnoreCase) ?? false));
 	}
 
@@ -641,11 +648,11 @@ internal sealed class DriveMappingTests
 
 		// Should contain the expanded csv file AND the fixed folder.
 		Assert.That(count, Is.GreaterThanOrEqualTo(2));
-		Assert.That(result, Has.Some.Matches<Exclude>(e =>
-			e.Path?.EndsWith(
+		Assert.That(result, Has.Some.Matches<Exclude>(
+			exclude => exclude!.Path?.EndsWith(
 				"report.csv", StringComparison.Ordinal) ?? false));
-		Assert.That(result, Has.Some.Matches<Exclude>(e =>
-			e.Path == Path.GetFullPath(fixedFolder)));
+		Assert.That(result, Has.Some.Matches<Exclude>(
+			exclude => exclude!.Path == Path.GetFullPath(fixedFolder)));
 	}
 
 	/// <summary>
@@ -671,7 +678,8 @@ internal sealed class DriveMappingTests
 
 		Assert.That(result, Has.Count.EqualTo(4));
 		Assert.That(
-			result, Has.None.Matches<Exclude>(e => e.Path?.Contains(
+			result, Has.None.Matches<Exclude>(
+				exclude => exclude!.Path?.Contains(
 				'*', StringComparison.Ordinal) ?? false));
 	}
 

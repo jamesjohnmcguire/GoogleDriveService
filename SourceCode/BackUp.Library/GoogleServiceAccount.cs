@@ -13,6 +13,7 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
+using Google.Apis.Drive.v3.Data;
 using LoggingService;
 using Microsoft.Extensions.Logging;
 
@@ -78,9 +79,9 @@ public class GoogleServiceAccount
 
 				string ownersInfo = "owners:";
 
-				foreach (var user in owners)
+				foreach (User user in owners)
 				{
-					var item = user.EmailAddress;
+					string item = user.EmailAddress;
 					ownersInfo += " " + item;
 				}
 
