@@ -17,4 +17,5 @@
 	<Project Path="BackUp.Tests/BackUp.Tests.csproj" />
 	<Project Path="LoggingFoundation/LoggingService/LoggingService.csproj" />
 
+	<Project Path="LoggingFoundation/LoggingService.Tests/LoggingService.Tests.csproj" />
 </Solution>
