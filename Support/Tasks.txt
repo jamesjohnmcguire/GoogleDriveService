@@ -72,3 +72,61 @@ Implement https://stackoverflow.com/questions/50416340/how-to-find-the-whole-hie
 Retry	The service drive has thrown an exception: Google.GoogleApiException: Google.Apis.Requests.RequestError	Internal Error [500]	Google.GoogleApiException	retry
 Set configuration directory as command line parameter
 Handle? System.Net.Http.HttpRequestException: No such host is known. (www.googleapis.com:443)
+
+HIGH PRIORITY - Portability (recorded 2026-10-14)
+[P1][Bug][Open] Make application paths consistent across Windows, macOS, Linux.
+Schedule next, before adding further storage providers.
+
+Confirmed issues:
+- Configuration.cs and AccountsManager.cs embed Windows path separators.
+- GoogleServiceAccount.cs concatenates a backslash before credential filenames.
+- Review commands and backup startup construct default paths differently.
+- Review commands use GetFolderPath without DoNotVerify; a missing application
+  data base directory can produce an empty result and a relative default path.
+
+Implementation and acceptance criteria:
+- Share platform-aware application path resolution in BackUp.Library.
+- Use Path.Combine with separate components for configuration, credentials,
+  settings, and logs. Preserve current Windows locations.
+- Keep path resolution free of directory creation; create directories only
+  where needed during normal operation. Review commands must remain read-only.
+- Define and document environment-variable and tilde handling in user paths;
+  do not assume that %APPDATA% maps to the home directory on other platforms.
+- Add regression tests before fixes, including missing base directories,
+  spaces, Unicode, and consistent review/backup path resolution.
+- Extend build/test CI to Windows, Linux, and macOS. Use synthetic fixtures;
+  no live credentials or cloud backup operations in automated tests.
+- Check remaining filesystem assumptions (case sensitivity, links, separators)
+  and record any additional defects separately.
+- Update platform guidance once verified; distinguish local test coverage from
+  actual provider integration testing on each operating system.
+
+Status: Open. Implementation not yet started.
+
+CommandLine.Commands - Additional validation (recorded 2026-10-15)
+[Enhancement][Open] Extend CommandLineInstance in the CommandLineCommands repo.
+
+Current package (1.5.22) validates commands, options, required option values,
+and minimum positional counts. BackUpManager additionally checks exact counts
+and rejects blank paths. Avoid duplicating these rules as applications grow.
+
+Proposed design:
+- Add an optional validation callback, supplied before parsing begins.
+- Suggested signature: bool CommandValidator(Command command, out string error).
+- Invoke it once, only after built-in parsing and validation succeed.
+- Incorporate its result into ValidArguments and ErrorMessage so callers use
+  one validation result. Preserve existing behavior when no callback is supplied.
+- Support named methods; callers should not need lambdas or subclasses.
+- Prefer a callback initially. Revisit virtual overrides only for a concrete
+  inheritance requirement; avoid calling overridable methods from constructors.
+- Add declarative maximum/exact positional counts and configurable blank-value
+  rules for common constraints, reserving callbacks for application semantics.
+
+Verification and adoption:
+- Test callback acceptance/rejection, error propagation, invocation count,
+  built-in failures bypassing the callback, and compatibility without a callback.
+- Test argument-count boundaries and empty/whitespace values.
+- Update package documentation and publish a version before adopting it here.
+- Then remove equivalent application checks, retaining command-routing tests.
+
+Status: Proposal only. No CommandLine.Commands package changes made.
