@@ -2,24 +2,21 @@
 	{
 		"AccountType": "GoogleServiceAccount",
 		"AccountIdentifier": "SomebodyServiceAccount.json",
-		"DriveMappings":
-		[
+		"DriveMappings": [
 			{
 				"DriveParentFolderId": "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX",
-				"Path": "%USERPROFILE%/",
-				"Excludes":
-				[
+				"Path": "C:/Users/Example/Data",
+				"Excludes": [
 					{
-						"Path": "%USERPROFILE%/InstanceData",
-						"ExcludeType": 0
+						"Path": "Temp",
+						"KeepOnRemote": false,
+						"Reason": "Temporary files"
 					},
 					{
-						"Path": "%USERPROFILE%/Temp",
-						"ExcludeType": 1
-					},
-					{
-						"Path": "%USERPROFILE%/SomeBigTemporaryFile.tmp",
-						"ExcludeType": 2
+						"Path": "Projects/Example",
+						"KeepOnRemote": true,
+						"Reason": "Source is pushed to a Git remote",
+						"Protection": "GitRemote"
 					}
 				]
 			}

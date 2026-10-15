@@ -9,7 +9,6 @@
 namespace BackUpManager;
 
 using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
 using DigitalZenWorks.BackUp.Library;
@@ -33,63 +32,16 @@ internal static class Program
 	/// <returns>A task indicating completion.</returns>
 	public static async Task Main(string[] arguments)
 	{
-		try
+		CommandLineInstance commandLine = Commands.Parse(arguments);
+		bool isValid = Commands.ValidateCommand(commandLine, out string error);
+
+		if (isValid == false)
 		{
-			using ServiceProvider serviceProvider = ConfigureServices();
-
-			Microsoft.Extensions.Logging.ILogger logger =
-				serviceProvider.GetRequiredService<ILogger<BackUpService>>();
-
-			string version = VersionSupport.GetVersion();
-
-			logger.Info($"Starting Back Up Manager Version: {version}");
-
-			IList<Command> commands = Commands.GetCommands();
-
-			arguments = Commands.UpdateArguments(commands, arguments);
-
-			CommandLineInstance commandLine = new(commands, arguments);
-
-			if (commandLine.ValidArguments == false)
-			{
-				logger.Error(commandLine.ErrorMessage);
-				commandLine.ShowHelp();
-			}
-			else
-			{
-				Command command = commandLine.Command;
-				logger.Info($"Command is: {command.Name}");
-
-				switch (command.Name)
-				{
-					case "backup":
-						BackUpService backUpService =
-							serviceProvider.GetService<BackUpService>();
-
-						ConfigureServiceSettings(backUpService, command);
-
-						string configurationFile =
-							Configuration.GetConfigurationFile(command);
-
-						await backUpService.BackUp(configurationFile).
-							ConfigureAwait(false);
-						break;
-					case "help":
-						Commands.ShowHelp();
-						commandLine.ShowHelp();
-						break;
-				}
-			}
+			ProcessError(arguments, error);
 		}
-		catch (Exception exception)
+		else
 		{
-			Log.Error(exception.ToString());
-
-			throw;
-		}
-		finally
-		{
-			await Log.CloseAndFlushAsync().ConfigureAwait(false);
+			await RunCommand(commandLine).ConfigureAwait(false);
 		}
 	}
 
@@ -130,5 +82,79 @@ internal static class Program
 		bool ignoreAbandoned = command.DoesOptionExist(
 			"i", "ignore-abandoned");
 		backUpService.IgnoreAbandoned = ignoreAbandoned;
+	}
+
+	private static void ProcessError(
+		string[] arguments, string error)
+	{
+		bool json = Commands.ProcessJson(arguments);
+
+		CommandExitCode exitCode = ConfigurationCommands.WriteArgumentError(
+			Console.Out, error, json);
+		Environment.ExitCode = (int)exitCode;
+
+		if (json == false)
+		{
+			Commands.ShowHelp();
+		}
+	}
+
+	private static async Task ProcessBackup(Command command)
+	{
+		try
+		{
+			using ServiceProvider serviceProvider = ConfigureServices();
+
+			Microsoft.Extensions.Logging.ILogger logger =
+				serviceProvider.GetRequiredService<ILogger<BackUpService>>();
+
+			string version = VersionSupport.GetVersion();
+
+			logger.Info($"Starting Back Up Manager Version: {version}");
+			logger.Info($"Command is: {command.Name}");
+
+			BackUpService backUpService =
+				serviceProvider.GetService<BackUpService>();
+			ConfigureServiceSettings(backUpService, command);
+
+			string configurationFile =
+				Configuration.GetConfigurationFile(command);
+			await backUpService.BackUp(configurationFile).ConfigureAwait(false);
+			Environment.ExitCode = (int)CommandExitCode.Success;
+		}
+		catch (Exception exception)
+		{
+			Log.Error(exception.ToString());
+
+			throw;
+		}
+		finally
+		{
+			await Log.CloseAndFlushAsync().ConfigureAwait(false);
+		}
+	}
+
+	private static async Task RunCommand(CommandLineInstance commandLine)
+	{
+		Command command = commandLine.Command;
+
+		switch (command.Name)
+		{
+			case "backup":
+				await ProcessBackup(command).ConfigureAwait(false);
+				break;
+			case "validate":
+			case "explain":
+				CommandExitCode exitCode = ConfigurationCommands.Run(
+					command, Console.Out);
+				Environment.ExitCode = (int)exitCode;
+				break;
+			case "help":
+				Commands.ShowHelp();
+				Environment.ExitCode = (int)CommandExitCode.Success;
+				break;
+			default:
+				break;
+		}
 	}
 }

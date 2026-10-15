@@ -8,7 +8,6 @@ namespace DigitalZenWorks.BackUp.Library;
 
 using System;
 using System.Collections.Generic;
-using System.IO;
 using Microsoft.Extensions.Logging;
 
 #nullable enable
@@ -80,44 +79,12 @@ public abstract class BaseService(
 	{
 		bool processItem = false;
 
-		ArgumentNullException.ThrowIfNull(path);
+		TraversalItemResponse status =
+			PathSelection.Evaluate(path, excludes, out _);
 
-		bool exists = File.Exists(path) || Directory.Exists(path);
-
-		if (exists == true)
+		if (status == TraversalItemResponse.Selected)
 		{
-			bool isSymLink = IsSymLink(path);
-
-			if (isSymLink == false)
-			{
-				if (excludes == null)
-				{
-					// An awkward and unlikely edge case, but if excludes
-					// is null, then we should process the item.
-					processItem = true;
-				}
-				else
-				{
-					bool isMatch = false;
-
-					foreach (Exclude exclude in excludes)
-					{
-						bool itemCheck =
-							TraversalContext.IsExcludeMatch(path, exclude);
-
-						if (itemCheck == true)
-						{
-							isMatch = true;
-							break;
-						}
-					}
-
-					if (isMatch == false)
-					{
-						processItem = true;
-					}
-				}
-			}
+			processItem = true;
 		}
 
 		return processItem;
@@ -174,21 +141,5 @@ public abstract class BaseService(
 		}
 
 		return exclude;
-	}
-
-	private static bool IsSymLink(string path)
-	{
-		bool isSymLink = false;
-		DirectoryInfo directoryInfo = new(path);
-
-		bool hasReparsePoint =
-			directoryInfo.Attributes.HasFlag(FileAttributes.ReparsePoint);
-
-		if (hasReparsePoint == true || directoryInfo.LinkTarget != null)
-		{
-			isSymLink = true;
-		}
-
-		return isSymLink;
 	}
 }

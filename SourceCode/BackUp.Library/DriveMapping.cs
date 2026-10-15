@@ -145,6 +145,11 @@ public class DriveMapping
 			foreach (string match in matchingFiles)
 			{
 				Exclude exclude = new(match, originalExclude.KeepOnRemote);
+				exclude.Reason = originalExclude.Reason;
+				exclude.Protection = originalExclude.Protection;
+				exclude.ConfigurationLocation =
+					originalExclude.ConfigurationLocation;
+
 				newExcludes.Add(exclude);
 			}
 		}

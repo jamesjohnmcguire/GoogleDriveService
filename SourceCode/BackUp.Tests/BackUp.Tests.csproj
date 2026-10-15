@@ -32,6 +32,8 @@
 
 	<ItemGroup>
 		<ProjectReference Include="..\BackUp.Library\DigitalZenWorks.BackUp.Library.csproj" />
+		<ProjectReference Include="../BackUp.Reporting/BackUp.Reporting.csproj" />
+		<ProjectReference Include="..\BackUpManager\BackUpManager.csproj" />
 	</ItemGroup>
 
 	<ItemGroup>

@@ -79,8 +79,13 @@ public class TraversalContext
 		{
 			expandedExcludes = new List<Exclude>(baseExcludes);
 
+			int index = 0;
+
 			foreach (string template in globalTemplates)
 			{
+				string location = $"Settings.GlobalExcludes[{index}]";
+				index++;
+
 				string? normalizedPath = NormalizePath(template, currentPath);
 
 				if (normalizedPath == null)
@@ -89,6 +94,7 @@ public class TraversalContext
 				}
 
 				Exclude exclude = new(normalizedPath, false);
+				exclude.ConfigurationLocation = location;
 
 				expandedExcludes.Add(exclude);
 			}

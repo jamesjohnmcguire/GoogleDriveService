@@ -24,4 +24,14 @@ public class Exclude(string? path, bool keepOnRemote)
 	/// </summary>
 	/// <value>The value indicating whether to keep on remote property.</value>
 	public bool KeepOnRemote { get; set; } = keepOnRemote;
+
+	/// <summary>Gets or sets the reason for intentional exclusion.</summary>
+	public string? Reason { get; set; }
+
+	/// <summary>Gets or sets the declared alternative protection.</summary>
+	public string? Protection { get; set; }
+
+	/// <summary>Gets or sets the diagnostic location of this rule.</summary>
+	[Newtonsoft.Json.JsonIgnore]
+	internal string ConfigurationLocation { get; set; } = string.Empty;
 }
