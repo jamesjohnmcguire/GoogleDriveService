@@ -4,7 +4,31 @@ This is basically a program to back up your files.
 
 Currently, it uses Google Drive, with out the need of a 'Google Drive' folder.   It uses Google Service Accounts, so that it doesn't need to be prompted for authorization each time it is run.  Furthermore, you can customize the back up process.
 
-It depends on a main configuration file called BackUp.json located in %AppData%\DigitalZenWorks\BackUpManager or home/.config/BackUpManager.  Currently, you need to put this file there, as well as the service account files, yourself.  It will the format like the following:
+The main configuration file is `BackUp.json`. Place it and your service-account
+credential files in the application data directory:
+
+| Platform | Default directory |
+| --- | --- |
+| Windows | `%APPDATA%\DigitalZenWorks\BackUpManager` |
+| Linux | `$XDG_CONFIG_HOME/DigitalZenWorks/BackUpManager`, or `~/.config/DigitalZenWorks/BackUpManager` |
+| macOS | `~/Library/Application Support/DigitalZenWorks/BackUpManager` |
+
+The application uses .NET's platform-specific `ApplicationData` location.
+See [the .NET macOS folder behavior](https://learn.microsoft.com/en-us/dotnet/core/compatibility/core-libraries/8.0/getfolderpath-unix).
+`Settings.json` and `BackUp.log` use this same directory.
+An explicit `--config` path changes only the configuration file, not the
+credential or settings directory. Use native paths for each operating system.
+The program does not expand `~` in JSON or in the `--config` argument.
+Shell expansion happens before the program receives command-line arguments;
+prefer absolute paths when in doubt. JSON source and exclusion paths expand
+existing environment variables using .NET's `%NAME%` syntax; variable names
+such as `USERPROFILE` are platform-specific.
+
+Windows path concatenation has been replaced with platform-aware joins.
+The CI matrix covers Windows, Linux, and macOS; live cloud backup operation
+on each platform requires separate integration verification.
+
+Configuration example:
 
 ```json
 [
@@ -46,7 +70,7 @@ The json fields contain the following information:
 | AccountIdentifier   | A service specific identifier.  For Google service    |
 |                     | accounts, this will be the name of the json           |
 |                     | authorization file.  This file needs to be in the     |
-|                     | same location as the main configuration file.  This   |
+|                     | default application data directory. This             |
 |                     | can be obtained from the Google Developer Console     |
 |                     |  Credentials page.                                    |
 | DriveMappings       | A list (array) of directories to back up.  Each one   |
