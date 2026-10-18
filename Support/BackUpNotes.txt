@@ -466,3 +466,27 @@ Logging
 
 	https://github.com/jamesjohnmcguire/LoggingFoundation
 	LoggingFoundatation
+Inbox
+	Default Usage:
+		BackUpManager --ignore-abandoned --config C:\Users\JamesMc\AppData\Roaming\DigitalZenWorks\BackUpManager\BackUp.json
+
+	codex resume 01a1269a-92fc-7f91-bf14-c3be87caebff
+
+	There is a portability issue: existing configuration and credential lookup code appends hard-coded backslashes. Those need replacing with Path.Combine before claiming reliable backup operation on macOS/Linux.
+
+	For ongoing tracking, I recommend GitHub Issues. They handle bugs, features, maintenance, documentation, and investigation work, with discussions and links to PRs. GitHub’s overview
+
+	A lightweight setup would be:
+
+	- Category labels: bug, enhancement, maintenance, documentation, investigation.
+	- Priority labels: P1-high, P2-normal, P3-low.
+	- Each issue: problem or objective, proposed scope, and acceptance checklist.
+	- Milestones: group work intended for a release.
+	- Optional Project board: Backlog → Ready → In progress → In review → Done.
+
+	If you prefer tracking everything in Git, TODO.md or BACKLOG.md with Markdown checkboxes is a straightforward improvement over plain text. ROADMAP.md is better for broad direction than individual defects.
+
+	My preference here: Issues as the authoritative backlog, migrating actionable entries from Tasks.txt gradually. Some existing entries appear historical, so they should be checked before migration.
+
+
+	codex resume 01a1269a-92fc-7f91-bf14-c3be87caebff

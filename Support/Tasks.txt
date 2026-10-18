@@ -1,3 +1,4 @@
+Clean Up Tasks	Particulary Merge New Tasks with Existing Tasks
 Fix logging - JraVanExtensions\SourceCode\â\ü[âXâvâìâOâëâÇ\Umakichi\Help\Screen\2600_RC.htm
 Fix Rotating Log Specifying New Day Every Time for Log File
 Excludes	Upon ShouldProcessItem(path, excludes); being false, it should immediately check, and possibly remove item from server
@@ -101,7 +102,16 @@ Implementation and acceptance criteria:
 - Update platform guidance once verified; distinguish local test coverage from
   actual provider integration testing on each operating system.
 
-Status: Open. Implementation not yet started.
+Status: Path construction fixed on development (2026-10-15).
+- Added shared ApplicationPaths resolution using DoNotVerify and Path.Combine.
+- Updated configuration, settings, credentials, and abandoned-folder matching.
+- Windows verification: 103 tests passed; only existing parentId warning.
+- Added Windows/Linux/macOS CI matrix; macOS execution remains pending.
+- WSL Ubuntu: installed SDK 10.0.402 alongside 8.0.425 and fixed login PATH.
+  All 103 Linux tests passed with isolated build outputs; existing warning only.
+- When merging the reporting feature, replace its separate GetDataDirectory
+  implementation with ApplicationPaths.GetDataDirectory.
+- Broader filesystem portability audit and live provider checks remain open.
 
 CommandLine.Commands - Additional validation (recorded 2026-10-15)
 [Enhancement][Open] Extend CommandLineInstance in the CommandLineCommands repo.
@@ -130,3 +140,18 @@ Verification and adoption:
 - Then remove equivalent application checks, retaining command-routing tests.
 
 Status: Proposal only. No CommandLine.Commands package changes made.
+
+Coding preference (2026-10-15):
+- Store File.Exists/Directory.Exists results in named bool variables, then
+  test those variables in separate statements. Apply when touching such code.
+
+Log File Name Being Processed When Exception happens
+Add Build Date to Version Stamp
+Optimize 	protected void RemoveExcludedItems(
+The library also has an older Initialize API that owns a logger without exposing a way to dispose it. I’ll leave that lifecycle issue outside this first test set and note it for review.
+Lock and Repeat Hell - Fix
+
+There is a portability issue: existing configuration and credential lookup code appends hard-coded backslashes. Those need replacing with Path.Combine before claiming reliable backup operation on macOS/Linux.
+For ongoing tracking, I recommend GitHub Issues. They handle bugs, features, maintenance, documentation, and investigation work, with discussions and links to PRs. GitHub’s overview
+ShowHelp Refactor Inner Functionality to GetVersionText
+CommandLineInstance Needs to be virtual and allow overrides, especially for validation
