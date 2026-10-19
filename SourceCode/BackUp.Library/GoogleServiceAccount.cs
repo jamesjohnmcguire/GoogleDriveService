@@ -215,6 +215,26 @@ public class GoogleServiceAccount
 		return removedFilesCount;
 	}
 
+	/// <summary>Finds a credential file without reading its contents.</summary>
+	/// <param name="directory">The credential directory.</param>
+	/// <param name="fileName">The credential filename.</param>
+	/// <returns>The existing file path, or null.</returns>
+	internal static string FindCredentialFile(
+		string directory, string fileName)
+	{
+		string result = null;
+
+		string path = Path.Combine(directory, fileName);
+		bool exists = System.IO.File.Exists(path);
+
+		if (exists == true)
+		{
+			result = path;
+		}
+
+		return result;
+	}
+
 	/// <summary>
 	/// Synchronizes the specified local directory with its corresponding
 	/// Google Drive folder based on the provided drive mapping configuration.
@@ -627,19 +647,13 @@ public class GoogleServiceAccount
 
 		try
 		{
-			string userProfilePath = Environment.GetFolderPath(
-				Environment.SpecialFolder.UserProfile);
 			string accountsPath = AccountsManager.DataPath;
+			bool directoryExists = System.IO.Directory.Exists(accountsPath);
 
-			if (System.IO.Directory.Exists(accountsPath))
+			if (directoryExists == true)
 			{
-				string accountsFile =
-					accountsPath + @"\" + Account.AccountIdentifier;
-
-				if (System.IO.File.Exists(accountsFile))
-				{
-					serviceAccountJsonFile = accountsFile;
-				}
+				serviceAccountJsonFile = FindCredentialFile(
+					accountsPath, Account.AccountIdentifier);
 			}
 		}
 		catch (Exception exception) when
@@ -667,7 +681,7 @@ public class GoogleServiceAccount
 				"application/vnd.google-apps.folder",
 				StringComparison.Ordinal))
 			{
-				string folderPath = path + @"\" + file.Name;
+				string folderPath = Path.Combine(path, file.Name);
 
 				bool exists = subDirectories.Any(element => element.Equals(
 						folderPath, StringComparison.Ordinal));

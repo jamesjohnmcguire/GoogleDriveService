@@ -6,8 +6,8 @@
 
 namespace BackUpManager;
 
-using System;
 using System.IO;
+using DigitalZenWorks.BackUp.Library;
 using DigitalZenWorks.CommandLine.Commands;
 
 /// <summary>
@@ -51,19 +51,8 @@ internal static class Configuration
 	/// otherwise, <see langword="null"/>.</returns>
 	public static string GetDefaultConfigurationFile()
 	{
-		string configurationFile = null;
-
 		string accountsPath = GetDefaultDataLocation();
-
-		// Will use existing directory or create it.
-		Directory.CreateDirectory(accountsPath);
-
-		string accountsFile = accountsPath + @"\BackUp.json";
-
-		if (File.Exists(accountsFile))
-		{
-			configurationFile = accountsFile;
-		}
+		string configurationFile = FindConfigurationFile(accountsPath);
 
 		return configurationFile;
 	}
@@ -79,16 +68,29 @@ internal static class Configuration
 	/// application data folder.</returns>
 	public static string GetDefaultDataLocation()
 	{
-		string baseDataDirectory = Environment.GetFolderPath(
-			Environment.SpecialFolder.ApplicationData,
-			Environment.SpecialFolderOption.Create);
-
-		const string applicationDataDirectory =
-			@"DigitalZenWorks\BackUpManager";
-
-		string defaultDataLocation =
-			Path.Combine(baseDataDirectory, applicationDataDirectory);
+		string defaultDataLocation = ApplicationPaths.GetDataDirectory();
 
 		return defaultDataLocation;
+	}
+
+	/// <summary>Finds the configuration in the supplied data directory.</summary>
+	/// <param name="accountsPath">The application data directory.</param>
+	/// <returns>The existing configuration path, or null.</returns>
+	internal static string FindConfigurationFile(string accountsPath)
+	{
+		string configurationFile = null;
+
+		// Will use existing directory or create it.
+		Directory.CreateDirectory(accountsPath);
+
+		string accountsFile = Path.Combine(accountsPath, "BackUp.json");
+		bool exists = File.Exists(accountsFile);
+
+		if (exists == true)
+		{
+			configurationFile = accountsFile;
+		}
+
+		return configurationFile;
 	}
 }

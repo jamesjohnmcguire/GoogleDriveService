@@ -6,7 +6,6 @@
 
 namespace DigitalZenWorks.BackUp.Library;
 
-using System;
 using System.IO;
 using Newtonsoft.Json;
 
@@ -37,12 +36,7 @@ public class SettingsManager
 	{
 		if (string.IsNullOrEmpty(settingsPath))
 		{
-			string baseDataDirectory = Environment.GetFolderPath(
-				Environment.SpecialFolder.ApplicationData,
-				Environment.SpecialFolderOption.Create);
-			this.settingsPath = Path.Combine(
-				baseDataDirectory,
-				"DigitalZenWorks/BackUpManager/Settings.json");
+			this.settingsPath = ApplicationPaths.GetFilePath("Settings.json");
 		}
 		else
 		{

@@ -6,7 +6,6 @@
 
 namespace DigitalZenWorks.BackUp.Library;
 
-using System;
 using System.Collections.Generic;
 using System.IO;
 using LoggingService;
@@ -18,8 +17,6 @@ using Newtonsoft.Json;
 /// </summary>
 public static class AccountsManager
 {
-	private const string InternalDataPath = @"\DigitalZenWorks\BackUpManager";
-
 	/// <summary>
 	/// Gets data path property.
 	/// </summary>
@@ -28,10 +25,7 @@ public static class AccountsManager
 	{
 		get
 		{
-			string baseDataDirectory = Environment.GetFolderPath(
-				Environment.SpecialFolder.ApplicationData,
-				Environment.SpecialFolderOption.Create);
-			string accountsPath = baseDataDirectory + InternalDataPath;
+			string accountsPath = ApplicationPaths.GetDataDirectory();
 			return accountsPath;
 		}
 	}
