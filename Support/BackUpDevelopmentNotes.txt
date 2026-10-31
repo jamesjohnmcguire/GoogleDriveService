@@ -490,3 +490,25 @@ Inbox
 
 
 	codex resume 01a1269a-92fc-7f91-bf14-c3be87caebff
+OneDrive Prototype
+	The generated code is in these review folders:
+
+	  • Trajectory A — Gemini: reviews/backup-manager-onedrive/a (reviews/backup-manager-onedrive/a)
+	  • Trajectory B — Shrike: reviews/backup-manager-onedrive/b (reviews/backup-manager-onedrive/b)
+	  • Extra Gemini rollout: reviews/backup-manager-onedrive/extra (reviews/backup-manager-onedrive/extra)
+
+	Before merging, I’d review and test:
+
+	  • Personal OneDrive sign-in, token persistence, and an unattended second run.
+	  • Real uploads, updates, large-file uploads, exclusions, and remote deletion using disposable data.
+	  • Google Drive behavior after the shared traversal refactor.
+	  • Dependency versions, public API changes, and credential-storage documentation.
+
+	  Our checks used mocked cloud services, so they don’t establish live integration reliability.
+
+	  Apply B’s original patch to a branch based on the pinned commit:
+
+	  Trajectory B patch.diff (jobs/backup-manager-onedrive-main/backup-manager-onedrive__qynjCHe/artifacts/patch.diff)
+
+	  That avoids copying our temporary reviewer tests into your repository. The filename-case regression test would be
+	  useful to retain deliberately.
